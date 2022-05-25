@@ -1,0 +1,1576 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module pydsm2hydro
+interface
+    module chnlcomp ! in chnlcomp.f90
+        use network
+        integer, save :: totalcomplocations
+        integer, save, dimension((maxchannels)) :: numberofcomplocations
+        integer, save, dimension((maxchannels)) :: upcomppointer
+        integer, save, dimension((maxchannels)) :: downcomppointer
+        real*8, save, dimension((maxlocations)) :: complocation
+        real*8, save, dimension((maxlocations)) :: channelno
+        real*8, save, dimension((maxlocations)) :: dummyarray
+        real*8, save, dimension((maxlocations)) :: dummyarray2
+        real*8, save, dimension((maxchannels), 30) :: areachannelcomp
+        character, save, dimension((maxlocations), 16), intent(c) :: dummychararray
+    end module chnlcomp
+    module chinitcd ! in chinitcd.f90
+        use network
+        integer, save, dimension((maxchannels)) :: channelnumber
+        integer, save, dimension((maxchannels)) :: locations
+        integer, save, dimension((maxchannels)) :: firstlocation
+        integer, save, dimension((maxchannels)) :: nuserinitlocations
+        integer, save, dimension((maxchannels)) :: initialconditionindex
+        real*8, save, dimension((maxlocations)) :: initialx
+        real*8, save, dimension((maxlocations)) :: initialws
+        real*8, save, dimension((maxlocations)) :: initialq
+        logical, save :: initcndinitialized
+    end module chinitcd
+    module common_tide ! in common_tide.f90
+        use type_defs
+        use constants
+        use grid_data
+        use network, only: maxlocations
+        integer, parameter, optional :: max_tide_files = 12
+        integer :: nintides
+        integer :: dim_res_tf
+        integer :: dim_chan_tf
+        integer :: n_res_tf
+        integer :: n_chan_tf
+        integer :: current_tidefile
+        character*21 :: chead
+        ! type(tidefile_t) dimension(13) :: tide_files
+        real*4 dimension(2, (max_channels)) :: zchan
+        real*4 dimension(2, (max_channels)) :: hchan
+        real*4 dimension(2, (max_channels)) :: achan
+        real*4 dimension(2, (max_channels)) :: hchanprev
+        real*4 dimension(2, (max_channels)) :: achanprev
+        real*4 dimension((max_channels)) :: achan_avg
+        real*4 dimension(2, (max_channels)) :: qchan
+        real*4 dimension((max_reservoirs)) :: eresv
+        real*4 dimension(1000) :: tempqextav
+        real*4 dimension((maxlocations)) :: qcp
+        real*4 dimension((maxlocations)) :: zcp
+        real*4, allocatable, dimension(:) :: qresv(:)
+        real*4, allocatable, dimension(:) :: inst_qresv
+        real*4 dimension((max_qext)) :: inst_qext
+        real*4 dimension((max_obj2obj)) :: inst_obj2obj
+        integer*4 :: tidetime
+        integer*4 :: next_hydro_interval
+        real*8 dimension((max_channels)) :: qchnet
+        integer :: tidefilewriteinterval
+        integer :: nsample
+    end module common_tide
+    module network ! in network.f90
+        integer, parameter, optional :: maxchannels = 800
+        integer, parameter, optional :: maxnres = 100
+        integer, parameter, optional :: maxconnectingchannels = 5
+        integer, parameter, optional :: maxngate = 300
+        integer, parameter, optional, depend(maxchannels) :: maxnodes = 810
+        integer, parameter, optional :: maxresconnectchannel = 50
+        integer, save :: numch
+        integer, save :: branch
+        integer, parameter, optional :: maxlocations = 25000
+        integer, parameter, optional :: maxquadpts = 3
+    end module network
+    module physicalconstants ! in physical_constants.f90
+        real*8, save :: gravity
+        real*8, save :: sqrt2g
+        real*8, parameter, optional :: pi = 3.14159265358979
+        function verify_gravity_terms() ! in physical_constants.f90:physicalconstants
+            use io_units
+            logical :: verify_gravity_terms
+        end function verify_gravity_terms
+    end module physicalconstants
+    module netcntrl_common ! in netcntrl_common.f90
+        use network
+        real*8, save, optional :: theta = 0.6d0
+        integer, save :: terms
+        real*8, save, optional :: toleranceq = 0.0005
+        real*8, save, optional :: tolerancez = 0.0005
+        logical, save, optional :: variablesinuosity = .false.
+        logical, save, optional :: variabledensity = .false.
+        integer, save, optional :: maxiterations = 50
+        integer, save, optional :: luinc = 1
+        real*8, save, dimension((maxquadpts)) :: quadpt
+        real*8, save, dimension((maxquadpts)) :: quadwt
+    end module netcntrl_common
+    module inclvars ! in hdf5_modules.f90
+        use type_defs
+    end module inclvars
+    module hdfvars ! in hdf5_modules.f90
+        use hdf5
+        use iopath_data, only: output_inst
+        integer :: hdf5point
+        integer :: hdf5length
+        integer(kind=hid_t), save :: file_id
+        integer(kind=hid_t), save :: hydro_id
+        integer(kind=hid_t), save :: geom_id
+        integer(kind=hid_t), save :: data_id
+        integer(kind=hid_t) :: in_dset_id
+        integer(kind=hsize_t) dimension(1) :: in_dims
+        integer(kind=hid_t) :: cg_dset_id
+        integer(kind=hsize_t), optional, dimension(2) :: cg_dims = (/0, 0/)
+        integer(kind=hid_t) :: ng_dset_id
+        integer(kind=hsize_t), optional, dimension(2) :: ng_dims = (/0, 0/)
+        integer(kind=hid_t) :: rg_dset_id
+        integer(kind=hsize_t), optional, dimension(2) :: rg_dims = (/0, 0/)
+        integer(kind=hid_t) :: bname_dset_id
+        integer(kind=hsize_t), optional, dimension(1) :: bname_dims = (/0/)
+        integer(kind=hid_t) :: bnode_dset_id
+        integer(kind=hsize_t), optional, dimension(1) :: bnode_dims = (/0/)
+        integer(kind=hsize_t), parameter, optional :: chanflowidx = 0
+        integer(kind=hsize_t), parameter, optional :: chanstageidx = 2
+        integer(kind=hsize_t), parameter, optional :: chanxsectidx = 4
+        integer(kind=hsize_t), parameter, optional :: chanavgxsectidx = 6
+        integer(kind=hsize_t), optional :: resheightidx = 0
+        integer(kind=hsize_t), optional :: resflowidx = 1
+        integer(kind=hsize_t), optional :: int2extidx = 0
+        integer(kind=hsize_t), optional :: bottom_elidx = 0
+        character(len=150) :: hdf5_hydrofile
+        integer :: h5_time_start
+        integer :: h5_time_interval
+        logical, optional :: h5_file_exists = .false.
+        integer, parameter, optional :: hdf_szip_pixels_per_block = 16
+        integer, parameter, optional, depend(hdf_szip_pixels_per_block) :: time_chunk = 16
+        integer, parameter, optional, depend(time_chunk) :: min_steps_for_chunking = hdfszippixelsper
+        integer(kind=hid_t) :: t_filespace
+        integer(kind=hid_t) :: t_memspace
+        integer(kind=hid_t) :: chan_z_dset_id
+        integer(kind=hid_t) :: chan_z_fspace_id
+        integer(kind=hid_t) :: chan_q_dset_id
+        integer(kind=hid_t) :: chan_q_fspace_id
+        integer(kind=hid_t) :: chan_a_dset_id
+        integer(kind=hid_t) :: chan_a_fspace_id
+        integer(kind=hid_t) :: chan_aa_dset_id
+        integer(kind=hid_t) :: chan_aa_fspace_id
+        integer(kind=hid_t) :: cp_z_dset_id
+        integer(kind=hid_t) :: cp_z_fspace_id
+        integer(kind=hid_t) :: cp_q_dset_id
+        integer(kind=hid_t) :: cp_q_fspace_id
+        integer, optional :: chan_aa_mdata_rank = 1
+        integer, optional :: chan_a_mdata_rank = 2
+        integer, optional :: chan_q_mdata_rank = 2
+        integer, optional :: chan_z_mdata_rank = 2
+        integer, optional :: cp_z_mdata_rank = 1
+        integer, optional :: cp_q_mdata_rank = 1
+        integer, optional :: chan_aa_fdata_rank = 2
+        integer, optional :: chan_z_fdata_rank = 3
+        integer, optional :: chan_a_fdata_rank = 3
+        integer, optional :: chan_q_fdata_rank = 3
+        integer, optional :: cp_z_fdata_rank = 2
+        integer, optional :: cp_q_fdata_rank = 2
+        integer(kind=hsize_t), optional, dimension(1) :: chan_aa_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: chan_a_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: chan_z_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: chan_q_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: cp_z_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: cp_q_mdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: chan_aa_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: chan_aa_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_a_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_a_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_z_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_z_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_q_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(3) :: chan_q_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: cp_z_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: cp_z_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: cp_q_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: cp_q_fsubset_dims = 0
+        integer(kind=hid_t) :: chan_aa_memspace
+        integer(kind=hid_t) :: chan_a_memspace
+        integer(kind=hid_t) :: chan_z_memspace
+        integer(kind=hid_t) :: chan_q_memspace
+        integer(kind=hid_t) :: cp_z_memspace
+        integer(kind=hid_t) :: cp_q_memspace
+        integer(kind=hid_t), optional :: res_h_dset_id = 0
+        integer(kind=hid_t), optional :: res_q_dset_id = 0
+        integer(kind=hid_t), optional :: res_h_fspace_id = 0
+        integer(kind=hid_t), optional :: res_q_fspace_id = 0
+        integer(kind=hid_t), optional :: res_h_memspace = 0
+        integer(kind=hid_t), optional :: res_q_memspace = 0
+        integer, parameter, optional :: res_h_fdata_rank = 2
+        integer, parameter, optional :: res_q_fdata_rank = 2
+        integer, parameter, optional :: res_h_mdata_rank = 1
+        integer, parameter, optional :: res_q_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: res_h_fdata_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(2) :: res_q_fdata_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(2) :: res_h_fsubset_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(2) :: res_q_fsubset_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(1) :: res_h_mdata_dims = (/0/)
+        integer(kind=hsize_t), optional, dimension(1) :: res_q_mdata_dims = (/0/)
+        integer(kind=hid_t) :: qext_change_dset_id
+        integer(kind=hid_t) :: qext_fspace_id
+        integer(kind=hid_t) :: qext_memspace
+        integer, parameter, optional :: qext_fdata_rank = 2
+        integer, parameter, optional :: qext_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: qext_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: qext_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: qext_mdata_dims = 0
+        integer(kind=hid_t) :: transfer_dset_id
+        integer(kind=hid_t) :: transfer_fspace_id
+        integer(kind=hid_t) :: transfer_memspace
+        integer, parameter, optional :: transfer_fdata_rank = 2
+        integer, parameter, optional :: transfer_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: transfer_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: transfer_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: transfer_mdata_dims = 0
+        integer(kind=hid_t), optional :: inst_res_q_dset_id = 0
+        integer(kind=hid_t), optional :: inst_res_q_fspace_id = 0
+        integer(kind=hid_t), optional :: inst_res_q_memspace = 0
+        integer, parameter, optional :: inst_res_q_fdata_rank = 2
+        integer, parameter, optional :: inst_res_q_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: inst_res_q_fdata_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(2) :: inst_res_q_fsubset_dims = (/0, 0/)
+        integer(kind=hsize_t), optional, dimension(1) :: inst_res_q_mdata_dims = (/0/)
+        integer(kind=hid_t) :: inst_qext_change_dset_id
+        integer(kind=hid_t) :: inst_qext_fspace_id
+        integer(kind=hid_t) :: inst_qext_memspace
+        integer, parameter, optional :: inst_qext_fdata_rank = 2
+        integer, parameter, optional :: inst_qext_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: inst_qext_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: inst_qext_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: inst_qext_mdata_dims = 0
+        integer(kind=hid_t) :: inst_transfer_dset_id
+        integer(kind=hid_t) :: inst_transfer_fspace_id
+        integer(kind=hid_t) :: inst_transfer_memspace
+        integer, parameter, optional :: inst_transfer_fdata_rank = 2
+        integer, parameter, optional :: inst_transfer_mdata_rank = 1
+        integer(kind=hsize_t), optional, dimension(2) :: inst_transfer_fdata_dims = 0
+        integer(kind=hsize_t), optional, dimension(2) :: inst_transfer_fsubset_dims = 0
+        integer(kind=hsize_t), optional, dimension(1) :: inst_transfer_mdata_dims = 0
+    end module hdfvars
+    module objvars ! in hdf5_modules.f90
+        use hdf5
+        integer(kind=hid_t) :: obj2obj_dset_id
+        integer(kind=hid_t) :: obj_plist_id
+        integer(kind=hid_t) :: obj2obj_type_id
+        integer(kind=hid_t) :: o_name_tid
+        integer(kind=hid_t) :: fo_id_tid
+        integer(kind=hid_t) :: fo_name_tid
+        integer(kind=hid_t) :: fo_num_tid
+        integer(kind=hid_t) :: fo_hychan_tid
+        integer(kind=hid_t) :: fo_accname_tid
+        integer(kind=hid_t) :: fo_accidx_tid
+        integer(kind=hid_t) :: fo_massfrac_tid
+        integer(kind=hid_t) :: fo_coeff_tid
+        integer(kind=hid_t) :: to_id_tid
+        integer(kind=hid_t) :: to_name_tid
+        integer(kind=hid_t) :: to_num_tid
+        integer(kind=hid_t) :: to_hychan_tid
+        integer(kind=hid_t) :: to_accname_tid
+        integer(kind=hid_t) :: to_accidx_tid
+        integer(kind=hid_t) :: to_massfrac_tid
+        integer(kind=hid_t) :: to_coeff_tid
+        integer(kind=hid_t) :: constval_tid
+        integer(kind=hid_t) :: datasrc_type_tid
+        integer(kind=hid_t) :: datasrc_idx_tid
+        integer(kind=hid_t) :: datasrc_val_tid
+        integer(kind=hid_t) :: curq_tid
+        integer(kind=hid_t) :: prevq_tid
+        integer(kind=hid_t) :: avgq_tid
+        integer(kind=hid_t) :: conc_tid
+        integer(kind=size_t) :: type_size
+        integer(kind=size_t) :: type_sizec10
+        integer(kind=size_t) :: type_sizec32
+        integer(kind=size_t) :: type_sizei
+        integer(kind=size_t) :: type_sizer
+    end module objvars
+    module qextvars ! in hdf5_modules.f90
+        use hdf5
+        integer(kind=hid_t) :: qext_dset_id
+        integer(kind=hid_t) :: qext_plist_id
+        integer(kind=hid_t) :: qext_type_id
+        integer(kind=hid_t) :: q_name_tid
+        integer(kind=hid_t) :: q_flow_tid
+        integer(kind=hid_t) :: q_prev_flow_tid
+        integer(kind=hid_t) :: q_avg_tid
+        integer(kind=hid_t) :: q_prev_avg_tid
+        integer(kind=hid_t) :: q_prev_avg_tid
+        integer(kind=hid_t) :: q_dsrc_type_tid
+        integer(kind=hid_t) :: q_dsrc_idx_tid
+        integer(kind=hid_t) :: q_dsrc_val_tid
+        integer(kind=hid_t) :: q_chng_idx_tid
+        integer(kind=hid_t) :: q_obj_name_tid
+        integer(kind=hid_t) :: q_attach_id_tid
+        integer(kind=hid_t) :: q_attach_name_tid
+        integer(kind=hid_t) :: q_attach_num_tid
+        integer(kind=hid_t) :: q_grp_idx_tid
+        integer(kind=hid_t) :: q_mass_frac_tid
+        integer(kind=size_t) :: type_size
+        integer(kind=size_t) :: type_sizec10
+        integer(kind=size_t) :: type_sizec32
+        integer(kind=size_t) :: type_sizei
+        integer(kind=size_t) :: type_sizer
+    end module qextvars
+    module logging ! in logging.f90
+        integer, parameter, optional :: log_error = 0
+        integer, parameter, optional :: log_warning = 1
+        integer, parameter, optional :: log_info = 2
+        integer, parameter, optional :: log_debug = 2
+        integer :: print_level
+    end module logging
+    module gates ! in gates.f90
+        use type_defs
+        use constants
+        integer, parameter, optional :: maxngate = 300
+        integer, parameter, optional :: max_dev = 10
+        integer, parameter, optional, depend(maxngate) :: max_gates = 300
+        integer, save :: ngate
+        integer, parameter, optional :: weir = 1
+        integer, parameter, optional :: pipe = 2
+        integer, parameter, optional :: gate_open = 1
+        integer, parameter, optional :: gate_close = 0
+        integer, parameter, optional :: gate_free = 10
+        integer, parameter, optional :: unidir_to_node = 20
+        integer, parameter, optional :: unidir_from_node = 40
+        integer, parameter, optional :: flow_coef_to_node = 1
+        integer, parameter, optional :: flow_coef_from_node = -1
+        integer, parameter, optional :: flow_coef_to_from_node = 0
+        integer, save, optional :: ntotaldevice = 0
+    end module gates
+    subroutine dsm2_init ! in dsm2_init.f90
+        use groups, only: initgroupall
+        use rate_coeff_assignment, only: initialize_rate_coefficient
+        use io_units, only: unit_output
+        use gates, only: gate_open, gate_free
+        use ifport
+        use constants
+        use logging
+        use runtime_data
+        use iopath_data
+        use grid_data
+        use common_qual
+        use common_ptm
+        use common_tide
+        use network
+        use dss
+        use mod_readdss
+        use mod_writedss
+        use common_xsect, only: allocate_virt_xsect_hq
+    end subroutine dsm2_init
+    module common_ptm ! in common_ptm.f90
+        logical :: ptm_ivert
+        logical :: ptm_itrans
+        logical :: ptm_iey
+        logical :: ptm_iez
+        logical :: ptm_iprof
+        logical :: ptm_igroup
+        logical :: ptm_flux_percent
+        logical :: ptm_group_percent
+        logical :: ptm_flux_cumulative
+        integer :: ptm_random_seed
+        integer :: ptm_time_step
+        integer :: ptm_no_animated
+        real :: ptm_trans_constant
+        real :: ptm_vert_constant
+        real :: ptm_trans_a_coef
+        real :: ptm_trans_b_coef
+        real :: ptm_trans_c_coef
+        integer, optional :: ptm_random_seed_int = 0
+        integer, optional :: ptm_vert_constant_int = 0
+        integer, optional :: ptm_trans_constant_int = 0
+        integer, optional :: ptm_iprof_int = 0
+        integer, optional :: ptm_igroup_int = 0
+        integer, optional :: ptm_ivert_int = 0
+        integer, optional :: ptm_itrans_int = 0
+        integer, optional :: ptm_iey_int = 0
+        integer, optional :: ptm_iez_int = 0
+        integer, optional :: ptm_time_step_int = 0
+        integer, optional :: ptm_trans_a_coef_int = 0
+        integer, optional :: ptm_trans_b_coef_int = 0
+        integer, optional :: ptm_trans_c_coef_int = 0
+        integer, optional :: ptm_flux_percent_int = 0
+        integer, optional :: ptm_group_percent_int = 0
+        integer, optional :: ptm_flux_cumulative_int = 0
+        integer, optional :: ptm_no_animated_int = 0
+        integer, parameter, optional :: max_injection = 2000
+        integer, optional :: npartno = 0
+        integer, optional :: ngroup_outputs = 0
+        ! type(part_injection_t) dimension(2000) :: part_injection
+        integer, parameter, optional :: max_chanres = 600
+        integer :: nchanres
+        integer, optional :: nfilter = 0
+        integer, parameter, optional :: max_filter = 1000
+        ! type(part_filter_t) dimension(1000) :: part_filter
+        ! type part_injection_t ! in common_ptm.f90:common_ptm
+        !     character*16 :: type_bn
+        !     character*16, optional :: slength = ' '
+        !     character*16, optional :: length = ' '
+        !     character*14, optional :: start_date = ' '
+        !     character*2 :: dummy1
+        !     character*14, optional :: end_date = ' '
+        !     character*2 :: dummy2
+        !     integer, optional :: node = 0
+        !     integer, optional :: nparts = 0
+        !     integer*4 :: start_julmin
+        !     integer*4 :: end_julmin
+        !     integer*4 :: length_julmin
+        ! end type part_injection_t
+        ! type part_filter_t ! in common_ptm.f90:common_ptm
+        !     character*16 :: type_f
+        !     character*32 :: name
+        !     integer :: ndx
+        !     integer :: node
+        !     character*32 :: resname
+        !     character*32 :: at_wb
+        !     integer :: at_wb_type
+        !     integer :: at_wb_ndx
+        !     integer :: at_wb_id
+        !     real*8 :: op
+        !     character*8 :: fillin
+        !     character*128 :: filename
+        !     character*392 :: path
+        ! end type part_filter_t
+    end module common_ptm
+    module common_qual ! in common_qual.f90
+        use type_defs
+        use constants
+        use grid_data
+        logical :: mass_tracking
+        logical :: dispersion
+        integer :: nres_conc
+        real*8, optional :: init_conc = miss_val_r
+        integer :: no_of_constituent
+        integer :: no_of_nonconserve_constituent
+        integer :: no_all_source
+        ! type(constituent_t) dimension((max_constituent)) :: constituents
+        integer dimension((max_constituent)) :: nonconserve_ptr
+        integer dimension((max_constituent)) :: all_source_ptr
+        integer dimension((max_constituent)) :: constituent_ptr
+        character, optional, dimension((max_constituent), 20), intent(c) :: nonconserve_list = ' '
+        integer, parameter, optional :: ncoef_type = 10
+        integer :: num_res
+        real*8 dimension((max_constituent), 10, (max_channels)) :: rcoef_chan
+        real*8 dimension((max_constituent), 10, (max_reservoirs)) :: rcoef_res_temp
+        real*8 dimension((max_constituent), 10) :: rcoef
+        real*8 dimension((max_constituent), 10, (max_reservoirs)) :: rcoef_res
+        character dimension((max_reservoirs), 20), intent(c) :: coeff_res_name
+        real*8 :: algaefract_n
+        real*8 :: algaefract_p
+        real*8 :: oxy_photo
+        real*8 :: oxy_resp
+        real*8 :: oxy_nh3
+        real*8 :: oxy_no2
+        real*8 :: alg_chl_ratio
+        real*8 :: pref_factor
+        real*8 :: klight_half
+        real*8 :: knit_half
+        real*8 :: kpho_half
+        real*8 :: lambda0
+        real*8 :: lambda1
+        real*8 :: lambda2
+        real*8 :: alg_bod
+        integer, parameter, optional :: temp_coeff_type = 16
+        real*8 :: elev
+        real*8 :: lat
+        real*8 :: longitude
+        real*8 :: long_std_merid
+        real*8 :: dust_attcoeff
+        real*8 :: evapcoeff_a
+        real*8 :: evapcoeff_b
+        real*8 dimension(16) :: thet
+        real*8 dimension(16) :: thetadj
+        real*8 dimension(16, 81) :: thettbl
+    end module common_qual
+    module groups ! in fixedData.f90:get_waterbody_object_type
+        use constants
+        integer, parameter, optional :: max_groups = 200
+        integer, parameter, optional :: max_member_patterns = 100
+        integer, parameter, optional :: group_all = 0
+        integer, parameter, optional :: group_any_type = -9999
+        integer, parameter, optional :: group_any_index = -9998
+        integer, save :: ngroup
+        ! type(group), save, target, dimension(201) :: grouparray
+        ! type groupmemberpattern ! in fixedData.f90:get_waterbody_object_type:groups
+        !     character*32 :: predicate
+        !     character*32 :: pattern
+        !     integer*4 :: obj_type
+        ! end type groupmemberpattern
+        ! type groupmember ! in fixedData.f90:get_waterbody_object_type:groups
+        !     character*32, optional :: name = miss_val_c
+        !     integer*4, optional :: obj_type = obj_null
+        !     integer*4, optional :: number = miss_val_i
+        !     integer*4, optional :: obj_no = miss_val_i
+        ! end type groupmember
+        ! type group ! in fixedData.f90:get_waterbody_object_type:groups
+        !     character*32 :: name
+        !     integer*4 :: id
+        !     integer*4 :: nmember
+        !     integer*4 :: nmemberpatterns
+        !     type(groupmemberpattern) dimension((max_member_patterns)) :: memberpatterns
+        !     type(groupmember), allocatable, dimension(:) :: members
+        !     integer*4 :: nsubgroups
+        !     integer*4 dimension(10) :: membergroups
+        ! end type group
+    end module groups
+    module envvar ! in envvar.f90
+        integer, parameter, optional :: envvar_name_len = 32
+        integer, parameter, optional :: envvar_value_len = 128
+        integer, parameter, optional :: max_envvars = 128
+        ! type(envvar_t) dimension(128) :: envvars
+        integer :: nenvvars
+        ! type envvar_t ! in envvar.f90:envvar
+        !     character(len=envvar_name_len) :: name
+        !     character(len=envvar_value_len) :: value
+        ! end type envvar_t
+        ! subroutine add_envvar(name, val) ! in envvar.f90:envvar
+        !     use io_units
+        !     character*envvar_name_len :: name
+        !     character*envvar_value_len :: val
+        ! end subroutine add_envvar
+        ! function replace_envvars(instring, outstring) ! in envvar.f90:envvar
+        !     use io_units
+        !     use ifport
+        !     character*(*) :: instring
+        !     character*(*) :: outstring
+        !     integer :: replace_envvars
+        ! end function replace_envvars
+        ! subroutine getenv_internal(estring, evalue) ! in envvar.f90:envvar
+        !     use iopath_data
+        !     character*(*) :: estring
+        !     character*(*) :: evalue
+        ! end subroutine getenv_internal
+    end module envvar
+    module rate_coeff_assignment ! in rate_coeff_assignment.f90
+        use common_qual
+        logical, save, dimension((max_constituent), (ncoef_type)) :: rate_var_require_flag
+        subroutine output_rate_to_file(funit) ! in rate_coeff_assignment.f90:rate_coeff_assignment
+            use groups, only: groupcontains
+            integer intent(in) :: funit
+        end subroutine output_rate_to_file
+        function check_rate_for_waterbody(funit) ! in rate_coeff_assignment.f90:rate_coeff_assignment
+            integer intent(in) :: funit
+            logical :: check_rate_for_waterbody
+        end function check_rate_for_waterbody
+        subroutine initialize_rate_coefficient ! in rate_coeff_assignment.f90:rate_coeff_assignment
+        end subroutine initialize_rate_coefficient
+        function constituent_index_to_string(index_bn) ! in rate_coeff_assignment.f90:rate_coeff_assignment
+            integer intent(in) :: index_bn
+            character(len=32) :: constituent_index_to_string
+        end function constituent_index_to_string
+        function rate_var_index_to_string(index_bn) ! in rate_coeff_assignment.f90:rate_coeff_assignment
+            integer intent(in) :: index_bn
+            character(len=16) :: rate_var_index_to_string
+        end function rate_var_index_to_string
+    end module rate_coeff_assignment
+    module fourpt_main
+        subroutine main_fourpt
+            use hdf5, only: h5open_f
+            use groups, only: extractrange
+            use io_units
+            use type_defs
+            use constants
+            use runtime_data
+            use iopath_data
+            use grid_data
+            use network
+            use solver
+            use chnlcomp
+            use chconnec
+            use chstatus
+            use virt_xsect
+            use netblnce
+            use gate_calc, only: assigngatecomppoints
+            use netcntrl, only: totalnetworkiterations, incrementnetworktimestep, restart_write
+            use solveutil
+            use solvealloc
+            use netbnd, only: setboundaryvaluesfromdata
+            use oprule_management
+            use tidefile
+            use reservoirs
+            use reservoir_geometry
+            use channel_schematic
+            use dss
+            use mod_readdss
+            use update_network, only: updatenetwork
+        end subroutine main_fourpt
+    end module fourpt_main
+    function get_output(ptr) ! in get_output.f90
+        use gates, only: gatearray
+        use io_units
+        use grid_data
+        use iopath_data
+        use constants
+        use chconnec
+        use netbnd, only: reservoir_source_sink
+        use channel_schematic, only: streamendnode
+        use chstatus, only: globalstreamflow, globalstreamsurfaceelevation
+        use tidefile, only: channelvelocity
+        integer :: ptr
+        real*8 :: get_output
+    end function get_output
+    function getmodeltime() ! in model_interface.f90
+        use runtime_data
+        integer :: getmodeltime
+    end function getmodeltime
+    function getmodeljulianday() ! in model_interface.f90
+        integer :: getmodeljulianday
+    end function getmodeljulianday
+    function getmodelyear() ! in model_interface.f90
+        integer :: getmodelyear
+    end function getmodelyear
+    function getmodelmonth() ! in model_interface.f90
+        integer :: getmodelmonth
+    end function getmodelmonth
+    function getmodelday() ! in model_interface.f90
+        integer :: getmodelday
+    end function getmodelday
+    function getmodeldayofyear() ! in model_interface.f90
+        integer :: getmodeldayofyear
+    end function getmodeldayofyear
+    function getmodelminuteofday() ! in model_interface.f90
+        use runtime_data
+        integer :: getmodelminuteofday
+    end function getmodelminuteofday
+    function getmodelhour() ! in model_interface.f90
+        use runtime_data
+        integer :: getmodelhour
+    end function getmodelhour
+    function getreferenceminuteofyear(mon, day, hour, min_bn) ! in model_interface.f90
+        integer :: mon
+        integer :: day
+        integer :: hour
+        integer :: min_bn
+        integer :: getreferenceminuteofyear
+    end function getreferenceminuteofyear
+    function getmodelminuteofyear() ! in model_interface.f90
+        integer :: getmodelminuteofyear
+    end function getmodelminuteofyear
+    function getmodelminute() ! in model_interface.f90
+        integer :: getmodelminute
+    end function getmodelminute
+    function getmodelticks() ! in model_interface.f90
+        use runtime_data
+        integer :: getmodelticks
+    end function getmodelticks
+    subroutine set_datasource(source, expr, val, timedep) ! in model_interface.f90
+        use type_defs
+        use constants
+        ! type(datasource_t) :: source
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_datasource
+    subroutine chan_comp_point(intchan, distance, comp_points, weights) ! in model_interface.f90
+        use channel_schematic, only: comppointatdist
+        integer :: intchan
+        real*8 :: distance
+        integer dimension(2) :: comp_points
+        real*8 dimension(2) :: weights
+    end subroutine chan_comp_point
+    function resndx(name) ! in model_interface.f90
+        use grid_data
+        character*(*) :: name
+        integer :: resndx
+    end function resndx
+    function resconnectndx(res_ndx, internal_node_no) ! in model_interface.f90
+        use grid_data
+        integer :: res_ndx
+        integer :: internal_node_no
+        integer :: resconnectndx
+    end function resconnectndx
+    function gatendx(name) ! in model_interface.f90
+        use gates, only: gatearray, ngate
+        use constants
+        character*(*) :: name
+        integer :: gatendx
+    end function gatendx
+    function devicendx(gatendx, devname) ! in model_interface.f90
+        use gates, only: gatearray, deviceindex
+        integer :: gatendx
+        character*(*) :: devname
+        integer :: devicendx
+    end function devicendx
+    function direct_to_node() ! in model_interface.f90
+        use gates
+        integer :: direct_to_node
+    end function direct_to_node
+    function direct_from_node() ! in model_interface.f90
+        use gates
+        integer :: direct_from_node
+    end function direct_from_node
+    function direct_to_from_node() ! in model_interface.f90
+        use gates
+        integer :: direct_to_from_node
+    end function direct_to_from_node
+    function get_external_flow(ndx) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        real*8 :: get_external_flow
+    end function get_external_flow
+    subroutine set_external_flow(ndx, val) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        real*8 :: val
+    end subroutine set_external_flow
+    subroutine set_external_flow_datasource(ndx, expr, val, timedep) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_external_flow_datasource
+    function get_transfer_flow(ndx) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        real*8 :: get_transfer_flow
+    end function get_transfer_flow
+    subroutine set_transfer_flow(ndx, val) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        real*8 :: val
+    end subroutine set_transfer_flow
+    subroutine set_transfer_flow_datasource(ndx, expr, val, timedep) ! in model_interface.f90
+        use grid_data
+        integer :: ndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_transfer_flow_datasource
+    subroutine set_gate_install(ndx, install) ! in model_interface.f90
+        use gates, only: gatearray, setfree
+        integer :: ndx
+        real*8 :: install
+    end subroutine set_gate_install
+    subroutine set_gate_install_datasource(gndx, expr, val, timedep) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_gate_install_datasource
+    function is_gate_install(ndx) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: ndx
+        real*8 :: is_gate_install
+    end function is_gate_install
+    function get_device_op_coef(gndx, devndx, direction) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: direction
+        real(kind=8) :: get_device_op_coef
+    end function get_device_op_coef
+    subroutine set_device_op_coef(gndx, devndx, direction, val) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: direction
+        real(kind=8) :: val
+    end subroutine set_device_op_coef
+    subroutine set_device_op_datasource(gndx, devndx, direction, expr, val, timedep) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: direction
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_device_op_datasource
+    function get_device_height(gndx, devndx) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: get_device_height
+    end function get_device_height
+    subroutine set_device_height(gndx, devndx, val) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: val
+    end subroutine set_device_height
+    subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_device_height_datasource
+    function get_device_width(gndx, devndx) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: get_device_width
+    end function get_device_width
+    subroutine set_device_width(gndx, devndx, val) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: val
+    end subroutine set_device_width
+    subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_device_width_datasource
+    function get_device_nduplicate(gndx, devndx) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: get_device_nduplicate
+    end function get_device_nduplicate
+    subroutine set_device_nduplicate(gndx, devndx, val) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: val
+    end subroutine set_device_nduplicate
+    function get_device_elev(gndx, devndx) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: get_device_elev
+    end function get_device_elev
+    subroutine set_device_elev(gndx, devndx, val) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        real(kind=8) :: val
+    end subroutine set_device_elev
+    subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep) ! in model_interface.f90
+        use gates, only: gatearray
+        integer :: gndx
+        integer :: devndx
+        integer :: expr
+        real*8 :: val
+        logical :: timedep
+    end subroutine set_device_elev_datasource
+    function get_device_flow_coef(gndx, devndx, direct) ! in model_interface.f90
+        use gates, only: gatearray
+        use io_units
+        integer :: gndx
+        integer :: devndx
+        integer :: direct
+        real(kind=8) :: get_device_flow_coef
+    end function get_device_flow_coef
+    subroutine set_device_flow_coef(gndx, devndx, direct, val) ! in model_interface.f90
+        use gates, only: gatearray
+        use io_units
+        integer :: gndx
+        integer :: devndx
+        integer :: direct
+        real(kind=8) :: val
+    end subroutine set_device_flow_coef
+    function value_from_inputpath(i) ! in model_interface.f90
+        use iopath_data
+        integer :: i
+        real*8 :: value_from_inputpath
+    end function value_from_inputpath
+    function ts_index(name) ! in model_interface.f90
+        use iopath_data
+        character*(*) :: name
+        integer :: ts_index
+    end function ts_index
+    function qext_index(name) ! in model_interface.f90
+        use grid_data
+        use constants
+        character*(*) :: name
+        integer :: qext_index
+    end function qext_index
+    function transfer_index(name) ! in model_interface.f90
+        use constants
+        use grid_data
+        character*(*) :: name
+        integer :: transfer_index
+    end function transfer_index
+    function channel_length(intno) ! in model_interface.f90
+        use grid_data
+        integer :: intno
+        real*8 :: channel_length
+    end function channel_length
+    module klu ! in klu.f90
+        logical, parameter, optional :: use_klu = .true.
+        integer :: k_common
+        integer :: k_symbolic
+        integer :: k_numeric
+        real*8, allocatable, dimension(:) :: coo
+        real*8, allocatable, dimension(:) :: b
+        integer, allocatable, dimension(:) :: jca
+        integer, allocatable, dimension(:) :: ica
+        integer :: num_non_zeros
+        integer :: matrix_size
+        interface  ! in klu.f90:klu
+            function klu_fortran_init() ! in klu.f90:klu:unknown_interface
+                integer :: klu_fortran_init
+            end function klu_fortran_init
+            function klu_fortran_analyze(n, ap, ai, k_common) ! in klu.f90:klu:unknown_interface
+                integer intent(in) :: n
+                integer dimension(*), intent(in) :: ap
+                integer dimension(*), intent(in) :: ai
+                integer intent(in) :: k_common
+                integer :: klu_fortran_analyze
+            end function klu_fortran_analyze
+            function klu_fortran_factor(ap, ai, ax, k_symbolic, k_common) ! in klu.f90:klu:unknown_interface
+                integer dimension(*), intent(in) :: ap
+                integer dimension(*), intent(in) :: ai
+                real*8 dimension(*), intent(in) :: ax
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_common
+                integer :: klu_fortran_factor
+            end function klu_fortran_factor
+            subroutine klu_fortran_refactor(ap, ai, ax, k_symbolic, k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer dimension(*), intent(in) :: ap
+                integer dimension(*), intent(in) :: ai
+                real*8 dimension(*), intent(in) :: ax
+                integer intent(in) :: k_symbolic
+                integer intent(inout) :: k_numeric
+                integer intent(in) :: k_common
+            end subroutine klu_fortran_refactor
+            subroutine klu_fortran_solve(k_symbolic, k_numeric, n, nrhs, b, k_common) ! in klu.f90:klu:unknown_interface
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_numeric
+                integer intent(in) :: n
+                integer intent(in) :: nrhs
+                real*8 dimension(*), intent(inout) :: b
+                integer intent(in) :: k_common
+            end subroutine klu_fortran_solve
+            subroutine klu_fortran_free_numeric(k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer intent(in) :: k_numeric
+                integer intent(in) :: k_common
+            end subroutine klu_fortran_free_numeric
+            subroutine klu_fortran_free(k_symbolic, k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_numeric
+                integer intent(in) :: k_common
+            end subroutine klu_fortran_free
+            function klu_fortran_condest(ap, ax, k_symbolic, k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer dimension(*), intent(in) :: ap
+                real*8 dimension(*), intent(in) :: ax
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_numeric
+                integer intent(in) :: k_common
+                real*8 :: klu_fortran_condest
+            end function klu_fortran_condest
+            function klu_fortran_rcond(k_symbolic, k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_numeric
+                integer intent(in) :: k_common
+                real*8 :: klu_fortran_rcond
+            end function klu_fortran_rcond
+            function klu_fortran_rgrowth(ap, ai, ax, k_symbolic, k_numeric, k_common) ! in klu.f90:klu:unknown_interface
+                integer dimension(*), intent(in) :: ap
+                integer dimension(*), intent(in) :: ai
+                real*8 dimension(*), intent(in) :: ax
+                integer intent(in) :: k_symbolic
+                integer intent(in) :: k_numeric
+                integer intent(in) :: k_common
+                real*8 :: klu_fortran_rgrowth
+            end function klu_fortran_rgrowth
+        end interface
+        subroutine add_to_matrix(index_bn, val) ! in klu.f90:klu
+            integer intent(in) :: index_bn
+            real*8 intent(in) :: val
+        end subroutine add_to_matrix
+        subroutine add_nonzero_to_coo(row, column, val) ! in klu.f90:klu
+            integer intent(in) :: row
+            integer intent(in) :: column
+            integer intent(in) :: val
+        end subroutine add_nonzero_to_coo
+        subroutine done_adding_to_coo ! in klu.f90:klu
+        end subroutine done_adding_to_coo
+        subroutine scale_coo(rowscale, colscale) ! in klu.f90:klu
+            real*8 dimension(*), intent(in) :: rowscale
+            real*8 dimension(*), intent(in) :: colscale
+        end subroutine scale_coo
+        subroutine coo2csc(n) ! in klu.f90:klu
+            integer :: n
+        end subroutine coo2csc
+        subroutine update_pointers(ipointers, n) ! in klu.f90:klu
+            integer dimension(*), intent(inout) :: ipointers
+            integer intent(in) :: n
+        end subroutine update_pointers
+        subroutine update_pointers_dim4(ipointers, n) ! in klu.f90:klu
+            integer dimension(4, *), intent(inout) :: ipointers
+            integer intent(in) :: n
+        end subroutine update_pointers_dim4
+        subroutine clear_matrix ! in klu.f90:klu
+        end subroutine clear_matrix
+        subroutine close_solver ! in klu.f90:klu
+        end subroutine close_solver
+    end module klu
+    subroutine process_input_oprule(name, filename, inpath, fillin) ! in process_input_oprule.f90
+        use gates
+        use io_units
+        use iopath_data
+        use logging
+        use grid_data
+        use envvar
+        character*32 :: name
+        character*128 :: filename
+        character*392 :: inpath
+        character*8 :: fillin
+    end subroutine process_input_oprule
+    module mod_readdss ! in readdss.f90
+        use dss
+        use type_defs, only: dataqual_t
+        ! type(dataqual_t) dimension((mins15), (max_inp_min)) :: datain_15min
+        ! type(dataqual_t) dimension((hrs), (max_inp_hour)) :: datain_1hour
+        ! type(dataqual_t) dimension((dys), (max_inp_day)) :: datain_1day
+        ! type(dataqual_t) dimension((wks), (max_inp_week)) :: datain_1week
+        ! type(dataqual_t) dimension((mths), (max_inp_month)) :: datain_1month
+        ! type(dataqual_t) dimension((yrs), (max_inp_year)) :: datain_1year
+        ! type(dataqual_t) dimension((irrs), (max_inp_irr)) :: datain_irr
+        integer dimension((max_inp_min)) :: ptin_min15
+        integer dimension((max_inp_hour)) :: ptin_hour1
+        integer dimension((max_inp_day)) :: ptin_day1
+        integer dimension((max_inp_week)) :: ptin_week1
+        integer dimension((max_inp_month)) :: ptin_month1
+        integer dimension((max_inp_year)) :: ptin_year1
+        integer dimension((max_inp_irr)) :: ptin_irr
+        integer :: npthsin_min15
+        integer :: npthsin_hour1
+        integer :: npthsin_day1
+        integer :: npthsin_week1
+        integer :: npthsin_month1
+        integer :: npthsin_year1
+        integer :: npthsin_irr
+        subroutine readdss(pathnumber, jmin, inpaths_dim, block_dim, indata, per_type) ! in readdss.f90:mod_readdss
+            use io_units
+            use type_defs
+            use iopath_data
+            use constants
+            use runtime_data
+            use dss
+            integer :: pathnumber
+            integer*4 :: jmin
+            integer, optional, check(shape(indata, 1) == inpaths_dim), depend(indata) :: inpaths_dim = shape(indata, 1)
+            integer, optional, check(shape(indata, 0) == block_dim), depend(indata) :: block_dim = shape(indata, 0)
+            ! type(dataqual_t) dimension(block_dim, inpaths_dim) :: indata
+            character*(*) :: per_type
+        end subroutine readdss
+    end module mod_readdss
+    subroutine qext_clear_buffer_f ! in qext_input_storage.fi
+    end subroutine qext_clear_buffer_f
+    function qext_buffer_size_f() ! in qext_input_storage.fi
+        integer :: qext_buffer_size_f
+    end function qext_buffer_size_f
+    subroutine qext_append_to_buffer(name, attach_obj_name, attached_obj_type, attached_obj_no, ierror) ! in qext_input_storage.fi
+        character*32 intent(in) :: name
+        character*32 intent(in) :: attach_obj_name
+        integer intent(in) :: attached_obj_type
+        integer intent(in) :: attached_obj_no
+        integer intent(out) :: ierror
+    end subroutine qext_append_to_buffer
+    subroutine qext_number_rows_hdf5(file_id, nrecords, ierror) ! in qext_input_storage.fi
+        use hdf5, only: hid_t, hsize_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer :: nrecords
+        integer intent(out) :: ierror
+    end subroutine qext_number_rows_hdf5
+    subroutine qext_query_from_buffer(row, name, attach_obj_name, attached_obj_type, attached_obj_no, ierror) ! in qext_input_storage.fi
+        integer :: row
+        character*32 intent(out) :: name
+        character*32 intent(out) :: attach_obj_name
+        integer intent(out) :: attached_obj_type
+        integer intent(out) :: attached_obj_no
+        integer intent(out) :: ierror
+    end subroutine qext_query_from_buffer
+    subroutine qext_prioritize_buffer(ierror) ! in qext_input_storage.fi
+        integer intent(out) :: ierror
+    end subroutine qext_prioritize_buffer
+    subroutine qext_write_buffer_to_hdf5(file_id, ierror) ! in qext_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine qext_write_buffer_to_hdf5
+    subroutine qext_read_buffer_from_hdf5(file_id, ierror) ! in qext_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine qext_read_buffer_from_hdf5
+    subroutine qext_write_buffer_to_text(filename, append, ierror) ! in qext_input_storage.fi
+        character*(*) :: filename
+        logical :: append
+        integer intent(out) :: ierror
+    end subroutine qext_write_buffer_to_text
+    subroutine output_channel_clear_buffer ! in output_channel_input_storage.fi
+    end subroutine output_channel_clear_buffer
+    function output_channel_buffer_size() ! in output_channel_input_storage.fi
+        integer :: output_channel_buffer_size
+    end function output_channel_buffer_size
+    subroutine output_channel_append_to_buffer(name, chan_no, distance, variable, interval, period_op, file, ierror) ! in output_channel_input_storage.fi
+        character*32 intent(in) :: name
+        integer intent(in) :: chan_no
+        character*8 intent(in) :: distance
+        character*16 intent(in) :: variable
+        character*16 intent(in) :: interval
+        character*16 intent(in) :: period_op
+        character*128 intent(in) :: file
+        integer intent(out) :: ierror
+    end subroutine output_channel_append_to_buffer
+    subroutine output_channel_number_rows_hdf5(file_id, nrecords, ierror) ! in output_channel_input_storage.fi
+        use hdf5, only: hid_t, hsize_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer :: nrecords
+        integer intent(out) :: ierror
+    end subroutine output_channel_number_rows_hdf5
+    subroutine output_channel_query_from_buffer(row, name, chan_no, distance, variable, interval, period_op, file, ierror) ! in output_channel_input_storage.fi
+        integer :: row
+        character*32 intent(out) :: name
+        integer intent(out) :: chan_no
+        character*8 intent(out) :: distance
+        character*16 intent(out) :: variable
+        character*16 intent(out) :: interval
+        character*16 intent(out) :: period_op
+        character*128 intent(out) :: file
+        integer intent(out) :: ierror
+    end subroutine output_channel_query_from_buffer
+    subroutine output_channel_prioritize_buffer(ierror) ! in output_channel_input_storage.fi
+        integer intent(out) :: ierror
+    end subroutine output_channel_prioritize_buffer
+    subroutine output_channel_write_buffer_to_hdf5(file_id, ierror) ! in output_channel_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine output_channel_write_buffer_to_hdf5
+    subroutine output_channel_read_buffer_from_hdf5(file_id, ierror) ! in output_channel_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine output_channel_read_buffer_from_hdf5
+    subroutine output_channel_write_buffer_to_text(filename, append, ierror) ! in output_channel_input_storage.fi
+        character*(*) :: filename
+        logical :: append
+        integer intent(out) :: ierror
+    end subroutine output_channel_write_buffer_to_text
+    subroutine output_reservoir_clear_buffer ! in output_reservoir_input_storage.fi
+    end subroutine output_reservoir_clear_buffer
+    function output_reservoir_buffer_size() ! in output_reservoir_input_storage.fi
+        integer :: output_reservoir_buffer_size
+    end function output_reservoir_buffer_size
+    subroutine output_reservoir_append_to_buffer(name, res_name, node, variable, interval, period_op, file, ierror) ! in output_reservoir_input_storage.fi
+        character*32 intent(in) :: name
+        character*32 intent(in) :: res_name
+        character*8 intent(in) :: node
+        character*16 intent(in) :: variable
+        character*16 intent(in) :: interval
+        character*16 intent(in) :: period_op
+        character*128 intent(in) :: file
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_append_to_buffer
+    subroutine output_reservoir_number_rows_hdf5(file_id, nrecords, ierror) ! in output_reservoir_input_storage.fi
+        use hdf5, only: hid_t, hsize_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer :: nrecords
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_number_rows_hdf5
+    subroutine output_reservoir_query_from_buffer(row, name, res_name, node, variable, interval, period_op, file, ierror) ! in output_reservoir_input_storage.fi
+        integer :: row
+        character*32 intent(out) :: name
+        character*32 intent(out) :: res_name
+        character*8 intent(out) :: node
+        character*16 intent(out) :: variable
+        character*16 intent(out) :: interval
+        character*16 intent(out) :: period_op
+        character*128 intent(out) :: file
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_query_from_buffer
+    subroutine output_reservoir_prioritize_buffer(ierror) ! in output_reservoir_input_storage.fi
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_prioritize_buffer
+    subroutine output_reservoir_write_buffer_to_hdf5(file_id, ierror) ! in output_reservoir_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_write_buffer_to_hdf5
+    subroutine output_reservoir_read_buffer_from_hdf5(file_id, ierror) ! in output_reservoir_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_read_buffer_from_hdf5
+    subroutine output_reservoir_write_buffer_to_text(filename, append, ierror) ! in output_reservoir_input_storage.fi
+        character*(*) :: filename
+        logical :: append
+        integer intent(out) :: ierror
+    end subroutine output_reservoir_write_buffer_to_text
+    subroutine scalar_clear_buffer ! in scalar_input_storage.fi
+    end subroutine scalar_clear_buffer
+    function scalar_buffer_size() ! in scalar_input_storage.fi
+        integer :: scalar_buffer_size
+    end function scalar_buffer_size
+    subroutine scalar_append_to_buffer(name, value, ierror) ! in scalar_input_storage.fi
+        character*32 intent(in) :: name
+        character*64 intent(in) :: value
+        integer intent(out) :: ierror
+    end subroutine scalar_append_to_buffer
+    subroutine scalar_number_rows_hdf5(file_id, nrecords, ierror) ! in scalar_input_storage.fi
+        use hdf5, only: hid_t, hsize_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer :: nrecords
+        integer intent(out) :: ierror
+    end subroutine scalar_number_rows_hdf5
+    subroutine scalar_query_from_buffer(row, name, value, ierror) ! in scalar_input_storage.fi
+        integer :: row
+        character*32 intent(out) :: name
+        character*64 intent(out) :: value
+        integer intent(out) :: ierror
+    end subroutine scalar_query_from_buffer
+    subroutine scalar_prioritize_buffer(ierror) ! in scalar_input_storage.fi
+        integer intent(out) :: ierror
+    end subroutine scalar_prioritize_buffer
+    subroutine scalar_write_buffer_to_hdf5(file_id, ierror) ! in scalar_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine scalar_write_buffer_to_hdf5
+    subroutine scalar_read_buffer_from_hdf5(file_id, ierror) ! in scalar_input_storage.fi
+        use hdf5, only: hid_t
+        integer(kind=hid_t) intent(in) :: file_id
+        integer intent(out) :: ierror
+    end subroutine scalar_read_buffer_from_hdf5
+    subroutine scalar_write_buffer_to_text(filename, append, ierror) ! in scalar_input_storage.fi
+        character*(*) :: filename
+        logical :: append
+        integer intent(out) :: ierror
+    end subroutine scalar_write_buffer_to_text
+    module tvd ! in readtvd.f90
+        use mod_readdss
+        subroutine readtvd(inpaths_dim, block_dim, npaths, inpath_ptr, indata) bind(c) ! in readtvd.f90:tvd
+            use io_units
+            use type_defs
+            use runtime_data
+            use constants
+            use iopath_data
+            integer, optional, check(len(inpath_ptr) >= inpaths_dim), depend(inpath_ptr) :: inpaths_dim = len(inpath_ptr)
+            integer, optional, check(shape(indata, 0) == block_dim), depend(indata) :: block_dim = shape(indata, 0)
+            integer :: npaths
+            integer dimension(inpaths_dim) :: inpath_ptr
+            type(dataqual_t) dimension(block_dim, inpaths_dim), depend(inpaths_dim) :: indata
+        end subroutine readtvd
+        function bufndx_nosync(indata, jm, path, last_ndx, max_v, max_paths) ! in readtvd.f90:tvd
+            use constants
+            use type_defs
+            type(dataqual_t) dimension(max_v, max_paths) :: indata
+            integer*4 :: jm
+            integer :: path
+            integer :: last_ndx
+            integer, optional, check(shape(indata, 0) == max_v), depend(indata) :: max_v = shape(indata, 0)
+            integer, optional, check(shape(indata, 1) == max_paths), depend(indata) :: max_paths = shape(indata, 1)
+            integer :: bufndx_nosync
+        end function bufndx_nosync
+        function bufndx_sync(indata, path, sync_str, e_part, last_ndx, max_v, max_paths) ! in readtvd.f90:tvd
+            use constants
+            use type_defs
+            ! type(dataqual_t) dimension(max_v, max_paths) :: indata
+            integer :: path
+            character*(*) :: sync_str
+            character*(*) :: e_part
+            integer :: last_ndx
+            integer, optional, check(shape(indata, 0) == max_v), depend(indata) :: max_v = shape(indata, 0)
+            integer, optional, check(shape(indata, 1) == max_paths), depend(indata) :: max_paths = shape(indata, 1)
+            integer :: bufndx_sync
+        end function bufndx_sync
+        function getndx(julmin, jul_next, jul_prev_curr, ndx_next, ndx_prev_curr, per_type, interpolated) ! in readtvd.f90:tvd
+            use constants
+            integer*4 :: julmin
+            integer*4 :: jul_next
+            integer*4 :: jul_prev_curr
+            integer :: ndx_next
+            integer :: ndx_prev_curr
+            integer :: per_type
+            logical :: interpolated
+            integer :: getndx
+        end function getndx
+        function find_miss(indata, path, max_v, max_paths) ! in readtvd.f90:tvd
+            use io_units
+            use constants
+            use type_defs
+            ! type(dataqual_t) dimension(max_v, max_paths) :: indata
+            integer :: path
+            integer, optional, check(shape(indata, 0) == max_v), depend(indata) :: max_v = shape(indata, 0)
+            integer, optional, check(shape(indata, 1) == max_paths), depend(indata) :: max_paths = shape(indata, 1)
+            integer :: find_miss
+        end function find_miss
+        function check_dataqual(value, qualflag) ! in readtvd.f90:tvd
+            use io_units
+            use constants
+            use type_defs
+            ! type(dataqual_t) :: value
+            integer :: qualflag
+            logical :: check_dataqual
+        end function check_dataqual
+        subroutine set_dataqual(value, qualflag) ! in readtvd.f90:tvd
+            use type_defs
+            use constants
+            use io_units
+            ! type(dataqual_t) :: value
+            integer :: qualflag
+        end subroutine set_dataqual
+        subroutine get_inp_data(ptr) ! in readtvd.f90:tvd
+            use io_units
+            use type_defs
+            use iopath_data
+            use runtime_data
+            integer :: ptr
+        end subroutine get_inp_data
+    end module tvd
+    module type_defs ! in type_defs.f90
+      use constants, only: miss_val_c,miss_val_i,miss_val_r
+      use gtm_precision, only: gtm_real
+      integer, parameter,optional :: max_sections=50
+      integer, parameter,optional :: max_fields=30
+      integer, parameter,optional :: max_inp_files=2
+      integer, parameter,optional :: max_xsects=10
+      integer, parameter,optional :: max_cpn=4
+      integer, parameter,optional :: max_qobj=10
+      integer, parameter,optional :: maxresnodes=50
+      integer, parameter,optional :: maxreselevs=50
+      integer, parameter,optional :: max_path_const=10
+      integer, parameter,optional :: max_ft_flux=100
+      integer, parameter,optional :: max_group_out=100
+      integer, parameter,optional :: max_constituent=24
+      integer, parameter,optional :: max_conqext=12
+      type datasource_t ! in type_defs.f90:type_defs
+          real*8 :: value
+          integer :: source_type
+          integer :: indx_ptr
+      end type datasource_t
+      type form_t ! in type_defs.f90:type_defs
+          character*32 :: sect
+          character dimension((max_fields),16),intent(c) :: fld
+          integer :: fldnum
+          logical :: repeat
+      end type form_t
+      type channel_t ! in type_defs.f90:type_defs
+          integer*4 :: id
+          logical*4 :: inuse
+          integer dimension((max_xsects)) :: xsect
+          integer :: length
+          real*4 :: disp
+          integer dimension((max_xsects)) :: dist
+          real*4 dimension(2) :: bottomelev
+          integer :: nxsect
+          integer :: upnode
+          integer :: downnode
+          integer :: channel_num
+          integer :: chan_no
+          integer :: channel_length
+          integer :: up_node
+          integer :: down_node
+          integer :: up_comp
+          integer :: down_comp
+          integer :: start_cell
+          integer :: end_cell
+          real(kind=gtm_real) :: dispersion
+          real(kind=gtm_real) :: manning
+          real(kind=gtm_real) :: chan_btm_up
+          real(kind=gtm_real) :: chan_btm_down
+      end type channel_t
+      type node_t ! in type_defs.f90:type_defs
+          integer, optional :: node_id=0
+          integer, optional :: nconnect=0
+          integer, optional :: nup=0
+          integer, optional :: ndown=0
+          integer, optional :: boundary_type=miss_val_i
+          integer, optional,dimension((max_cpn)) :: upstream=0
+          integer, optional,dimension((max_cpn)) :: downstream=0
+          integer, optional,dimension((max_qobj)) :: qinternal=0
+          integer, optional,dimension((max_qobj)) :: qext=0
+          integer, optional :: sumqchan=miss_val_i
+          logical*4, optional :: qual_int=.false.
+      end type node_t
+      type xsect_t ! in type_defs.f90:type_defs
+          real*8, optional :: width=miss_val_r
+          real*8, optional :: botelv=miss_val_r
+          real*8, optional :: init_stage=miss_val_r
+          real*8, optional :: init_flow=miss_val_r
+          logical, optional :: upstream=.false.
+          integer*4, optional :: id=miss_val_i
+      end type xsect_t
+      type reservoir_t ! in type_defs.f90:type_defs
+          character*32, optional :: name=' '
+          real*8, optional :: toparea=0.d0
+          real*8, optional :: botelv=0.d0
+          real*8, optional,dimension((maxreselevs)) :: area=0.d0
+          real*8, optional,dimension((maxreselevs)) :: elev=0.d0
+          real*8, optional,dimension((maxreselevs)) :: vol=0.d0
+          real*8, optional :: stage=0.d0
+          real*8, optional,dimension((maxresnodes)) :: coeff2res=0.d0
+          real*8, optional,dimension((maxresnodes)) :: coeff2chan=0.d0
+          real*4 :: dummy_for_alignment
+          integer*4, optional :: id=miss_val_i
+          logical*4, optional :: inuse=.false.
+          logical*4, optional,dimension((maxresnodes)) :: isnodegated=.false.
+          integer*4, optional :: nconnect=0
+          integer*4, optional :: nnodes=0
+          integer*4, optional :: nelevs=0
+          integer*4, optional,dimension((maxresnodes)) :: node_no=0
+          integer*4 :: first_connect_index
+          integer*4, optional,dimension((max_qobj)) :: qinternal=0
+          integer*4, optional,dimension((max_qobj)) :: qext=0
+      end type reservoir_t
+      type pathinput_t ! in type_defs.f90:type_defs
+          character*32, optional :: name=' '
+          character*128, optional :: filename=' '
+          character*32, optional :: variable=' '
+          character*16, optional :: interval=' '
+          character*32, optional :: obj_name=' '
+          character*392 :: path
+          real*8, optional :: constant_value=miss_val_r
+          real*8, optional :: value=miss_val_r
+          real*8, optional :: mass_frac=1.d0
+          real*8, optional :: value_in=miss_val_r
+          real*8, optional :: value_out=miss_val_r
+          integer :: value_flag
+          integer, optional :: fillin=miss_val_i
+          integer, optional :: locid=miss_val_i
+          integer, optional :: obj_type=miss_val_i
+          integer, optional :: obj_no=miss_val_i
+          integer :: data_type
+          integer :: group_ndx
+          integer :: gate_param
+          integer :: ndx_file
+          integer*4 :: diff_julmin
+          integer :: locnum
+          integer dimension((max_path_const)) :: const_ndx
+          integer :: n_consts
+          integer :: no_intervals
+          integer :: intvl_path
+          integer :: per_type
+          integer, optional :: sign=0
+          logical, optional :: useobj=.false.
+          character*14, optional :: start_date=' '
+          character*2 :: dummy3
+          logical, optional :: replace=.false.
+      end type pathinput_t
+      type reserv_t ! in type_defs.f90:type_defs
+          integer :: node_no
+          integer :: hydro_node_no
+      end type reserv_t
+      type source_t ! in type_defs.f90:type_defs
+          integer :: object
+          integer :: object_no
+          integer :: group_ndx
+      end type source_t
+      type pathoutput_t ! in type_defs.f90:type_defs
+          character*130, optional :: filename=' '
+          character*6 :: dummy
+          character*32, optional :: name=' '
+          character*392, optional :: path=' '
+          character*32, optional :: obj_name=' '
+          character*32, optional :: a_part=' '
+          character*32, optional :: b_part=' '
+          character*32, optional :: c_part=' '
+          character*32, optional :: e_part=' '
+          character*32, optional :: f_part=' '
+          character*32, optional :: device=' '
+          character*32, optional :: modifier=' '
+          character*16, optional :: interval=' '
+          character*16, optional :: meas_type=' '
+          character*8, optional :: units=' '
+          integer, optional :: obj_type=miss_val_i
+          integer, optional :: ndx_file=miss_val_i
+          integer, optional :: obj_no=miss_val_i
+          integer, optional :: chan_dist=miss_val_i
+          integer, optional :: gate_device=miss_val_i
+          integer, optional :: res_node_no=miss_val_i
+          integer, optional :: reservoir_hydro_node_no=miss_val_i
+          integer, optional :: flux_from_type=miss_val_i
+          integer, optional :: flux_to_type=miss_val_i
+          integer, optional :: flux_from_ndx=miss_val_i
+          integer, optional :: flux_to_ndx=miss_val_i
+          integer, optional :: flux_group_ndx=miss_val_i
+          integer, optional :: source_group_ndx=miss_val_i
+          integer, optional :: const_ndx=miss_val_i
+          integer, optional :: no_intervals=miss_val_i
+          integer, optional :: per_type=miss_val_i
+          integer, optional :: intvl_path=miss_val_i
+          logical*4, optional :: need_tmp_outfile=miss_val_i
+          logical, optional :: use=.false.
+          character*20 :: dummy2
+      end type pathoutput_t
+      type io_file_t ! in type_defs.f90:type_defs
+          logical :: use
+          integer :: unit
+          character*16 :: interval
+          character*130 :: filename
+          character*6 :: dummy
+      end type io_file_t
+      type trans_t ! in type_defs.f90:type_defs
+          character*32 :: from_name
+          integer :: object
+          integer :: object_no
+          character*32 :: obj_name
+          integer :: chan_dist
+          character*16 :: constituent
+      end type trans_t
+      type constituent_t ! in type_defs.f90:type_defs
+          character*16, optional :: name=' '
+          integer, optional :: object=miss_val_i
+          integer, optional :: object_no=miss_val_i
+          integer, optional :: group_ndx=miss_val_i
+          logical, optional :: conservative=.true.
+      end type constituent_t
+      type qext_t ! in type_defs.f90:type_defs
+          character*32, optional :: name=' '
+          character*32, optional :: obj_name=' '
+          type(datasource_t) :: datasource
+          character*32 :: attach_obj_name
+          integer :: attach_obj_type
+          integer :: attach_obj_no
+          real*4, optional :: flow=0.d0
+          real*4, optional :: prev_flow=0.d0
+          real*4, optional :: avg=0.d0
+          real*4, optional :: prev_avg=0.d0
+          real*4, optional :: mass_frac=1.d0
+          integer, optional :: changed_ndx=0
+          integer, optional :: group_ndx=0
+          character*4 :: dummy
+      end type qext_t
+      type from_to_t ! in type_defs.f90:type_defs
+          character*32, optional :: obj_name=' '
+          integer, optional :: obj_type=miss_val_i
+          integer, optional :: obj_no=miss_val_i
+          integer :: hydrochan
+          integer :: group_ndx
+          real*4, optional :: mass_frac=1.0
+          real*4 :: coeff
+      end type from_to_t
+      type obj2obj_t ! in type_defs.f90:type_defs
+          character*32, optional :: name=' '
+          type(datasource_t) :: datasource
+          type(from_to_t) :: from_obj
+          type(from_to_t) :: to_obj
+          integer*4 :: id
+          real*4 :: constant_value
+          real*4 :: flow
+          real*4 :: prev_flow
+          real*4 :: flow_avg
+          real*4 dimension((max_constituent)) :: constituent_conc
+          logical, optional :: use=.false.
+      end type obj2obj_t
+      type stgbnd_t ! in type_defs.f90:type_defs
+          character*32 :: name
+          type(datasource_t) :: datasource
+          real*4 :: value
+          integer :: node
+      end type stgbnd_t
+      type, bind(c) :: dataqual_t ! in type_defs.f90:type_defs
+          real*8 :: data
+          integer*4 :: flag
+          integer*4 :: julmin
+      end type dataqual_t
+      type tidefile_t ! in type_defs.f90:type_defs
+          character*16 :: start_date
+          character*16 :: end_date
+          logical :: binarytf
+          integer*4 :: start_julmin_file
+          integer*4 :: end_julmin_file
+          integer*4 :: start_julmin
+          integer*4 :: end_julmin
+          integer :: ntideblocks
+          integer :: interval
+          character*128 :: filename
+      end type tidefile_t
+  end module type_defs
+
+end interface
+end python module pydsm2hydro
