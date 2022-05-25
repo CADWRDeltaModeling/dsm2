@@ -18,14 +18,15 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
-
 !-----multiple tidefiles for Qual, PTM
 module common_tide
     use type_defs
     use constants
     use grid_data
-    use network, only : MaxLocations       
-     
+    use network, only: MaxLocations
+
+    implicit none
+
     integer :: max_tide_files
     integer :: nintides
     integer :: dim_res_tf
@@ -34,33 +35,32 @@ module common_tide
     integer :: n_chan_tf
     integer :: current_tidefile
 
-    parameter (max_tide_files=12)
+    parameter(max_tide_files=12)
     character*21 :: chead
-
 
     type(tidefile_t):: tide_files(0:max_tide_files)
 
     real*4 :: &
-        Zchan(2,Max_Channels)             ! HDF5 Temporary holder
-    real*4 :: Hchan(2,Max_Channels)             ! HDF5 Temporary holder
-    real*4 :: Achan(2,Max_Channels)             ! HDF5 Temporary holder
-    real*4 :: HchanPrev(2,Max_Channels)             ! HDF5 Temporary holder
-    real*4 :: AchanPrev(2,Max_Channels)             ! HDF5 Temporary holder
+        Zchan(2, Max_Channels)             ! HDF5 Temporary holder
+    real*4 :: Hchan(2, Max_Channels)             ! HDF5 Temporary holder
+    real*4 :: Achan(2, Max_Channels)             ! HDF5 Temporary holder
+    real*4 :: HchanPrev(2, Max_Channels)             ! HDF5 Temporary holder
+    real*4 :: AchanPrev(2, Max_Channels)             ! HDF5 Temporary holder
     real*4 :: Achan_Avg(Max_Channels)             ! HDF5 Temporary holder
-    real*4 :: Qchan(2,Max_Channels)             ! HDF5 Temporary holder
+    real*4 :: Qchan(2, Max_Channels)             ! HDF5 Temporary holder
     real*4 :: Eresv(Max_Reservoirs)             ! HDF5 Temporary holder
     real*4 :: TempQExtAv(1000)             ! HDF5 Temporary holder
     real*4 :: Qcp(MaxLocations)          ! Flow at computation points
     real*4 :: Zcp(MaxLocations)          ! Stage at computation points
-    
+
     ! Flows in and out of all the reservoir-node connections.
     ! Dimension will be one per reservoir connection
-    real*4,allocatable :: Qresv(:)
-    real*4,allocatable :: inst_Qresv(:)
-    
+    real*4, allocatable :: Qresv(:)
+    real*4, allocatable :: inst_Qresv(:)
+
     real*4 :: inst_qext(max_qext)
     real*4 :: inst_obj2obj(max_obj2obj)
-    
+
     integer*4 :: TideTime        ! julian minute timestamp from tidefile
     integer*4 :: next_hydro_interval
 
