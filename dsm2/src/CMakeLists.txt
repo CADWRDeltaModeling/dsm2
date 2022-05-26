@@ -121,7 +121,7 @@ target_link_libraries(hydro_exe fourpt common fixed hydrolib hdf_tidefile_cpp hd
 else (WIN32)
 # link statically with intel libraries - avoids intel library redistribution
 # full static is not working on linux due to lack of standard .a libraries
-set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(hydro_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
 endif (WIN32)
@@ -168,7 +168,7 @@ file(GLOB QUAL_SOURCES qual/*.f)
 if (WIN32)
    set (CMAKE_Fortran_FLAGS "/extend_source:132")
 else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+   set (CMAKE_Fortran_FLAGS "-extend-source 132")
 endif (WIN32)
 add_executable(qual ${QUAL_SOURCES})
 set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
@@ -189,7 +189,7 @@ target_link_libraries(qual
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 else (WIN32)
-set_target_properties(qual PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+set_target_properties(qual PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
 target_link_libraries(qual
@@ -209,7 +209,7 @@ file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
 if (WIN32)
    set (CMAKE_Fortran_FLAGS "/extend_source:132")
 else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+   set (CMAKE_Fortran_FLAGS "-extend-source 132")
 endif (WIN32)
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
@@ -236,7 +236,7 @@ target_link_libraries(PTM
     debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
     )
 else (WIN32)
-set_target_properties(PTM PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+set_target_properties(PTM PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_link_libraries(PTM ptm_fortran -Wl,-rpath='$ORIGIN/lib' -Wl,--whole-archive common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
 target_link_libraries(PTM
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
@@ -330,7 +330,7 @@ target_link_libraries(gtm
     )
 else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(gtm PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+set_target_properties(gtm PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(gtm PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
 target_link_libraries(gtm
@@ -348,7 +348,7 @@ endif (WIN32)
 if (WIN32)
    set (CMAKE_Fortran_FLAGS "/extend_source:132")
 else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+   set (CMAKE_Fortran_FLAGS "-extend-source 132")
 endif (WIN32)
 
 target_link_libraries(sed_bed_init gtm_core process_io)
@@ -362,7 +362,7 @@ target_link_libraries(sed_bed_init
     )
 else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(sed_bed_init PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(sed_bed_init -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core process_io -Wl,--end-group)
 target_link_libraries(sed_bed_init
