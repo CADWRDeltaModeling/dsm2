@@ -151,7 +151,7 @@ contains
 
         call get_command_args(init_input_file, model_name, echo_only)
         !-----dsm2 initialization
-        call dsm2_init
+        call dsm2_hydro_init
 
         !---- hdf5 api on
         call h5open_f(istat)
