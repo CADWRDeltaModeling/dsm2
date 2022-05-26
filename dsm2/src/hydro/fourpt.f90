@@ -24,76 +24,80 @@ module FourPt_main
 contains
     subroutine main_fourpt()
         use hdf5, only: h5open_f
-        use groups, only: extractrange
-        use io_units
-        use type_defs
-        use constants
-        use runtime_data
-        use iopath_data
-        use grid_data
+        use io_units, only: unit_screen, unit_error, unit_output
+        use runtime_data, only: dsm2_module, dsm2_name, model_name, &
+                                prev_julmin, julmin, start_julmin, &
+                                current_date, time_step, &
+                                display_intvl, flush_intvl, end_julmin, &
+                                initialize_runtimes
+        use iopath_data, only: hydro, io_hdf5, io_write, io_files, &
+                               to_boundary, io_restart, check_input_data, &
+                               need_tmp_outfiles, binary_output, &
+                               max_dssinfiles, infilenames, &
+                               ifltab_in, ifltab_out, &
+                               dss_direct, max_dssoutfiles, outfilenames
+        use grid_data, only: nreser, res_geom
 
-        use network
-        use solver
-        use chnlcomp
-        use chconnec
-        use chstatus
-        use virt_xsect
-        use netblnce
+        use chconnec, only: YResOld, Yres, VResOld, QResOld, QRes
+        use chstatus, only: QOld, Q, &
+                            InitializeChannelNetwork, WriteNetworkRestartFile
+        use virt_xsect, only: virtual_xsect
+        use netblnce, only: InitNetBalance, UpdateNetBalance
         use gate_calc, only: AssignGateCompPoints
         use netcntrl, only: TotalNetworkIterations, &
                             IncrementNetworkTimeStep, Restart_Write
-        use solveutil
-        use solvealloc
+        use solvealloc, only: InitializeSolver
         use netbnd, only: SetBoundaryValuesFromData
-        use oprule_management
-        use tidefile
-        use reservoirs
-        use reservoir_geometry
-        use channel_schematic
-        use dss
-        use mod_readdss
+        use oprule_management, only: InitOpRules
+        use tidefile, only: AverageFlow, &
+                            InitHydroTidefile, WriteHydroToTidefile, &
+                            DetermineFirstTidefileInterval
+        use reservoirs, only: InitReservoirFlow
+        use reservoir_geometry, only: calculateReservoirGeometry
+        use channel_schematic, only: TotalStreamLocations
         use update_network, only: UpdateNetwork
-        IMPLICIT NONE
 
-    !   Purpose:  Compute 1-dimensional streamflow in a network of open
-    !             channels, in terms of discharge and water-surface
-    !             elevation.
-    !
-    !             Optionally density is allowed to vary with time and
-    !             distance.  Currently density at both ends of each channel
-    !             must be read from a user-supplied file if this option is
-    !             used.
-    !
-    !             Optionally sinuosity is allowed to vary with depth of flow
-    !             and distance.  Sinuosity information is supplied through
-    !             channel-properties tables.
+        implicit none
 
-    !   Version:  1993.01 (FORTRAN)
+        !   Purpose:  Compute 1-dimensional streamflow in a network of open
+        !             channels, in terms of discharge and water-surface
+        !             elevation.
+        !
+        !             Optionally density is allowed to vary with time and
+        !             distance.  Currently density at both ends of each channel
+        !             must be read from a user-supplied file if this option is
+        !             used.
+        !
+        !             Optionally sinuosity is allowed to vary with depth of flow
+        !             and distance.  Sinuosity information is supplied through
+        !             channel-properties tables.
 
-    !                      Lew DeLong
-    !                      U.S.G.S., Water Resources Division
-    !                      Office of Surface Water
-    !                      Stennis Space Center, MS, 39529
-    !                      January 1992
-    !
-    !                      David Thompson, formerly with U.S.G.S., currently
-    !                      with Texas Tech University, is primarily responsible
-    !                      for adding file utilities, buffered output of
-    !                      time-series and space-series results, string
-    !                      utilities, the master-file look-up module for
-    !                      relating user-supplied file names and unit numbers
-    !                      with internal defaults.
-    !
-    !                      Janice Fulford contributed routines necessary
-    !                      to represent general 3-parameter ratings
-    !                      capable of representing hydraulic structures.
-    !
-    !                      Other persons involved in the coding or
-    !                      modification of code used by FourPt include
-    !                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
-    !-----include '../input/time-varying/writedss.inc'
+        !   Version:  1993.01 (FORTRAN)
 
-    !   Local variables:
+        !                      Lew DeLong
+        !                      U.S.G.S., Water Resources Division
+        !                      Office of Surface Water
+        !                      Stennis Space Center, MS, 39529
+        !                      January 1992
+        !
+        !                      David Thompson, formerly with U.S.G.S., currently
+        !                      with Texas Tech University, is primarily responsible
+        !                      for adding file utilities, buffered output of
+        !                      time-series and space-series results, string
+        !                      utilities, the master-file look-up module for
+        !                      relating user-supplied file names and unit numbers
+        !                      with internal defaults.
+        !
+        !                      Janice Fulford contributed routines necessary
+        !                      to represent general 3-parameter ratings
+        !                      capable of representing hydraulic structures.
+        !
+        !                      Other persons involved in the coding or
+        !                      modification of code used by FourPt include
+        !                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
+        !-----include '../input/time-varying/writedss.inc'
+
+        !   Local variables:
         LOGICAL OK, isopen, echo_only, file_exists
 
         integer*4 &
@@ -113,19 +117,19 @@ contains
         logical :: updated
         real*8 reser_area, reser_vol
         integer fstat
-    !   Programmed by: Lew DeLong
-    !   Date:          February 1991
-    !   Modified by:   Lew DeLong
-    !   Last modified: December 1992
-    !   Version 93.01, January, 1993
-    !   Last modified: October 1994 Parviz Nader DWR
-    !   Last modified: September 1996 Ralph Finch DWR
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Lew DeLong
+        !   Last modified: December 1992
+        !   Version 93.01, January, 1993
+        !   Last modified: October 1994 Parviz Nader DWR
+        !   Last modified: September 1996 Ralph Finch DWR
 
         data init_input_file/' '/
 
-    !-----Implementation -------------------------------------------------
+        !-----Implementation -------------------------------------------------
 
-    !-----DSM2 module, name and version number
+        !-----DSM2 module, name and version number
         dsm2_module = hydro
         dsm2_name = 'Hydro'
 
@@ -142,14 +146,14 @@ contains
             iostat=istat &
             ) !! <NT>
 
-    !-----get optional starting input file from command line and
-    !-----simulation name for Database read
+        !-----get optional starting input file from command line and
+        !-----simulation name for Database read
 
         call get_command_args(init_input_file, model_name, echo_only)
-    !-----dsm2 initialization
+        !-----dsm2 initialization
         call dsm2_init
 
-    !---- hdf5 api on
+        !---- hdf5 api on
         call h5open_f(istat)
 
         if (.Not. InitOpRules()) Then
@@ -158,9 +162,9 @@ contains
             call exit(1)
         end if
 
-    !---- begin data reading
+        !---- begin data reading
 
-    !---- read all text into buffers and process envvironmental variables
+        !---- read all text into buffers and process envvironmental variables
         if (init_input_file .ne. ' ') then
             inquire (file=init_input_file, exist=file_exists)
             if (.not. file_exists) then
@@ -173,7 +177,7 @@ contains
             call buffer_input_grid()    ! processes grid
         end if
 
-    !------ process input that is in buffers
+        !------ process input that is in buffers
         call buffer_input_common()
         call buffer_input_hydro()
 
@@ -182,7 +186,7 @@ contains
         call write_input_buffers()
         if (echo_only) call exit(1)
 
-    !------ end of input reading and echo, start checking data
+        !------ end of input reading and echo, start checking data
 
         call check_fixed(istat)
         if (istat .ne. 0) then
@@ -204,7 +208,7 @@ contains
         julmin = start_julmin
         current_date = jmin2cdt(julmin)
 
-    !-----calculate julian minute of end of each DSS interval
+        !-----calculate julian minute of end of each DSS interval
         call update_intervals
 
         if (.Not. InitializeChannelNetwork()) Then
@@ -240,7 +244,7 @@ contains
         if (io_files(hydro, io_hdf5, io_write) .use) then ! hydro binary file output
             call DetermineFirstTidefileInterval()
             OK = InitHydroTidefile()
-    !--special treatment to avoid averaging in the begining
+            !--special treatment to avoid averaging in the begining
             julmin = julmin - time_step
             OK = AverageFlow()
             julmin = julmin + time_step
@@ -248,7 +252,7 @@ contains
             OK = WriteHydroToTidefile(.TRUE.)
         end if
 
-    605 format('Starting DSM2-Hydro at time: ', a)
+605     format('Starting DSM2-Hydro at time: ', a)
         write (unit_output, 605) current_date
         write (unit_screen, 605) current_date
         call store_outpaths(.false.)
@@ -280,19 +284,19 @@ contains
             END DO
 
             OK = IncrementNetworkTimeStep()
-    !--------calculate julian minute of end of each DSS interval
+            !--------calculate julian minute of end of each DSS interval
             !call update_intervals
 
             if (julmin .ge. next_display) then
-    610         format('Starting Hydro computations for time: ', a)
+610             format('Starting Hydro computations for time: ', a)
                 write (unit_output, 610) current_date
                 write (unit_screen, 610) current_date
                 next_display = incr_intvl(next_display, display_intvl, &
-                                        TO_BOUNDARY)
+                                          TO_BOUNDARY)
             end if
 
             if (check_input_data) then
-    !-----------just check input data for bogus values; no simulation
+                !-----------just check input data for bogus values; no simulation
                 OK = SetBoundaryValuesFromData()
             else                   ! full simulation
                 updated = UpdateNetwork()
@@ -307,7 +311,7 @@ contains
 
                 if (julmin .ge. next_output_flush) then
                     next_output_flush = incr_intvl(next_output_flush, &
-                                                flush_intvl, TO_BOUNDARY)
+                                                   flush_intvl, TO_BOUNDARY)
                     call store_outpaths(.true.)
                 else
                     call store_outpaths(.false.)
@@ -320,12 +324,12 @@ contains
 
                 if (io_files(hydro, io_restart, io_write) .use) then
                     if (Restart_Write .and. julmin .ge. next_restart_output) then
-    !-----------------Write the hydrodynamic information at the end of
-    !-----------------every interval to ascii file in case of any
-    !-----------------interruptions to the model
+                        ! Write the hydrodynamic information at the end of
+                        ! every interval to ascii file in case of any
+                        ! interruptions to the model
                         next_restart_output = incr_intvl(next_restart_output, &
-                                                        io_files(hydro, io_restart, io_write) .interval, &
-                                                        TO_BOUNDARY)
+                                                         io_files(hydro, io_restart, io_write) .interval, &
+                                                         TO_BOUNDARY)
                         OK = WriteNetworkRestartFile()
                     end if
 
@@ -352,43 +356,43 @@ contains
 
         if (.not. check_input_data) then
             if (io_files(hydro, io_restart, io_write) .use) then
-    !-----------Write network restart file.
+                !-----------Write network restart file.
                 OK = WriteNetworkRestartFile()
             end if
 
-    !--------Write time-series network results.
+            !--------Write time-series network results.
             call store_outpaths(.true.) ! flush temp files
             if (need_tmp_outfiles .and. &
                 .not. binary_output) call wrt_outpaths
         end if
 
-    !--------close HDF5
+        !--------close HDF5
         if (io_files(hydro, io_hdf5, io_write) .use) then
             call CloseHDF5()
         end if
 
-    !-----close all DSS input files
+        !-----close all DSS input files
         i = 1
         do while (i .le. max_dssinfiles .and. &
-                infilenames(i) .ne. ' ')
+                  infilenames(i) .ne. ' ')
             call zclose(ifltab_in(1, i))
             i = i + 1
         end do
 
         if (dss_direct) then
-    !--------close all DSS output files
+            !--------close all DSS output files
             i = 1
             do while (i .le. max_dssoutfiles .and. &
-                    outfilenames(i) .ne. ' ')
+                      outfilenames(i) .ne. ' ')
                 call zclose(ifltab_out(1, i))
                 i = i + 1
             end do
         end if
 
-    !-----Compute and report final volume and mass balances.
-    !--         OK = ReportNetBalance()
+        !-----Compute and report final volume and mass balances.
+        !--         OK = ReportNetBalance()
 
-    900 WRITE (unit_screen, *) '   -----------------------------'
+900     WRITE (unit_screen, *) '   -----------------------------'
         WRITE (unit_screen, *) ' '
         WRITE (unit_screen, *) ' ', &
             TotalNetworkIterations(), ' total network iterations...'
@@ -407,14 +411,14 @@ contains
         WRITE (unit_output, *) &
             '   -----------------------------'
 
-    !      OK = CloseSolver()
+        !      OK = CloseSolver()
 
         inquire (unit_output, opened=isopen)
         if (isopen) close (unit_output, err=1222)
         inquire (unit_screen, opened=isopen)
         if (isopen) close (unit_screen, err=1222)
 
-    1222 call exit(0)
+1222    call exit(0)
     end subroutine main_fourpt
 
 end module FourPt_main
