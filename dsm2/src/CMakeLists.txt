@@ -99,7 +99,7 @@ add_subdirectory(${DSM2_PATTERN_MATCH})
 add_subdirectory(${DSM2_TIMEVAR})
 add_subdirectory(${DSM2_PYTHON})
 #--------------- HYDRO EXE -------------------------
-add_executable(hydro_exe hydro/fourpt_driver.f90)
+add_executable(hydro_exe hydro/hydro_driver.f90)
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
 add_dependencies(hydro_exe fourpt)
 if (WIN32)

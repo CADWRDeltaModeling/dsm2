@@ -20,119 +20,128 @@
 
 !== Public  (FourPt) =================================================
 
-module FourPt_main
+module fourpt
+    use iso_c_binding
+    use hdf5, only: h5open_f
+    use io_units, only: unit_screen, unit_error, unit_output
+    use runtime_data, only: dsm2_module, dsm2_name, model_name, &
+                            prev_julmin, julmin, start_julmin, &
+                            current_date, time_step, &
+                            display_intvl, flush_intvl, end_julmin, &
+                            initialize_runtimes
+    use iopath_data, only: hydro, io_hdf5, io_write, io_files, &
+                           to_boundary, io_restart, check_input_data, &
+                           need_tmp_outfiles, binary_output, &
+                           max_dssinfiles, infilenames, &
+                           ifltab_in, ifltab_out, &
+                           dss_direct, max_dssoutfiles, outfilenames
+    use grid_data, only: nreser, res_geom
+
+    use chconnec, only: YResOld, Yres, VResOld, QResOld, QRes
+    use chstatus, only: QOld, Q, &
+                        InitializeChannelNetwork, WriteNetworkRestartFile
+    use virt_xsect, only: virtual_xsect
+    use netblnce, only: InitNetBalance, UpdateNetBalance
+    use gate_calc, only: AssignGateCompPoints
+    use netcntrl, only: TotalNetworkIterations, &
+                        IncrementNetworkTimeStep, Restart_Write
+    use solvealloc, only: InitializeSolver
+    use netbnd, only: SetBoundaryValuesFromData
+    use oprule_management, only: InitOpRules
+    use tidefile, only: AverageFlow, &
+                        InitHydroTidefile, WriteHydroToTidefile, &
+                        DetermineFirstTidefileInterval
+    use reservoirs, only: InitReservoirFlow
+    use reservoir_geometry, only: calculateReservoirGeometry
+    use channel_schematic, only: TotalStreamLocations
+    use update_network, only: UpdateNetwork
+    implicit none
+
+    !   Purpose:  Compute 1-dimensional streamflow in a network of open
+    !             channels, in terms of discharge and water-surface
+    !             elevation.
+    !
+    !             Optionally density is allowed to vary with time and
+    !             distance.  Currently density at both ends of each channel
+    !             must be read from a user-supplied file if this option is
+    !             used.
+    !
+    !             Optionally sinuosity is allowed to vary with depth of flow
+    !             and distance.  Sinuosity information is supplied through
+    !             channel-properties tables.
+
+    !   Version:  1993.01 (FORTRAN)
+
+    !                      Lew DeLong
+    !                      U.S.G.S., Water Resources Division
+    !                      Office of Surface Water
+    !                      Stennis Space Center, MS, 39529
+    !                      January 1992
+    !
+    !                      David Thompson, formerly with U.S.G.S., currently
+    !                      with Texas Tech University, is primarily responsible
+    !                      for adding file utilities, buffered output of
+    !                      time-series and space-series results, string
+    !                      utilities, the master-file look-up module for
+    !                      relating user-supplied file names and unit numbers
+    !                      with internal defaults.
+    !
+    !                      Janice Fulford contributed routines necessary
+    !                      to represent general 3-parameter ratings
+    !                      capable of representing hydraulic structures.
+    !
+    !                      Other persons involved in the coding or
+    !                      modification of code used by FourPt include
+    !                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
+    !-----include '../input/time-varying/writedss.inc'
+
+    !   Local variables:
+    LOGICAL :: OK, isopen, echo_only, file_exists
+
+    integer*4, external :: &
+        incr_intvl          ! increment julian minute by interval function
+    integer*4 &
+        next_output_flush, &  ! next time to flush output
+        next_display, &       ! next time to display model time
+        next_restart_output   ! next time to write restart file
+
+    integer &
+        istat, &              ! status of fixed input
+        i, j                  ! loop index
+
+    character &
+        init_input_file*130    ! initial input file on command line [optional]
+    character, external :: &
+        jmin2cdt*14            ! convert from julian minute to char date/time
+
+    logical :: updated
+    real*8 reser_area, reser_vol
+    integer fstat
+    !   Programmed by: Lew DeLong
+    !   Date:          February 1991
+    !   Modified by:   Lew DeLong
+    !   Last modified: December 1992
+    !   Version 93.01, January, 1993
+    !   Last modified: October 1994 Parviz Nader DWR
+    !   Last modified: September 1996 Ralph Finch DWR
+
+    data init_input_file/' '/
 contains
-    subroutine main_fourpt()
-        use hdf5, only: h5open_f
-        use io_units, only: unit_screen, unit_error, unit_output
-        use runtime_data, only: dsm2_module, dsm2_name, model_name, &
-                                prev_julmin, julmin, start_julmin, &
-                                current_date, time_step, &
-                                display_intvl, flush_intvl, end_julmin, &
-                                initialize_runtimes
-        use iopath_data, only: hydro, io_hdf5, io_write, io_files, &
-                               to_boundary, io_restart, check_input_data, &
-                               need_tmp_outfiles, binary_output, &
-                               max_dssinfiles, infilenames, &
-                               ifltab_in, ifltab_out, &
-                               dss_direct, max_dssoutfiles, outfilenames
-        use grid_data, only: nreser, res_geom
+    subroutine native_main()
+        call fourpt_init
+        call get_command_args(init_input_file, model_name, echo_only)
+        call fourpt_main
+    end subroutine native_main
 
-        use chconnec, only: YResOld, Yres, VResOld, QResOld, QRes
-        use chstatus, only: QOld, Q, &
-                            InitializeChannelNetwork, WriteNetworkRestartFile
-        use virt_xsect, only: virtual_xsect
-        use netblnce, only: InitNetBalance, UpdateNetBalance
-        use gate_calc, only: AssignGateCompPoints
-        use netcntrl, only: TotalNetworkIterations, &
-                            IncrementNetworkTimeStep, Restart_Write
-        use solvealloc, only: InitializeSolver
-        use netbnd, only: SetBoundaryValuesFromData
-        use oprule_management, only: InitOpRules
-        use tidefile, only: AverageFlow, &
-                            InitHydroTidefile, WriteHydroToTidefile, &
-                            DetermineFirstTidefileInterval
-        use reservoirs, only: InitReservoirFlow
-        use reservoir_geometry, only: calculateReservoirGeometry
-        use channel_schematic, only: TotalStreamLocations
-        use update_network, only: UpdateNetwork
+    subroutine python_main()
+        call fourpt_init
+        call fourpt_main
+    end subroutine python_main
 
-        implicit none
-
-        !   Purpose:  Compute 1-dimensional streamflow in a network of open
-        !             channels, in terms of discharge and water-surface
-        !             elevation.
-        !
-        !             Optionally density is allowed to vary with time and
-        !             distance.  Currently density at both ends of each channel
-        !             must be read from a user-supplied file if this option is
-        !             used.
-        !
-        !             Optionally sinuosity is allowed to vary with depth of flow
-        !             and distance.  Sinuosity information is supplied through
-        !             channel-properties tables.
-
-        !   Version:  1993.01 (FORTRAN)
-
-        !                      Lew DeLong
-        !                      U.S.G.S., Water Resources Division
-        !                      Office of Surface Water
-        !                      Stennis Space Center, MS, 39529
-        !                      January 1992
-        !
-        !                      David Thompson, formerly with U.S.G.S., currently
-        !                      with Texas Tech University, is primarily responsible
-        !                      for adding file utilities, buffered output of
-        !                      time-series and space-series results, string
-        !                      utilities, the master-file look-up module for
-        !                      relating user-supplied file names and unit numbers
-        !                      with internal defaults.
-        !
-        !                      Janice Fulford contributed routines necessary
-        !                      to represent general 3-parameter ratings
-        !                      capable of representing hydraulic structures.
-        !
-        !                      Other persons involved in the coding or
-        !                      modification of code used by FourPt include
-        !                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
-        !-----include '../input/time-varying/writedss.inc'
-
-        !   Local variables:
-        LOGICAL OK, isopen, echo_only, file_exists
-
-        integer*4 &
-            incr_intvl, &         ! increment julian minute by interval function
-            next_output_flush, &  ! next time to flush output
-            next_display, &       ! next time to display model time
-            next_restart_output   ! next time to write restart file
-
-        integer &
-            istat, &              ! status of fixed input
-            i, j                  ! loop index
-
-        character &
-            init_input_file*130, & ! initial input file on command line [optional]
-            jmin2cdt*14            ! convert from julian minute to char date/time
-
-        logical :: updated
-        real*8 reser_area, reser_vol
-        integer fstat
-        !   Programmed by: Lew DeLong
-        !   Date:          February 1991
-        !   Modified by:   Lew DeLong
-        !   Last modified: December 1992
-        !   Version 93.01, January, 1993
-        !   Last modified: October 1994 Parviz Nader DWR
-        !   Last modified: September 1996 Ralph Finch DWR
-
-        data init_input_file/' '/
-
-        !-----Implementation -------------------------------------------------
-
+    subroutine fourpt_init()
         !-----DSM2 module, name and version number
         dsm2_module = hydro
         dsm2_name = 'Hydro'
-
         open ( &
             unit_screen, &
             carriagecontrol='list', &
@@ -148,8 +157,9 @@ contains
 
         !-----get optional starting input file from command line and
         !-----simulation name for Database read
+    end subroutine fourpt_init
 
-        call get_command_args(init_input_file, model_name, echo_only)
+    subroutine fourpt_main()
         !-----dsm2 initialization
         call dsm2_hydro_init
 
@@ -419,6 +429,6 @@ contains
         if (isopen) close (unit_screen, err=1222)
 
 1222    call exit(0)
-    end subroutine main_fourpt
+    end subroutine fourpt_main
 
-end module FourPt_main
+end module fourpt
