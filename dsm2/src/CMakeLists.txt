@@ -49,6 +49,7 @@ set (DSM2_PTM      ${DSM2_SOURCE_DIR}/ptm)
 set (DSM2_QUAL      ${DSM2_SOURCE_DIR}/qual)
 set (DSM2_SPARSE      ${DSM2_SOURCE_DIR}/sparse)
 set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
+set (DSM2_PYTHON      ${DSM2_SOURCE_DIR}/python)
 #
 #FIXME: change top directory to one-less. There should be a better way
 set(DSM2_TOP_DIR "../..")
@@ -96,6 +97,7 @@ add_subdirectory(${DSM2_OPRULE_INTERFACE})
 add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
 add_subdirectory(${DSM2_TIMEVAR})
+add_subdirectory(${DSM2_PYTHON})
 #------------------ DEPENDENCIES ---------------------
 add_dependencies(oprule_interface_fortran common fixed timevar input_storage hydrolib oprule_interface_cpp pattern_match_cpp input_storage)
 add_dependencies(hydrolib common fixed input_storage_cpp input_storage hdf_tidefile_cpp hdf_tidefile_fortran klu_fortran pattern_match_cpp sparse timevar)
