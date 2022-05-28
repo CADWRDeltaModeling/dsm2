@@ -194,7 +194,7 @@ module time_utilities
             read(time_intvl_tmp,*, err=610) readint
             time_intvl = real(readint)
         else
-            read(time_intvl_tmp,'(f)', err=610) time_intvl
+            read(time_intvl_tmp,*, err=610) time_intvl
         endif
         if (index(time_intvl_str,'min') .gt. 0) time_intvl = time_intvl
         if (index(time_intvl_str,'hour') .gt. 0) time_intvl = time_intvl*sixty
