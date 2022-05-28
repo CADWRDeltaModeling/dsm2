@@ -98,18 +98,10 @@ add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
 add_subdirectory(${DSM2_TIMEVAR})
 add_subdirectory(${DSM2_PYTHON})
-#------------------ DEPENDENCIES ---------------------
-add_dependencies(oprule_interface_fortran common fixed timevar input_storage hydrolib oprule_interface_cpp pattern_match_cpp input_storage)
-add_dependencies(hydrolib common fixed input_storage_cpp input_storage hdf_tidefile_cpp hdf_tidefile_fortran klu_fortran pattern_match_cpp sparse timevar)
-add_dependencies(input_storage input_storage_cpp)
-add_dependencies(fixed hdf_tidefile_fortran common input_storage timevar)
-add_dependencies(timevar common)
-add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
-add_dependencies(klu_fortran common sparse)
 #--------------- HYDRO EXE -------------------------
 add_executable(hydro_exe hydro/fourpt_driver.f90)
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
-add_dependencies(hydro_exe fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
+add_dependencies(hydro_exe fourpt)
 if (WIN32)
 else (WIN32)
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
@@ -125,7 +117,7 @@ else (WIN32)
 # full static is not working on linux due to lack of standard .a libraries
 set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(hydro_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
+target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
 endif (WIN32)
 if (WIN32)
 target_link_libraries(hydro_exe
@@ -174,9 +166,10 @@ else (WIN32)
 endif (WIN32)
 add_executable(qual ${QUAL_SOURCES})
 set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
+add_dependencies(qual fixed)
 if (WIN32)
 target_link_libraries(qual debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-target_link_libraries(qual common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
+target_link_libraries(qual gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
 target_link_libraries(qual
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -193,7 +186,7 @@ target_link_libraries(qual
 else (WIN32)
 set_target_properties(qual PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
+target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
 target_link_libraries(qual
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -303,16 +296,7 @@ file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
 add_executable(sed_bed_init ${SEDIMENT_BED_SETUP_SOURCES})
 set_property(TARGET sed_bed_init PROPERTY LINKER_LANGUAGE Fortran)
 #------------------ DEPENDENCIES ---------------------
-add_dependencies(do_module gtm_core process_io transport)
-add_dependencies(input_storage input_storage_cpp)
-add_dependencies(mercury gtm_core sediment_bed)
-add_dependencies(process_io gtm_core input_storage input_storage_cpp)
-add_dependencies(sediment sediment_bed_core)
-add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
-add_dependencies(sediment_bed_core gtm_core)
-add_dependencies(transport gtm_core)
-add_dependencies(fixed gtm_core)
-target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+target_link_libraries(gtm mercury gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
 if (WIN32)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
 target_link_libraries(gtm
@@ -353,7 +337,7 @@ else (WIN32)
    set (CMAKE_Fortran_FLAGS "-extend-source 132")
 endif (WIN32)
 
-target_link_libraries(sed_bed_init gtm_core process_io)
+target_link_libraries(sed_bed_init common process_io)
 set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "/STACK:8000000")
 if (WIN32)
 target_link_libraries(sed_bed_init

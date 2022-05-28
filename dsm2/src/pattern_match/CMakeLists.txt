@@ -4,5 +4,5 @@ enable_language(CXX)
 # search by file pattern and include in library
 file(GLOB sources *.cpp)
 include_directories("${BOOST_DIR}")
-add_library(pattern_match_cpp STATIC ${sources})
+add_library(pattern_match_cpp ${sources})
 target_compile_options(pattern_match_cpp PRIVATE "-fPIC")
