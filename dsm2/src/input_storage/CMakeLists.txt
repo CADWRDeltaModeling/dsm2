@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.2.2)
 enable_language(CXX Fortran)
 add_custom_command(OUTPUT input_storage_fortran.f90
-  COMMAND echo python generate.py
+  COMMAND python generate.py
   DEPENDS generate.py
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # search by file pattern and include in library
