@@ -34,6 +34,8 @@ list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/ItemInputState.cpp")
 file(GLOB HEADERS src/*.h)
 include_directories(src ${HDF5_FORTRAN_INCLUDE_PATH})
 add_library(input_storage ${SOURCES} ${HEADERS})
+set_target_properties(input_storage
+    PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_DEBUG_POSTFIX "d")
 if (WIN32)
     set_target_properties(input_storage PROPERTIES OUTPUT_NAME "input_storage_vs14_mt")

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.2.2)
 PROJECT(OpRuleAll)
 enable_language(C CXX Fortran)
-# 
+#
 string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
 #-----------------------------------------------------------------------------
 # Set the core names of all the libraries
@@ -24,7 +24,7 @@ if(MSVC)
   set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 else(MSVC)
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fPIC")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
   set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
 endif()
@@ -35,7 +35,9 @@ file(GLOB SOURCES lib/rule/*.cpp)
 file(GLOB HEADERS oprule/rule/*.h)
 include_directories(${CMAKE_SOURCE_DIR})
 add_library(OperatingRule ${SOURCES} ${HEADERS})
-target_link_libraries(OperatingRule 
+set_target_properties(OperatingRule
+    PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(OperatingRule
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -51,10 +53,10 @@ else (WIN32)
     set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_intel")
     set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
 endif (WIN32)
-add_custom_command(TARGET OperatingRule POST_BUILD 
-  COMMAND "${CMAKE_COMMAND}" -E copy 
+add_custom_command(TARGET OperatingRule POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E copy
      "$<TARGET_FILE:OperatingRule>"
-     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OperatingRule>" 
+     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OperatingRule>"
   COMMENT "Copying OperatingRule lib to output directory")
 #--------------------- OPRULE PARSER LIB ------------------------------------
 file(GLOB SOURCES lib/parser/*.cpp)
@@ -73,6 +75,8 @@ list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/Parser-notyet
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ptr_wrapper.h")
 include_directories(src)
 add_library(OpRuleParser ${SOURCES} ${HEADERS} ${PARSER_HEADERS} "oprule/rule/ActionSet.h")
+set_target_properties(OpRuleParser
+    PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # add pre build command
 if (WIN32)
  set (MOVE_CMD move /Y)
@@ -88,10 +92,9 @@ add_custom_command(
     OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp"
     COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
     COMMAND ${MOVE_CMD} op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
-    COMMAND ${MOVE_CMD} op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.tab.h
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
     COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
-target_link_libraries(OpRuleParser 
+target_link_libraries(OpRuleParser
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -107,10 +110,10 @@ else (WIN32)
     set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_intel")
     set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
 endif (WIN32)
-add_custom_command(TARGET OpRuleParser POST_BUILD 
-  COMMAND "${CMAKE_COMMAND}" -E copy 
+add_custom_command(TARGET OpRuleParser POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E copy
      "$<TARGET_FILE:OpRuleParser>"
-     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OpRuleParser>" 
+     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OpRuleParser>"
   COMMENT "Copying OperatingRule parser lib to output directory")
 
 #-------------------- TestOperatingRule exe -----------------
