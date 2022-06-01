@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -20,6 +20,7 @@ C!</license>
 
       function reservoir_has_node(reservoir_id, node_internal_id)
       use grid_data
+      use utilities, only: loccarr, dates2diff
       implicit none
       integer reservoir_id, node_internal_id
       integer numnodes,j
@@ -28,13 +29,13 @@ C!</license>
       numnodes = res_geom(reservoir_id).nnodes
       do j=1,numnodes
           reservoir_has_node=res_geom(reservoir_id).node_no(j) .eq. node_internal_id
-          if (reservoir_has_node) then 
+          if (reservoir_has_node) then
               exit
           endif
       enddo
       return
       end function
-      
+
       subroutine process_output_reservoir(Name,
      &                                    LocName,
      &                                    SubLoc,
@@ -42,7 +43,7 @@ C!</license>
      &                                    Interval,
      &                                    PerOp,
      &                                    SourceGroup,
-     &                                    Filename) 
+     &                                    Filename)
 
       use Groups, only: GROUP_ALL
       use io_units
@@ -50,6 +51,7 @@ C!</license>
       use iopath_data
       use grid_data
       use envvar
+      use utilities, only: loccarr, split_epart
       implicit none
 
       character
@@ -69,15 +71,14 @@ C!</license>
       logical reservoir_has_node
       integer, external :: name_to_objno
       integer, external :: ext2int, ext2intnode
-      integer, external :: loccarr       
-      integer, external :: get_objnumber      
+      integer, external :: get_objnumber
       call locase(name)
-      call locase(locname)    
-      call locase(sourcegroup)      
+      call locase(locname)
+      call locase(sourcegroup)
       call locase(param)
       call locase(perop)
       call locase(interval)
-      
+
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
                write(unit_error,630)
@@ -104,7 +105,7 @@ c-----------find object number given object ID
             pathoutput(noutpaths).obj_name=LocName
             pathoutput(noutpaths).obj_no=  name_to_objno(obj_reservoir, locName)
             if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
-               write(unit_error,*)'Ignoring output TS: ', trim(name), 
+               write(unit_error,*)'Ignoring output TS: ', trim(name),
      &              ' request for unrecognized reservoir ', locName
 	         noutpaths=noutpaths-1
                return
@@ -114,7 +115,7 @@ c-----------find object number given object ID
                if ( .NOT. reservoir_has_node(pathoutput(noutpaths).obj_no,ext2intnode(SubLoc))) then
                   write(unit_error,*) '** ERROR ** :: Output requested at node not ',
      &                'connected to Reservoir'
-                  write(unit_error,*) 'Reservoir :', 
+                  write(unit_error,*) 'Reservoir :',
      &                 pathoutput(noutpaths).obj_name, 'Node: ', SubLoc
                   call exit(-4)
                endif
@@ -125,7 +126,7 @@ c-----------find object number given object ID
                   write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,
      &                'Node: ',SubLoc
                   call exit(-3)
-               end if               
+               end if
             else
                pathoutput(noutpaths).res_node_no = miss_val_i
             end if
@@ -162,7 +163,7 @@ c-----------accumulate unique dss output filenames
             endif
 
             pathoutput(noutpaths).meas_type=Param
-            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
+            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'
             call assign_output_units(pathoutput(noutpaths).units,Param)
             if (PerOp(1:4) .eq. 'inst')
      &           pathoutput(noutpaths).per_type=per_type_inst_val
@@ -177,9 +178,9 @@ c-----------accumulate unique dss output filenames
      &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths,
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
-     
-     
+
+
  610  format(/a)
- 630  format(/a,i5)     
+ 630  format(/a,i5)
       return
       end subroutine

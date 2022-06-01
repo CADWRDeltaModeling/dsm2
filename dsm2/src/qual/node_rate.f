@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -29,7 +29,8 @@ c-----for given group index (if none given ignore group).
       use common_tide
       use iopath_data
       use grid_data
-      use network 
+      use network
+      use utilities
       implicit none
 
       include 'param.inc'

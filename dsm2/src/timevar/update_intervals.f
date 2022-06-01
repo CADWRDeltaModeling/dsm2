@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -25,10 +25,8 @@
       use runtime_data
       use constants
       use intervals
+      use utilities, only: incr_intvl
       implicit none
-
-      integer*4 &
-          incr_intvl          ! increment julian minute by interval function
 
       jmin_15min=incr_intvl(julmin,'15MIN',NEAREST_BOUNDARY)
       jmin_15min_prev=incr_intvl(julmin,'-15MIN',NEAREST_BOUNDARY)

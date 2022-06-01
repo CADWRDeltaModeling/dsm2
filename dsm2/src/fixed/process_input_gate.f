@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -23,15 +23,16 @@ C!</license>
      &                              Param,
      &                              Fillin,
      &                              Filename,
-     &                              InPath) 
+     &                              InPath)
 
       use Gates
       use io_units
       use iopath_data
       use logging
       use envvar
+      use utilities, only: loccarr, fillin_code, split_epart
       implicit none
- 
+
 
       character
      &     InPath*392
@@ -42,14 +43,13 @@ C!</license>
      &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
-     &     ,fillin*8     
+     &     ,fillin*8
 
 
       integer*4
      &     Sign                ! sign restriction on input
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
-     &     ,loccarr             ! locate string in char array function
      &     ,name_to_objno       ! function to get object number
      &     ,gateNo,devNo,devType
      &     ,istat
@@ -57,7 +57,6 @@ C!</license>
       integer :: gatendx
 
       integer, external :: data_types
-      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -98,8 +97,8 @@ C!</license>
      &            ' attached to unrecognized object: ',LocName
                   istat=-3
                   return
-               end if            
-             
+               end if
+
             if (FileName(:8) .eq. 'constant' .or.
      &             FileName(:8) .eq. 'CONSTANT') then
                read(InPath,'(1f10.0)') ftmp
@@ -107,7 +106,7 @@ C!</license>
                pathinput(ninpaths).variable=Param
                pathinput(ninpaths).fillin=fill_last
                pathinput(ninpaths).path=trim(InPath)
-               pathinput(ninpaths).filename=trim(FileName)               
+               pathinput(ninpaths).filename=trim(FileName)
             else
 c--------------Break up the input pathname
 
@@ -186,14 +185,14 @@ c-----------set data type fixme:groups is this right
                   devType=gateArray(gateNo).Devices(devNo).structureType
                   if( gateNo .ne. miss_val_i .and. devNo .ne. miss_val_i) then
                      if( devType .eq. miss_val_i .and. param(1:3).eq.'pos') then
-                        write(unit_error,*)  
+                        write(unit_error,*)
      &                       "Time series for device position in a device with no flow control. Gate: "
      &                       // trim(LocName) //
      &                       ", Device: "// trim(subloc) // ", Parameter: " // param
                         istat=-3
                         return
                      end if
-                     
+
                      if (param(1:3) .eq. 'pos' .and. len_trim(Param) .eq. 3) then
                         write(unit_error,*)
      &                    "Time series variable 'pos' has been deprecated. "
@@ -208,20 +207,20 @@ c-----------set data type fixme:groups is this right
                      end if
 
                      if (param(1:2) .eq. 'op') then
-                        if (param(4:5) .eq. 'to' .and. 
+                        if (param(4:5) .eq. 'to' .and.
      &                       param(7:10) .eq. 'node') then
                            pathinput(ninpaths).gate_param = gate_op_to_node
-                        else if (param(4:7) .eq. 'from' .and. 
-     &                          param(9:12) .eq. 'node') then 
+                        else if (param(4:7) .eq. 'from' .and.
+     &                          param(9:12) .eq. 'node') then
                            pathinput(ninpaths).gate_param = gate_op_from_node
                         else
                            pathinput(ninpaths).gate_param = gate_operation
                         end if
 
-                        
-                        if( pathinput(ninpaths).gate_param .eq. gate_operation 
-     &                       .or. 
-     &                       pathinput(ninpaths).gate_param .eq. gate_op_to_node) 
+
+                        if( pathinput(ninpaths).gate_param .eq. gate_operation
+     &                       .or.
+     &                       pathinput(ninpaths).gate_param .eq. gate_op_to_node)
      &                       then ! bidirectional or to_node
                            call datasource_from_path(
      &                          gateArray(gateNo).Devices(
@@ -234,9 +233,9 @@ c-----------set data type fixme:groups is this right
 
                         endif
 
-                        if( pathinput(ninpaths).gate_param .eq. gate_operation 
+                        if( pathinput(ninpaths).gate_param .eq. gate_operation
      &                       .or.
-     &                       pathinput(ninpaths).gate_param .eq. gate_op_from_node) 
+     &                       pathinput(ninpaths).gate_param .eq. gate_op_from_node)
      &                       then !bidirectional or from_node
                            call datasource_from_path(
      &                          gateArray(gateNo).Devices(
@@ -287,8 +286,8 @@ c-----------set data type fixme:groups is this right
      &                          ).Devices(devNo).elev_datasource)
 
                      else
-                        write(unit_error,*)  
-     &                       "Unknown time series parameter. Gate: " 
+                        write(unit_error,*)
+     &                       "Unknown time series parameter. Gate: "
      &                       // trim(LocName) //
      &                       ", Device: "// trim(subloc) //
      &                       ", Parameter: " // param

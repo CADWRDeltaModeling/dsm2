@@ -36,6 +36,7 @@ contains
         !use network
         !use netbnd
         !use chconnec
+        use utilities, only: jmin2cdt
         implicit none
 
         !-----Retrieve time-varying data from DSS, if necessary, and then
@@ -84,17 +85,14 @@ contains
         integer*4 :: jul2          ! increment time interval function
         integer*4 :: js_data          ! increment time interval function
         integer*4 :: jm_next          ! increment time interval function
-        integer*4 :: cdt2jmin          ! increment time interval function
         integer*4 :: timediff_dat          ! increment time interval function
         integer*4 :: timediff_val          ! increment time interval function
-        integer*4 :: incr_intvl          ! increment time interval function
 
         double precision :: val1            ! values used for interpolating
         double precision :: val2            ! values used for interpolating
 
         character*14 :: datetime1
         character*14 :: datetime2
-        character*14 :: jmin2cdt
         character*5 :: current_sync  ! synchronize string for model time
         character*8 :: per_type      ! per-aver or inst-val
         character*32 :: ce           ! DSS E part
@@ -103,7 +101,6 @@ contains
 
         data last_ndx_next/max_inputpaths*1/
         save last_ndx_next, last_value
-        external jmin2cdt
 
 610     format(/a, ' data in path:'/a &
                 /' At data time: ', a, ' model time: ', a &
@@ -444,7 +441,7 @@ contains
                                  last_ndx, max_v, max_paths)
         use constants
         use type_defs
-!
+        use utilities, only: jmin2cdt, get_intvl
 !-----Find index in julian minute array that matches the DSS part to
 !-----synchronize with the current time
 
@@ -467,7 +464,6 @@ contains
 
         character*14 :: &
             jmv_cdt*14            ! julian minute to character function
-        character*14 :: jmin2cdt            ! julian minute to character function
 
         character*5 :: &
             jmv_intvl            ! interval strings for jmv_cdt

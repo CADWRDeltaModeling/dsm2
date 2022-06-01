@@ -55,6 +55,7 @@ module fourpt
     use reservoir_geometry, only: calculateReservoirGeometry
     use channel_schematic, only: TotalStreamLocations
     use update_network, only: UpdateNetwork
+    use utilities, only: jmin2cdt, incr_intvl, get_command_args
     implicit none
 
     !   Purpose:  Compute 1-dimensional streamflow in a network of open
@@ -98,8 +99,8 @@ module fourpt
     !   Local variables:
     LOGICAL :: OK, isopen, echo_only, file_exists
 
-    integer*4, external :: &
-        incr_intvl          ! increment julian minute by interval function
+    ! integer*4, external :: &
+    !     incr_intvl          ! increment julian minute by interval function
     integer*4 &
         next_output_flush, &  ! next time to flush output
         next_display, &       ! next time to display model time
@@ -111,8 +112,8 @@ module fourpt
 
     character &
         init_input_file*130    ! initial input file on command line [optional]
-    character, external :: &
-        jmin2cdt*14            ! convert from julian minute to char date/time
+    ! character, external :: &
+    !     jmin2cdt*14            ! convert from julian minute to char date/time
 
     logical :: updated
     real*8 reser_area, reser_vol
@@ -132,7 +133,14 @@ contains
         call fourpt_init
         init_input_file = fname_inp
         call fourpt_main
-    end subroutine run_fourpt
+    end subroutine native_main
+
+    subroutine python_main(inp_file)
+        character(len=140), intent(in) :: inp_file
+        call fourpt_init
+        init_input_file = inp_file
+        call fourpt_main
+    end subroutine python_main
 
     subroutine fourpt_init()
         !-----DSM2 module, name and version number

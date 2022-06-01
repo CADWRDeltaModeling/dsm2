@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -32,6 +32,7 @@ c-----labels).
       use iopath_data
       use grid_data
       use network
+      use utilities
       implicit none
 
       include 'param.inc'
@@ -60,7 +61,7 @@ c-----local variables
      &     ,massrate(max_constituent) ! total external and internal massrate at reservoir [OUTPUT]
      &     ,conc                ! flow concentration
      &     ,node_qual           ! node quality function
-     
+
 
       type(from_to_t) from,to ! from and to objects
       real*8 :: tol = 1.0d-3         ! "zero" with a tolerance

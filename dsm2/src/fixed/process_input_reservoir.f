@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -25,7 +25,7 @@ C!</license>
      &                                   Sign,
      &                                   Fillin,
      &                                   Filename,
-     &                                   InPath) 
+     &                                   InPath)
 
       use Gates
       use io_units
@@ -33,6 +33,7 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use utilities, only: loccarr, diff2dates, split_epart, fillin_code
       implicit none
 
 
@@ -55,9 +56,7 @@ C!</license>
       integer, external :: name_to_objno
       integer, external :: data_types
       integer, external :: ext2intnode
-      integer, external :: loccarr
-      integer, external :: get_objnumber  
-      integer, external :: fillin_code
+      integer, external :: get_objnumber
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -66,8 +65,8 @@ C!</license>
       call locase(locname)
       call locase(param)
       call locase(fillin)
-      call locase(inpath)      
-      
+      call locase(inpath)
+
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630)
@@ -112,9 +111,9 @@ c-----------find object number given external object number
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
           pathinput(ninpaths).path=trim(InPath)
-          pathinput(ninpaths).filename=trim(FileName)          
+          pathinput(ninpaths).filename=trim(FileName)
       else
-c--------------Break up the input pathname     
+c--------------Break up the input pathname
           pathinput(ninpaths).path=trim(InPath)
           call chrlnb(InPath, npath)
           call zufpn(ca, na, cb, nb, cc, nc, cd, nd, ce, ne,

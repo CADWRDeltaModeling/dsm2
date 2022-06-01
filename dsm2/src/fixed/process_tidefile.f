@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -27,7 +27,8 @@ c-----tide file info.
       use common_tide
       use runtime_data
       use network
-      
+      use utilities
+
       implicit none
 
       logical
@@ -39,10 +40,7 @@ c-----local variables
       integer
      &     i                    ! index
 
-      integer*4
-     &     incr_intvl           ! increment julian minute by interval function
-     &     ,jmin
-     &     ,cdt2jmin             ! character date/time to julian minute
+      integer*4      jmin
       character*16  :: start_date
       character*16  :: end_date
       character*128 :: filename
@@ -52,7 +50,7 @@ c! The optional starting and ending datetimes specify when to use
 c! each tidefile; they override the timestamp in the tidefile
 c! itself.  If not given, the timestamp in the tidefile
 c! will be used for the start datetime, and it will be used to
-c! the end of the tidefile or model run. 
+c! the end of the tidefile or model run.
 
 c! Keywords used for the starting and ending datetimes can be used to
 c! simplify chaining together tidefiles.
@@ -104,7 +102,7 @@ c! none:	see above
       else  ! is a time
          tide_files(nintides).end_date=end_date
          tide_files(nintides).end_julmin=cdt2jmin(end_date)
-         if (tide_files(nintides).end_julmin .ne. miss_val_i) then 
+         if (tide_files(nintides).end_julmin .ne. miss_val_i) then
             ! valid datetime string input
             tide_files(nintides).end_julmin=
      &          min(cdt2jmin(tide_files(nintides).end_date), end_julmin)
@@ -115,12 +113,12 @@ c! none:	see above
                 write(unit_error,606) 'ending',tide_files(nintides).end_date,
      &                    trim(tide_files(nintides).filename)
  606            format(/'Invalid ',a,' date of ',a,' in tidefile:'/a)
-                call exit(-3)     
+                call exit(-3)
              endif
              tide_files(nintides).end_julmin=min(jmin,end_julmin)
-         end if                        
+         end if
       endif
-      if (tide_files(nintides).start_julmin .lt. tide_files(nintides).start_julmin_file 
+      if (tide_files(nintides).start_julmin .lt. tide_files(nintides).start_julmin_file
      &          .or.
      &    tide_files(nintides).end_julmin .gt. tide_files(nintides).end_julmin_file) then
 	    write(unit_error,*)"Tidefile contents do not span " //

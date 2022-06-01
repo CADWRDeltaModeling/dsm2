@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -69,8 +69,9 @@ module mod_readdss
       use constants
       use runtime_data
       use dss
+      use utilities, only: jmin2cdt, cdt2jmin, incr_intvl
       implicit none
-      
+
 !-----arguments
 
       integer &
@@ -109,11 +110,9 @@ module mod_readdss
 
       integer*4 &
           jul_jbdate &          ! jbdate in julian minutes &
-          ,cdt2jmin &           ! char date to julian minute function &
           ,ihm2m,inctim &       ! DSS functions &
           ,nmins &              ! number of minutes in this data interval &
           ,flags(maxinpsize) &  ! 32-bit data flags &
-          ,incr_intvl &         ! increment julian minute by interval function &
           ,jmin2               ! test used for jmin
 
       real*4 values(maxinpsize) &! data values &
@@ -125,11 +124,10 @@ module mod_readdss
           ,cstime*4 &           ! starting time of data block &
           ,cedt*14 &            ! nominal ending datetime of data block &
           ,cunits*8 &
-          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 &
-          ,jmin2cdt*14         ! julian min to char date/time function
+          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
 
-      data lflags /.true./ &     ! get data flags &
-          ,kheadu /0/ &         ! don't get data headers &
+      data lflags /.true./ &     ! get data flags
+          ,kheadu /0/ &         ! don't get data headers
           ,inflag /3/ &         ! retrieve values before & after time block &
           ,icomp /-1/          ! no compression
 

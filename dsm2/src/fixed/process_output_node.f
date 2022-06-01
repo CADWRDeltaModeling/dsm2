@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -19,7 +19,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
       subroutine process_output_node(name,
-     &                               LocNum, 
+     &                               LocNum,
      &                               param,
      &                               interval,
      &                               perop,
@@ -34,6 +34,7 @@ C!</license>
       use iopath_data
       use grid_data
       use envvar
+      use utilities, only: loccarr
       implicit none
 
       character
@@ -44,21 +45,20 @@ C!</license>
      &     ,PerOp*8
      &     ,LocName*32
      &     ,ctmp*200
-     &     ,SourceGroup*32      
+     &     ,SourceGroup*32
 
 
       integer*4
      &     ID                   ! transfer ID
      &     ,LocNum
      &     ,itmp
-          
+
 
       integer, external :: name_to_objno
       integer, external :: ext2int, ext2intnode
-      integer, external :: loccarr ! locate string in char array function
 
       call locase(name)
-      call locase(sourcegroup)      
+      call locase(sourcegroup)
       call locase(param)
       call locase(perop)
       call locase(interval)
@@ -124,7 +124,7 @@ c-----------accumulate unique dss output filenames
             endif
 
             pathoutput(noutpaths).meas_type=Param
-            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
+            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'
             call assign_output_units(pathoutput(noutpaths).units,Param)
 
             if (PerOp(1:4) .eq. 'inst')
@@ -148,6 +148,6 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
  610  format(/a)
  630  format(/a,i5)
-      
+
       return
       end subroutine

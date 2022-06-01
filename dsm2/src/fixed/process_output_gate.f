@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -32,6 +32,7 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use utilities, only: loccarr, split_epart
       implicit none
 
       character
@@ -46,21 +47,20 @@ C!</license>
 
       integer*4
      &     itmp
-     &     ,gateNo,devNo     
-     
+     &     ,gateNo,devNo
+
       integer, external :: name_to_objno
       integer, external :: ext2int
-      integer, external :: loccarr      
       integer, external :: get_objnumber
-      
+
       logical device_required
 
 
-!========================================================     
+!========================================================
 
       call locase(name)
-      call locase(locname)      
-      call locase(subloc)      
+      call locase(locname)
+      call locase(subloc)
       call locase(param)
       call locase(perop)
       call locase(interval)
@@ -73,7 +73,7 @@ C!</license>
      &              ,max_outputpaths
                call exit(-1)
             endif
-            
+
             pathoutput(noutpaths).use=.true.
             pathoutput(noutpaths).name=Name
             pathoutput(noutpaths).obj_type=obj_gate
@@ -89,21 +89,21 @@ c-----------find object number given object ID
                noutpaths=noutpaths-1
                return
             end if
-            devNo=deviceIndex(gateArray(gateNo),subLoc)   
+            devNo=deviceIndex(gateArray(gateNo),subLoc)
             pathoutput(noutpaths).gate_device=devNo
 	      device_required=.true.
             if (trim(Param) .eq. 'position') then
-			   write(unit_error, *) 
+			   write(unit_error, *)
      &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
                 call exit(-3)
             else if (trim(Param) .eq. 'pos') then
-			   write(unit_error, *) 
+			   write(unit_error, *)
      &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
                 call exit(-3)
-            else if (trim(Param) .eq. 'op-to-node' .or. 
+            else if (trim(Param) .eq. 'op-to-node' .or.
      &	       trim(Param) .eq. 'op_to_node') then
 	         Param='op-to-node'
-	      else if (trim(Param) .eq. 'op-from-node' .or. 
+	      else if (trim(Param) .eq. 'op-from-node' .or.
      &	       trim(Param) .eq. 'op_from_node') then
 	         Param='op-from-node'
 	      else if (trim(Param) .eq. 'height') then
@@ -111,24 +111,24 @@ c-----------find object number given object ID
 	      else if (Param(1:4) .eq. 'elev' ) then
 	         Param='elev'
 	      else if (trim(Param) .eq. 'width' .or. trim(Param) .eq. 'radius') then
-	         Param='width'	            
+	         Param='width'
 	      else if(trim(Param) .eq. 'install') then
 	         Param='install'
 	         device_required=.false.
 	      else if (trim(Param) .eq. 'flow') then
 	         if (devNo .eq. miss_val_i) then
 		         Param='flow'
-		       else 
+		       else
                  Param='device-flow'
 	         endif
 	            device_required=.false.
             else
-                  write(unit_error,*) 
+                  write(unit_error,*)
      &              "Unrecognized gate output variable:",Param,"::"
 	            call exit(-3)
 
             end if
-            if (devNo .eq. miss_val_i .and. 
+            if (devNo .eq. miss_val_i .and.
      &          device_required .eq. .true. ) then
                write(unit_screen,*) 'Output TS: for requested output ' // name
                write(unit_screen,*) 'Unrecognized gate device: ' //
@@ -170,7 +170,7 @@ c-----------accumulate unique dss output filenames
             endif
 
             pathoutput(noutpaths).meas_type=Param
-            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
+            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'
             call assign_output_units(pathoutput(noutpaths).units,Param)
             if (PerOp(1:4) .eq. 'inst')
      &           pathoutput(noutpaths).per_type=per_type_inst_val
@@ -186,11 +186,11 @@ c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
             if (print_level .ge. 3)
-     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths, 
+     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths,
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
 
  610  format(/a)
- 630  format(/a,i5)     
+ 630  format(/a,i5)
       return
       end subroutine

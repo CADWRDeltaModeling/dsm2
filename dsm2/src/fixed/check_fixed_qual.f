@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -28,6 +28,7 @@ c-----the model run.  Supply default values where possible.  Translate
 c-----from nodes to channel numbers, and from external channel numbers
 c-----to internal.  Write to Qual arrays.
       use IO_Units
+      use utilities
 
 	use rate_coeff_assignment,only:check_rate_for_waterbody
       implicit none
@@ -48,15 +49,11 @@ c-----Local variables
      &     ,k,l                 ! indices
      &     ,ires				  ! reservoir index
      &     ,chan,intnode        ! channel, node, xsect numbers
-     &     ,loccarr             ! string array location function
-
-      integer*4
-     &     incr_intvl           ! increment julian minute by interval function
 
       character
      &     ctemp(max_reservoirs)*20 ! scratch array
 
-	character errm*128 !error message,Jon 
+	character errm*128 !error message,Jon
 
  605  format(/'Warning: no rate coefficients given for reservoir ',a/)
  607  format(/'Error: unknown reservoir name given for rate coeffients:'

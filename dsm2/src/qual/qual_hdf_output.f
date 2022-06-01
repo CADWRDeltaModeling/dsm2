@@ -4,7 +4,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -21,8 +21,9 @@ C!</license>
 
       module qual_hdf_file
       use HDF5, only: HID_T, HSIZE_T
-      
-      type qual_hdf_t 
+      use utilities
+
+      type qual_hdf_t
           character*128 file_name
           integer        :: write_interval
           integer        :: start_julmin
@@ -31,14 +32,14 @@ C!</license>
           integer(hid_t) :: qual_id
           integer(hid_t) :: data_id
           integer(hid_t) :: chan_conc_id
-          integer(hid_t) :: chan_ave_conc_id          
+          integer(hid_t) :: chan_ave_conc_id
           integer(hid_t) :: res_conc_id
           integer(hsize_t) :: conc_dim
           integer(hsize_t) :: channel_dim
           integer(hsize_t) :: res_dim
           integer(hsize_t) :: time_dim
       end type
-      
+
       type(qual_hdf_t) :: qual_hdf
       logical :: using_qual_hdf = .false.
       integer,parameter :: HDF_SZIP_PIXELS_PER_BLOCK = 16
@@ -46,7 +47,7 @@ C!</license>
       integer,parameter :: MIN_STEPS_FOR_CHUNKING = TIME_CHUNK
       contains !============================================================
 
-      
+
       !< Initialize the qual output file
       !< Assumes that the hdf5 fortran api (h5open) was opened already
       subroutine InitQualHdf(hdf_file,
@@ -73,28 +74,26 @@ c----- args
       integer :: nchannel
       integer :: nres
       integer :: nconc
-            
-c----- locals      
+
+c----- locals
       integer :: hdf_start
       integer :: hdf_end
       integer :: hdf_interval
       integer :: ntime   ! number of time points in hdf5 file
 
       integer(HID_T) :: access_plist ! Dataset trasfer property
-      
+
       integer(SIZE_T) :: rddc_nelmts
       integer(SIZE_T) :: rddc_nbytes
       integer  nelmts
       real rdcc_w0
-      
+
       logical :: h5_file_exists
       integer :: error	! HDF5 Error flag
 
-      integer :: incr_intvl
-
 	! check to see if file exists
       inquire (file=hdf_name, exist=h5_file_exists)
-      
+
       if (h5_file_exists) then ! file already exists
         write(unit_error,920) trim(hdf_name)
  920	   format(' File already exists... deleting existing file :: ', a )
@@ -103,15 +102,15 @@ c----- locals
       hdf_file.file_name = hdf_name
 	! set up stdio to allow for buffered read/write
       call H5Pcreate_f(H5P_FILE_ACCESS_F, access_plist, error)
-        
-      call h5pget_cache_f(access_plist, nelmts, 
+
+      call h5pget_cache_f(access_plist, nelmts,
      &                    rddc_nelmts, rddc_nbytes, rdcc_w0,error)
       rddc_nbytes = 8000000
-      call h5pset_cache_f(access_plist, nelmts, rddc_nelmts, 
+      call h5pset_cache_f(access_plist, nelmts, rddc_nelmts,
      &                    rddc_nbytes, rdcc_w0,error)
       call VerifyHDF5(error,"Cache set")
 
-	! start up garbage collection 
+	! start up garbage collection
 	!call h5pset_gc_references_f(access_plist_id,1,error)
 
       ! Create the HDF5 file
@@ -123,22 +122,22 @@ c----- locals
 
       !todo: does this create unwanted project dependence?
       call write_input_buffers_hdf5(hdf_file.file_id)
-      
+
 	! create group for output
       call h5gcreate_f(hdf_file.file_id, "output", hdf_file.data_id, error)
-      
+
       hdf_interval = incr_intvl(0,hdf_interval_char,TO_BOUNDARY)
       qual_hdf.write_interval = hdf_interval
       if (hdf_interval < time_step) then
         write(unit_error,*)"HDF write interval is finer than the simulation time step"
         call exit(-3)
       end if
-	
+
 	! This would be more complex if time averages were stored
       hdf_start=incr_intvl(sim_start,hdf_interval_char, NEAREST_BOUNDARY)
       qual_hdf.start_julmin = hdf_start
 
-      ! todo: is this "1+" always right? It wasn't in the original code      
+      ! todo: is this "1+" always right? It wasn't in the original code
       ! record the dimensions of the simulation
       ntime = 1+(sim_end - hdf_start)/hdf_interval
       hdf_end = hdf_start + (ntime-1)*hdf_interval
@@ -149,75 +148,75 @@ c----- locals
       hdf_file.res_dim = nres
       hdf_file.time_index = 1
       hdf_file.time_dim = ntime
-	
+
       call WriteDimensions(hdf_file.data_id)
-	
+
 	! create the data sets for time-varying output
       call InitChannelQualHDF5(hdf_file,nchannel,nconc,ntime)
       if (hdf_file.res_dim .gt. 0)then
          call InitReservoirQualHDF5(hdf_file, nres, nconc, ntime)
       end if
-	
+
 !     initialize attributes and datasets
 !	call write_qual_attributes_hdf5()
       call attach_qual_dimscales(hdf_file.file_id)
 
       using_qual_hdf = .true.
       return
-      end subroutine      
+      end subroutine
 
 !==============================================================
 !==============================================================
 
       subroutine InitChannelQualHDF5(hdf_file, nchannel, nconc, ntime)
-      
+
       use hdf5
       use runtime_data
       implicit none
       type(qual_hdf_t), intent(out) ::hdf_file
-      
 
-      integer(HID_T) :: cparms !dataset creatation property identifier 
+
+      integer(HID_T) :: cparms !dataset creatation property identifier
       integer        :: error	! HDF5 Error flag
-      
-      integer(HID_T) :: attr_id    ! Attribute identifier 
-      integer(HID_T) :: aspace_id  ! Attribute dataspace identifier 
-      integer(HID_T) :: atype_id   ! Attribute type identifier 
+
+      integer(HID_T) :: attr_id    ! Attribute identifier
+      integer(HID_T) :: aspace_id  ! Attribute dataspace identifier
+      integer(HID_T) :: atype_id   ! Attribute type identifier
       integer(HSIZE_T), dimension(1) :: adims = (/1/) ! Attribute dimension
       integer     ::   arank = 1   ! Attribute rank
       integer(HSIZE_T), dimension(7) :: a_data_dims
         integer     ::   chan_rank = 0
       integer(HSIZE_T), dimension(4) :: chan_file_dims  = 0 ! Data size on file
       integer(HSIZE_T), dimension(4) :: chan_chunk_dims = 0 ! Dataset chunk dimensions
-      
+
       integer(HID_T) :: fspace_id   ! File space identifier
-      
+
       integer ntime
       integer nchannel
       integer nconc
-      
+
       character*14,external :: jmin2cdt
 
 
 
       call h5screate_simple_f(arank, adims, aspace_id, error)
       call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
-      
-      
+
+
       chan_rank = 4
       chan_file_dims(1) = 2
       chan_file_dims(2) = nchannel
       chan_file_dims(3) = nconc
       chan_file_dims(4) = ntime
-      
+
       chan_chunk_dims(1) = 2
       chan_chunk_dims(2) = nchannel
       chan_chunk_dims(3) = nconc
       chan_chunk_dims(4) = min(TIME_CHUNK,ntime)
-	
+
 	! Create channel data set, one data point at top and bottom of channel
 	! Add chunking and compression
-      
+
       cparms=0
       call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
       if (ntime .gt. MIN_STEPS_FOR_CHUNKING) then
@@ -226,17 +225,17 @@ c----- locals
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
       end if
 
-      call h5screate_simple_f(chan_rank, 
-     &                        chan_file_dims, 
-     &                        fspace_id, 
+      call h5screate_simple_f(chan_rank,
+     &                        chan_file_dims,
+     &                        fspace_id,
      &                        error)
-     
-      call h5dcreate_f(hdf_file.data_id, 
-     &                 "channel concentration", 
+
+      call h5dcreate_f(hdf_file.data_id,
+     &                 "channel concentration",
      &                 H5T_NATIVE_REAL,
-     &                 fspace_id, 
-     &                 hdf_file.chan_conc_id, 
-     &                 error, 
+     &                 fspace_id,
+     &                 hdf_file.chan_conc_id,
+     &                 error,
      &                 cparms)
       call VerifyHDF5(error,"Channel concentration dataset creation")
       call AddTimeSeriesAttributes(hdf_file.chan_conc_id,
@@ -248,33 +247,33 @@ c----- locals
       chan_file_dims(1) = nchannel
       chan_file_dims(2) = nconc
       chan_file_dims(3) = ntime
-        
+
       chan_chunk_dims(1) = nchannel
       chan_chunk_dims(2) = nconc
       chan_chunk_dims(3) = min(TIME_CHUNK,ntime)
-      
+
       cparms=0
 		! Add chunking and compression
       call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
       if (ntime.gt. MIN_STEPS_FOR_CHUNKING) then
-          call h5pset_chunk_f(cparms, 
-     &                        chan_rank, 
-     &                        chan_chunk_dims, 
+          call h5pset_chunk_f(cparms,
+     &                        chan_rank,
+     &                        chan_chunk_dims,
      &                        error)
 	    call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                        HDF_SZIP_PIXELS_PER_BLOCK, error);
       end if
 
-      call h5screate_simple_f(chan_rank, 
+      call h5screate_simple_f(chan_rank,
      &                        chan_file_dims,
-     &                        fspace_id, 
+     &                        fspace_id,
      &                        error)
-      call h5dcreate_f(hdf_file.data_id, 
-     &                 "channel avg concentration", 
+      call h5dcreate_f(hdf_file.data_id,
+     &                 "channel avg concentration",
      &                 H5T_NATIVE_REAL,
-     &	               fspace_id, 
-     &                 hdf_file.chan_ave_conc_id, 
-     &                 error, 
+     &	               fspace_id,
+     &                 hdf_file.chan_ave_conc_id,
+     &                 error,
      &                 cparms)
       call VerifyHDF5(error,"Channel avg conc dataset creation")
       call AddTimeSeriesAttributes(hdf_file.chan_ave_conc_id,
@@ -289,7 +288,7 @@ c----- locals
       use grid_data
       use common_qual
       implicit none
-      integer (hid_t) :: loc_id      
+      integer (hid_t) :: loc_id
       integer(HSIZE_T), dimension(1) :: in_dims != (/0/) ! Dataset dimensions
       integer(HID_T) :: in_dspace_id ! Dataspace identifier
       integer(HID_T) :: in_dset_id ! Dataspace identifier
@@ -304,21 +303,21 @@ c----- locals
 
       integer, parameter :: label_len = 12
       integer, parameter :: name_len=32
-      character(LEN=label_len),dimension(2) :: chan_location 
+      character(LEN=label_len),dimension(2) :: chan_location
      &                                    = (/"upstream","downstream"/)
       character(LEN=name_len),dimension(:), allocatable :: names
       integer :: i
       integer :: ierror
       in_dims(1) = nchans
-      
+
       ! Write out channel geometry
-      call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, ierror)      
- 
+      call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, ierror)
+
       ! Write out external channel numbers int2ext
       call h5screate_simple_f(in_rank, in_dims, in_dspace_id, ierror)
       call h5dcreate_f(loc_id, "channel_number", H5T_NATIVE_INTEGER,
      &     in_dspace_id, in_dset_id, ierror, cparms)
-      call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER, 
+      call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER,
      &     int2ext(1), in_dims, ierror)
       call h5sclose_f (in_dspace_id, ierror)
       call h5dclose_f(in_dset_id,ierror)
@@ -327,67 +326,67 @@ c----- locals
       in_dims(1) = 2
       call Write1DStringArray(loc_id,"channel_location",
      &                        chan_location,label_len,2)
-      
+
 	! Write reservoir names
       in_dims(1)=max(1,nreser)
       allocate(names(max(1,nreser)))
       names=' '
       do i=1,max(1,nreser)
-        names(i)=res_geom(i).name 
+        names(i)=res_geom(i).name
       end do
       call Write1DStringArray(loc_id,"reservoir_names",names,
      &                      name_len,max(1,nreser))
-      deallocate(names)     
+      deallocate(names)
 
       ! Write external flow names
       in_dims(1)=max(1,nqext)
       allocate(names(max(1,nqext)))
       names=' '
       do i=1,max(1,nqext)
-	   names(i)=qext(i).name 
+	   names(i)=qext(i).name
       end do
       call Write1DStringArray(loc_id,"external_flow_names",names,
      &                      name_len,max(1,nqext))
-      deallocate(names) 
+      deallocate(names)
 
       ! Write constituent names
       in_dims(1)=max(1,no_of_constituent)
       allocate(names(max(1,no_of_constituent)))
       names=' '
       do i=1,max(1,no_of_constituent)
-	   names(i)=constituents(i).name 
+	   names(i)=constituents(i).name
       end do
       call Write1DStringArray(loc_id,"constituent_names",names,
      &                      name_len,max(1,no_of_constituent))
-      deallocate(names) 
+      deallocate(names)
       return
       end subroutine
 
-	
+
 c========================================================
 
       subroutine InitReservoirQualHDF5(hdf_file, nres, nconc, ntime)
       use hdf5
-      
+
       implicit none
       type(qual_hdf_t), intent(inout) ::hdf_file
-      
-      integer(HID_T) :: cparms  !dataset creation property identifier 
+
+      integer(HID_T) :: cparms  !dataset creation property identifier
       integer        :: error	! HDF5 Error flag
       integer        :: res_rank = 3
       integer(HSIZE_T), dimension(3) :: chunk_dims = 0 ! Dataset dimensions
       integer        :: ntime  ! number of time points in tidefile
       integer        :: nres
       integer        :: nconc
-      integer(HSIZE_T), dimension(4) :: file_dims  = 0 ! Data size on file      
+      integer(HSIZE_T), dimension(4) :: file_dims  = 0 ! Data size on file
       integer(HID_T) :: fspace_id   ! File space identifier
 c-------Create the datasets
- 
+
       res_rank = 3
       file_dims(1) = nres
       file_dims(2) = nconc
       file_dims(3) = ntime
-      
+
       chunk_dims(1) = nres
       chunk_dims(2) = nconc
       chunk_dims(3) = min(TIME_CHUNK,ntime)
@@ -396,37 +395,37 @@ c-------Create the datasets
       call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
       if (ntime .gt. MIN_STEPS_FOR_CHUNKING) then
         call h5pset_chunk_f(cparms, res_rank, chunk_dims, error)
-        call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F, 
+        call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
       end if
 
-      call h5screate_simple_f(res_rank, 
-     &                        file_dims, 
-     &                        fspace_id, 
+      call h5screate_simple_f(res_rank,
+     &                        file_dims,
+     &                        fspace_id,
      &                        error)
       call h5dcreate_f(hdf_file.data_id,
-     &                 "reservoir concentration", 
+     &                 "reservoir concentration",
      &                 H5T_NATIVE_REAL,
-     &                 fspace_id, 
-     &                 hdf_file.res_conc_id, 
-     &                 error, 
+     &                 fspace_id,
+     &                 hdf_file.res_conc_id,
+     &                 error,
      &                 cparms)
       call AddTimeSeriesAttributes(hdf_file.res_conc_id,
      &                             hdf_file.start_julmin, hdf_file.write_interval)
 
       return
       end subroutine
-      
-!==================================================   
 
-   
-      
+!==================================================
+
+
+
       subroutine WriteQualHDF5(hdf_file,
-     &                         chan_conc, 
-     &                         chan_ave_conc,      
-     &                         res_conc, 
-     &                         nchan, 
-     &                         nres, 
+     &                         chan_conc,
+     &                         chan_ave_conc,
+     &                         res_conc,
+     &                         nchan,
+     &                         nres,
      &                         nconc,
      &                         time_index)
       use hdf5
@@ -446,7 +445,7 @@ c-------Create the datasets
       integer(HSIZE_T), dimension(4) :: h_offset = (/0,0,0,0/)
       integer :: error   ! HDF5 Error flag
       if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
-      
+
 c-----chan conc
       h_offset(1) = 0
       h_offset(2) = 0
@@ -465,26 +464,26 @@ c-----chan conc
       call H5Screate_simple_f(chan_rank,
      &                        mdata_dims,
      &                        memspace_id,
-     &                        error);  
-      call h5dget_space_f (hdf_file.chan_conc_id, 
-     &                     fspace_id, 
+     &                        error);
+      call h5dget_space_f (hdf_file.chan_conc_id,
+     &                     fspace_id,
      &                     error)
-      call h5sselect_hyperslab_f(fspace_id, 
+      call h5sselect_hyperslab_f(fspace_id,
      &                           H5S_SELECT_SET_F,
-     &                           h_offset, 
-     &                           subset_dims, 
+     &                           h_offset,
+     &                           subset_dims,
      &                           error)
       call h5dwrite_f(hdf_file.chan_conc_id,
-     &                H5T_NATIVE_REAL, 
-     &                chan_conc, 
+     &                H5T_NATIVE_REAL,
+     &                chan_conc,
      &                mdata_dims,
-     &                error, 
+     &                error,
      &                memspace_id,
      &                fspace_id)
       call VerifyHDF5(error,"Channel concentration write")
       call h5sclose_f (fspace_id, error)
       call h5sclose_f (memspace_id, error)
-      
+
 c-----chan ave conc
       h_offset(1) = 0
       h_offset(2) = 0
@@ -500,28 +499,28 @@ c-----chan ave conc
       call H5Screate_simple_f(chan_rank,
      &                        mdata_dims,
      &                        memspace_id,
-     &                        error);  
-      call h5dget_space_f (hdf_file.chan_ave_conc_id, 
-     &                     fspace_id, 
+     &                        error);
+      call h5dget_space_f (hdf_file.chan_ave_conc_id,
+     &                     fspace_id,
      &                     error)
-      call h5sselect_hyperslab_f(fspace_id, 
+      call h5sselect_hyperslab_f(fspace_id,
      &                           H5S_SELECT_SET_F,
-     &                           h_offset, 
-     &                           subset_dims, 
+     &                           h_offset,
+     &                           subset_dims,
      &                           error)
       call h5dwrite_f(hdf_file.chan_ave_conc_id,
-     &                H5T_NATIVE_REAL, 
-     &                chan_ave_conc, 
+     &                H5T_NATIVE_REAL,
+     &                chan_ave_conc,
      &                mdata_dims,
-     &                error, 
+     &                error,
      &                memspace_id,
      &                fspace_id)
       call VerifyHDF5(error,"Channel concentration write")
       call h5sclose_f (fspace_id, error)
-      call h5sclose_f (memspace_id, error)      
-      
+      call h5sclose_f (memspace_id, error)
+
       if (nres .gt. 0)then
-      
+
       h_offset(1) = 0
       h_offset(2) = 0
       h_offset(3) = time_index
@@ -534,25 +533,25 @@ c-----chan ave conc
       call H5Screate_simple_f(res_rank,
      &                        mdata_dims,
      &                        memspace_id,
-     &                        error); 
-      call h5dget_space_f (hdf_file.res_conc_id, 
-     &                     fspace_id, 
+     &                        error);
+      call h5dget_space_f (hdf_file.res_conc_id,
+     &                     fspace_id,
      &                     error)
-      call h5sselect_hyperslab_f(fspace_id, 
-     &                           H5S_SELECT_SET_F, 
-     &                           h_offset, 
-     &                           subset_dims, 
-     &                           error) 
+      call h5sselect_hyperslab_f(fspace_id,
+     &                           H5S_SELECT_SET_F,
+     &                           h_offset,
+     &                           subset_dims,
+     &                           error)
       call h5dwrite_f(hdf_file.res_conc_id,
-     &                H5T_NATIVE_REAL, 
-     &                res_conc, 
-     &                mdata_dims, 
-     &                error, 
-     &                memspace_id, 
+     &                H5T_NATIVE_REAL,
+     &                res_conc,
+     &                mdata_dims,
+     &                error,
+     &                memspace_id,
      &                fspace_id)
       call VerifyHDF5(error,"Reservoir concentration write")
       call h5sclose_f (fspace_id, error)
-      call h5sclose_f (memspace_id, error)      
+      call h5sclose_f (memspace_id, error)
       end if
       return
       end subroutine
@@ -565,9 +564,9 @@ c-----chan ave conc
       use logging
       implicit none
       type(qual_hdf_t) :: hdf_file
-	
+
       integer        :: error	! HDF5 Error flag
-       
+
       call h5close_f(error)
       return
 c-------Close the datasets corresponding to model states
@@ -577,19 +576,19 @@ c-------Close the datasets corresponding to model states
       if (error .ne. 0) then
          write(unit_error,*)"HDF5 error closing channel stage data set: ",error
       end if
-      
+
       call h5dclose_f(hdf_file.chan_ave_conc_id,error)
       if (error .ne. 0) then
          write(unit_error,*)"HDF5 error closing channel avg area data set: ",error
       end if
-      
+
       call h5dclose_f(hdf_file.res_conc_id,error)
       if (error .ne. 0) then
          write(unit_error,*)"HDF5 error closing channel flow data set: ",error
       end if
 
 c-----Close the groups in the dataset. Only the data group should be open
-c     on an ongoing basis  
+c     on an ongoing basis
       call h5gclose_f(hdf_file.data_id, error)
       if (error .ne. 0) then
         write(unit_error,*)"HDF5 error closing data group: ",error
@@ -607,20 +606,20 @@ c-------Close the file
       if (error .ne. 0) then
          write(unit_error,*)"HDF5 error closing hdf5: ",error
       end if
-      if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"      
+      if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"
       return
       end subroutine
 
 c=========================================================
-      
+
             !> Consolidates the QUAL state in the form used in hdf5 file
       subroutine QualStateForHDF5(chan_conc,chan_ave_conc,res_conc,nchan,nres,nconc)
       use common_qual
       implicit none
-            
+
       include 'param.inc'
       include 'bltm1.inc'
-      
+
       integer :: nchan,nres,nconc
       real*4 chan_conc(2,nchan,nconc)
       real*4 chan_ave_conc(nchan,nconc)
@@ -643,7 +642,7 @@ c=========================================================
               chan_ave_conc(ichan,iconc) = sngl(mass/tvol)
           end do
       end do
-      
+
       do iconc = 1,nconc
           do ires = 1,nres
               res_conc(ires,iconc) = cres(ires,iconc)
@@ -651,11 +650,11 @@ c=========================================================
       end do
       return
       end subroutine
-      
+
 
 c====================================================================
 c     Query if it is time to write Qual state to HDF5
-      
+
       logical function IsQualHDFWriteInterval(julmin)
       implicit none
       integer julmin
@@ -664,7 +663,7 @@ c     Query if it is time to write Qual state to HDF5
      &     mod(julmin, qual_hdf.write_interval) .eq. 0)
       return
       end function
-        
+
 c====================================================================
 c     Write Qual state to HDF5
 c     This routine includes most coupling between qual and tidefile code
@@ -672,10 +671,10 @@ c     This routine includes most coupling between qual and tidefile code
       use io_units
       use common_qual
       implicit none
-            
+
       include 'param.inc'
       include 'bltm1.inc'
-            
+
       integer, intent(in) :: julmin
       integer time_index
       real*4 chan_conc(2,nchans,neq)
@@ -689,15 +688,15 @@ c     This routine includes most coupling between qual and tidefile code
       call WriteQualHDF5(qual_hdf,
      &                   chan_conc,
      &                   chan_ave_conc,
-     &                   res_conc, 
-     &                   nchans, 
-     &                   nreser, 
+     &                   res_conc,
+     &                   nchans,
+     &                   nreser,
      &                   neq,
      &                   time_index)
       return
       end subroutine
       end module
-      
-	   
 
-      
+
+
+

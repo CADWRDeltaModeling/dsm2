@@ -14,6 +14,7 @@
       use hdf5, only: h5open_f, h5close_f
       use hdfvars
       use reservoir_geometry
+      use utilities
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
 
@@ -130,31 +131,29 @@ C-----+ + + LOCAL VARIABLES + + +C
       integer res_num_clfct
       logical echo_only, file_exists
       integer NotMixed,NotMixed_prev
-c-------Mass balance check      
+c-------Mass balance check
       real*8    Achan_AvgP(NOBR),Diff(NOBR),PercentDiff(NOBR)
       real*8    VolHydro,VolQual,VolDiff,PDiffMax
       real*8    reser_elv, reser_area, reser_vol
       INTEGER    NSN,channelMax
-      
+
       real*8    HR,SVOL,tTIME,VJ,VOL
       real*8    TOTFLO
       real*8    C(MAX_CONSTITUENT)
      &     ,objflow,massrate(max_constituent) ! flow and massrate at object
 
       integer*4
-     &     incr_intvl           ! increment julian minute by interval function
-     &     ,next_output_flush   ! next time to flush output
+     &     next_output_flush   ! next time to flush output
      &     ,next_display        ! next time to display model time
      &     ,next_restart_output ! next time to write restart file
 
 
       integer
-     &     istat                ! status of fixed input        
+     &     istat                ! status of fixed input
       integer ierror
      &     ,ibound
       character
      &     init_input_file*128  ! initial input file on command line [optional]
-     &     ,jmin2cdt*14         ! convert from julian minute to char date/time
 
 
       integer iprnt_mass
@@ -214,10 +213,10 @@ c---- hdf5 api on
 
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
-         inquire(file=init_input_file, exist=file_exists)      
+         inquire(file=init_input_file, exist=file_exists)
          if (.not. file_exists)then
              write(unit_error,*)"Input file does not exist: ",init_input_file
-             call exit(1)     
+             call exit(1)
          end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
@@ -232,17 +231,17 @@ c      this assures that names of qext and stage boundaries are available
       ! Loop through number of stage boudnaries and set node_geom
       do ibound = 1,nstgbnd
           node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
-      end do      
-      
-      
+      end do
+
+
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items
       call buffer_input_qual()          ! process qual specialty items
-      
+
       call write_input_buffers()
       if (echo_only) call exit(1)
 
- 
+
 c------ end of input reading and echo, start checking data
 
       call check_fixed(istat)
@@ -269,7 +268,7 @@ c------ end of input reading and echo, start checking data
      &                    start_julmin,
      &                    end_julmin,
      &                    io_files(qual,io_hdf5,io_write).interval)
-      endif 
+      endif
 
 
       prev_julmin=0
@@ -362,7 +361,7 @@ C--------start time loop for checking boundary data
          prev_julmin=julmin
          julmin=julmin+time_step
          current_date=jmin2cdt(julmin)
-         
+
          do while (julmin .le. end_julmin)
 
             if (julmin .ge. next_display) then
@@ -377,18 +376,18 @@ C-----------Read the Hydro tidefile
             call read_mult_tide
 
 C--------- mass balance check
-            DO N=1,NBRCH              
+            DO N=1,NBRCH
                Achan_AvgP(N) = Achan_AvgP(N)+(QCHAN(1,N)-QCHAN(2,N))*time_step*60/CHAN_GEOM(N).LENGTH
             End do
-  
+
             prev_julmin=julmin
             julmin=julmin+time_step
             current_date=jmin2cdt(julmin)
          enddo
 
 C--------- mass balance check
-         PDiffMax=0 
-         channelMax=0            
+         PDiffMax=0
+         channelMax=0
          DO N=1,NBRCH
               Diff(N)=Achan_AvgP(N)- Achan_Avg(N)
               PercentDiff(N)=Diff(N)/Achan_Avg(N)*100.
@@ -398,10 +397,10 @@ C--------- mass balance check
                 PDiffMax = abs(PercentDiff(N))
                 channelMax=NN
               endif
-         End do     
+         End do
          if (PDiffMax.gt.1.0) then
              write(unit_screen,*)''
-             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!'
              write(unit_screen,*)'Check output file(.qof) for details.'
              write(unit_screen,'(A17,E10.2,A1,A16,I10)')'Maximum percent error is',PDiffMax,'Channel:',channelMax
              write(unit_screen,*)'Suggest improve Hydro simulation!'
@@ -411,7 +410,7 @@ C--------- mass balance check
              write(unit_screen,'(A17,E10.2,A1,A16,I10)')'Maximum percent error is',PDiffMax,'Channel:',channelMax
          endif
 
-         
+
          go to 790
       endif
 
@@ -428,12 +427,12 @@ C-----start time loop
       prev_julmin=julmin
       julmin=julmin+time_step
       current_date=jmin2cdt(julmin)
-      
+
       call read_boundary_values
 
       ! Write initial state if it is a write interval
       if(using_qual_hdf)call WriteQualHDF(julmin)
-            
+
       do while (julmin .le. end_julmin)
          call update_intervals
          if (julmin .ge. next_display) then
@@ -459,14 +458,14 @@ C--------set boundary and junction values to zero
          ENDDO
 
 C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED
-         ! todo: how to deal with stage boundaries?         
+         ! todo: how to deal with stage boundaries?
          DO N=1,NNODES
-                   
-            if (node_geom(N).boundary_type .ne. stage_boundary) then 
-                JCD(N)=NOT_MIXED             
-            end if                
-         ENDDO         
-         
+
+            if (node_geom(N).boundary_type .ne. stage_boundary) then
+                JCD(N)=NOT_MIXED
+            end if
+         ENDDO
+
          call read_boundary_values
 
 C--------Read the Hydro tidefile
@@ -474,16 +473,16 @@ C--------Read the Hydro tidefile
          CALL INTERPX
 
 C--------- mass balance check
-         DO N=1,NBRCH              
+         DO N=1,NBRCH
             Achan_AvgP(N) = Achan_AvgP(N)+(QCHAN(1,N)-QCHAN(2,N))*time_step*60/CHAN_GEOM(N).LENGTH
          End do
 
-c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.     
+c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.
          DO 360 N=1,NBRCH
             DO CONS_NO=1,NEQ   ! includes stage boudnary GTRIB from store_values
                GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
                GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
-            ENDDO                                   
+            ENDDO
  360     ENDDO
 
 C--------Initialize reservoir stuff
@@ -524,43 +523,43 @@ C--------Initialize reservoir stuff
          ENDDO
 
 C--------update junction concentrations and codes
-C--------compute inflow flux at known junction        
+C--------compute inflow flux at known junction
          AllJunctionsMixed=.false.
          NotMixed_prev = -1
-         do while (.not. AllJunctionsMixed)  
-            DO 640 JN=1,NNODES     
+         do while (.not. AllJunctionsMixed)
+            DO 640 JN=1,NNODES
                if (node_geom(JN).boundary_type .NE. stage_boundary) then
                   TOTFLO=0.
-                  IF (JCD(JN) .EQ. MIXED) GOTO 640                 
-                  
+                  IF (JCD(JN) .EQ. MIXED) GOTO 640
+
                   ! find JN of transfer upstream node and check if it's mixed
                   ! if not mixed then wait
                   i_node_flow =1
-                  do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
+                  do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)
                       qndx = node_geom(JN).qinternal(i_node_flow)
-                      if ( obj2obj(qndx).flow_avg > 0 ) then 
+                      if ( obj2obj(qndx).flow_avg > 0 ) then
                           from_obj_type = obj2obj(qndx).from_obj.obj_type
                           from_obj_no   = obj2obj(qndx).from_obj.obj_no
-                      else if ( obj2obj(qndx).flow_avg < 0 ) then 
+                      else if ( obj2obj(qndx).flow_avg < 0 ) then
                           from_obj_type = obj2obj(qndx).to_obj.obj_type
                           from_obj_no   = obj2obj(qndx).to_obj.obj_no
-                      else  ! obj2obj(qndx).flow_avg == 0 
-                          goto 747 ! next node_flow. don't wait if flow_avg is 0                   
-                      endif 
-                                               
+                      else  ! obj2obj(qndx).flow_avg == 0
+                          goto 747 ! next node_flow. don't wait if flow_avg is 0
+                      endif
+
                       if (from_obj_type .eq. obj_node) then
-                      
+
                           ! if upstream transfer node is not itself
-                          if  (from_obj_no .ne. JN)  then 
+                          if  (from_obj_no .ne. JN)  then
                               if (JCD(from_obj_no) .ne. mixed) then
                                   goto 640  !wait for next loop
                               endif
-                          endif 
-                      endif       
+                          endif
+                      endif
  747                  i_node_flow = i_node_flow + 1
                   end do
-                  ! finished checking internal transfer upstream node mixing                           
-                  
+                  ! finished checking internal transfer upstream node mixing
+
                   VJ=0.0
                   DO KK=1,NUMUP(JN)
                      N=LISTUP(JN,KK)
@@ -614,7 +613,7 @@ C-----------------Now add the effects of external and internal flows, and reserv
                   ENDIF
 
                   JCD(JN)=MIXED
-                  
+
 C-----------------At this point all the flows entering the junction have
 c-----------------been mixed.
 C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
@@ -645,8 +644,8 @@ C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
                   DO KK=1,NUMDOWN(JN)
                      N=LISTDOWN(JN,KK)
                      IF (FLOW(N,1,NXSEC(N)).LT.0.0) THEN
-C                  ! @todo: NS(N) should never be zero. This condition was encountered by Jon.                        
-	                  IF (NS(N).GT.0) THEN  
+C                  ! @todo: NS(N) should never be zero. This condition was encountered by Jon.
+	                  IF (NS(N).GT.0) THEN
                           VOL=GPV(N,NS(N))+DVU(N)
                           DO CONS_NO=1,NEQ
                              GPTD(CONS_NO,N)=CJ(CONS_NO,JN)*DTT*FLOW(N,1,NXSEC(N))
@@ -678,10 +677,10 @@ c                        ENDDO
                      DVU(N)=0.0
                   ENDDO
 
-           endif ! if not stage-boundary node              
-               
+           endif ! if not stage-boundary node
+
  640     ENDDO !  DO 640 JN=1,NNODES
-            
+
          AllJunctionsMixed=.true.
          NotMixed=0
          DO JN=1,NNODES
@@ -710,11 +709,11 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
      &              'in three connected channels forming a triangular loop!' )
              call exit(13)
          endif
-        
+
          NotMixed_prev = NotMixed
-                  
+
          ENDDO ! do while (.not.AllJunctionsMixed)
-  
+
 
 C--------Now all junctions have been mixed
          if(mass_tracking) then
@@ -723,7 +722,7 @@ c-----------Update reservoir salinities
          endif
 
          call update_resvol_for_masstracking_region
-         
+
          IF(MASS_TRACKING)THEN
             call print_results_for_masstracking
          ENDIF
@@ -795,7 +794,7 @@ c--------******************************************************************
 C..correct volume in each channel with Achan_Avg in tide file
 
          if(mod(julmin - start_julmin,h5_time_interval).eq.0) then
-                  
+
          DO N=1,NBRCH
             VolQual = 0
             VolHydro = dble(chan_geom(N).length)*Achan_Avg(N)
@@ -807,8 +806,8 @@ C..correct volume in each channel with Achan_Avg in tide file
             K=NSN/2+1   !add the difference to the parcel in the middle
             if ((GPV(N,K) + VolDiff).gt.0) then
                GPV(N,K)=GPV(N,K)+ VolDiff
-!...........the following concentration correction was disabled.              
-!              DO CONS_NO=1,NEQ 
+!...........the following concentration correction was disabled.
+!              DO CONS_NO=1,NEQ
 !                 GPT(CONS_NO,K,N)=GPT(CONS_NO,K,N)*GPV(N,K)/(GPV(N,K)+VolDiff)
 !              enddo
             else
@@ -817,7 +816,7 @@ C..correct volume in each channel with Achan_Avg in tide file
                   GPV(N,K)=GPV(N,K)+ VolDiff
                endif
             endif
-       
+
          enddo
          endif
 
@@ -829,15 +828,15 @@ C....add check here for positive parcel volume and concentration
      &              chan_geom(N).chan_no
                   call exit(2)
             endif
-            
+
             DO K=1,NSN
                if (GPV(N,K).lt.0) then
                   WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ',
      &              chan_geom(N).chan_no
                   call exit(2)
                endif
-           
-               DO CONS_NO=1,NEQ 
+
+               DO CONS_NO=1,NEQ
                   if (GPT(CONS_NO,K,N).lt.0) then
                      WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE CONSTITUENT in CHANNEL: ',
      &               chan_geom(N).chan_no
@@ -846,7 +845,7 @@ C....add check here for positive parcel volume and concentration
                enddo
             enddo
          enddo
- 
+
          prev_julmin=julmin
          julmin=julmin+time_step
          current_date=jmin2cdt(julmin)
@@ -854,9 +853,9 @@ C....add check here for positive parcel volume and concentration
 
 C--------- Hydro mass balance check
          write(unit_output,*)'Hydro mass balance in tidefile check'
-         write(unit_output,*)'Channel Achan_Avg Calculated Difference  PercentDiff' 
-         PDiffMax=0 
-         channelMax=0            
+         write(unit_output,*)'Channel Achan_Avg Calculated Difference  PercentDiff'
+         PDiffMax=0
+         channelMax=0
          DO N=1,NBRCH
               Diff(N)=Achan_AvgP(N)- Achan_Avg(N)
               PercentDiff(N)=Diff(N)/Achan_Avg(N)*100.
@@ -866,16 +865,16 @@ C--------- Hydro mass balance check
                 PDiffMax = abs(PercentDiff(N))
                 channelMax=NN
               endif
-         End do     
+         End do
          if (PDiffMax.gt.1.0) then
              write(unit_screen,*)''
-             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!'
              write(unit_screen,*)'Check output file(.qof) for details.'
              write(unit_screen,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
              write(unit_screen,*)'Suggest improve Hydro simulation!'
-             
+
              write(unit_output,*)''
-             write(unit_output,*)'Warning: Channel mass balance in tidefile is bad!' 
+             write(unit_output,*)'Warning: Channel mass balance in tidefile is bad!'
              write(unit_output,*)'Check output file(.qof) for details.'
              write(unit_output,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
              write(unit_output,*)'Suggest improve Hydro simulation!'
@@ -883,19 +882,19 @@ C--------- Hydro mass balance check
              write(unit_screen,*)''
              write(unit_screen,*)'Channel mass balance in tidefile is fine.'
              write(unit_screen,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
-             
+
              write(unit_output,*)''
              write(unit_output,*)'Channel mass balance in tidefile is fine.'
-             write(unit_output,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax             
+             write(unit_output,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
          endif
-         
+
          write(unit_screen,*)''
          write(unit_output,*)''
          write(unit_screen,*)"Reservoir volume balance:"
          write(unit_output,*)"Reservoir volume balance:"
          write(unit_screen,*)'Reservoir       Volume(Acre-ft)  Calculated   Difference   PercentDiff(%)'
          write(unit_output,*)'Reservoir       Volume(Acre-ft)  Calculated   Difference   PercentDiff(%)'
-         do i=1,nreser          
+         do i=1,nreser
             reser_elv = eresv(i)
             call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
             PDiffMax=(resvol(i)-reser_vol)/reser_vol*100
@@ -937,7 +936,7 @@ c--------close all DSS output files
             i=i+1
          enddo
       endif
-      
+
       call close_qual_hdf(qual_hdf)
       !call h5close_f(istat)
 900   WRITE(*,*) '   -----------------------------'

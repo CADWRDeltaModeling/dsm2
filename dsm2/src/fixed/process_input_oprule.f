@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -29,6 +29,7 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use utilities, only: loccarr, fillin_code, split_epart
       implicit none
 
 
@@ -38,18 +39,16 @@ C!</license>
      &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
-     &     ,fillin*8 
+     &     ,fillin*8
 
 
       integer*4
-     &     fillin_code          ! code for fill in type (last, none, linear)
-     &     ,Sign                ! sign restriction on input
+     &     Sign                ! sign restriction on input
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,istat
 
       integer, external :: data_types
-      integer, external :: loccarr
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -93,7 +92,7 @@ c-----------find object number given external object number
                pathinput(ninpaths).constant_value=ftmp
                pathinput(ninpaths).fillin=fill_last
                pathinput(ninpaths).path=trim(InPath)
-               pathinput(ninpaths).filename=trim(FileName)               
+               pathinput(ninpaths).filename=trim(FileName)
             else
 c--------------Break up the input pathname
                ! todo: this can be consolidated

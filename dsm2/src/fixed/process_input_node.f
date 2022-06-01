@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@ C!</license>
      &                               LocNum,
      &                               param,
      &                               Sign,
-     &                               RoleName,        
+     &                               RoleName,
      &                               Fillin,
      &                               Filename,
      &                               InPath)
@@ -33,6 +33,7 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use utilities, only: loccarr, fillin_code, split_epart
       implicit none
 
 
@@ -57,8 +58,6 @@ C!</license>
 
       integer, external :: data_types
       integer, external :: ext2intnode
-      integer, external :: loccarr
-      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -67,7 +66,7 @@ C!</license>
       call locase(rolename)
       call locase(param)
       call locase(fillin)
-      call locase(inpath)      
+      call locase(inpath)
 
 
       ninpaths=ninpaths+1
@@ -101,17 +100,17 @@ c-----------clean up character variables, replace environment variables
       end if
 
 
-c-----------find object number given external object number 
+c-----------find object number given external object number
       pathinput(ninpaths).obj_no=ext2intnode(LocNum)
       pathinput(ninpaths).obj_name=LocName
       if (FileName(:8) .eq. 'constant' .or.
      &      FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
-          pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign  
+          pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
           pathinput(ninpaths).path=trim(InPath)
-          pathinput(ninpaths).filename=trim(FileName)          
+          pathinput(ninpaths).filename=trim(FileName)
       else
 c--------------Break up the input pathname
 

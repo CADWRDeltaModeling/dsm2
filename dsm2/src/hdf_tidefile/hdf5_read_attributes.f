@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -40,19 +40,20 @@ c**********contains routines for writing data to an HDF5 file
       use io_units
       use dsm2_tidefile_input_storage_fortran
       use network
+      use utilities
       implicit none
 
-      integer(HID_T) :: attr_id ! Attribute identifier 
-      integer(HID_T) :: aspace_id ! Attribute Dataspace identifier 
-      integer(HID_T) :: atype_id ! Attribute Dataspace identifier 
+      integer(HID_T) :: attr_id ! Attribute identifier
+      integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
+      integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer(HSIZE_T), dimension(1) :: adims = (/1/) ! Attribute dimension
       integer     ::   arank = 1 ! Attribure rank
       integer        :: error   ! HDF5 Error flag
       integer(HSIZE_T), dimension(7) :: a_data_dims
 
       integer(HSIZE_T), dimension(2) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier 
-      integer(HID_T) :: memspace ! memspace identifier 
+      integer(HID_T) :: filespace ! Dataspace identifier
+      integer(HID_T) :: memspace ! memspace identifier
 
       integer(HID_T) :: in_dspace_id ! Dataspace identifier
       integer     ::    in_rank = 1 ! Dataset rank
@@ -86,8 +87,8 @@ c**********contains routines for writing data to an HDF5 file
       character*32, dimension(max_stgbnd) :: bname_obj
       integer, dimension(max_stgbnd) :: bnode_obj
       integer(SIZE_T) :: typesize
-      integer(HID_T) :: dtc32_id ! Memory datatype identifier 
-      
+      integer(HID_T) :: dtc32_id ! Memory datatype identifier
+
       integer :: nconnect, iconn,dummy
       integer :: connection_index, int_node_no,ext_node_no,node_flow_index,flow_index,res_index,res_flow_index
       character*32 :: flow_name, resv_name
@@ -95,11 +96,10 @@ c**********contains routines for writing data to an HDF5 file
 
       integer,dimension(1) :: hdf_dummy_integer
       integer :: scalar
-      character*14,external :: jmin2cdt
       print*, "Reading HDF5 Header Information"
 
       a_data_dims(1) = 1
-      
+
       call h5screate_simple_f(arank, adims, aspace_id, error)
       call h5tcopy_f(H5T_NATIVE_character, atype_id, error)
       call h5tset_size_f(atype_id, 21, error)
@@ -108,7 +108,7 @@ c**********contains routines for writing data to an HDF5 file
 !      call h5aread_f(attr_id, atype_id, chead, a_data_dims, error)
 !      call h5aclose_f(attr_id, error)
 
-      call h5ltget_attribute_string_f(hydro_id, ".", "Hydro Version", 
+      call h5ltget_attribute_string_f(hydro_id, ".", "Hydro Version",
      &           chead, error)
 
       call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
@@ -139,8 +139,8 @@ c      call h5aclose_f(attr_id, error)
       call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
 c     call h5aclose_f(attr_id, error)
       in_data_dims(1) = n_chan_tf
-      
-      
+
+
       ! Read map of external channel numbers int2ext
       call h5dopen_f(geom_id,"channel_number",in_dset_id,error)
       call h5dget_space_f(in_dset_id, filespace, error)
@@ -162,58 +162,58 @@ c	call h5dclose_f(cg_dset_id)
       cg_data_dims(2) = 1
       h_offset(1) = 0
       h_offset(2) = bottom_elIdx
-      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &     h_offset, cg_data_dims, error) 
+      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
+     &     h_offset, cg_data_dims, error)
       call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
-      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el1, cg_data_dims, 
+      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el1, cg_data_dims,
      &     error, memspace, filespace)
 
 
 
       h_offset(2) = bottom_elIdx + 1
-      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &     h_offset, cg_data_dims, error) 
+      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
+     &     h_offset, cg_data_dims, error)
       call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
-      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims, 
+      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims,
      &     error, memspace, filespace)
 
-      Do i = 1,n_chan_tf            
+      Do i = 1,n_chan_tf
          chan_geom(i).bottomelev(1) = bottom_el1(i)
          chan_geom(i).bottomelev(2) = bottom_el2(i)
       end do
 
       call reservoir_flow_connections_clear_buffer()
       call node_flow_connections_clear_buffer()
-      
-      call h5ltget_attribute_int_f(hydro_id,".", 
+
+      call h5ltget_attribute_int_f(hydro_id,".",
      &           "Number of node flow connects",
      &           hdf_dummy_integer, error)
       nconnect = hdf_dummy_integer(1)
-      
-      
+
+
       if (nconnect .gt. 0)then
-         call node_flow_connections_read_buffer_from_hdf5(geom_id, error)     
+         call node_flow_connections_read_buffer_from_hdf5(geom_id, error)
          nconnect = node_flow_connections_buffer_size()
          do iconn = 1, nconnect
              call node_flow_connections_query_from_buffer(iconn, connection_index,int_node_no,ext_node_no,
-     &                                                    node_flow_index,flow_index,flow_name,flow_type,error)  
+     &                                                    node_flow_index,flow_index,flow_name,flow_type,error)
              if (flow_type(1:4) .eq. "qext")then
                  node_geom(int_node_no).qext(node_flow_index) = flow_index
              else if (flow_type(1:8) .eq. "transfer")then
                  node_geom(int_node_no).qinternal(node_flow_index) = flow_index
              else
-                 write(unit_error,*) "Error querying nod flow connections" 
+                 write(unit_error,*) "Error querying nod flow connections"
              end if
          end do
          call node_flow_connections_clear_buffer()
       end if
 
-      call h5ltget_attribute_int_f(hydro_id,".", 
+      call h5ltget_attribute_int_f(hydro_id,".",
      &           "Number of reservoir flow connects",
      &           hdf_dummy_integer, error)
       nconnect = hdf_dummy_integer(1)
       if (nconnect .gt. 0)then
-         call reservoir_flow_connections_read_buffer_from_hdf5(geom_id, error)     
+         call reservoir_flow_connections_read_buffer_from_hdf5(geom_id, error)
          do iconn = 1, nconnect
              call reservoir_flow_connections_query_from_buffer(iconn, connection_index,resv_name,res_index,
      &                                                         res_flow_index,flow_index,flow_name,flow_type,error)
@@ -223,7 +223,7 @@ c	call h5dclose_f(cg_dset_id)
              else if (flow_type(1:8) .eq. "transfer")then
                  res_geom(res_index).qinternal(res_flow_index) = flow_index
              else
-                 write(unit_error,*) "Error querying nod flow connections" 
+                 write(unit_error,*) "Error querying nod flow connections"
              end if
          end do
          call reservoir_flow_connections_clear_buffer()
@@ -231,7 +231,7 @@ c	call h5dclose_f(cg_dset_id)
 
 
       ! Read Stage Boundaries
-      
+
       if (nstgbnd .gt. 0)then
           call stage_boundaries_clear_buffer()
           call stage_boundaries_read_buffer_from_hdf5(geom_id,error)

@@ -45,6 +45,8 @@ subroutine check_fixed(istat)
     use mod_readdss
     use mod_writedss
 
+    use utilities, only: loccarr, jmin2cdt, cdt2jmin, incr_intvl
+
     implicit none
 
 !-----Local variables
@@ -61,12 +63,10 @@ subroutine check_fixed(istat)
         i, j, k, p, & ! indices
         nlen, & ! character string length
         n_tidefiles_used, & ! number of tide files used to cover simulation period
-        loc, loccarr, & ! array index; function to find string in char array
+        loc, & ! array index; function to find string in char array
         data_types, & ! function to determine type of data (stage, flow,...)
         replace_status
     integer*4 &
-        cdt2jmin, & ! character date/time to julian minute
-        incr_intvl, & ! increment julian minute by interval function
         jmin                ! julian minute
 
     integer &
@@ -107,7 +107,6 @@ subroutine check_fixed(istat)
         res_names(max_reservoirs)*32, & ! vector of reservoir names
         const_names(max_constituent)*32, & ! vector of constituent names
         diff2dates*14, & ! return DSS date given start and diff
-        jmin2cdt*14, & ! julian minute to char function
         path_constituent*16, & ! constituent name for this path
         non_constituents(max_nc)*16, & ! list of inputs that are not constituents
         required_do(n_required_do)*32, & ! list of NCCs required for DO
@@ -1037,13 +1036,10 @@ logical function ncc(chemical_name)
 
     use common_qual
     use constants
+    use utilities, only: loccarr
     implicit none
 
-    integer loccarr           ! location in character array function
-
     character*(*) chemical_name
-
-    external loccarr
 
     ncc = loccarr(chemical_name, nonconserve_list, &
                   max_constituent, EXACT_MATCH) .gt. 0
@@ -1061,6 +1057,7 @@ logical function uniq_constituent(outpath)
     use common_qual
     use iopath_data
     use constants
+    use utilities, only: loccarr
     implicit none
 
 !-----argument
@@ -1074,7 +1071,7 @@ logical function uniq_constituent(outpath)
         ncc                  ! function to determine if this constituent is non-conservative
 
     integer &
-        loc, loccarr, & ! array index; function to find string in char array
+        loc, & ! array index; function to find string in char array
         j, n_uniq            ! loop index, number of uniq c parts
 
     character*15 &

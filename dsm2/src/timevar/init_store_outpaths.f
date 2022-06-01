@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -28,6 +28,7 @@
       use constants
       use dss
       use mod_writedss
+      use utilities, only: incr_intvl
       implicit none
 
 !-----local variables
@@ -45,9 +46,6 @@
           ,i &                  ! loop index &
           ,npaths &             ! path count &
           ,getdir              ! get directory function
-
-      integer*4 &
-          incr_intvl           ! increment julmin minute function
 
 !-----For each interval with output data, create a scratch file
 !-----and write header info.

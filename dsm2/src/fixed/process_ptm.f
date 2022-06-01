@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -26,6 +26,7 @@ c-----process a character line into data arrays for particle group output
       use constants
       use constants_ptm
       use groups
+      use utilities, only: loccarr
       !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
       character*40  from_wb, to_wb
@@ -35,13 +36,12 @@ c-----process a character line into data arrays for particle group output
       character*128 filename
       character*392 ctmp
       integer itmp
-      integer, external :: loccarr       
       integer, external :: name_to_objno
       integer, external :: obj_type_code
       call locase(name)
-      call locase(from_wb)      
-      call locase(to_wb)      
-      call locase(interval)      
+      call locase(from_wb)
+      call locase(to_wb)
+      call locase(interval)
 
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
@@ -57,10 +57,10 @@ c-----process a character line into data arrays for particle group output
      &              =obj_type_code(objtmp)
       objtmp=' '
       objtmp=from_wb((index(from_wb,":")+1):len_trim(from_wb))
-      if(trim(objtmp) .eq. 'all' .and. 
+      if(trim(objtmp) .eq. 'all' .and.
      &     pathoutput(noutpaths).flux_from_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_from_ndx=GROUP_ANY_INDEX
-      else    
+      else
 		   pathoutput(noutpaths).flux_from_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_from_type,objtmp)
       end if
@@ -75,10 +75,10 @@ c-----process a character line into data arrays for particle group output
      &              =obj_type_code(objtmp)
       objtmp=' '
       objtmp=to_wb((index(to_wb,":")+1):len_trim(to_wb))
-      if(trim(objtmp) .eq. 'all' .and. 
+      if(trim(objtmp) .eq. 'all' .and.
      &     pathoutput(noutpaths).flux_to_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_to_ndx=GROUP_ANY_INDEX
-      else    
+      else
 		   pathoutput(noutpaths).flux_to_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_to_type,objtmp)
       end if
@@ -107,7 +107,7 @@ c-----process a character line into data arrays for particle group output
 c-----------accumulate unique dss output filenames
       itmp=loccarr(pathoutput(noutpaths).filename,
      &              outfilenames,
-     &              max_dssoutfiles, 
+     &              max_dssoutfiles,
      &              EXACT_MATCH)
       if (itmp .lt. 0) then
          if (abs(itmp) .le. max_dssoutfiles) then
@@ -126,7 +126,7 @@ c-----------accumulate unique dss output filenames
 !     todo: is this fixed later if it isn't percent???
       pathoutput(noutpaths).meas_type='ptm_flux'
       pathoutput(noutpaths).units='percent'
-      pathoutput(noutpaths).per_type=per_type_inst_cum 
+      pathoutput(noutpaths).per_type=per_type_inst_cum
       return
       end subroutine
 
@@ -137,6 +137,7 @@ c-----process a character line into data arrays for particle group output
       use iopath_data
       use common_ptm
       use constants_ptm
+      use utilities, only: loccarr
       !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
       character*40  groupname
@@ -145,12 +146,11 @@ c-----process a character line into data arrays for particle group output
       character*128 filename
       character*392 ctmp
       integer itmp
-      integer, external :: loccarr       
       integer, external :: name_to_objno
-      
-      call locase(groupname)      
-      call locase(name)    
-      call locase(interval)  
+
+      call locase(groupname)
+      call locase(name)
+      call locase(interval)
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,"(a,i)")
@@ -164,11 +164,11 @@ c-----process a character line into data arrays for particle group output
 
 
 	if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
-	    write(unit_error,*)"Unrecognized group name for group output spec: " 
+	    write(unit_error,*)"Unrecognized group name for group output spec: "
      &      // trim(groupname)
 	    call exit(-3)
 	 end if
-      
+
 	ptm_igroup=.true.  ! fixme: what does this do?
       pathoutput(noutpaths).a_part=' '
       pathoutput(noutpaths).b_part=Name
@@ -188,7 +188,7 @@ c-----process a character line into data arrays for particle group output
 c-----------accumulate unique dss output filenames
       itmp=loccarr(pathoutput(noutpaths).filename,
      &              outfilenames,
-     &              max_dssoutfiles, 
+     &              max_dssoutfiles,
      &              EXACT_MATCH)
       if (itmp .lt. 0) then
          if (abs(itmp) .le. max_dssoutfiles) then
@@ -210,7 +210,7 @@ c-----------accumulate unique dss output filenames
       pathoutput(noutpaths).per_type=per_type_inst_cum
 
 	ngroup_outputs=ngroup_outputs+1
- 
+
       return
       end subroutine
 
@@ -256,8 +256,9 @@ c-----process a character line into data arrays for particle filter (on nodes co
       use constants
       use iopath_data
       use logging
+      use utilities, only: loccarr
       implicit none
-      
+
       character
      &     name*32
      &     ,resname*32
@@ -266,27 +267,26 @@ c-----process a character line into data arrays for particle filter (on nodes co
      &     ,filename*128
      &     ,inpath*392
       integer node
-      
+
       character*32  objtmp
       integer, external :: obj_type_code
       integer, external :: name_to_objno
       integer getWaterbodyUniqueId
-      
+
       character
      &     LocName*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
-     
+
       integer*4
      &     npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,istat
-     
+
       integer, external :: ext2intnode
-      integer, external :: loccarr
       integer, external :: fillin_code
       real*8 ftmp
-      
+
       call locase(name)
       call locase(at_wb)
       call locase(fillin)
@@ -299,13 +299,13 @@ c-----process a character line into data arrays for particle filter (on nodes co
      &        ,max_filter
          call exit(-1)
       endif
-         
+
       part_filter(nfilter).ndx = nfilter-1
       part_filter(nfilter).name = trim(name)
       part_filter(nfilter).node = ext2intnode(node)
       part_filter(nfilter).resname = miss_val_c
       part_filter(nfilter).at_wb = at_wb
-      
+
       ! process filter at_wb object
       objtmp=at_wb(1:(index(at_wb,":")-1))
       part_filter(nfilter).at_wb_type
@@ -314,13 +314,13 @@ c-----process a character line into data arrays for particle filter (on nodes co
       objtmp=at_wb((index(at_wb,":")+1):len_trim(at_wb))
       part_filter(nfilter).at_wb_ndx=name_to_objno(
      &              part_filter(nfilter).at_wb_type,objtmp)
-      
+
       if (part_filter(nfilter).at_wb_ndx .eq. miss_val_i) then
          write(unit_error, 650)trim(at_wb)
  650         format(/'Unrecognized object name: ',a)
          call exit(-1)
       end if
-      
+
       part_filter(nfilter).at_wb_id = getWaterbodyUniqueId
      &          (part_filter(nfilter).at_wb_type,part_filter(nfilter).at_wb_ndx)
 
@@ -328,7 +328,7 @@ c--------------dss timeseries input
       part_filter(nfilter).fillin = fillin
       part_filter(nfilter).filename = filename
       part_filter(nfilter).path = trim(inpath)
-      
+
       !TODO
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
@@ -337,8 +337,8 @@ c--------------dss timeseries input
      &        ,max_inputpaths
            call exit(-1)
       endif
-      
-      
+
+
       pathinput(ninpaths).name=name
       pathinput(ninpaths).useobj=.true.
       write(LocName, '(i)') node
@@ -347,7 +347,7 @@ c--------------dss timeseries input
       pathinput(ninpaths).obj_no=ext2intnode(node)  !part_filter(nfilter).node
       pathinput(ninpaths).variable="part_filter"
       pathinput(ninpaths).sign = 0
-      
+
       if (FileName(:8) .eq. 'constant' .or.
      &      FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
@@ -367,7 +367,7 @@ c--------------Break up the input pathname
      &                 'Input TS: Illegal pathname', InPath
               call exit(-1)
           end if
-     
+
           call split_epart(ce,itmp,ctmp)
           if (itmp .ne. miss_val_i) then ! valid interval, parse it
               pathinput(ninpaths).no_intervals=itmp
@@ -396,9 +396,9 @@ c--------------accumulate unique dss input filenames
           endif
           pathinput(ninpaths).fillin=fillin_code(fillin)
       endif
-      
+
       pathinput(ninpaths).data_type = obj_filter
-      
+
 
       if (print_level .ge. 3) then
           write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
@@ -409,7 +409,7 @@ c--------------accumulate unique dss input filenames
  610  format(/a)
  620  format(/a/a)
  630  format(/a,i5)
-      
+
       return
       end subroutine
 
@@ -421,8 +421,9 @@ c-----process a character line into data arrays for particle filter (on source f
       use constants
       use iopath_data
       use logging
+      use utilities, only: loccarr
       implicit none
-      
+
       character
      &     name*32
      &     ,resname*32
@@ -436,27 +437,26 @@ c-----process a character line into data arrays for particle filter (on source f
       integer, external :: obj_type_code
       integer, external :: name_to_objno
       integer getWaterbodyUniqueId
-      
+
       character
      &     LocName*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
-     
+
       integer*4
      &     npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,istat
-     
+
       integer, external :: ext2intnode
-      integer, external :: loccarr
       integer, external :: fillin_code
       real*8 ftmp
-      
+
       call locase(name)
       call locase(at_wb)
       call locase(fillin)
       call locase(inpath)
-      
+
       nfilter = nfilter+1
       if (nfilter .gt. max_filter) then
          write(unit_error,"(a,i)")
@@ -464,7 +464,7 @@ c-----process a character line into data arrays for particle filter (on source f
      &        ,max_filter
          call exit(-1)
       endif
-      
+
       part_filter(nfilter).ndx = nfilter-1
       part_filter(nfilter).name = name
       part_filter(nfilter).node = miss_val_i
@@ -485,7 +485,7 @@ c--------------process filter at_wb object to internal wb id
  650         format(/'Unrecognized object name: ',a)
          call exit(-1)
       end if
-            
+
       part_filter(nfilter).at_wb_id = getWaterbodyUniqueId
      &    (part_filter(nfilter).at_wb_type,part_filter(nfilter).at_wb_ndx)
 
@@ -493,7 +493,7 @@ c--------------dss timeseries input
       part_filter(nfilter).fillin = fillin
       part_filter(nfilter).filename = filename
       part_filter(nfilter).path = inpath
-      
+
       !TODO
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
@@ -502,8 +502,8 @@ c--------------dss timeseries input
      &        ,max_inputpaths
            call exit(-1)
       endif
-      
-      
+
+
       pathinput(ninpaths).name=name
       pathinput(ninpaths).useobj=.true.
       write(LocName, '(a32)') resname
@@ -511,7 +511,7 @@ c--------------dss timeseries input
       pathinput(ninpaths).obj_type=obj_node
       pathinput(ninpaths).variable="part_filter"
       pathinput(ninpaths).sign = 0
-      
+
       if (FileName(:8) .eq. 'constant' .or.
      &      FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
@@ -531,7 +531,7 @@ c--------------Break up the input pathname
      &                 'Input TS: Illegal pathname', InPath
               call exit(-1)
           end if
-     
+
           call split_epart(ce,itmp,ctmp)
           if (itmp .ne. miss_val_i) then ! valid interval, parse it
               pathinput(ninpaths).no_intervals=itmp
@@ -561,9 +561,9 @@ c--------------accumulate unique dss input filenames
           endif
           pathinput(ninpaths).fillin=fillin_code(fillin)
       endif
-      
+
       pathinput(ninpaths).data_type = obj_filter
-      
+
 
       if (print_level .ge. 3) then
           write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
@@ -574,7 +574,7 @@ c--------------accumulate unique dss input filenames
  610  format(/a)
  620  format(/a/a)
  630  format(/a,i5)
-      
-      
+
+
       return
       end subroutine

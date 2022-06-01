@@ -43,12 +43,10 @@ subroutine check_fixed_hydro(istat)
     use dss
     use mod_readdss
     use mod_writedss
+    use utilities, only: incr_intvl
     implicit none
 
     !-----Local variables
-
-    integer*4 &
-        incr_intvl           ! increment julian minute by interval function
 
     integer &
         istat                &! status of call (returned)
@@ -155,7 +153,7 @@ subroutine check_fixed_hydro(istat)
         return
     end if
 
- 
+
     !----  nquadpts=nquadpts-1
 
     if (time_step_intvl_hydro /= ' ') then
@@ -437,7 +435,7 @@ subroutine check_fixed_hydro(istat)
                 pathinput(i)%obj_no == node) then
                 nflwbnd=nflwbnd+1
             endif
-        enddo          
+        enddo
     enddo
 
     !-----fill FourPt connection arrays
@@ -816,7 +814,7 @@ do pth=1,ninpaths
 end
 
 integer function node2hydrochan(node,data_flow_type)
-      
+
     !-----convert a DSM2 node number to a hydro connecting channel,
     !-----depending on input data type (flow or stage)
     use IO_Units
@@ -835,7 +833,7 @@ integer function node2hydrochan(node,data_flow_type)
 
     !-----include files
 
-      
+
     !-----local variables
     integer j                 ! index
     !-----flow inputs must go to a hydro channel with a flow condition code
@@ -855,7 +853,7 @@ integer function node2hydrochan(node,data_flow_type)
             node2hydrochan=node_geom(node)%upstream(1)
         endif
     endif
-      
+
     if (data_flow_type) then  ! node flow input
         node2hydrochan=0
         !--------check upstream channel end connections to node first...

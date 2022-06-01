@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -26,6 +26,7 @@
       use iopath_data
       use dss
       use mod_writedss
+      use utilities, only: incr_intvl, jmin2cdt, cdt2jmin, split_epart
       implicit none
 
 !-----local variables
@@ -49,9 +50,7 @@
           ,itemp
 
       integer*4 &
-          cdt2jmin &            ! convert character date/time to julian minute &
-          ,dmins &              ! delta minutes &
-          ,incr_intvl &         ! increment julian minute by interval function &
+          dmins &              ! delta minutes &
           ,jdt                 ! julian minutes
 
       REAL*8 &
@@ -61,7 +60,6 @@
       character &
           date_time*14 &        ! char date/time of start of block &
           ,dt*25 &              ! char date/time of each value &
-          ,jmin2cdt*14 &        ! convert julian minute to character date/time &
           ,e_part*10 &          ! DSS interval &
           ,ctype*8 &            ! DSS types, e.g. 'PER-AVER' &
           ,ctemp*392            ! scratch

@@ -21,7 +21,7 @@
 module runtime_data
     use type_defs
     include '../common/version.fi'  ! version of hydro, qual, and ptm
-      
+
     !-----dates, timestep
     !-----Note: julian minutes are minutes from 01jan1900 0000 (31dec1899 2400)
     integer :: &
@@ -62,8 +62,8 @@ module runtime_data
 
     !-----display time interval
     character*80:: display_intvl = ' '
-      
-      
+
+
     !-----Program name and version number, set in the main routine
     !-----of Hydro, Qual and PTM
 
@@ -71,7 +71,7 @@ module runtime_data
     character*5:: dsm2_name
     character*24 :: restart_version      ! the version of the program that produced the tidefile
     character*24 :: tidefile_version      ! the version of the program that produced the tidefile
-      
+
 
 
     !-----runtime identification and run date/time, set in read_fixed
@@ -81,7 +81,7 @@ module runtime_data
     character*13 :: crid             ! run date/time as character: YYMMDDhhmm
     character*14 :: crdt14             ! run date/time as character: YYMMDDhhmm
     character*10 :: crdt10             ! run date/time as character: YYMMDDhhmm
-      
+
     !-----input sections structure
     type(form_t) :: hdr_form(max_sections)
 
@@ -97,18 +97,16 @@ module runtime_data
 
 
 contains
-      
-      
-      
-      
+
+
+
+
     subroutine initialize_runtimes
         use io_units
         use constants
+        use utilities, only: loccarr, cdt2jmin, jmin2cdt, diff2dates
         implicit none
-        integer :: cdt2jmin
-      
-        character*14 ::diff2dates      ! julian minute to char function
-        character*14 :: jmin2cdt       ! julian minute to char function
+
         !-----correct start date for odd minutes (not multiple of 15 minutes)
         start_julmin=cdt2jmin(run_start_date)
         if( start_julmin /= (start_julmin/15)*15) then
@@ -161,8 +159,8 @@ contains
             endif
         endif
         tf_start_date = jmin2cdt(start_julmin)
-      
+
     end subroutine
-      
+
 end module
 

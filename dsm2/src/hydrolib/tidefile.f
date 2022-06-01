@@ -62,7 +62,7 @@ contains
         integer &
             intchan &            ! internal channel numbers &
             ,nodeup,nodedown     ! Hydro upstream and downstream 'node' number &
-         
+
 
         !   Routines by module:
 
@@ -86,7 +86,7 @@ contains
         !-----Implementation -----------------------------------------------------
 
         OK = OpenChannel(ChannNum)
-               
+
         intchan = ChannNum
         nodedown=-StreamEndNode(-intchan)
         nodeup=StreamEndNode(intchan)
@@ -99,7 +99,7 @@ contains
         reach_len = dfloat(chan_geom(intchan)%length)/(dfloat(nodedown)- &
             dfloat(nodeup))
         reach_dist = XX - reach_len*(node1-nodeup)
-                    
+
         ZZ=val_x( &
             globalStreamSurfaceElevation(node1), &
             globalStreamSurfaceElevation(node2), &
@@ -125,12 +125,12 @@ contains
         use common_tide
         use iopath_data
         use chconnec
+        use utilities, only: incr_intvl
         implicit none
         !   Purpose:  Calculate the first interval that will be in the
         !             (output) hydro tidefile. Due to averaging and
         !             alignment to calendar time boundaries, this may be delayed.
 
-        integer, external :: incr_intvl
         integer :: first_hydro_interval
         character*14,external :: jmin2cdt
         !-----figure out the first interval to start tidefiles; if the model run
@@ -159,7 +159,7 @@ contains
         use chnlcomp
         use chconnec
         use chstatus
-        use netcntrl           
+        use netcntrl
         use channel_xsect_tbl, only: cxarea
         use netcntrl
         implicit none
@@ -215,11 +215,11 @@ contains
                 obj2obj(i)%flow_avg=0.
                 inst_obj2obj(i)=0.
             enddo
-            
+
             do icp=1,TotalCompLocations
                 Qcp(icp)=0.
-            enddo            
-            
+            enddo
+
         endif
 
         do Branch=1,NumberofChannels()
@@ -232,7 +232,7 @@ contains
         enddo
 
         do i=1,nqext
-            qext(i)%avg=qext(i)%avg+theta*qext(i)%flow + &                     
+            qext(i)%avg=qext(i)%avg+theta*qext(i)%flow + &
                 (1.-theta)*qext(i)%prev_flow
             inst_qext(i)=inst_qext(i)+qext(i)%flow
         enddo
@@ -241,24 +241,24 @@ contains
         do i=1,Nreser
             do j=1,res_geom(i)%nnodes
                 iconnect = iconnect + 1
-                QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)* &  
+                QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)* &
                     QresOld(i,j)
                 inst_QResv(iconnect)=inst_QResv(iconnect)+Qres(i,j)
             enddo
         enddo
 
         do i=1,nobj2obj
-            obj2obj(i)%flow_avg=obj2obj(i)%flow_avg + &                         
+            obj2obj(i)%flow_avg=obj2obj(i)%flow_avg + &
                 theta*obj2obj(i)%flow + (1.-theta)*obj2obj(i)%prev_flow
             inst_obj2obj(i)=inst_obj2obj(i)+obj2obj(i)%flow
         enddo
-        
+
         do icp=1,TotalCompLocations
             Qcp(icp)=Q(icp)               !output instantaneous flow to computational point, not theta average
             Zcp(icp)=WS(icp)              !was H(icp), using water surface instead
-            Branch=ChannelNo(icp)            
+            Branch=ChannelNo(icp)
         enddo
-        
+
         if (julmin >= next_hydro_interval) then
             do Branch=1,NumberofChannels()
                 Up=UpCompPointer(Branch)
@@ -269,16 +269,16 @@ contains
 
             do icp=1,TotalCompLocations
                 Qcp(icp)=Qcp(icp)/dble(NSample)
-                Zcp(icp)=WS(icp)                
+                Zcp(icp)=WS(icp)
                 Branch=ChannelNo(icp)
             enddo
-            
+
             do i=1,nqext
                 qext(i)%avg=qext(i)%avg/dble(NSample)
                 inst_qext(i)=inst_qext(i)/dble(NSample)
             enddo
 
-         
+
             do iconnect=1,nres_connect
                 QResv(iconnect)=QResv(iconnect)/dble(NSample)
                 inst_QResv(iconnect)=inst_QResv(iconnect)/dble(NSample)
@@ -394,11 +394,11 @@ contains
             EResv(i)=YRes(i)
         end do
 
-      
+
         if (julmin >= next_hydro_interval) then
             !--------Figure out how many external flows have changed
             !--------Save only the values which have changed
-	         
+
             !This call needs to be before the assignment of prev_avg
             if (io_files(hydro,io_hdf5,io_write)%use) then
                 dummy=SetHDF5ToTime(julmin)
@@ -410,7 +410,7 @@ contains
                 call WriteReservoirHeightToHDF5()
                 if (output_inst) then
                     call WriteCompPointToHDF5()
-                end if                 
+                end if
             end if
         end if
         WriteHydroToTidefile = .true.
@@ -439,7 +439,7 @@ contains
         integer Up, Down, j, I
         real*8 XX, ZZ
         logical InitialCall
-      
+
         real*8 delx,aavg
         real*8 Area1, X1, X2, Z1, Z2, Wt1, N1,N2
         integer QuadPts
@@ -481,7 +481,7 @@ contains
                 Z1 = ws(j)
                 X2 = (dble(j-Up)+1.D0)*delx
                 Z2 = ws(j+1)
-            
+
 
                 do 200 I=1,QuadPts
 
@@ -507,7 +507,7 @@ contains
                     endif
                     Wt1 = QuadWt
                     aavg = aavg + Area1 * Wt1
-               
+
 200             continue
                 enddo
                 AChan_Avg(Branch)=(aavg/dble(Down-Up))

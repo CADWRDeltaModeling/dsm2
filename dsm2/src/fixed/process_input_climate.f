@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@ C!</license>
      &                                 Param,
      &                                 Fillin,
      &                                 Filename,
-     &                                 InPath) 
+     &                                 InPath)
 
       use Gates
       use io_units
@@ -30,6 +30,7 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use utilities, only: loccarr, split_epart, fillin_code
       implicit none
 
 
@@ -51,8 +52,6 @@ C!</license>
      &     ,istat
 
       integer, external :: data_types
-      integer, external :: loccarr
-      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -60,7 +59,7 @@ C!</license>
       call locase(param)
       call locase(fillin)
       call locase(inpath)
-      
+
 
       ninpaths=ninpaths+1
             if (ninpaths .gt. max_inputpaths) then
@@ -141,7 +140,7 @@ c--------------accumulate unique dss input filenames
                                 !fixme: the next line should probably be based on RoleName
 c-----------set data type fixme:groups is this right
             pathinput(ninpaths).data_type=obj_climate
-            
+
             if (print_level .ge. 3) then
                write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),

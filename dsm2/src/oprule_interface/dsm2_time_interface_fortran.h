@@ -28,7 +28,7 @@
 #define get_model_hour getmodelhour_
 #define get_model_minute getmodelminute_
 #define get_model_ticks getmodelticks_
-#define cdate_to_jul_min cdt2jmin_
+#define cdate_to_jul_min utilities_mp_cdt2jmin_
 #define time_step_seconds netcntrl_mp_networktimeincrement_
 #endif
 
@@ -44,7 +44,7 @@ extern "C" {
    int STDCALL get_reference_minute_of_year(int &mon, int &day, int &hour, int &min);
    int STDCALL get_model_minute();
    int STDCALL get_model_hour();
-   int STDCALL cdate_to_jul_min(const char* name, 
+   int STDCALL cdate_to_jul_min(const char* name,
                                     unsigned int len);
    int time_step_seconds();
 }

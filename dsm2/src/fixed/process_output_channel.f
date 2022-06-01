@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -33,8 +33,9 @@ C!</license>
       use iopath_data
       use grid_data
       use envvar
+      use utilities, only: loccarr, split_epart
       implicit none
-      
+
       character*32 name
 
       character*16 :: param
@@ -45,10 +46,9 @@ C!</license>
 
       integer :: channo
       integer :: distance
-      
+
       integer, external :: name_to_objno
       integer, external :: ext2int
-      integer, external :: loccarr
 
       character*(200) ctmp
       integer itmp
@@ -81,18 +81,18 @@ C!</license>
       endif
 c----------find object number given object ID
       pathoutput(noutpaths).obj_no = ext2int(channo)
-      if (pathoutput(noutpaths).obj_no .eq. 0) 
+      if (pathoutput(noutpaths).obj_no .eq. 0)
      &     pathoutput(noutpaths).obj_no = miss_val_i ! quick fix?
          if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
-            write(unit_error,*)'Ignoring output TS: ', trim(name), 
+            write(unit_error,*)'Ignoring output TS: ', trim(name),
      &        ' request for unrecognized channel ', channo
                noutpaths=noutpaths-1
             return
          end if
-      write(pathoutput(noutpaths).obj_name, '(i)') channo     
-      pathoutput(noutpaths).chan_dist=distance 
+      write(pathoutput(noutpaths).obj_name, '(i)') channo
+      pathoutput(noutpaths).chan_dist=distance
       if(pathoutput(noutpaths).chan_dist .eq. chan_length) then
-          pathoutput(noutpaths).chan_dist 
+          pathoutput(noutpaths).chan_dist
      &       = chan_geom(pathoutput(noutpaths).obj_no).length
       end if
 
@@ -114,7 +114,7 @@ c----------find object number given object ID
 c-----------accumulate unique dss output filenames
       itmp=loccarr(pathoutput(noutpaths).filename,
      &              outfilenames,
-     &              max_dssoutfiles, 
+     &              max_dssoutfiles,
      &              EXACT_MATCH)
       if (itmp .lt. 0) then
          if (abs(itmp) .le. max_dssoutfiles) then
@@ -131,7 +131,7 @@ c-----------accumulate unique dss output filenames
       endif
 
       pathoutput(noutpaths).meas_type=Param
-      if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
+      if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'
       call assign_output_units(pathoutput(noutpaths).units,Param)
 
       if (PerOp(1:4) .eq. 'inst')
@@ -148,16 +148,15 @@ c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
           if (print_level .ge. 3)
-     &           write(unit_screen, '(i5,a,1x,i,a30,1x,a8,1x,a80)') 
+     &           write(unit_screen, '(i5,a,1x,i,a30,1x,a8,1x,a80)')
      &           noutpaths,
      &           trim(Name),channo,trim(Param),trim(Interval),
      &           trim(FileName)
 
  610  format(/a)
- 630  format(/a,i5)     
+ 630  format(/a,i5)
       return
       end subroutine
-      
-      
-      
-      
+
+
+
