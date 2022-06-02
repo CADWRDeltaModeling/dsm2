@@ -1,0 +1,10 @@
+python module pydsm2
+interface
+    module pydsm2hydro
+        subroutine main(fname_inp)
+            use fourpt
+            character*(*), intent(in) :: fname_inp
+        end subroutine
+    end module pydsm2hydro
+end interface
+end python module pydsm2

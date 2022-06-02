@@ -30,9 +30,9 @@ cmake_print_variables(F2PY_INCLUDE_DIR)
 cmake_print_variables(Python_NumPy_INCLUDE_DIRS)
 
 # Common variables
-set(f2py_module_name "pydsm2hydro")
+set(f2py_module_name "pydsm2")
 set(f2py_module_c "${f2py_module_name}module.c")
-set(f2py_module_def "${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.pyf")
+set(f2py_module_def "${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.pyf")
 set(f2py_module_wrapper ${f2py_module_name}-f2pywrappers2.f90)
 message(STATUS ${f2py_module_wrapper})
 # set(f2py_module_source )
@@ -44,8 +44,7 @@ add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}"
   COMMAND
     ${Python_EXECUTABLE} ARGS -m "numpy.f2py" "${f2py_module_def}"
-    ${CMAKE_SOURCE_DIR}/hydro/fourpt.f90
-    # ${f2py_module_source}
+    ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
     -m ${f2py_module_name} --lower
   DEPENDS "${f2py_module_def}" # f2py definitions. See ../SourceCode/Export
                                # generate_with_intent.py to regenerate the
@@ -59,6 +58,7 @@ python_add_library(
   ${f2py_module_name} MODULE WITH_SOABI
   "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}" # Generated
   "${F2PY_INCLUDE_DIR}/fortranobject.c" # From NumPy
+  ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
 )
 target_sources(${f2py_module_name}
                PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_wrapper})

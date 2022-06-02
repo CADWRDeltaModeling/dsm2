@@ -127,16 +127,12 @@ module fourpt
 
     data init_input_file/' '/
 contains
-    subroutine native_main()
+    subroutine run_fourpt(fname_inp)
+        character(len=*), intent(in) :: fname_inp
         call fourpt_init
-        call get_command_args(init_input_file, model_name, echo_only)
+        init_input_file = fname_inp
         call fourpt_main
-    end subroutine native_main
-
-    subroutine python_main()
-        call fourpt_init
-        call fourpt_main
-    end subroutine python_main
+    end subroutine run_fourpt
 
     subroutine fourpt_init()
         !-----DSM2 module, name and version number
