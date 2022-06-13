@@ -199,8 +199,7 @@ public class MainPTM {
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
                 // write out restart file information
-                if ( outRestart != null ) outRestart.output();
-      
+                if ( outRestart != null ) outRestart.output();      
             }
             if(Environment.getParticleType().equalsIgnoreCase("Salmon_Particle")){
             	Map<Integer, IntBuffer> lastTraces = new HashMap<Integer, IntBuffer>();
@@ -242,6 +241,10 @@ public class MainPTM {
             	fluxCalculator.writeOutput(); 
             }
            
+            if (TransProbs.getFileOpen()) {
+            	TransProbs.closeFile();
+            }
+            
             System.out.println("done simulation");
             
         }catch(Exception e){

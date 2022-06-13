@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.Calendar;
 import java.nio.IntBuffer;
 import java.io.BufferedWriter;
@@ -28,6 +29,15 @@ public class RouteInputs {
 			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
 			if(_pathFileNameEntrainment.equalsIgnoreCase(""))
 				_pathFileNameEntrainment = null;
+			
+			_pathFileNameTransProbs = PTMUtil.getPathFromLine(inText.get(1), ':');
+			if(_pathFileNameTransProbs.equalsIgnoreCase("")) {
+				_pathFileNameTransProbs = null;
+			}
+			else {
+				TransProbs.openFile(_pathFileNameTransProbs);
+			}
+						
             //TODO disabled the flux reading. The flux calculation needs more work for fish particles because they move back and forth many times.
             /*
 			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
@@ -476,6 +486,7 @@ public class RouteInputs {
 
 	private String _pathFileNameEntrainment;
 	private String _pathFileNameFlux;
+	private String _pathFileNameTransProbs;
 	private ArrayList<IntBuffer> _fishScreens = null;
 	private float _dicuFilterEfficiency;
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
