@@ -128,21 +128,14 @@ module fourpt
 
     data init_input_file/' '/
 contains
-    subroutine run_fourpt(fname_inp)
-        character(len=*), intent(in) :: fname_inp
-        call fourpt_init
-        init_input_file = fname_inp
-        call fourpt_main
-    end subroutine native_main
-
     subroutine python_main(inp_file)
         character(len=140), intent(in) :: inp_file
-        call fourpt_init
+        call prepare_hydro
         init_input_file = inp_file
         call fourpt_main
     end subroutine python_main
 
-    subroutine fourpt_init()
+    subroutine prepare_hydro()
         !-----DSM2 module, name and version number
         dsm2_module = hydro
         dsm2_name = 'Hydro'
@@ -161,9 +154,9 @@ contains
 
         !-----get optional starting input file from command line and
         !-----simulation name for Database read
-    end subroutine fourpt_init
+    end subroutine prepare_hydro
 
-    subroutine fourpt_main()
+    subroutine fourpt_init()
         !-----dsm2 initialization
         call dsm2_hydro_init
 
@@ -280,6 +273,10 @@ contains
         prev_julmin = julmin
         julmin = julmin + time_step
         current_date = jmin2cdt(julmin)
+    end subroutine fourpt_init
+
+    subroutine fourpt_main()
+        call fourpt_init()
 
         do while (julmin .le. end_julmin) ! normal time run
 
