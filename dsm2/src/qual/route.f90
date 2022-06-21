@@ -1,39 +1,39 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-C     **************************  ROUTE  *************************************
-   
+!     **************************  ROUTE  *************************************
+
       SUBROUTINE ROUTE
       Use IO_Units
       use common_qual
       use logging
       use runtime_data
 
-C     + + + PURPOSE + + +
+!     + + + PURPOSE + + +
 
-C     The purpose of this subroutine is to route through each branch.
+!     The purpose of this subroutine is to route through each branch.
 
-C     NOSC     Maximum number of cross sections (grids) allowed in branch
-C     NOPR     Maximum number of parcels allowed in branch
-C     (NOPR should be at least 20 + 2 times NOSC)
-C     MAX_CONSTITUENT     Maximum number of constituents allowed
+!     NOSC     Maximum number of cross sections (grids) allowed in branch
+!     NOPR     Maximum number of parcels allowed in branch
+!     (NOPR should be at least 20 + 2 times NOSC)
+!     MAX_CONSTITUENT     Maximum number of constituents allowed
 
       IMPLICIT NONE
       INCLUDE 'param.inc'
@@ -42,51 +42,51 @@ C     MAX_CONSTITUENT     Maximum number of constituents allowed
       INCLUDE 'bltm2.inc'
       include 'kinetic1.inc'
 
-C     + + + DUMMY ARGUMENTS + + +
+!     + + + DUMMY ARGUMENTS + + +
 
       real*8    DQMIN,VI,DQTINY
 
-C     + + + ARGUMENT DEFINITIONS + + +
-C     A(I)       average area in subreach I (sq m)
-C     DQQ     dispersion factor D/(U*U*DT)
-C     DQV     minimum dispersive velocity (m/s)
-C     DT      time step size in hours
-C     DVD     unknown volume of outflow at d/s end
-C     DVU     unknown volume of outflow at u/s end
-C     IPX(K)     subreach in which the u/s boundary of parcel K is located
-C     IRC     code for reading data in FINK (1=read data, 0=no read)
-C     Jtime       time step
-C     JTS     number of time steps from midnight to start of model
-C     KAI(I)     parcel at grid I
-C     LR(L)      index denoting that the decay of constituent L due
-C     to the presence of constituent LR(L) is tracked
-C     NEQ     number of equations (constituents)
-C     N     branch number
-C     NS      number of parcels
-C     NXSEC   number of Eulerian grids (subreaches in a branch)
-C     PDC(L,K)     change in initial concentration due to a specific reaction
-C     PDF(L,K)     change in initial concentration due to dispersion
-C     PH(K)      time parcel K entered reach in hours from day 0
-C     PT(L,K)      conc. of constituent L in parcel K
-C     PTD(K)     conc. of constituent L in parcel K, d/s, avg'd over time step
-C     PTI(L,K)     initial concentration of constituent L in parcel K
-C     PTR(L,K)     change in initial concentration due to tributary inflow
-C     PTU(L)     conc. of constituent L in parcel K, u/s, avg'd over time step
-C     PV(K)      volume of parcel K
-C     Q(I)   river flow at grid I (cu m/s),trib inflow occurs just u/s of grid
-C     QI     minimum flow of interest (flows<QI are considered zero).
-C     QT(I)      tributary inflow at grid I (cu m/s), enter just u/s of grid
-C     TRIB(L,I)    concentration of constituent L in trib at grid I
-C     (tribs can not occur at first or last grid)
-C     VI   smallest volume of interest (VI=QI*DT)!!changed to 1/10 of the average parcel
-C     VU(I)      volume of parcel upstream of grid I
-C     W(I)       average top width in subreach I (m)
+!     + + + ARGUMENT DEFINITIONS + + +
+!     A(I)       average area in subreach I (sq m)
+!     DQQ     dispersion factor D/(U*U*DT)
+!     DQV     minimum dispersive velocity (m/s)
+!     DT      time step size in hours
+!     DVD     unknown volume of outflow at d/s end
+!     DVU     unknown volume of outflow at u/s end
+!     IPX(K)     subreach in which the u/s boundary of parcel K is located
+!     IRC     code for reading data in FINK (1=read data, 0=no read)
+!     Jtime       time step
+!     JTS     number of time steps from midnight to start of model
+!     KAI(I)     parcel at grid I
+!     LR(L)      index denoting that the decay of constituent L due
+!     to the presence of constituent LR(L) is tracked
+!     NEQ     number of equations (constituents)
+!     N     branch number
+!     NS      number of parcels
+!     NXSEC   number of Eulerian grids (subreaches in a branch)
+!     PDC(L,K)     change in initial concentration due to a specific reaction
+!     PDF(L,K)     change in initial concentration due to dispersion
+!     PH(K)      time parcel K entered reach in hours from day 0
+!     PT(L,K)      conc. of constituent L in parcel K
+!     PTD(K)     conc. of constituent L in parcel K, d/s, avg'd over time step
+!     PTI(L,K)     initial concentration of constituent L in parcel K
+!     PTR(L,K)     change in initial concentration due to tributary inflow
+!     PTU(L)     conc. of constituent L in parcel K, u/s, avg'd over time step
+!     PV(K)      volume of parcel K
+!     Q(I)   river flow at grid I (cu m/s),trib inflow occurs just u/s of grid
+!     QI     minimum flow of interest (flows<QI are considered zero).
+!     QT(I)      tributary inflow at grid I (cu m/s), enter just u/s of grid
+!     TRIB(L,I)    concentration of constituent L in trib at grid I
+!     (tribs can not occur at first or last grid)
+!     VI   smallest volume of interest (VI=QI*DT)!!changed to 1/10 of the average parcel
+!     VU(I)      volume of parcel upstream of grid I
+!     W(I)       average top width in subreach I (m)
 
-C     + + + LOCAL VARIABLES + + +
-      INTEGER I,I1,IEXP,IFP,II,ILP,INX,K,K2,KK,KL,KS,KSML,L,
-     &     ND(NOPR),NDMAX,NSL
-      real*8    COF,COF1,DF(NOPR),DMF(NOPR),DQ(NOPR),
-     &     PRDT(NOPR),PVT,RATIO,RDT,C(MAX_CONSTITUENT)
+!     + + + LOCAL VARIABLES + + +
+      INTEGER I,I1,IEXP,IFP,II,ILP,INX,K,K2,KK,KL,KS,KSML,L, &
+          ND(NOPR),NDMAX,NSL
+      real*8    COF,COF1,DF(NOPR),DMF(NOPR),DQ(NOPR), &
+          PRDT(NOPR),PVT,RATIO,RDT,C(MAX_CONSTITUENT)
 	real*8,parameter :: df_tol = 1.D-06
       real*8,parameter :: clog2=0.3010300
 
@@ -102,29 +102,29 @@ C     + + + LOCAL VARIABLES + + +
 
 
       real*8 objflow,massrate(max_constituent) ! object flow and massrates
-      
+
       real*8 VOL,VOL0,DX(NOPR)
       real*8 XLENGTH,XAREA
       INTEGER J
 
-C     + + + LOCAL VARIABLE DEFINITIONS + + +`
-C     DF(K)  change in conc. of any constituent in parcel K due to dispersion
-C     DMF(K)     the mass flux into parcel K at its u/s boundary
-C     DQ(K)      flow volume between parcel K-1 and K due to velocity gradients
-C     IEXP    exponent of 2 used to determine ND(K)
-C     IFP     parcel at upstream boundary
-C     ILP     parcel at d/s boundary
-C     INX     number of subreaches
-C     K       parcel number
-C     KSML    parcel number of smallest parcel
-C     L       constituent number
-C     ND(K)      # sub-time steps needed at u/s bndry of parcel K for dispersion
-C     NDMAX   maximum number of sub-time steps needed for dispersion
-C     MX      subreach where parcel is located
-C     NOPR    maximum number of parcels in net dimension statements
-C     PRDT(K)    remaining time for decay in parcel K
-C     RDT     time remaining for movement
-C     X(I)       dist of grid I from u/s boundary (m), input as river mile
+!     + + + LOCAL VARIABLE DEFINITIONS + + +`
+!     DF(K)  change in conc. of any constituent in parcel K due to dispersion
+!     DMF(K)     the mass flux into parcel K at its u/s boundary
+!     DQ(K)      flow volume between parcel K-1 and K due to velocity gradients
+!     IEXP    exponent of 2 used to determine ND(K)
+!     IFP     parcel at upstream boundary
+!     ILP     parcel at d/s boundary
+!     INX     number of subreaches
+!     K       parcel number
+!     KSML    parcel number of smallest parcel
+!     L       constituent number
+!     ND(K)      # sub-time steps needed at u/s bndry of parcel K for dispersion
+!     NDMAX   maximum number of sub-time steps needed for dispersion
+!     MX      subreach where parcel is located
+!     NOPR    maximum number of parcels in net dimension statements
+!     PRDT(K)    remaining time for decay in parcel K
+!     RDT     time remaining for movement
+!     X(I)       dist of grid I from u/s boundary (m), input as river mile
 
       DTSEC=DT*3600.
       DQTINY=0.00001*DTSEC
@@ -132,10 +132,10 @@ C     X(I)       dist of grid I from u/s boundary (m), input as river mile
       chan_res=1                ! pointer to channel for kinetic computations
 
       DO 490 N=1,NBRCH
-C--------ROUTE BRANCHES
+!--------ROUTE BRANCHES
          I1=NXSEC(N)
          NXSECN=I1
-         NSN=NS(N)           
+         NSN=NS(N)
          DO K=1,NSN+2
             NEWPARCEL(K)=.FALSE.
          ENDDO
@@ -147,7 +147,7 @@ C--------ROUTE BRANCHES
             QT(I)=FLOW(N,4,I)
  410     CONTINUE
 
-C-   estimate parcel size
+!-   estimate parcel size
          VOL=0
          DO K=1,NSN
             VOL=VOL+GPV(N,K)
@@ -158,23 +158,23 @@ C-   estimate parcel size
             DX(K)=GPV(N,K)/XAREA
          enddo
 
-C          VOL0=DX0*0.5*(A(1)+A(2))
+!          VOL0=DX0*0.5*(A(1)+A(2))
           VOL0=DX0*XAREA
           if(VOL/VOL0.GT.(NOPR-2))VOL0=VOL/(NOPR-2)
           if(VOL/VOL0.LT.8)VOL0=VOL/8.
 
-          VI=VOL0*0.1                 
+          VI=VOL0*0.1
 
-C--------compute hydraulics statements
+!--------compute hydraulics statements
 
          INX=NXSECN-1
          NIPX(N,NSN+1)=NXSECN
 
-C--------disperse constituents statements
+!--------disperse constituents statements
 
-C--------COMPUTE DQ'S
+!--------COMPUTE DQ'S
 
-C--------No dispersion if only 1 parcel is left
+!--------No dispersion if only 1 parcel is left
 
          IF(NSN.LE.1)GOTO 150
 
@@ -183,15 +183,15 @@ C--------No dispersion if only 1 parcel is left
                MX=NIPX(N,K)
                !todo: this change to an average eliminates one-sidedness
                ! one-sidedness causes different answers depending on channel orientation
-               ! and causes problems with dead ends. 
+               ! and causes problems with dead ends.
                QPARCEL=(Q(MX)+Q(MX+1))/2.D0
 !               DQ(K)=ABS(DQQ(N)*QPARCEL)
                DQ(K)=ABS(DQQ(N)*QPARCEL)/(0.5*(DX(K-1)+DX(K)))
                !DQ(K)=ABS(DQQ(N)*Q(MX))
-               
+
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
-C--------------Changed from flow rate to volume
+!--------------Changed from flow rate to volume
                DQ(K)=DQ(K)*DTSEC
             ELSE
                DQ(K)=0.0
@@ -200,7 +200,7 @@ C--------------Changed from flow rate to volume
          DQ(1)=0.0
          DQ(NSN+1)=0.0
 
-C--------determine number of subdivisions needed for each parcel
+!--------determine number of subdivisions needed for each parcel
 
          NDMAX=0
          ND(1)=1
@@ -214,14 +214,14 @@ C--------determine number of subdivisions needed for each parcel
             IF(IEXP.GT.0)ND(K)=2**IEXP
  31         NDMAX=MAX(ND(K),NDMAX)
  30      CONTINUE
-C--------Calculate DQ per sub-timestep. This makes thing go faster
+!--------Calculate DQ per sub-timestep. This makes thing go faster
          RNDMAX=dble(NDMAX)
          DO K=2,NSN+1
             DQ(K)=DQ(K)/RNDMAX
             NDD(K)=NDMAX/(ND(K))
          ENDDO
 
-C--------compute new mass fluxes if needed and update all concentrations
+!--------compute new mass fluxes if needed and update all concentrations
 
          DMF(1)=0.0
          DO 120 L=1,NEQ
@@ -243,8 +243,8 @@ C--------compute new mass fluxes if needed and update all concentrations
                DO 110 NN=1,NDMAX
                   DO 100 K=1,NSN
                      IF (MOD(NN-1,NDD(K+1)).EQ.0) then
-                        DMF(K+1)=DQ(K+1)*
-     &                       (DIFFGPT(K)+DF(K)-DF(K+1))
+                        DMF(K+1)=DQ(K+1)* &
+                            (DIFFGPT(K)+DF(K)-DF(K+1))
                      ENDIF
                      IF(GPV(N,K).GT.VI) THEN
                         DF(K)=(DMF(K)-DMF(K+1))/GPV(N,K)+DF(K)
@@ -258,16 +258,16 @@ C--------compute new mass fluxes if needed and update all concentrations
             DO  K=1,NSN
                GPT(L,K,N)=GPT(L,K,N)+DF(K)
             ENDDO
-            
-            
+
+
  120     CONTINUE
 
-C--------FINISHED DISPERSION
-C--------set inflow boundary values statements
+!--------FINISHED DISPERSION
+!--------set inflow boundary values statements
 
  150     IF (Q(1).LE.0.0) GO TO 240
 
-C--------FLOW IN UPSTREAM BOUNDARY
+!--------FLOW IN UPSTREAM BOUNDARY
          NEWPARCEL(1)=.TRUE.
          NS(N)=NS(N)+1
          NSN=NS(N)
@@ -290,8 +290,8 @@ C--------FLOW IN UPSTREAM BOUNDARY
          NKAI(N,1)=1
          PRDT(1)=0.0
 !         IF(node_geom(JN).qual_int .OR. NCONRES(JN).EQ.0)THEN
-C-----------Upstream junction is not at the boundary
-C-----------Or if it is, there are no reservoirs connected
+!-----------Upstream junction is not at the boundary
+!-----------Or if it is, there are no reservoirs connected
             DO L=1,NEQ
                ! todo: analyze if this is really ever non-zero or necessary.
                !       same for downstream case. If you are reading this in
@@ -316,12 +316,12 @@ C-----------Or if it is, there are no reservoirs connected
 !            ENDDO
 !         ENDIF
          GO TO 250
-C--------flow at upstream boundary is 0 or negative
+!--------flow at upstream boundary is 0 or negative
  240     CONTINUE
          PRDT(1)=DT
  250     CONTINUE
          IF (Q(NXSECN).GE.0.0) GO TO 270
-C--------flow into downstream boundary
+!--------flow into downstream boundary
          NS(N)=NS(N)+1
          NSN=NS(N)
          NEWPARCEL(NSN)=.TRUE.
@@ -345,9 +345,9 @@ C--------flow into downstream boundary
             PRDT(K)=DT
  290     CONTINUE
 
-C--------move parcels statements
+!--------move parcels statements
 
-C--------move parcels passing donwstream or stationary
+!--------move parcels passing donwstream or stationary
 
          iskip = 1
 
@@ -365,11 +365,11 @@ C--------move parcels passing donwstream or stationary
             K=NKAI(N,I)
             MX=I-1
             IF (DTSUB.GT.RDT) GO TO 310
-C-----------parcel passed grid
+!-----------parcel passed grid
             IF(K.EQ.1)THEN
                WRITE(UNIT_ERROR,*) '          TIME: ',current_date
-               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ',
-     &              chan_geom(N).chan_no
+               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ', &
+                   chan_geom(N).chan_no
                WRITE(UNIT_ERROR,*) ' This may be caused by mass balance error in Hydro. '
                WRITE(UNIT_ERROR,*) ' It happened when a gate open and close everyday, causing fluctuation.'
                WRITE(UNIT_ERROR,*) ' Change checkdata to True and Run Qual again, '
@@ -383,15 +383,15 @@ C-----------parcel passed grid
             DO L = 1, NEQ
                C(L) = GPT(L,K,N)
             END DO
-            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
-     &           .and. .not.newparcel(k)) then
+            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent .gt. 0 &
+                .and. .not.newparcel(k)) then
                call rate_chanres(n)
 	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
-                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+
-     &                 (GPT(L,K,N)-C(L))*GPV(N,K)
+                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+ &
+                      (GPT(L,K,N)-C(L))*GPV(N,K)
                ENDDO
             ENDIF
             DO L = 1, NEQ
@@ -403,7 +403,7 @@ C-----------parcel passed grid
             NKAI(N,I)=K-1
             GVU(N,I)=GPV(N,K-1)
             GO TO 300
-C-----------did not pass grid
+!-----------did not pass grid
  310        CONTINUE
             IF(Q(I).LT.0.0)DTSUB=RDT*RQ/(RQ-Q(I))
             IF(DTSUB.GT.RDT)DTSUB=RDT
@@ -411,15 +411,15 @@ C-----------did not pass grid
             DO L = 1, NEQ
                C(L) = GPT(L,K,N)
             END DO
-            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
-     &           .and. .not.newparcel(k)) then
+            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent .gt. 0 &
+                .and. .not.newparcel(k)) then
                call rate_chanres(n)
 	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
-                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+
-     &                 (GPT(L,K,N)-C(L))*GPV(N,K)
+                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+ &
+                      (GPT(L,K,N)-C(L))*GPV(N,K)
                ENDDO
             ENDIF
 
@@ -429,7 +429,7 @@ C-----------did not pass grid
             PRDT(K)=PRDT(K)-DTSUB
             GVU(N,I)=GVU(N,I)-RQ*RDT*3600.
  320     CONTINUE
-C--------move parcels going upstream
+!--------move parcels going upstream
          DO 350 II=2,NXSECN
             I=NXSECN+1-II
             IF (Q(I).GE.0.0) GO TO 350
@@ -441,11 +441,11 @@ C--------move parcels going upstream
             DTSUB=(GVU(N,I)-GPV(N,K))/(Q(I)*3600.0)
             IF(DTSUB.LT.0.0)DTSUB=0.0
             IF (DTSUB.GT.RDT) GO TO 340
-C-----------parcel passed grid
+!-----------parcel passed grid
             IF(K.EQ.NSN)THEN
                WRITE(UNIT_ERROR,*) '          TIME: ',current_date
-               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ',
-     &              chan_geom(N).chan_no
+               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ', &
+                   chan_geom(N).chan_no
                WRITE(UNIT_ERROR,*) ' This may be caused by mass balance error in Hydro. '
                WRITE(UNIT_ERROR,*) ' It happened when a gate open and close everyday, causing fluctuation.'
                WRITE(UNIT_ERROR,*) ' Change checkdata to True and Run Qual again, '
@@ -458,15 +458,15 @@ C-----------parcel passed grid
             DO L = 1, NEQ
                C(L) = GPT(L,K,N)
             END DO
-            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
-     &           .and. .not.newparcel(k)) then
+            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent .gt. 0 &
+                .and. .not.newparcel(k)) then
                call rate_chanres(n)
 	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
-                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+
-     &                 (GPT(L,K,N)-C(L))*GPV(N,K)
+                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+ &
+                      (GPT(L,K,N)-C(L))*GPV(N,K)
                ENDDO
             ENDIF
             DO L = 1, NEQ
@@ -478,7 +478,7 @@ C-----------parcel passed grid
             NKAI(N,I)=K+1
             GVU(N,I)=0.0
             GO TO 330
-C-----------did not pass grid
+!-----------did not pass grid
  340        CONTINUE
             K=NKAI(N,I)
             DTSUB=RDT
@@ -487,15 +487,15 @@ C-----------did not pass grid
             DO L = 1, NEQ
                C(L) = GPT(L,K,N)
             END DO
-            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
-     &           .and. .not.newparcel(k)) then
+            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent .gt. 0 &
+                .and. .not.newparcel(k)) then
                call rate_chanres(n)
 	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
-                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+
-     &                 (GPT(L,K,N)-C(L))*GPV(N,K)
+                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+ &
+                      (GPT(L,K,N)-C(L))*GPV(N,K)
                ENDDO
             ENDIF
             DO L = 1, NEQ
@@ -504,7 +504,7 @@ C-----------did not pass grid
             PRDT(K)=0.0
             IF(RQ.LE.0.0) GVU(N,I)=GVU(N,I)-RQ*RDT*3600.0
  350     CONTINUE
-C--------complete decay step
+!--------complete decay step
          DO 360 K=1,NSN
             IF (MX.GT.NXSECN-1) MX=NXSECN-1
             IF (MX.LT.1) MX=1
@@ -512,14 +512,14 @@ C--------complete decay step
                C(L) = GPT(L,K,N)
             END DO
             dtsub = prdt(k)
-            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0) then
+            IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent .gt. 0) then
                call rate_chanres(n)
                call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
-                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+
-     &                 (GPT(L,K,N)-C(L))*GPV(N,K)
+                  AMOUNTDECAYED(L)=AMOUNTDECAYED(L)+ &
+                      (GPT(L,K,N)-C(L))*GPV(N,K)
                ENDDO
             ENDIF
             DO L = 1, NEQ
@@ -527,7 +527,7 @@ C--------complete decay step
             END DO
  360     CONTINUE
 
-C--------compute outflow flux statements
+!--------compute outflow flux statements
 
          DO 400 L=1,NEQ
             GPTU(L,N)=0.0
@@ -549,8 +549,8 @@ C--------compute outflow flux statements
          IF (Q(NXSECN).GT.0.0) THEN
             DO K=NSN,NKAI(N,NXSECN),-1
                DVD(N)=GPV(N,K)
-               IF (K.EQ.NKAI(N,NXSECN)) DVD(N)=GPV(N,K)-
-     &              GVU(N,NXSECN)
+               IF (K.EQ.NKAI(N,NXSECN)) DVD(N)=GPV(N,K)- &
+                   GVU(N,NXSECN)
                DO 450 L=1,NEQ
                   GPTD(L,N)=GPTD(L,N)+GPT(L,K,N)*DVD(N)
  450           CONTINUE
@@ -569,12 +569,12 @@ C--------compute outflow flux statements
          ILP=NKAI(N,NXSECN)
          GPV(N,ILP)=GVU(N,NXSECN)
 
-C--------renumber parcels and combine statements
+!--------renumber parcels and combine statements
 
-         
+
          NS(N)=ILP-IFP+1
-         NSN=NS(N)       
-         
+         NSN=NS(N)
+
          IF (NSN.EQ.1) THEN
             IF(Q(NXSECN).GE.0.) DVU(N)=0.0
             IF(Q(1).LE.0.) DVD(N)=0.0
@@ -584,7 +584,7 @@ C--------renumber parcels and combine statements
          ENDIF
 
          IF (IFP.EQ.1) GO TO 530
-C--------RENUMBER PARCELS
+!--------RENUMBER PARCELS
          DO 510 K=1,NSN
             K2=K+IFP-1
             NIPX(N,K)=NIPX(N,K2)
@@ -598,11 +598,11 @@ C--------RENUMBER PARCELS
  520     CONTINUE
  530     CONTINUE
 
-C--------combine parcel statements
+!--------combine parcel statements
 
  600     CONTINUE
 
-C--------Determine the smallest parcel
+!--------Determine the smallest parcel
 !             KSML=1
 !             DO K=1,NSN
 !                IF (GPV(N,K).LE.GPV(N,KSML)) KSML=K
@@ -637,8 +637,8 @@ C--------Determine the smallest parcel
             IF (GPV(N,KS).GT.GPV(N,KS+2)) KS=KSML
          ENDIF
          KL=KS+1
-C-------Liu 
-         if(J.NE.3) then               
+!-------Liu
+         if(J.NE.3) then
            if(GPV(N,KS).GT.VOL0.or.GPV(N,KL).GT.VOL0) go to 700
          endif
          I1=NIPX(N,KS)+1
@@ -657,7 +657,7 @@ C-------Liu
          DO 660 L=1,NEQ
             GPT(L,KS,N)=GPT(L,KS,N)*COF+COF1*GPT(L,KL,N)
  660     CONTINUE
-C--------renumber remaining parcels
+!--------renumber remaining parcels
          NS(N)=NS(N)-1
          NSN=NS(N)
          DO 680 K=KL,NSN
@@ -675,9 +675,9 @@ C--------renumber remaining parcels
             KSML=NSN
             go to 800
          endif
-         
+
          IF (NSN.GT.MAXPARCEL(N))then
-             J=3 
+             J=3
              KSML=2
              DO K=2,NSN-1
                 IF (GPV(N,K).LE.GPV(N,KSML)) KSML=K
@@ -685,7 +685,7 @@ C--------renumber remaining parcels
              GO TO 800
          endif
 
-         iskip = 0     
+         iskip = 0
 
  490  CONTINUE
       RETURN

@@ -18,13 +18,37 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-      integer iskip
+      SUBROUTINE CHECKERROR
 
-      common/kin1/iskip
+!-----This subroutine checks for error in the input
+      use io_units
+      use grid_data
+      IMPLICIT NONE
+      INCLUDE 'param.inc'
 
-      real*8 depth, vel
+      INCLUDE 'bltm1.inc'
+      INCLUDE 'bltm3.inc'
+      INCLUDE 'bltm2.inc'
 
-      common/kin2/depth, vel
+!-----Local variables
 
-       real*8  scsk, dtsub
-      common/conc/scsk(max_constituent), dtsub
+      INTEGER JN
+      LOGICAL LERROR
+
+      LERROR=.FALSE.
+
+      DO JN=1,NJUNC
+         IF(JUNCFLG(JN).NE.1)THEN
+            WRITE(unit_error,951)JN
+ 951        FORMAT(' ERROR JUNCTION #: ',I3,' IS NOT USED')
+            LERROR=.TRUE.
+         ENDIF
+      ENDDO
+
+      IF (LERROR) THEN
+         call exit(2)
+      endif
+
+      RETURN
+      END
+

@@ -158,7 +158,7 @@ else (hydro_1000)
     message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 2000 ft spatial resolution")
 endif (hydro_1000)
 # QUAL EXE
-file(GLOB QUAL_SOURCES qual/*.f)
+file(GLOB QUAL_SOURCES qual/*.f qual/*.f90)
 if (WIN32)
    set (CMAKE_Fortran_FLAGS "/extend_source:132")
 else (WIN32)

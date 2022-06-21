@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -42,41 +42,8 @@ c-----$Id: ptmLocal.f,v 1.6.6.6 2007/07/31 18:30:41 eli2 Exp $
       return
       end
 
-      real*8 function get_output(ptr)
-      use io_units
-      use ptm_local
-      use iopath_data
-      implicit none
-
-      integer
-     &     ptr
-
-c-----global variables
-
-c-----local variables
-      integer
-     &     i
-     &     , fluxNumber
-     &     , groupNumber
-
-      if (pathoutput(ptr).meas_type .eq. 'ptm_flux') then
-         if (pathoutput(ptr).b_part .ne. ' ') then
-            fluxNumber=pathoutput(ptr).flux_group_ndx
-            get_output = flux(fluxNumber).fluxOut
-         endif
-      else if(pathoutput(ptr).meas_type .eq. 'ptm_group')then
-         if (pathoutput(ptr).b_part .ne. ' ') then
-            groupNumber=pathoutput(ptr).flux_group_ndx
-            get_output = groupOut(groupNumber).value
-         endif
-      else
-	   write(unit_error,*)"Unrecognized PTM output type for output: ",
-     &      pathoutput(ptr).b_part
-      endif
-      end
-
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      subroutine process_tide(new_tidefile, 
+      subroutine process_tide(new_tidefile,
      &     first_used_tidefile, curr_tidefile)
 
       use common_tide
@@ -96,9 +63,9 @@ c-----argumnents
      &     ,curr_tidefile       ! current tidefile number
      &     ,old_tide_block_no   ! old tide block number
      &     ,tide_block_no       ! tide block number within tidefile
-      logical 
+      logical
      &     recycle_tidefile    ! true if tidefile should be recycled (rewound)
-      
+
 c-----local variables
       integer    k!,numchangedflows
 !      integer nodeIndex, reservoirNumber
@@ -121,7 +88,7 @@ c-----local variables
       endif
 c----- update all waterbody flows
       call updateWBHydroInfo()
-!     update stage boundary flows ?? 
+!     update stage boundary flows ??
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -182,8 +149,8 @@ c-----then default
 c-----initialize all arrays and logical variables.
       call dsm2_init()
 c---- hdf5 api on
-      call h5open_f(istat)      
-      
+      call h5open_f(istat)
+
       !todo: think this initialization is already done in modules,
       ! that is why it is commented
       !call init_ptm()
@@ -196,7 +163,7 @@ c---- read all text into buffers and process envvironmental variables
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
          call initialize_runtimes
-         call buffer_input_tidefile()      ! 
+         call buffer_input_tidefile()      !
          call read_grid_from_tidefile()    !
          call buffer_input_grid()    ! processes grid
       end if
@@ -207,12 +174,12 @@ c      this assures that names of qext and stage boundaries are available
       ! Loop through number of stage boudnaries and set node_geom
       do ibound = 1,nstgbnd
           node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
-      end do   
-      
+      end do
+
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items
       call buffer_input_ptm()          ! process ptm specialty items
-      
+
       call write_input_buffers()
 
 
@@ -265,7 +232,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine init_flux_output()
       use runtime_data
       use constants
-      use common_ptm      
+      use common_ptm
       implicit none
 
 c-----global variables
@@ -337,7 +304,7 @@ c-----global variables
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine set_group(groupId, groupValue)
       use ptm_local
-      use common_ptm      
+      use common_ptm
       implicit none
 c-----global variables
       integer groupId, tmpval
