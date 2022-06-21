@@ -1,10 +1,19 @@
 python module pydsm2
 interface
-    module pydsm2hydro
-        subroutine main(fname_inp)
-            use fourpt
-            character*(*), intent(in) :: fname_inp
-        end subroutine
-    end module pydsm2hydro
+    integer*4 :: julmin
+    integer*4 :: end_julmin
+    integer, parameter :: maxlocations = 5000
+    real* dimension(maxlocations) :: q
+
+    subroutine py_fourpt_init(inp_file)
+        character dimension(:), intent(in) :: inp_file
+    end subroutine
+
+    subroutine py_fourpt_step()
+    end subroutine py_fourpt_step
+
+    subroutine py_fourpt_winddown()
+    end subroutine py_fourpt_winddown
+
 end interface
 end python module pydsm2

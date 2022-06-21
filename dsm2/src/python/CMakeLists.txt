@@ -44,8 +44,8 @@ add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}"
   COMMAND
     ${Python_EXECUTABLE} ARGS -m "numpy.f2py" "${f2py_module_def}"
-    ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
     -m ${f2py_module_name} --lower
+    ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.f90
   DEPENDS "${f2py_module_def}" # f2py definitions. See ../SourceCode/Export
                                # generate_with_intent.py to regenerate the
                                # definitions
@@ -58,10 +58,12 @@ python_add_library(
   ${f2py_module_name} MODULE WITH_SOABI
   "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}" # Generated
   "${F2PY_INCLUDE_DIR}/fortranobject.c" # From NumPy
-  ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
 )
 target_sources(${f2py_module_name}
-               PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_wrapper})
+               PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_wrapper}
+               ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2utilities.f90
+               ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.f90
+)
 
 target_include_directories(${f2py_module_name}
                            PRIVATE ${CMAKE_BINARY_DIR}/modules)
@@ -132,41 +134,3 @@ add_dependencies(${f2py_module_name} fourpt genpyf)
 set_target_properties(
   ${f2py_module_name} PROPERTIES PREFIX "" OUTPUT_NAME "${f2py_module_name}"
                                  LINKER_LANGUAGE C)
-# INTERPROCEDURAL_OPTIMIZATION TRUE)
-# target_include_directories(${f2py_module_name} PRIVATE "${F2PY_INCLUDE_DIR}")
-# target_include_directories(${f2py_module_name} PRIVATE
-# "${Python_NumPy_INCLUDE_DIRS}") recommended for non-gnu compilers
-# target_compile_definitions(${f2py_module_name} PRIVATE NO_APPEND_FORTRAN
-# UPPERCASE_FORTRAN) target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
-# PREPEND_FORTRAN NO_APPEND_FORTRAN UPPERCASE_FORTRAN)
-# ##############################################################################
-# # Dependencies
-# ##############################################################################
-# if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-# set(ADDITIONAL_LIBRARY_DEPENDENCIES
-# "$<$<CONFIG:Debug>:"
-# "heclib_ivf_debug;" "libhdf5_fortran_D;" "libhdf5_D;" "libhdf5_f90cstub_D;"
-# "libszip_D;" "libzlib_D" ">"
-# "$<$<CONFIG:Release>:"
-# "heclib_ivf_release_x64;" "libhdf5_fortran;" "libhdf5;" "libhdf5_f90cstub;"
-# "libszip;" "libzlib" ">" ) elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-# set(ADDITIONAL_LIBRARY_DEPENDENCIES
-# "$<$<CONFIG:Debug>:"
-# "heclib_ivf_debug_x64;" "libhdf5_fortran_D;" "libhdf5_D;"
-# "libhdf5_f90cstub_D;" "libszip_D;" "libzlib_D" ">"
-# "$<$<CONFIG:Release>:"
-# "heclib_ivf_release_x64;" "libhdf5_fortran;" "libhdf5;" "libhdf5_f90cstub;"
-# "libszip;" "libzlib" ">" ) endif() target_link_libraries(${CMAKE_PROJECT_NAME}
-# PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
-
-# if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-# target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-# "${CMAKE_SOURCE_DIR}/../SourceCode/HDF5Lib/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>;"
-# "${CMAKE_SOURCE_DIR}/../SourceCode/heclib" )
-# elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-# target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-# "${CMAKE_SOURCE_DIR}/../SourceCode/HDF5Lib/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>;"
-# "${CMAKE_SOURCE_DIR}/../SourceCode/heclib" )
-# target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-# "$ENV{IFORT_COMPILER19}/compiler/lib/intel64") #FIXME: Needs to be more
-# generic endif()

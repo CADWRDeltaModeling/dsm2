@@ -128,13 +128,6 @@ module fourpt
 
     data init_input_file/' '/
 contains
-    subroutine python_main(inp_file)
-        character(len=140), intent(in) :: inp_file
-        call prepare_hydro
-        init_input_file = inp_file
-        call fourpt_main
-    end subroutine python_main
-
     subroutine prepare_hydro()
         !-----DSM2 module, name and version number
         dsm2_module = hydro
@@ -275,90 +268,87 @@ contains
         current_date = jmin2cdt(julmin)
     end subroutine fourpt_init
 
-    subroutine fourpt_main()
-        call fourpt_init()
+    subroutine fourpt_step()
+        DO I = 1, TotalStreamLocations()
+            QOld(I) = Q(I)
+        END DO
 
-        do while (julmin .le. end_julmin) ! normal time run
-
-            DO I = 1, TotalStreamLocations()
-                QOld(I) = Q(I)
+        DO i = 1, Nreser
+            YResOld(i) = YRes(i)
+            call calculateReservoirGeometry(i, Yres(i), &
+                                            reser_area, reser_vol)
+            VResOld(i) = reser_vol
+            DO j = 1, res_geom(i) .nnodes
+                QResOld(i, j) = QRes(i, j)
             END DO
+        END DO
 
-            DO i = 1, Nreser
-                YResOld(i) = YRes(i)
-                call calculateReservoirGeometry(i, Yres(i), &
-                                                reser_area, reser_vol)
-                VResOld(i) = reser_vol
-                DO j = 1, res_geom(i) .nnodes
-                    QResOld(i, j) = QRes(i, j)
-                END DO
-            END DO
+        OK = IncrementNetworkTimeStep()
+        !--------calculate julian minute of end of each DSS interval
+        !call update_intervals
 
-            OK = IncrementNetworkTimeStep()
-            !--------calculate julian minute of end of each DSS interval
-            !call update_intervals
-
-            if (julmin .ge. next_display) then
+        if (julmin .ge. next_display) then
 610             format('Starting Hydro computations for time: ', a)
-                write (unit_output, 610) current_date
-                write (unit_screen, 610) current_date
-                next_display = incr_intvl(next_display, display_intvl, &
-                                          TO_BOUNDARY)
+            write (unit_output, 610) current_date
+            write (unit_screen, 610) current_date
+            next_display = incr_intvl(next_display, display_intvl, &
+                                      TO_BOUNDARY)
+        end if
+
+        if (check_input_data) then
+            !-----------just check input data for bogus values; no simulation
+            OK = SetBoundaryValuesFromData()
+        else                   ! full simulation
+            updated = UpdateNetwork()
+            IF (Updated) THEN
+                OK = UpdateNetBalance()
+            else
+                write (unit_error, *) &
+                    ' Network update failed at time ', current_date
+                write (unit_error, *) ' Abnormal program end.'
+                call exit(1)
             end if
 
-            if (check_input_data) then
-                !-----------just check input data for bogus values; no simulation
-                OK = SetBoundaryValuesFromData()
-            else                   ! full simulation
-                updated = UpdateNetwork()
-                IF (Updated) THEN
-                    OK = UpdateNetBalance()
-                else
-                    write (unit_error, *) &
-                        ' Network update failed at time ', current_date
-                    write (unit_error, *) ' Abnormal program end.'
-                    call exit(1)
-                end if
-
-                if (julmin .ge. next_output_flush) then
-                    next_output_flush = incr_intvl(next_output_flush, &
-                                                   flush_intvl, TO_BOUNDARY)
-                    call store_outpaths(.true.)
-                else
-                    call store_outpaths(.false.)
-                end if
-
-                if (io_files(hydro, io_hdf5, io_write) .use) then
-                    OK = AverageFlow()
-                    OK = WriteHydroToTidefile(.FALSE.)
-                end if
-
-                if (io_files(hydro, io_restart, io_write) .use) then
-                    if (Restart_Write .and. julmin .ge. next_restart_output) then
-                        ! Write the hydrodynamic information at the end of
-                        ! every interval to ascii file in case of any
-                        ! interruptions to the model
-                        next_restart_output = incr_intvl(next_restart_output, &
-                                                         io_files(hydro, io_restart, io_write) .interval, &
-                                                         TO_BOUNDARY)
-                        OK = WriteNetworkRestartFile()
-                    end if
-
-                    if (.not. restart_write) then
-                        next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
-                                                                                io_restart, io_write) .interval, TO_BOUNDARY)
-                        restart_write = .true.
-                        !  todo: if the model is working, this next line should be removed
-                        !io_files(hydro,io_hdf5,io_write).use=.true.
-                    end if
-                end if
+            if (julmin .ge. next_output_flush) then
+                next_output_flush = incr_intvl(next_output_flush, &
+                                               flush_intvl, TO_BOUNDARY)
+                call store_outpaths(.true.)
+            else
+                call store_outpaths(.false.)
             end if
 
-            prev_julmin = julmin
-            julmin = julmin + time_step
-            current_date = jmin2cdt(julmin)
-        end do
+            if (io_files(hydro, io_hdf5, io_write) .use) then
+                OK = AverageFlow()
+                OK = WriteHydroToTidefile(.FALSE.)
+            end if
 
+            if (io_files(hydro, io_restart, io_write) .use) then
+                if (Restart_Write .and. julmin .ge. next_restart_output) then
+                    ! Write the hydrodynamic information at the end of
+                    ! every interval to ascii file in case of any
+                    ! interruptions to the model
+                    next_restart_output = incr_intvl(next_restart_output, &
+                                                     io_files(hydro, io_restart, io_write) .interval, &
+                                                     TO_BOUNDARY)
+                    OK = WriteNetworkRestartFile()
+                end if
+
+                if (.not. restart_write) then
+                    next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
+                                                                            io_restart, io_write) .interval, TO_BOUNDARY)
+                    restart_write = .true.
+                    !  todo: if the model is working, this next line should be removed
+                    !io_files(hydro,io_hdf5,io_write).use=.true.
+                end if
+            end if
+        end if
+
+        prev_julmin = julmin
+        julmin = julmin + time_step
+        current_date = jmin2cdt(julmin)
+    end subroutine fourpt_step
+
+    subroutine fourpt_winddown()
         if (julmin .gt. end_julmin) then
             julmin = prev_julmin
             prev_julmin = prev_julmin - time_step
@@ -430,6 +420,15 @@ contains
         if (isopen) close (unit_screen, err=1222)
 
 1222    call exit(0)
+    end subroutine fourpt_winddown
+
+    subroutine fourpt_main()
+        call fourpt_init()
+
+        do while (julmin .le. end_julmin) ! normal time run
+            call fourpt_step()
+        end do
+        call fourpt_winddown()
     end subroutine fourpt_main
 
 end module fourpt
