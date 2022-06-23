@@ -23,8 +23,8 @@ module tidefile
     use network
     use channel_xsect_tbl, only: CxArea
     use channel_schematic, only: OpenChannel, CloseChannel, &
-        NumberOfChannels
-    use chstatus, only: GlobalStreamSurfaceElevation,GlobalStreamFlow
+                                 NumberOfChannels
+    use chstatus, only: GlobalStreamSurfaceElevation, GlobalStreamFlow
     use channel_schematic, only: StreamEndNode
     use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
     implicit none
@@ -34,7 +34,7 @@ module tidefile
 contains
     !== Public (ChannelVelocity) ===================================
 
-    real*8 function ChannelVelocity(ChannNum,XX)
+    real*8 function ChannelVelocity(ChannNum, XX)
         use grid_data
         use network
         use chconnec
@@ -44,39 +44,35 @@ contains
 
         !   Arguments:
         integer ChannNum
-        real*8  XX
+        real*8 XX
 
         !   Argument definitions:
         !     ChannNum  - ChannelNumber
         !     XX - distance in the channel
 
-
         !   Module data:
         !  INCLUDE 'chcxrec1.inc'
 
-
         !   Local Variables:
-        real*8  Area,ZZ,Q
+        real*8 Area, ZZ, Q
         logical OK
 
         integer &
             intchan &            ! internal channel numbers &
-            ,nodeup,nodedown     ! Hydro upstream and downstream 'node' number &
-
+            , nodeup, nodedown     ! Hydro upstream and downstream 'node' number &
 
         !   Routines by module:
 
         integer node1, node2    !up and down global comp. node
         real*8 &
             val_x &              ! interpolated value statement function &
-            ,val_up,val_down &    ! value at upstream and downstream end of chan &
-            ,reach_dist &          ! distance in a reach (not channel) &
-            ,reach_len            ! reach length
+            , val_up, val_down &    ! value at upstream and downstream end of chan &
+            , reach_dist &          ! distance in a reach (not channel) &
+            , reach_len            ! reach length
 
         !-----statement function to interpolate value along channel
-        val_x(val_up,val_down,reach_dist,reach_len)=val_up-(val_up &
-            -val_down)*(reach_dist/reach_len)
-
+        val_x(val_up, val_down, reach_dist, reach_len) = val_up - (val_up &
+                                                                   - val_down)*(reach_dist/reach_len)
 
         !   Programmed by: Parviz Nader
         !   Date:          March  1993
@@ -88,32 +84,32 @@ contains
         OK = OpenChannel(ChannNum)
 
         intchan = ChannNum
-        nodedown=-StreamEndNode(-intchan)
-        nodeup=StreamEndNode(intchan)
+        nodedown = -StreamEndNode(-intchan)
+        nodeup = StreamEndNode(intchan)
 
-        node1=int(dfloat(nodeup)+ XX/ &
-            dfloat(chan_geom(intchan)%length)*(dfloat(nodedown)- &
-            dfloat(nodeup)))
-        if(node1==nodedown) node1 = node1 - 1
+        node1 = int(dfloat(nodeup) + XX/ &
+                    dfloat(chan_geom(intchan)%length)*(dfloat(nodedown) - &
+                                                       dfloat(nodeup)))
+        if (node1 == nodedown) node1 = node1 - 1
         node2 = node1 + 1
-        reach_len = dfloat(chan_geom(intchan)%length)/(dfloat(nodedown)- &
-            dfloat(nodeup))
-        reach_dist = XX - reach_len*(node1-nodeup)
+        reach_len = dfloat(chan_geom(intchan)%length)/(dfloat(nodedown) - &
+                                                       dfloat(nodeup))
+        reach_dist = XX - reach_len*(node1 - nodeup)
 
-        ZZ=val_x( &
-            globalStreamSurfaceElevation(node1), &
-            globalStreamSurfaceElevation(node2), &
-            reach_dist, &
-            reach_len)
-        Q=val_x( &
+        ZZ = val_x( &
+             globalStreamSurfaceElevation(node1), &
+             globalStreamSurfaceElevation(node2), &
+             reach_dist, &
+             reach_len)
+        Q = val_x( &
             globalStreamFlow(node1), &
             globalStreamFlow(node2), &
             reach_dist, &
             reach_len)
 
-        Area=CxArea(XX,ZZ)
+        Area = CxArea(XX, ZZ)
 
-        ChannelVelocity=Q/Area
+        ChannelVelocity = Q/Area
         OK = CloseChannel()
 
         return
@@ -132,18 +128,16 @@ contains
         !             alignment to calendar time boundaries, this may be delayed.
 
         integer :: first_hydro_interval
-        character*14,external :: jmin2cdt
+        character*14, external :: jmin2cdt
         !-----figure out the first interval to start tidefiles; if the model run
         !-----didn't start on an even time boundary, this will be delayed
 
-
-        first_hydro_interval=incr_intvl(tf_start_julmin, &
-            io_files(hydro,io_hdf5,io_write)%interval, NEAREST_BOUNDARY)
-
+        first_hydro_interval = incr_intvl(tf_start_julmin, &
+                                          io_files(hydro, io_hdf5, io_write)%interval, NEAREST_BOUNDARY)
 
         if (first_hydro_interval /= start_julmin) then
-            first_hydro_interval=first_hydro_interval+TidefileWriteInterval
-        endif
+            first_hydro_interval = first_hydro_interval + TidefileWriteInterval
+        end if
         next_hydro_interval = first_hydro_interval
         tf_start_julmin = first_hydro_interval
         return
@@ -174,12 +168,10 @@ contains
         !     TideFileWriteInterval - Time interval for hydro file
         !     Nsample   - Number of time steps within a unit time in hydro file
 
-
         !   Local Variables:
-        integer i,j,Up, Down, iconnect, icp
+        integer i, j, Up, Down, iconnect, icp
 
         !   Routines by module:
-
 
         !   Programmed by: Parviz Nader
         !   Date:          October 1994
@@ -188,111 +180,110 @@ contains
 
         AverageFlow = .false.
 
-        if (julmin-time_step >= next_hydro_interval) then
+        if (julmin - time_step >= next_hydro_interval) then
             !--------Initialize
-            next_hydro_interval=next_hydro_interval+TideFileWriteInterval
+            next_hydro_interval = next_hydro_interval + TideFileWriteInterval
 
-            do Branch=1,NumberofChannels()
-                QChan(1,Branch)=0.  !QChan is period average, not inst. value
-                QChan(2,Branch)=0.
-            enddo
+            do Branch = 1, NumberofChannels()
+                QChan(1, Branch) = 0.  !QChan is period average, not inst. value
+                QChan(2, Branch) = 0.
+            end do
 
             iconnect = 0
-            do i=1,Nreser
-                do j=1,res_geom(i)%nnodes
+            do i = 1, Nreser
+                do j = 1, res_geom(i)%nnodes
                     iconnect = iconnect + 1
-                    QResv(iconnect)=0.
-                    inst_QResv(iconnect)=0.
-                enddo
-            enddo
+                    QResv(iconnect) = 0.
+                    inst_QResv(iconnect) = 0.
+                end do
+            end do
 
-            do i=1,max_qext
-                qext(i)%avg=0.
-                inst_qext(i)=0.
-            enddo
+            do i = 1, max_qext
+                qext(i)%avg = 0.
+                inst_qext(i) = 0.
+            end do
 
-            do i=1,nobj2obj
-                obj2obj(i)%flow_avg=0.
-                inst_obj2obj(i)=0.
-            enddo
+            do i = 1, nobj2obj
+                obj2obj(i)%flow_avg = 0.
+                inst_obj2obj(i) = 0.
+            end do
 
-            do icp=1,TotalCompLocations
-                Qcp(icp)=0.
-            enddo
+            do icp = 1, TotalCompLocations
+                Qcp(icp) = 0.
+            end do
 
-        endif
+        end if
 
-        do Branch=1,NumberofChannels()
-            Up=UpCompPointer(Branch)
-            Down=DownCompPointer(Branch)
-            QChan(1,Branch)=QChan(1,Branch)+ &
-                (theta*Q(Up)+(1.-theta)*QOld(Up))
-            QChan(2,Branch)=QChan(2,Branch)+ &
-                (theta*Q(Down)+(1.-theta)*QOld(Down))
-        enddo
+        do Branch = 1, NumberofChannels()
+            Up = UpCompPointer(Branch)
+            Down = DownCompPointer(Branch)
+            QChan(1, Branch) = QChan(1, Branch) + &
+                               (theta*Q(Up) + (1.-theta)*QOld(Up))
+            QChan(2, Branch) = QChan(2, Branch) + &
+                               (theta*Q(Down) + (1.-theta)*QOld(Down))
+        end do
 
-        do i=1,nqext
-            qext(i)%avg=qext(i)%avg+theta*qext(i)%flow + &
-                (1.-theta)*qext(i)%prev_flow
-            inst_qext(i)=inst_qext(i)+qext(i)%flow
-        enddo
+        do i = 1, nqext
+            qext(i)%avg = qext(i)%avg + theta*qext(i)%flow + &
+                          (1.-theta)*qext(i)%prev_flow
+            inst_qext(i) = inst_qext(i) + qext(i)%flow
+        end do
 
         iconnect = 0
-        do i=1,Nreser
-            do j=1,res_geom(i)%nnodes
+        do i = 1, Nreser
+            do j = 1, res_geom(i)%nnodes
                 iconnect = iconnect + 1
-                QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)* &
-                    QresOld(i,j)
-                inst_QResv(iconnect)=inst_QResv(iconnect)+Qres(i,j)
-            enddo
-        enddo
+                QResv(iconnect) = QResv(iconnect) + theta*Qres(i, j) + (1.-theta)* &
+                                  QresOld(i, j)
+                inst_QResv(iconnect) = inst_QResv(iconnect) + Qres(i, j)
+            end do
+        end do
 
-        do i=1,nobj2obj
-            obj2obj(i)%flow_avg=obj2obj(i)%flow_avg + &
-                theta*obj2obj(i)%flow + (1.-theta)*obj2obj(i)%prev_flow
-            inst_obj2obj(i)=inst_obj2obj(i)+obj2obj(i)%flow
-        enddo
+        do i = 1, nobj2obj
+            obj2obj(i)%flow_avg = obj2obj(i)%flow_avg + &
+                                  theta*obj2obj(i)%flow + (1.-theta)*obj2obj(i)%prev_flow
+            inst_obj2obj(i) = inst_obj2obj(i) + obj2obj(i)%flow
+        end do
 
-        do icp=1,TotalCompLocations
-            Qcp(icp)=Q(icp)               !output instantaneous flow to computational point, not theta average
-            Zcp(icp)=WS(icp)              !was H(icp), using water surface instead
-            Branch=ChannelNo(icp)
-        enddo
+        do icp = 1, TotalCompLocations
+            Qcp(icp) = Q(icp)               !output instantaneous flow to computational point, not theta average
+            Zcp(icp) = WS(icp)              !was H(icp), using water surface instead
+            Branch = ChannelNo(icp)
+        end do
 
         if (julmin >= next_hydro_interval) then
-            do Branch=1,NumberofChannels()
-                Up=UpCompPointer(Branch)
-                Down=DownCompPointer(Branch)
-                QChan(1,Branch)=QChan(1,Branch)/dble(NSample)
-                QChan(2,Branch)=QChan(2,Branch)/dble(NSample)
-            enddo
+            do Branch = 1, NumberofChannels()
+                Up = UpCompPointer(Branch)
+                Down = DownCompPointer(Branch)
+                QChan(1, Branch) = QChan(1, Branch)/dble(NSample)
+                QChan(2, Branch) = QChan(2, Branch)/dble(NSample)
+            end do
 
-            do icp=1,TotalCompLocations
-                Qcp(icp)=Qcp(icp)/dble(NSample)
-                Zcp(icp)=WS(icp)
-                Branch=ChannelNo(icp)
-            enddo
+            do icp = 1, TotalCompLocations
+                Qcp(icp) = Qcp(icp)/dble(NSample)
+                Zcp(icp) = WS(icp)
+                Branch = ChannelNo(icp)
+            end do
 
-            do i=1,nqext
-                qext(i)%avg=qext(i)%avg/dble(NSample)
-                inst_qext(i)=inst_qext(i)/dble(NSample)
-            enddo
+            do i = 1, nqext
+                qext(i)%avg = qext(i)%avg/dble(NSample)
+                inst_qext(i) = inst_qext(i)/dble(NSample)
+            end do
 
+            do iconnect = 1, nres_connect
+                QResv(iconnect) = QResv(iconnect)/dble(NSample)
+                inst_QResv(iconnect) = inst_QResv(iconnect)/dble(NSample)
+            end do
 
-            do iconnect=1,nres_connect
-                QResv(iconnect)=QResv(iconnect)/dble(NSample)
-                inst_QResv(iconnect)=inst_QResv(iconnect)/dble(NSample)
-            enddo
+            do i = 1, nobj2obj
+                obj2obj(i)%flow_avg = obj2obj(i)%flow_avg/dble(NSample)
+                inst_obj2obj(i) = inst_obj2obj(i)/dble(NSample)
+            end do
 
-            do i=1,nobj2obj
-                obj2obj(i)%flow_avg=obj2obj(i)%flow_avg/dble(NSample)
-                inst_obj2obj(i)=inst_obj2obj(i)/dble(NSample)
-            enddo
-
-        endif
+        end if
         AverageFlow = .true.
 
-        Branch=0
+        Branch = 0
         return
     end function
 
@@ -301,7 +292,7 @@ contains
     logical function InitHydroTidefile()
 
         use hdfvars
-        use io_units, only : unit_hydro
+        use io_units, only: unit_hydro
         use common_tide
         use iopath_data
         use grid_data
@@ -314,13 +305,11 @@ contains
 
         !   Module data:
 
-
         !   Local Variables:
 
         !   Routines by module:
 
         !**** Channel flow status:
-
 
         !   Programmed by: Parviz Nader
         !   Date:          October 1994
@@ -335,12 +324,10 @@ contains
 
         InitHydroTidefile = .false.
 
-
-        if (io_files(hydro,io_hdf5,io_write)%use) then
-            hdf5_hydrofile=io_files(hydro,io_hdf5,io_write)%filename
+        if (io_files(hydro, io_hdf5, io_write)%use) then
+            hdf5_hydrofile = io_files(hydro, io_hdf5, io_write)%filename
             call InitHDF5File()        ! HDF5 - open space and create file
-        endif
-
+        end if
 
         InitHydroTidefile = .true.
 
@@ -352,7 +339,7 @@ contains
     logical function WriteHydroToTidefile(InitialCall)
 
         use HDFVARS
-        use io_units, only : unit_hydro
+        use io_units, only: unit_hydro
         use common_tide
         use runtime_data
         use iopath_data
@@ -387,21 +374,20 @@ contains
 
         WriteHydroToTidefile = .false.
 
-        OK=Compute_ChArea(InitialCall)
+        OK = Compute_ChArea(InitialCall)
 
-                                  ! Why do we have EResv????
-        do i=1,NReser
-            EResv(i)=YRes(i)
+        ! Why do we have EResv????
+        do i = 1, NReser
+            EResv(i) = YRes(i)
         end do
-
 
         if (julmin >= next_hydro_interval) then
             !--------Figure out how many external flows have changed
             !--------Save only the values which have changed
 
             !This call needs to be before the assignment of prev_avg
-            if (io_files(hydro,io_hdf5,io_write)%use) then
-                dummy=SetHDF5ToTime(julmin)
+            if (io_files(hydro, io_hdf5, io_write)%use) then
+                dummy = SetHDF5ToTime(julmin)
                 call WriteQExtChangedToHDF5()
                 call WriteChannelFlowToHDF5()
                 call WriteReservoirFlowToHDF5()
@@ -417,7 +403,6 @@ contains
 
         return
     end function
-
 
     !== Public (Compute_ChArea) ===================================
 
@@ -440,8 +425,8 @@ contains
         real*8 XX, ZZ
         logical InitialCall
 
-        real*8 delx,aavg
-        real*8 Area1, X1, X2, Z1, Z2, Wt1, N1,N2
+        real*8 delx, aavg
+        real*8 Area1, X1, X2, Z1, Z2, Wt1, N1, N2
         integer QuadPts
         real*8 QuadWt, QuadPt
 
@@ -453,69 +438,68 @@ contains
         !-----Implementation -------------------------------------------------
 
         Compute_ChArea = .false.
-        do Branch=1,NumberofChannels()
-            Up=UpCompPointer(Branch)
-            Down=DownCompPointer(Branch)
-            HChan(1,Branch)=WS(Up)-chan_geom(Branch)%bottomelev(1)
-            ZChan(1,Branch)=WS(Up)
-            HChan(2,Branch)=WS(Down)-chan_geom(Branch)%bottomelev(2) !hardwired
-            ZChan(2,Branch)=WS(Down)
+        do Branch = 1, NumberofChannels()
+            Up = UpCompPointer(Branch)
+            Down = DownCompPointer(Branch)
+            HChan(1, Branch) = WS(Up) - chan_geom(Branch)%bottomelev(1)
+            ZChan(1, Branch) = WS(Up)
+            HChan(2, Branch) = WS(Down) - chan_geom(Branch)%bottomelev(2) !hardwired
+            ZChan(2, Branch) = WS(Down)
 
-            AChan_Avg(Branch)=0.
+            AChan_Avg(Branch) = 0.
             aavg = 0.D0
             QuadPts = NetworkQuadPts()
 
             if (InitialCall) then
-                AChan(1,Branch)=CxArea(Dble(0.),Dble(ZChan(1,Branch)))
-                AChan(2,Branch)=CxArea(dble(chan_geom(Branch)%length),Dble(ZChan(2,Branch)))
+                AChan(1, Branch) = CxArea(Dble(0.), Dble(ZChan(1, Branch)))
+                AChan(2, Branch) = CxArea(dble(chan_geom(Branch)%length), Dble(ZChan(2, Branch)))
             else
-                AChan(1,Branch) = AreaChannelComp(Branch,1)
-                AChan(2,Branch) = AreaChannelComp(Branch, (QuadPts-1)*(Down-Up)+1)
-            endif
-            delx=dble(chan_geom(Branch)%length)/dble(Down-Up)
+                AChan(1, Branch) = AreaChannelComp(Branch, 1)
+                AChan(2, Branch) = AreaChannelComp(Branch, (QuadPts - 1)*(Down - Up) + 1)
+            end if
+            delx = dble(chan_geom(Branch)%length)/dble(Down - Up)
 
-            do j=Up, Down-1
+            do j = Up, Down - 1
 
                 !----generalize with QuadPts
-                X1 = (dble(j-Up))*delx
+                X1 = (dble(j - Up))*delx
                 Z1 = ws(j)
-                X2 = (dble(j-Up)+1.D0)*delx
-                Z2 = ws(j+1)
+                X2 = (dble(j - Up) + 1.D0)*delx
+                Z2 = ws(j + 1)
 
-
-                do 200 I=1,QuadPts
+                do 200 I = 1, QuadPts
 
                     !--------Estimate quadrature-point values.
 
-                    call NetworkQuadPtWt( I, QuadPt, QuadWt )
+                    call NetworkQuadPtWt(I, QuadPt, QuadWt)
 
                     !--------Interpolation functions. To avoid potential problems, N(1),N(2) are replaced with local variable N1,N2
                     N1 = 1.0 - QuadPt
                     N2 = QuadPt
 
                     !--------Location of quadrature point.
-                    XX = N1 * X1 + N2 * X2
+                    XX = N1*X1 + N2*X2
 
                     !--------Dependent variables.
-                    ZZ = N1 * Z1 + N2 * Z2
+                    ZZ = N1*Z1 + N2*Z2
 
                     !--------not use Frustum Formula
                     if (InitialCall) then
-                        Area1 = CxArea( XX, ZZ )
+                        Area1 = CxArea(XX, ZZ)
                     else
-                        Area1 = AreaChannelComp(Branch, (j-Up)*(QuadPts-1)+i)
-                    endif
+                        Area1 = AreaChannelComp(Branch, (j - Up)*(QuadPts - 1) + i)
+                    end if
                     Wt1 = QuadWt
-                    aavg = aavg + Area1 * Wt1
+                    aavg = aavg + Area1*Wt1
 
 200             continue
-                enddo
-                AChan_Avg(Branch)=(aavg/dble(Down-Up))
-            enddo
-            Branch=0
+            end do
+            AChan_Avg(Branch) = (aavg/dble(Down - Up))
+        end do
+        Branch = 0
 
-            Compute_ChArea=.true.
+        Compute_ChArea = .true.
 
-            return
-        end function
-    end module
+        return
+    end function
+end module

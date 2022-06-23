@@ -41,7 +41,7 @@ subroutine check_fixed(istat)
 
     use network
     use chconnec
-    use dss
+    ! use dss
     use mod_readdss
     use mod_writedss
 

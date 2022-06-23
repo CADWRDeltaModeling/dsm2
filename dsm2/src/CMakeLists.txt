@@ -48,7 +48,7 @@ set (DSM2_PATTERN_MATCH ${DSM2_SOURCE_DIR}/pattern_match)
 set (DSM2_PTM      ${DSM2_SOURCE_DIR}/ptm)
 set (DSM2_QUAL      ${DSM2_SOURCE_DIR}/qual)
 set (DSM2_SPARSE      ${DSM2_SOURCE_DIR}/sparse)
-set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
+# set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
 set (DSM2_PYTHON      ${DSM2_SOURCE_DIR}/python)
 #
 #FIXME: change top directory to one-less. There should be a better way
@@ -96,7 +96,7 @@ add_subdirectory(${DSM2_KLU_FORTRAN})
 add_subdirectory(${DSM2_OPRULE_INTERFACE})
 add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
-add_subdirectory(${DSM2_TIMEVAR})
+# add_subdirectory(${DSM2_TIMEVAR})
 add_subdirectory(${DSM2_PYTHON})
 #--------------- HYDRO EXE -------------------------
 add_executable(hydro_exe hydro/hydro_driver.f90)
@@ -111,13 +111,13 @@ if (WIN32)
 set_target_properties(hydro_exe PROPERTIES COMPILE_FLAGS "/Qmkl:sequential") #linker in windows in plain vanilla and doesn't understand ifort flags
 #set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "/libs:static /threads")
 target_link_libraries(hydro_exe DEBUG libucrtd.lib OPTIMIZED libucrt.lib libmmt.lib)
-target_link_libraries(hydro_exe fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
+target_link_libraries(hydro_exe fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran)
 else (WIN32)
 # link statically with intel libraries - avoids intel library redistribution
 # full static is not working on linux due to lack of standard .a libraries
 set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(hydro_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
+target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran -Wl,--end-group)
 endif (WIN32)
 if (WIN32)
 target_link_libraries(hydro_exe
@@ -169,7 +169,7 @@ set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
 add_dependencies(qual fixed)
 if (WIN32)
 target_link_libraries(qual debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-target_link_libraries(qual gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
+target_link_libraries(qual gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse)
 target_link_libraries(qual
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -186,7 +186,7 @@ target_link_libraries(qual
 else (WIN32)
 set_target_properties(qual PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
 target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
+target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse -Wl,--end-group)
 target_link_libraries(qual
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -207,14 +207,14 @@ else (WIN32)
    set (CMAKE_Fortran_FLAGS "-extend-source 132")
 endif (WIN32)
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
-add_dependencies(ptm_fortran common timevar fixed hydrolib)
+add_dependencies(ptm_fortran common fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
 add_library(PTM SHARED ${PTM_JAVA_CPP_SOURCES})
 include(FindJNI)
 target_include_directories(PTM PUBLIC ${JNI_INCLUDE_DIRS})
 if (WIN32)
-target_link_libraries(PTM ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
-add_dependencies(PTM common fixed timevar hydrolib)
+target_link_libraries(PTM ptm_fortran common fixed hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
+add_dependencies(PTM common fixed hydrolib)
 target_link_libraries(PTM
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -232,7 +232,7 @@ target_link_libraries(PTM
     )
 else (WIN32)
 set_target_properties(PTM PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_link_libraries(PTM ptm_fortran -Wl,-rpath='$ORIGIN/lib' -Wl,--whole-archive common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
+target_link_libraries(PTM ptm_fortran -Wl,-rpath='$ORIGIN/lib' -Wl,--whole-archive common fixed input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
 target_link_libraries(PTM
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}

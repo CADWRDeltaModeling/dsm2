@@ -126,7 +126,7 @@ contains
         !-----check validity of start and end julian minutes
         if (start_julmin >= end_julmin) then
             write (unit_error, "('Starting date: ',a9, &
-              ' equal to or after ending date: ',a9,'or one/both may be missing')") &
+&              ' equal to or after ending date: ',a9,'or one/both may be missing')") &
                 run_start_date, run_end_date
             call exit(-3)
         end if
@@ -153,5 +153,73 @@ contains
         tf_start_date = jmin2cdt(start_julmin)
 
     end subroutine
+
+    subroutine get_command_args(init_input_file, SimName, echo_only)
+        !-----get optional starting input file from command line,
+        !-----then from environment variables,
+        !-----then default
+        use io_units
+        implicit none
+
+        !-----arguments
+        character SimName*(*)     ! ModelID in RDB
+
+        character &
+            init_input_file*(*)  ! initial input file on command line [optional]
+
+        !-----local variables
+        logical &
+            exst &                 ! true if file exists
+            , echo_only
+
+        integer &
+            iarg                 ! argument index
+
+        character*150 CLA         ! command line args
+
+        echo_only = .false.
+
+        call getarg(1, CLA)
+        if (len_trim(CLA) .eq. 0) then ! print version, usage, quit
+            print *, 'DSM2-'//trim(dsm2_name)//' ', dsm2_version
+            print *, 'Usage: '//trim(dsm2_name)//' input-file '
+            call exit(1)
+
+        elseif (CLA(:2) .eq. "-v" .or. &
+                CLA(:2) .eq. "-V" .or. &
+                CLA(:2) .eq. "-h" .or. &
+                CLA(:2) .eq. "-H") then ! print version and subversion, usage, quit
+            print *, 'DSM2-'//trim(dsm2_name)//' ', trim(dsm2_version) &
+                //'  Git Version: ', trim(git_build)//' Git GUI: ', trim(git_uid)
+            print *, 'Usage: '//trim(dsm2_name)//' input-file '
+            call exit(1)
+        else                      ! command line arg
+            !--------check arg(s) if valid filename, ModelID
+            iarg = 1
+            do while (CLA .ne. ' ' .and. &
+                      iarg .le. 2)
+                inquire (file=CLA, exist=exst)
+                if (exst) then
+                    init_input_file = CLA
+                else              ! not a file, is it Model Name?
+                    if (CLA(:2) .eq. "-e" .or. CLA(:2) .eq. "-E") then
+                        echo_only = .true.
+                    else
+                        write (unit_error, *) "Launch file not found: ", trim(CLA)
+                        call exit(-3)
+                    end if
+                end if
+                iarg = iarg + 1
+                call getarg(iarg, CLA)
+            end do
+        end if
+
+        return
+
+900     continue
+        print *, 'Could not find file or ModelID: ', trim(CLA)
+        call exit(1)
+
+    end
 
 end module

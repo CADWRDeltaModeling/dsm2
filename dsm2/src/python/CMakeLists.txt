@@ -77,7 +77,6 @@ target_link_libraries(
           input_storage
           hdf_tidefile_fortran
           hdf_tidefile_cpp
-          timevar
           hydrolib
           fixed
           gtm_core

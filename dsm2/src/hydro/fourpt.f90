@@ -28,7 +28,7 @@ module fourpt
                             prev_julmin, julmin, start_julmin, &
                             current_date, time_step, &
                             display_intvl, flush_intvl, end_julmin, &
-                            initialize_runtimes
+                            initialize_runtimes, get_command_args
     use iopath_data, only: hydro, io_hdf5, io_write, io_files, &
                            to_boundary, io_restart, check_input_data, &
                            need_tmp_outfiles, binary_output, &
@@ -55,7 +55,7 @@ module fourpt
     use reservoir_geometry, only: calculateReservoirGeometry
     use channel_schematic, only: TotalStreamLocations
     use update_network, only: UpdateNetwork
-    use utilities, only: jmin2cdt, incr_intvl, get_command_args
+    use utilities, only: jmin2cdt, incr_intvl
     implicit none
 
     !   Purpose:  Compute 1-dimensional streamflow in a network of open
@@ -288,7 +288,7 @@ contains
         !call update_intervals
 
         if (julmin .ge. next_display) then
-610             format('Starting Hydro computations for time: ', a)
+610         format('Starting Hydro computations for time: ', a)
             write (unit_output, 610) current_date
             write (unit_screen, 610) current_date
             next_display = incr_intvl(next_display, display_intvl, &
