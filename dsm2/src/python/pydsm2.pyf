@@ -3,6 +3,7 @@ interface
     integer*4 :: julmin
     integer*4 :: end_julmin
     integer, parameter :: maxlocations = 5000
+    real* dimension(maxlocations) :: ws
     real* dimension(maxlocations) :: q
 
     subroutine py_fourpt_init(inp_file)

@@ -1,14 +1,16 @@
 module pydsm2
     use network, only: MaxLocations
     use runtime_data, only: julmin, end_julmin
-    use chstatus, only: Q
+    use chstatus, only: WS, Q, H
     use fourpt
     use pydsm2utilities
     implicit none
 !f2py integer*4 :: end_julmin
 !f2py integer*4 :: julmin
 !f2py integer, parameter :: MaxLocations = 5000
+!f2py real*8 :: WS(MaxLocations)
 !f2py real*8 :: Q(MaxLocations)
+!f2py real*8 :: H(MaxLocations)
 
 contains
     subroutine py_fourpt_init(inp_file) bind(C)
