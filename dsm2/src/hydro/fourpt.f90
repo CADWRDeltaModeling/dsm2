@@ -268,7 +268,7 @@ contains
         current_date = jmin2cdt(julmin)
     end subroutine fourpt_init
 
-    subroutine fourpt_step()
+    subroutine fourpt_step_before_updatenetwork()
         DO I = 1, TotalStreamLocations()
             QOld(I) = Q(I)
         END DO
@@ -294,6 +294,58 @@ contains
             next_display = incr_intvl(next_display, display_intvl, &
                                       TO_BOUNDARY)
         end if
+    end subroutine
+
+    subroutine fourpt_step_after_updatenetwork()
+        IF (Updated) THEN
+            OK = UpdateNetBalance()
+        else
+            write (unit_error, *) &
+                ' Network update failed at time ', current_date
+            write (unit_error, *) ' Abnormal program end.'
+            call exit(1)
+        end if
+
+        if (julmin .ge. next_output_flush) then
+            next_output_flush = incr_intvl(next_output_flush, &
+                                           flush_intvl, TO_BOUNDARY)
+            call store_outpaths(.true.)
+        else
+            call store_outpaths(.false.)
+        end if
+
+        if (io_files(hydro, io_hdf5, io_write) .use) then
+            OK = AverageFlow()
+            OK = WriteHydroToTidefile(.FALSE.)
+        end if
+
+        if (io_files(hydro, io_restart, io_write) .use) then
+            if (Restart_Write .and. julmin .ge. next_restart_output) then
+                ! Write the hydrodynamic information at the end of
+                ! every interval to ascii file in case of any
+                ! interruptions to the model
+                next_restart_output = incr_intvl(next_restart_output, &
+                                                 io_files(hydro, io_restart, io_write) .interval, &
+                                                 TO_BOUNDARY)
+                OK = WriteNetworkRestartFile()
+            end if
+
+            if (.not. restart_write) then
+                next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
+                                                                        io_restart, io_write) .interval, TO_BOUNDARY)
+                restart_write = .true.
+                !  todo: if the model is working, this next line should be removed
+                !io_files(hydro,io_hdf5,io_write).use=.true.
+            end if
+        end if
+
+        prev_julmin = julmin
+        julmin = julmin + time_step
+        current_date = jmin2cdt(julmin)
+    end subroutine
+
+    subroutine fourpt_step()
+        call fourpt_step_before_updatenetwork()
 
         if (check_input_data) then
             !-----------just check input data for bogus values; no simulation

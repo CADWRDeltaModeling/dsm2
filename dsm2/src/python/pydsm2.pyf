@@ -16,5 +16,33 @@ interface
     subroutine py_fourpt_winddown()
     end subroutine py_fourpt_winddown
 
+    subroutine py_fourpt_winddown()
+    end subroutine
+
+    subroutine py_fourpt_step_before_updatenetwork()
+    end subroutine
+
+    subroutine py_fourpt_step_after_updatenetwork()
+    end subroutine
+
+    subroutine py_updatenetwork_prepare()
+    end subroutine
+
+    subroutine py_updatenetwork_loop()
+    end subroutine
+
+    subroutine py_updatenetwork_wrapup()
+    end subroutine
+
+    subroutine py_gate_set_free(gate_index, is_free)
+        integer, intent(in) :: gate_index
+        integer, intent(in) :: is_free
+    end subroutine py_gate_set_free
+
+    subroutine py_set_gate_device_elev(gate_index, device_index, elev)
+        integer, intent(in) :: gate_index
+        integer, intent(in) :: device_index
+        real*8, intent(in) :: elev
+    end subroutine
 end interface
 end python module pydsm2
