@@ -29,48 +29,46 @@ cmake_print_variables(CMAKE_Fortran_MODULE_DIRECTORY)
 cmake_print_variables(F2PY_INCLUDE_DIR)
 cmake_print_variables(Python_NumPy_INCLUDE_DIRS)
 
-# Common variables
-set(f2py_module_name "pydsm2")
-set(f2py_module_c "${f2py_module_name}module.c")
-set(f2py_module_def "${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.pyf")
-set(f2py_module_wrapper ${f2py_module_name}-f2pywrappers2.f90)
-message(STATUS ${f2py_module_wrapper})
-# set(f2py_module_source )
+# Common variables for hydro
+set(f2py_hydro_module_name "pydsm2hydro")
+set(f2py_hydro_module_c "${f2py_hydro_module_name}module.c")
+set(f2py_hydro_module_def "${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.pyf")
+set(f2py_hydro_module_wrapper ${f2py_hydro_module_name}-f2pywrappers2.f90)
 
-# Generate sources
-add_custom_target(genpyf DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}")
+# Generate
+add_custom_target(hydrogenpyf DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${f2py_hydro_module_c}")
 
 add_custom_command(
-  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}"
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${f2py_hydro_module_c}"
   COMMAND
-    ${Python_EXECUTABLE} ARGS -m "numpy.f2py" "${f2py_module_def}"
-    -m ${f2py_module_name} --lower
-    ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.f90
-  DEPENDS "${f2py_module_def}" # f2py definitions. See ../SourceCode/Export
-                               # generate_with_intent.py to regenerate the
-                               # definitions
+    ${Python_EXECUTABLE} ARGS -m "numpy.f2py" "${f2py_hydro_module_def}"
+    -m ${f2py_hydro_module_name} --lower
+    ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
+  DEPENDS "${f2py_hydro_module_def}" # f2py definitions. See ../SourceCode/Export
+                                     # generate_with_intent.py to regenerate the
+                                     # definitions
 )
 
-message("Fortran Module Definition file ${f2py_module_def}")
+message("Fortran Module Definition file ${f2py_hydro_module_def}")
 
 # Setup module generation target
 python_add_library(
-  ${f2py_module_name} MODULE WITH_SOABI
-  "${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_c}" # Generated
+  ${f2py_hydro_module_name} MODULE WITH_SOABI
+  "${CMAKE_CURRENT_BINARY_DIR}/${f2py_hydro_module_c}" # Generated
   "${F2PY_INCLUDE_DIR}/fortranobject.c" # From NumPy
 )
-target_sources(${f2py_module_name}
-               PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_wrapper}
+target_sources(${f2py_hydro_module_name}
+               PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${f2py_hydro_module_wrapper}
                ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2utilities.f90
-               ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2.f90
+               ${CMAKE_CURRENT_SOURCE_DIR}/pydsm2hydro.f90
 )
 
-target_include_directories(${f2py_module_name}
+target_include_directories(${f2py_hydro_module_name}
                            PRIVATE ${CMAKE_BINARY_DIR}/modules)
-# target_link_directories(${f2py_module_name} PRIVATE ${Python_LIBRARY_DIRS})
-target_link_options(${f2py_module_name} PRIVATE -qmkl=sequential -static-intel)
+# target_link_directories(${f2py_hydro_module_name} PRIVATE ${Python_LIBRARY_DIRS})
+target_link_options(${f2py_hydro_module_name} PRIVATE -qmkl=sequential -static-intel)
 target_link_libraries(
-  ${f2py_module_name}
+  ${f2py_hydro_module_name}
   PRIVATE -Wl,--start-group
           fourpt
           input_storage_cpp
@@ -128,8 +126,8 @@ target_link_libraries(
           optimized
           ${KLULIB_RELEASE})
 
-add_dependencies(${f2py_module_name} fourpt genpyf)
+add_dependencies(${f2py_hydro_module_name} fourpt hydrogenpyf)
 
 set_target_properties(
-  ${f2py_module_name} PROPERTIES PREFIX "" OUTPUT_NAME "${f2py_module_name}"
+  ${f2py_hydro_module_name} PROPERTIES PREFIX "" OUTPUT_NAME "${f2py_hydro_module_name}"
                                  LINKER_LANGUAGE C)

@@ -1,4 +1,4 @@
-module pydsm2
+module pydsm2hydro
     use iso_c_binding
     use network, only: MaxLocations
     use runtime_data, only: julmin, end_julmin
@@ -81,4 +81,4 @@ contains
         current_device%baseElev = elev
     end subroutine
 
-end module pydsm2
+end module pydsm2hydro
