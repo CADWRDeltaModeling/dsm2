@@ -97,6 +97,7 @@ add_subdirectory(${DSM2_OPRULE_INTERFACE})
 add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
 # add_subdirectory(${DSM2_TIMEVAR})
+add_subdirectory(${DSM2_QUAL})
 add_subdirectory(${DSM2_PYTHON})
 #--------------- HYDRO EXE -------------------------
 add_executable(hydro_exe hydro/hydro_driver.f90)
@@ -158,19 +159,20 @@ else (hydro_1000)
     message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 2000 ft spatial resolution")
 endif (hydro_1000)
 # QUAL EXE
-file(GLOB QUAL_SOURCES qual/*.f qual/*.f90)
+# file(GLOB QUAL_SOURCES qual/*.f qual/*.f90)
+# if (WIN32)
+#    set (CMAKE_Fortran_FLAGS "/extend_source:132")
+# else (WIN32)
+#    set (CMAKE_Fortran_FLAGS "-extend-source 132")
+# endif (WIN32)
+# add_executable(qual ${QUAL_SOURCES})
+add_executable(qual_exe qual/qual_driver.f90)
+set_property(TARGET qual_exe PROPERTY LINKER_LANGUAGE Fortran)
+add_dependencies(qual_exe qual_core)
 if (WIN32)
-   set (CMAKE_Fortran_FLAGS "/extend_source:132")
-else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend-source 132")
-endif (WIN32)
-add_executable(qual ${QUAL_SOURCES})
-set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
-add_dependencies(qual fixed)
-if (WIN32)
-target_link_libraries(qual debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-target_link_libraries(qual gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse)
-target_link_libraries(qual
+target_link_libraries(qual_exe debug libucrtd.lib optimized libucrt.lib libmmt.lib)
+target_link_libraries(qual_exe qual_core gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse)
+target_link_libraries(qual_exe
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -184,10 +186,10 @@ target_link_libraries(qual
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 else (WIN32)
-set_target_properties(qual PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse -Wl,--end-group)
-target_link_libraries(qual
+set_target_properties(qual_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
+target_include_directories(qual_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(qual_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group qual_core gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse -Wl,--end-group)
+target_link_libraries(qual_exe
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -197,7 +199,7 @@ target_link_libraries(qual
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
-target_link_libraries(qual -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
+target_link_libraries(qual_exe -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
 # PTM DLL
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
@@ -368,7 +370,7 @@ endif (hydro_1000)
 
 #-------------- INSTALL ----------------#
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro_exe qual gtm PTM sed_bed_init
+install(TARGETS hydro_exe qual_exe gtm PTM sed_bed_init
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)

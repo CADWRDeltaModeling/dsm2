@@ -1,0 +1,17 @@
+python module pydsm2qual
+interface
+    integer*4 :: julmin
+    integer*4 :: end_julmin
+
+    subroutine py_qual_init(inp_file) bind(C)
+        character, intent(in) :: inp_file(:)
+    end subroutine
+
+    subroutine py_qual_loop()
+    end subroutine
+
+    subroutine py_qual_wrapup()
+    end subroutine
+
+end interface
+end python module pydsm2qual

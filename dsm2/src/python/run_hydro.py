@@ -8,7 +8,7 @@ from pydsm2hydro import pydsm2hydro
 def main():
     path_hydro_inp = 'hydro.inp'
     pydsm2hydro.py_fourpt_init(path_hydro_inp)
-    while (pydsm2hydro.julmin < pydsm2hydro.end_julmin):
+    while (pydsm2hydro.julmin <= pydsm2hydro.end_julmin):
         pydsm2hydro.py_fourpt_step_before_updatenetwork()
         pydsm2hydro.py_updatenetwork_prepare()
         # If something needs to be manipulated, this would be the best place,
