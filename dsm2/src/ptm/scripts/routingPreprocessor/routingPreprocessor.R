@@ -30,7 +30,7 @@ HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
 # Range of dates to calculate transition probabilities
-transProbsStartDate <- "01jan2011"
+transProbsStartDate <- "01jan2017"
 transProbsEndDate <- "31dec2017"
 
 plotHORstartDate <- "18may2013"
@@ -204,6 +204,7 @@ renameCoefsDF <- function(coefsDF) {
 # Run
 ####################################################################################################
 setwd(workingDir)
+dir.create(outputDir, showWarnings=F)
 
 # Set up parallel processing
 registerDoParallel(cores=numCores)
@@ -374,8 +375,8 @@ for (transition in c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")) {
 modelHORflow <- as.data.frame(modelHORflow)
 
 # Calculate transition probabilities
-r <- foreach(i=1:nrow(modelHORflow), .combine=rbind) %dopar% {
-    
+r <- foreach(i=1:nrow(modelHORflow), .combine=rbind, .packages=c("lubridate", "imputeTS", "slider", "msm")) %dopar% {
+
     if(i%%1000 == 0) {
         cat("HOR: calculating transition probabilities for row", i, "of", nrow(modelHORflow), "\n",
             file=logFile, append=T)
@@ -435,8 +436,7 @@ for (transition in c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")) {
 modelTCflow <- as.data.frame(modelTCflow)
 
 # Calculate transition probabilities
-#for (i in 1:nrow(modelTCflow)) {
-r <- foreach(i=1:nrow(modelTCflow), .combine=rbind) %dopar% {
+r <- foreach(i=1:nrow(modelTCflow), .combine=rbind, .packages=c("lubridate", "imputeTS", "slider", "msm")) %dopar% {
 
     if(i%%1000 == 0) {
         cat("TC: calculating transition probabilities for row", i, "of", nrow(modelHORflow), "\n",
