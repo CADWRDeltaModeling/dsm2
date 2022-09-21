@@ -11,7 +11,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 /**
  * @author Doug Jackson, QEDA Consulting, LLC
- * Read pre-processed transition probabilities for Head of Old River based on 
+ * Read preprocessed transition probabilities for Head of Old River based on 
  * continuous time multistate Markov model in [CITATION]
  */
 public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
@@ -22,7 +22,7 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 
 	@Override
 	/**
-	 * Make a route decision based on pre-processed transition probabilities
+	 * Make a route decision based on preprocessed transition probabilities
 	 * @param p				particle
 	 */
 	public void makeRouteDecision(Particle p) {

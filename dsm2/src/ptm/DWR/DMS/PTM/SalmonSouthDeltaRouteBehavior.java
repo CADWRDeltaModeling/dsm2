@@ -101,14 +101,21 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		double rand;
 		Channel chosenChannel;
 		int confusionFactor, channelId;
-		float swimmingVel, outflow;
+		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel;
 		boolean wait;
+		
+		// Define a small length difference to compare the current x position to the channel length
+		smallLengthDiff = 0.001f;
+		
+		// Define a large swimming velocity that will ensure waiting eFish aren't advected
+		// away from the junction
+		largeSwimmingVel = 20;
 		
 		// Initially assume we're not going to wait
 		wait = false;
         
 		// Choose channel
-		rand =  p.nd.getRandomNumber();
+		rand =  PTMUtil.getRandomNumber();
 		if (rand<transProbToU) {
 			chosenChannel = upstreamChannel;
 			if (fromChannelGroup==ChannelGroup.UPSTREAM) {
@@ -128,7 +135,21 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			};
 		}
 		
-		if(!wait) {
+		// If we're waiting due to a no-action transition, set swimming velocity strongly towards junction so
+		// eFish aren't advected away
+		if(wait) {
+			if(Math.abs(p.x - ((Channel) p.wb).getLength()) < smallLengthDiff) {
+				p.setSwimmingVelocity(largeSwimmingVel);
+			}
+			else {
+				p.setSwimmingVelocity(-largeSwimmingVel);
+			}
+			
+			// Indicate that we've set the swimming velocity in the junction so it won't be
+			// overwritten in the next time step
+			p.swimVelSetInJunction(true);
+		}
+		else {
 			// Calculate total effective outflows (including swimming velocity) in the chosen channel
 			channelId = chosenChannel.getEnvIndex();
 			p.getSwimHelper().setMeanSwimmingVelocity(p.Id, channelId);
