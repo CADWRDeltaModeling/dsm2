@@ -3,7 +3,7 @@
 module purge
 module use /opt/intel/oneapi/modulefiles
 module load cmake
-module load compiler/2022.0.2
+module load compiler/2022.1.0
 cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD
