@@ -25,7 +25,7 @@ TClag_min <- 90
 flowScalingFile <- file.path(workingDir, "flowScaling.csv")
 coefsFile <- file.path(workingDir, "coefs.csv")
 covMeansFile <- file.path(workingDir, "covMeans.csv")
-barrierOpFile <- file.path(workingDir, "WEIR_OP.csv")
+barrierOpFile <- file.path(workingDir, "barrierOp.csv")
 
 HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
