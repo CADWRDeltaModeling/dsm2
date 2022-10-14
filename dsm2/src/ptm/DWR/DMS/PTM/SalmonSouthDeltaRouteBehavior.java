@@ -98,10 +98,10 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			Channel upstreamChannel, Channel downstreamChannel, Channel distribChannel,
 			double transProbToU, double transProbToD, double transProbToT) {
 		
-		double rand;
+		double rand, adjTransProbToU, adjTransProbToD, adjTransProbToT;
 		Channel chosenChannel;
 		int confusionFactor, channelId;
-		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel;
+		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel, tmLeft_sec, PTMtimeStep_sec;
 		boolean wait;
 		
 		// Define a small length difference to compare the current x position to the channel length
@@ -113,6 +113,40 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		
 		// Initially assume we're not going to wait
 		wait = false;
+		
+		// Preprocessor provides transition probabilities per PTM time step. These need to be
+		// adjusted to match tmLeft
+		tmLeft_sec = p.getTmLeftInSecs();
+		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();	
+				
+		// Initialize adjusted transition probabilities;
+		adjTransProbToU = transProbToU;
+		adjTransProbToD = transProbToD;
+		adjTransProbToT = transProbToT;
+		
+		// Adjust transition probabilities
+		switch (fromChannelGroup) {
+		case UPSTREAM:
+			adjTransProbToU = Math.pow(transProbToU, PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToT = (1-adjTransProbToU)/(transProbToD/transProbToT + 1);
+			adjTransProbToD = 1 - (adjTransProbToU + adjTransProbToT);
+			break;
+		case DOWNSTREAM:
+			adjTransProbToD = Math.pow(transProbToD,  PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToU = (1-adjTransProbToD)/(transProbToT/transProbToU + 1);
+			adjTransProbToT = 1 - (adjTransProbToD + adjTransProbToU);
+			break;
+		case DISTRIB:
+			adjTransProbToT = Math.pow(transProbToT, PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToU = (1-adjTransProbToT)/(transProbToD/transProbToU + 1);
+			adjTransProbToD = 1 - (adjTransProbToT + adjTransProbToU);
+			break;
+		default:
+			PTMUtil.systemExit("Unrecognized ChannelGroup. Exiting.");
+		}
+		transProbToU = adjTransProbToU;
+		transProbToD = adjTransProbToD;
+		transProbToT = adjTransProbToT;		
         
 		// Choose channel
 		rand =  PTMUtil.getRandomNumber();
