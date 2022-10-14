@@ -23,8 +23,11 @@ zeroFlowNodes <- c()
 setwd(workingDir)
 
 # Save original attributes
-qfAttrs <- h5readAttributes(tidefile, "hydro/data/channel flow")
-cfAttrs <- h5readAttributes(tidefile, "hydro/data/channel flow")
+origAttrs <- list(qf=h5readAttributes(tidefile, "hydro/data/qext flow"),
+                  cf=h5readAttributes(tidefile, "hydro/data/channel flow"),
+                  area=h5readAttributes(tidefile, "hydro/data/channel area"),
+                  stage=h5readAttributes(tidefile, "hydro/data/channel stage"),
+                  channelBottom=h5readAttributes(tidefile, "hydro/geometry/channel_bottom"))
 h5closeAll()
 
 h5f <- H5Fopen(tidefile)
@@ -37,6 +40,7 @@ cutEnds <- modifyChannel %>% select(chan_no, length, cutEnd) %>% filter(cutEnd!=
 modifyChannel$cutEnd <- NULL
 
 # Read the original channel information
+cat("Reading channel information.\n")
 channelH <- h5f&'hydro/input/channel'
 channel <- channelH[]
 
@@ -67,23 +71,98 @@ h5delete(h5f, "hydro/input/channel")
 h5write(channel, file=h5f, name="hydro/input/channel")
 
 ########################################
-# Interpolate and mass balance flows
+# Modify channel geometry and stage at the cut end
 
-# Load external flows
-extFlowNames <- h5f&"hydro/geometry/external_flow_names"
-extFlowNames <- gsub(" ", "", extFlowNames[])
-extFlow <- h5f&"hydro/data/qext flow"
-extFlow <- extFlow[]
-
-# Load channel flows
-flow <- h5f&"hydro/data/channel flow"
-flow <- flow[]
+# Load channel areas
+cat("Reading area data.\n")
+area <- h5f&"hydro/data/channel area"
+area <- area[]
+cat("Reading channel bottom data.\n")
+channelBottom <- h5f&"hydro/geometry/channel_bottom"
+channelBottom <- channelBottom[]
+cat("Reading stage data.\n")
+stage <- h5f&"hydro/data/channel stage"
+stage <- stage[]
 
 if(nrow(modifyChannel)>0) {
     # Calculate channel flow interpolation factor at cut location
     interpFac <- left_join(cutEnds, origChannel, by="chan_no", suffix=c("_new", "_orig"))
     interpFac$interpFac <- interpFac$length_new/interpFac$length_orig
     interpFac <- interpFac %>% select(chan_no, cutEnd, interpFac)
+    
+    # Apply interpolation factor
+    for (i in 1:nrow(interpFac)) {
+        thisInterpFac <- interpFac[i, ]
+        chanInd <- which(channel$chan_no==thisInterpFac$chan_no)
+        
+        interpArea <- area[1, chanInd, ] + (area[2, chanInd, ] - area[1, chanInd, ])*thisInterpFac$interpFac
+        interpStage <- stage[1, chanInd, ] + (stage[2, chanInd, ] - stage[1, chanInd, ])*thisInterpFac$interpFac
+        interpChannelBottom <- channelBottom[chanInd, 1] + (channelBottom[chanInd, 2] - channelBottom[chanInd, 1])*thisInterpFac$interpFac
+        
+        if(thisInterpFac$cutEnd=="upNode") {
+            area[1, chanInd, ] <- interpArea
+            stage[1, chanInd, ] <- interpStage
+            channelBottom[chanInd, 1] <- interpChannelBottom
+        } else if(thisInterpFac$cutEnd=="downNode") {
+            area[2, chanInd, ] <- interpArea
+            stage[2, chanInd, ] <- interpStage
+            channelBottom[chanInd, 2] <- interpChannelBottom
+        } else {
+            cat("Incorrect cutEnd in modifyChannel.csv:", thisInterpFac$cutEnd, "\n")
+        }
+    }
+}
+
+for(var in c("area", "stage")) {
+    cat(paste0("Writing modified ", var, " data.\n"))
+    if(var=="area") {
+        thisData <- area
+    } else if(var=="stage") {
+        thisData <- stage
+    }
+    
+    varPath <- paste0("hydro/data/channel ", var)
+    h5delete(h5f, varPath)
+    h5createDataset(file=h5f, dataset=varPath, 
+                    dims = dim(thisData), storage.mode="double", 
+                    chunk=c(2, dim(thisData)[2], 16), level=6)
+    h5write(thisData, file=h5f, name=varPath)
+
+    # Add original attributes back
+    thisDataset <- H5Dopen(h5f, varPath)
+    thisAttrs <- origAttrs[[var]]
+    for(thisAttr in names(thisAttrs)) {
+        h5writeAttribute(attr=thisAttrs[[thisAttr]], h5obj=thisDataset, name=thisAttr)
+    }
+    H5Dclose(thisDataset)    
+}
+
+h5delete(h5f, "hydro/geometry/channel_bottom")
+h5write(channelBottom, file=h5f, name="hydro/geometry/channel_bottom")
+
+# Add original attributes back to channel bottom
+cbD <- H5Dopen(h5f, "hydro/geometry/channel_bottom")
+cbAttrs <- origAttrs[["channelBottom"]]
+for(thisAttr in names(cbAttrs)) {
+    h5writeAttribute(attr=cbAttrs[[thisAttr]], h5obj=cbD, name=thisAttr)
+}
+H5Dclose(cbD)
+########################################
+# Interpolate and mass balance flows
+
+# Load external flows
+cat("Reading external flow data.\n")
+extFlowNames <- h5f&"hydro/geometry/external_flow_names"
+extFlowNames <- gsub(" ", "", extFlowNames[])
+extFlow <- h5f&"hydro/data/qext flow"
+extFlow <- extFlow[]
+
+# Load channel flows
+cat("Reading flow data.\n")
+flow <- h5f&"hydro/data/channel flow"
+flow <- flow[]
+
+if(nrow(modifyChannel)>0) {
     
     # Apply interpolation factor
     for (i in 1:nrow(interpFac)) {
@@ -166,15 +245,16 @@ for(thisNode in zeroFlowNodes) {
     }
 }
 
+cat("Writing modified external flow data.\n")
 h5delete(h5f, "hydro/data/qext flow")
 h5createDataset(file=h5f, dataset="hydro/data/qext flow", 
                 dims = dim(extFlow), storage.mode="double", 
                 chunk=c(nrow(extFlow), 16), level=6)
-cat("Writing modified qext flow data\n")
 h5write(extFlow, file=h5f, name="hydro/data/qext flow")
 
 # Add original attributes back to qext
 qfD <- H5Dopen(h5f, "hydro/data/qext flow")
+qfAttrs <- origAttrs[["qf"]]
 for(thisAttr in names(qfAttrs)) {
     h5writeAttribute(attr=qfAttrs[[thisAttr]], h5obj=qfD, name=thisAttr)
 }
@@ -208,15 +288,16 @@ for(adjChannel in unique(balanceChannels$adjust_chan_no)) {
     flow[2, inInd, ] <- sumOutUpNodeFlow - sumOutDownNodeFlow
 }
 
+cat("Writing modified channel flow data.\n")
 h5delete(h5f, "hydro/data/channel flow")
 h5createDataset(file=h5f, dataset="hydro/data/channel flow", 
                 dims = dim(flow), storage.mode="double", 
                 chunk=c(2, dim(flow)[2], 16), level=6)
-cat("Writing modified channel flow data\n")
 h5write(flow, file=h5f, name="hydro/data/channel flow")
 
 # Add original attributes back to channel flow
 cfD <- H5Dopen(h5f, "hydro/data/channel flow")
+cfAttrs <- origAttrs[["cf"]]
 for(thisAttr in names(cfAttrs)) {
     h5writeAttribute(attr=cfAttrs[[thisAttr]], h5obj=cfD, name=thisAttr)
 }

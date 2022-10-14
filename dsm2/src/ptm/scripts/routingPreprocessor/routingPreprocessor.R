@@ -15,7 +15,7 @@ library(msm)
 workingDir <- "/Users/djackson/Documents/QEDA/DWR/programs/routingPreprocessor"
 
 outputDir <- file.path(workingDir, "output")
-tideFile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_output_15apr22/routing_model_dsm2_15apr22.h5"
+tideFile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_output_15apr22/routing_model_dsm2_15apr22_orig.h5"
 stationLocFile <- file.path(workingDir, "stationLoc.csv")
 
 sampleTime_min <- 15
@@ -24,13 +24,14 @@ TClag_min <- 90
 
 flowScalingFile <- file.path(workingDir, "flowScaling.csv")
 coefsFile <- file.path(workingDir, "coefs.csv")
-covMeansFile <- file.path(workingDir, "covMeans.csv") 
+covMeansFile <- file.path(workingDir, "covMeans.csv")
+barrierOpFile <- file.path(workingDir, "WEIR_OP.csv")
 
 HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
 # Range of dates to calculate transition probabilities
-transProbsStartDate <- "01jan2017"
+transProbsStartDate <- "01jan2011"
 transProbsEndDate <- "31dec2017"
 
 plotHORstartDate <- "18may2013"
@@ -110,20 +111,28 @@ day_light <- function(date_time, loc = "old_river"){
 
 # Barrier state from Mike Dodrill
 defineBarrier <- function() {
-    # head of old river barrier info:
-    # See: Q:\QFES\Delta\sth six year study\DATA\7COVAR\Barrier status\OMR BARRIER STATUS.xlsx
+    # Head of Old River barrier info:
+    # Exported from DSS gate input file:
+    # ORHRB = ${GATEFILE} /HIST+GATE/ORHRB/WEIR_OP//IR-DECADE/DWR-BDO/
+    # ORHRB_FALL = ${GATEFILE} /HIST+GATE/ORHRB_FALL/WEIR_OP//IR-DECADE/DWR-BDO/
+    barrierOp <- read.csv(barrierOpFile)
+    barrierOp$datetime <- dmy_hm(barrierOp$datetime)
+
+    # Combine spring and fall barriers into a single barrier status
+    barrierOp[is.na(barrierOp)] <- 0 
+    barrierOp$barrier <- barrierOp$ORHRB + barrierOp$ORHRB_FALL
+    barrierOp$date <- floor_date(barrierOp$datetime, "day")
+    barrierOp <- barrierOp %>% select(date, barrier)
     
-    # dates are from "closed" to "breached" for "spring" only (not fall). Note: I've
-    # added one day to the closed and subtracted one day from breached, to be
-    # conservative on then the barrier was in place and working fully. If not
-    # "closed", then "open"
-    b1 = seq.Date(from = as.Date("2012-04-02"), to = as.Date("2012-06-03"), by = "day")
-    # 2013 - no barrier
-    b2 = seq.Date(from = as.Date("2014-04-09"), to = as.Date("2014-06-08"), by = "day")
-    b3 = seq.Date(from = as.Date("2015-04-04"), to = as.Date("2015-05-31"), by = "day")
-    b4 = seq.Date(from = as.Date("2016-04-02"), to = as.Date("2016-05-31"), by = "day")
+    # Create data frame with all dates
+    barrier <- data.frame(date=seq(min(barrierOp$date), max(barrierOp$date), by="days"))
+    barrier <- left_join(barrier, barrierOp, by="date") %>% fill(barrier, .direction="down")
     
-    barrier = data.frame(date = c(b1, b2, b3, b4), status = "closed")
+    barrier$status <- ifelse(barrier$barrier==1, "closed", "open")
+    
+    barrier <- barrier %>% select(date, status) %>% filter(status=="closed")
+    barrier$date <- date(barrier$date)
+
     return(barrier)
 }
 
@@ -388,7 +397,7 @@ r <- foreach(i=1:nrow(modelHORflow), .combine=rbind, .packages=c("lubridate", "i
     # In Mike Dodrill's original model, barrier_2Open was a factor with closed=1 and open=2. msm.parse.covariates converts this
     # to a 0 and 1, respectively (see 23may22 Evernote)
     thisBarrierOpen <- ifelse(date(modelHORflow$datetime[i]) %in% barrier$date, 0, 1)
-    
+
     # In Mike Dodrill's original model, day2_day was a factor with night=1 and day=2. msm.parse.covariates converts this 
     # to a 0 and 1, respectively (see 23may22 Evernote)
     thisDaytime <- ifelse(day_light(modelHORflow$datetime[i])=="day", 1, 0)
