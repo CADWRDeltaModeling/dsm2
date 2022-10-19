@@ -1,24 +1,24 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-      integer function rate_variable_code(name)
+integer function rate_variable_code(name)
       use constants
       implicit none
       character*16 name
@@ -37,9 +37,9 @@ C!</license>
           rate_variable_code=alg_die
       end if
       return
-      end function
+end function
       
-      subroutine rate_variable_code_to_name(id, name)
+subroutine rate_variable_code_to_name(id, name)
       use constants
       use io_units
       implicit none
@@ -63,10 +63,10 @@ C!</license>
           call exit(-3)
       end if
       return
-      end subroutine
+end subroutine
 
           
-      integer function ncc_code(name)
+integer function ncc_code(name)
       use constants
       use io_units
 
@@ -95,9 +95,9 @@ C!</license>
           ncc_code=ncc_temp
       end if
       return
-      end function
+end function
       
-      subroutine ncc_code_to_name(id, name)
+subroutine ncc_code_to_name(id, name)
       use constants
       use io_units
       implicit none
@@ -130,7 +130,7 @@ C!</license>
           call exit(-3)
       end if
       return
-      end subroutine
+end subroutine
 
 
           

@@ -1,36 +1,36 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software:
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-*==== BOF tidefile =====================================================
+!==== BOF tidefile =====================================================
 
-c**********contains routines for writing data to an HDF5 file
+!**********contains routines for writing data to an HDF5 file
 
-*   Programmed by: Tawnly Pranger
-*   Date:          October 2003
+!*   Programmed by: Tawnly Pranger
+!*   Date:          October 2003
 
 
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-      subroutine hdf5_read_attributes()
+subroutine hdf5_read_attributes()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use h5lt
@@ -108,36 +108,36 @@ c**********contains routines for writing data to an HDF5 file
 !      call h5aread_f(attr_id, atype_id, chead, a_data_dims, error)
 !      call h5aclose_f(attr_id, error)
 
-      call h5ltget_attribute_string_f(hydro_id, ".", "Hydro Version",
-     &           chead, error)
+      call h5ltget_attribute_string_f(hydro_id, ".", "Hydro Version", &
+                chead, error)
 
       call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
 
       call h5aopen_name_f(hydro_id,"Maximum number of reservoirs",attr_id,error)
       call h5aread_f(attr_id, atype_id, dim_res_tf, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Maximum number of channels",attr_id,error)
       call h5aread_f(attr_id, atype_id, dim_chan_tf, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of reservoirs",attr_id,error)
       call h5aread_f(attr_id, atype_id, n_res_tf, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of channels",attr_id,error)
       call h5aread_f(attr_id, atype_id, n_chan_tf, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of stage boundaries",attr_id,error)
       call h5aread_f(attr_id, atype_id, nstgbnd, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Start time",attr_id,error)
       call h5aread_f(attr_id, atype_id, h5_time_start, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
-	print*,"Read starting date:",jmin2cdt(h5_time_start)
+!      call h5aclose_f(attr_id, error)
+      print*,"Read starting date:",jmin2cdt(h5_time_start)
       call h5aopen_name_f(hydro_id,"Time interval",attr_id,error)
       call h5aread_f(attr_id, atype_id, h5_time_interval, a_data_dims, error)
-c      call h5aclose_f(attr_id, error)
+!      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of intervals",attr_id,error)
       call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
-c     call h5aclose_f(attr_id, error)
+!     call h5aclose_f(attr_id, error)
       in_data_dims(1) = n_chan_tf
 
 
@@ -146,15 +146,15 @@ c     call h5aclose_f(attr_id, error)
       call h5dget_space_f(in_dset_id, filespace, error)
       call h5dread_f(in_dset_id,H5T_NATIVE_INTEGER, int2ext(1), in_data_dims, error)
       call h5sclose_f(filespace,error)
-	call h5dclose_f(in_dset_id,error)
+      call h5dclose_f(in_dset_id,error)
 
 
                                 ! Read bottom_el
       call h5dopen_f(geom_id,"channel_bottom",cg_dset_id,error)
 
       call h5dget_space_f(cg_dset_id, filespace, error)
-c      call h5sclose_f(filespace,error)
-c	call h5dclose_f(cg_dset_id)
+!      call h5sclose_f(filespace,error)
+!	call h5dclose_f(cg_dset_id)
 
 
 
@@ -162,20 +162,20 @@ c	call h5dclose_f(cg_dset_id)
       cg_data_dims(2) = 1
       h_offset(1) = 0
       h_offset(2) = bottom_elIdx
-      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &     h_offset, cg_data_dims, error)
+      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+          h_offset, cg_data_dims, error)
       call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
-      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el1, cg_data_dims,
-     &     error, memspace, filespace)
+      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el1, cg_data_dims, &
+          error, memspace, filespace)
 
 
 
       h_offset(2) = bottom_elIdx + 1
-      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &     h_offset, cg_data_dims, error)
+      call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+          h_offset, cg_data_dims, error)
       call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
-      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims,
-     &     error, memspace, filespace)
+      call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims, &
+          error, memspace, filespace)
 
       Do i = 1,n_chan_tf
          chan_geom(i).bottomelev(1) = bottom_el1(i)
@@ -185,9 +185,9 @@ c	call h5dclose_f(cg_dset_id)
       call reservoir_flow_connections_clear_buffer()
       call node_flow_connections_clear_buffer()
 
-      call h5ltget_attribute_int_f(hydro_id,".",
-     &           "Number of node flow connects",
-     &           hdf_dummy_integer, error)
+      call h5ltget_attribute_int_f(hydro_id,".", &
+                "Number of node flow connects", &
+                hdf_dummy_integer, error)
       nconnect = hdf_dummy_integer(1)
 
 
@@ -195,8 +195,8 @@ c	call h5dclose_f(cg_dset_id)
          call node_flow_connections_read_buffer_from_hdf5(geom_id, error)
          nconnect = node_flow_connections_buffer_size()
          do iconn = 1, nconnect
-             call node_flow_connections_query_from_buffer(iconn, connection_index,int_node_no,ext_node_no,
-     &                                                    node_flow_index,flow_index,flow_name,flow_type,error)
+             call node_flow_connections_query_from_buffer(iconn, connection_index,int_node_no,ext_node_no, &
+                                                         node_flow_index,flow_index,flow_name,flow_type,error)
              if (flow_type(1:4) .eq. "qext")then
                  node_geom(int_node_no).qext(node_flow_index) = flow_index
              else if (flow_type(1:8) .eq. "transfer")then
@@ -208,15 +208,15 @@ c	call h5dclose_f(cg_dset_id)
          call node_flow_connections_clear_buffer()
       end if
 
-      call h5ltget_attribute_int_f(hydro_id,".",
-     &           "Number of reservoir flow connects",
-     &           hdf_dummy_integer, error)
+      call h5ltget_attribute_int_f(hydro_id,".", &
+                "Number of reservoir flow connects", &
+                hdf_dummy_integer, error)
       nconnect = hdf_dummy_integer(1)
       if (nconnect .gt. 0)then
          call reservoir_flow_connections_read_buffer_from_hdf5(geom_id, error)
          do iconn = 1, nconnect
-             call reservoir_flow_connections_query_from_buffer(iconn, connection_index,resv_name,res_index,
-     &                                                         res_flow_index,flow_index,flow_name,flow_type,error)
+             call reservoir_flow_connections_query_from_buffer(iconn, connection_index,resv_name,res_index, &
+                                                              res_flow_index,flow_index,flow_name,flow_type,error)
 
              if (flow_type(1:4) .eq. "qext")then
                  res_geom(res_index).qext(res_flow_index) = flow_index
@@ -248,5 +248,5 @@ c	call h5dclose_f(cg_dset_id)
       call h5aread_f(attr_id, atype_id, nqext, a_data_dims, error)
       call ReadQExtHDF5()
       return
-      end subroutine
+end subroutine
 

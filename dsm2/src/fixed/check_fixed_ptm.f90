@@ -1,27 +1,27 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-      subroutine check_fixed_ptm(istat)
+subroutine check_fixed_ptm(istat)
 
-c-----Check the PTM fixed input for omissions and errors before starting
-c-----the model run.  Supply default values where possible.
+!-----Check the PTM fixed input for omissions and errors before starting
+!-----the model run.  Supply default values where possible.
       use constants
       use IO_Units
       use type_defs
@@ -36,37 +36,37 @@ c-----the model run.  Supply default values where possible.
       use netcntrl_common
       implicit none
 
-c-----Local variables
+!-----Local variables
 
-      logical
-     &     nodeexist            ! true if node exists in network
-     &     ,filterexist         ! true if filter exists in network
+      logical &
+          nodeexist  &          ! true if node exists in network
+          ,filterexist          ! true if filter exists in network
 
-      integer
-     &     istat                ! status of call (returned)
-     &     ,m, n                ! indices !TODO
-     &     ,nodeindex           ! node index used for iterating through nodes
-     &     ,chanindex           ! chan index used for iterating through channels
-     &     ,resindex            ! res index used for iterating through reservoirs
-     &     ,qextindex           ! qext index used for iterating through source flow
-     &     ,stgbndindex         ! stgbnd index used for iterating through stage boundary
-     &     ,obj2objindex        ! obj2obj index used for iterating through obj2obj transfer
-     &     ,ext2intnode
+      integer &
+          istat  &              ! status of call (returned)
+           ,m, n  &             ! indices !TODO
+           ,nodeindex  &        ! node index used for iterating through nodes
+           ,chanindex &         ! chan index used for iterating through channels
+          ,resindex &           ! res index used for iterating through reservoirs
+          ,qextindex &          ! qext index used for iterating through source flow
+          ,stgbndindex &        ! stgbnd index used for iterating through stage boundary
+          ,obj2objindex &       ! obj2obj index used for iterating through obj2obj transfer
+          ,ext2intnode
 
-      integer*4
-     &     cdt2jmin             ! character date/time to julian minute
-     &     ,incr_intvl          ! increment julian minute by interval function
+      integer*4 &
+          cdt2jmin &            ! character date/time to julian minute
+          ,incr_intvl           ! increment julian minute by interval function
 
-      character
-     &     diff2dates*14        ! return DSS date given start and diff
-     &     ,jmin2cdt*14         ! julian minute to character date/time function
-     &     ,tmpdate*14          ! temporary date for comparison
-     &     ,tmpstr*32           ! temporary string for name comparison
+      character &
+          diff2dates*14 &       ! return DSS date given start and diff
+          ,jmin2cdt*14 &        ! julian minute to character date/time function
+          ,tmpdate*14 &         ! temporary date for comparison
+          ,tmpstr*32            ! temporary string for name comparison
 
  605  format(/a,' date incorrect: ',a)
 
- 606  format(/'Invalid ',a,' date of ',a,' in tidefile:'
-     &     /a)
+ 606  format(/'Invalid ',a,' date of ',a,' in tidefile:' &
+          /a)
 
  607  format(/'Warning - Value for ',a,' not supplied - set to ',l5)
 
@@ -74,11 +74,11 @@ c-----Local variables
 
  609  format(/'Warning - Value for ',a,' not supplied - set to ',i5)
 
- 620  format(/'Too many upstream channels at node ',i3,' :',i5,
-     &     ' max allowed: ',i4)
+ 620  format(/'Too many upstream channels at node ',i3,' :',i5, &
+          ' max allowed: ',i4)
 
- 621  format(/'Too many downstream channels at node ',i3,' :',i5,
-     &     ' max allowed: ',i4)
+ 621  format(/'Too many downstream channels at node ',i3,' :',i5, &
+          ' max allowed: ',i4)
 
  642  format(/a,i4,' does not have a name or channel number.')
 
@@ -99,17 +99,17 @@ c-----Local variables
  648  format(/'Qaul binary ends on ',a,' it does not contain the date :',a)
 
 
-c-----adjust areas
+!-----adjust areas
 !      do m=1,max_reservoirs
 !         res_geom(m).area = res_geom(m).area*1e06
 !      enddo
 
-c-----adjust totals
-c-----npass_node=npass_node-1
-c      nchanres=nchanres-1   ! KJ: Is this variable ever used?
-c      npartno=npartno-1     ! KJ: Not necessary in the text version.
+!-----adjust totals
+!-----npass_node=npass_node-1
+!      nchanres=nchanres-1   ! KJ: Is this variable ever used?
+!      npartno=npartno-1     ! KJ: Not necessary in the text version.
 
-c-----Check scalar variables
+!-----Check scalar variables
 
       if (ptm_time_step_int .eq. 0) then
          ptm_time_step = 15
@@ -193,49 +193,49 @@ c-----Check scalar variables
 
 
 
-c-----Check times for injection
-c-----calculate ending time if injection length, rather than
-c-----start/end injection times are given
+!-----Check times for injection
+!-----calculate ending time if injection length, rather than
+!-----start/end injection times are given
       do m=1,npartno
-c--------Commented for testing purposes Aaron Miller----------
+!--------Commented for testing purposes Aaron Miller----------
          if (part_injection(m).start_date(:3) .eq. 'run') then
             part_injection(m).start_date=run_start_date
          endif
-c-------------------------------------------------------------
+!-------------------------------------------------------------
          if (part_injection(m).slength .ne. ' ') then
-c-----------injection start length should be in form: '20hour' or '5day'
-c-----------or, 'runtime' means no offset length
+!-----------injection start length should be in form: '20hour' or '5day'
+!-----------or, 'runtime' means no offset length
             if (part_injection(m).slength(:3) .eq. 'run') then
                part_injection(m).start_date=run_start_date
             else
-               part_injection(m).start_date=
-     &              diff2dates(run_start_date,part_injection(m).slength)
+               part_injection(m).start_date= &
+                   diff2dates(run_start_date,part_injection(m).slength)
             endif
          endif
          if (part_injection(m).length .ne. ' ') then
-c-----------injection length should be in form: '20hour' or '5day'
-            part_injection(m).start_julmin=
-     &           cdt2jmin(part_injection(m).start_date)
-            part_injection(m).end_date=
-     &           diff2dates(part_injection(m).start_date,part_injection(m).length)
+!-----------injection length should be in form: '20hour' or '5day'
+            part_injection(m).start_julmin= &
+                cdt2jmin(part_injection(m).start_date)
+            part_injection(m).end_date= &
+                diff2dates(part_injection(m).start_date,part_injection(m).length)
          endif
          part_injection(m).start_julmin=cdt2jmin(part_injection(m).start_date)
-c--------check if injection date is before model start date;
-c--------if so, zero out the injected particles
+!--------check if injection date is before model start date;
+!--------if so, zero out the injected particles
          if (part_injection(m).start_julmin .lt. start_julmin) then
             part_injection(m).nparts=0
          endif
          part_injection(m).end_julmin=cdt2jmin(part_injection(m).end_date)
-         part_injection(m).length_julmin=
-     &        part_injection(m).end_julmin-part_injection(m).start_julmin
-c--------convert injection nodes to internal and check if injection node exists
+         part_injection(m).length_julmin= &
+             part_injection(m).end_julmin-part_injection(m).start_julmin
+!--------convert injection nodes to internal and check if injection node exists
          nodeexist = .false.
-c----    do nodeindex=1,nchans
+!----    do nodeindex=1,nchans
 	     do nodeindex=1,nnodes
 	  !    print *,"node_geom: ",node_geom(nodeindex).node_id
 		!  fixme: could just use node_geom
-c----       if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
-c----&           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
+!----       if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
+!----&           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
             if (part_injection(m).node .eq. node_geom(nodeindex).node_id) then
         !  fixme: to delete after check
                write (unit_screen,'(a,i3)') 'check inject node ',part_injection(m).node
@@ -251,17 +251,17 @@ c----&           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) th
          !print *,"inject nd: ",part_injection(m).node
       enddo
 
-c-----Check particle filters existence
+!-----Check particle filters existence
       do m=1,nfilter
          filterexist = .false.
          ! on channel
          if (part_filter(m).at_wb_type .eq. obj_channel) then
             do chanindex=1,nchans
-               if ((part_filter(m).at_wb_id .eq. chanindex) .and.
-     &             ((part_filter(m).node .eq. chan_geom(chanindex).upnode) .or.
-     &              (part_filter(m).node .eq. chan_geom(chanindex).downnode))) then
-                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                  ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+               if ((part_filter(m).at_wb_id .eq. chanindex) .and. &
+                  ((part_filter(m).node .eq. chan_geom(chanindex).upnode) .or. &
+                   (part_filter(m).node .eq. chan_geom(chanindex).downnode))) then
+                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name), &
+                       ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
                   filterexist = .true.
                   exit
                endif
@@ -278,8 +278,8 @@ c-----Check particle filters existence
                if (trim(part_filter(m).at_wb(5:)) .eq. trim(res_geom(resindex).name)) then
                   do n=1,res_geom(resindex).nnodes
                      if (part_filter(m).node .eq. res_geom(resindex).node_no(n)) then
-                        write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                        ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                        write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name), &
+                             ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
                         filterexist = .true.
                         exit
                      endif
@@ -295,16 +295,16 @@ c-----Check particle filters existence
          else if (part_filter(m).at_wb_type .eq. obj_qext) then
             if (part_filter(m).at_wb_ndx .le. nqext) then
                qextindex = part_filter(m).at_wb_ndx
-               if ((qext(qextindex).attach_obj_type .eq. obj_node) .and.
-     &             (part_filter(m).node .eq. qext(qextindex).attach_obj_no)) then  !ext node no
-                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                   ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+               if ((qext(qextindex).attach_obj_type .eq. obj_node) .and. &
+                  (part_filter(m).node .eq. qext(qextindex).attach_obj_no)) then  !ext node no
+                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name), &
+                        ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
                    filterexist = .true.
                    cycle
-               else if ((qext(qextindex).attach_obj_type .eq. obj_reservoir) .and.
-     &                  (part_filter(m).resname .eq. qext(qextindex).attach_obj_name)) then
-                        write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                        ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
+               else if ((qext(qextindex).attach_obj_type .eq. obj_reservoir) .and. &
+                       (part_filter(m).resname .eq. qext(qextindex).attach_obj_name)) then
+                        write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name), &
+                             ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
                    filterexist = .true.
                    cycle
                endif
@@ -318,10 +318,10 @@ c-----Check particle filters existence
          else if (part_filter(m).at_wb_type .eq. obj_stage) then
             if (part_filter(m).at_wb_ndx .le. nstgbnd) then
                stgbndindex = part_filter(m).at_wb_ndx
-               if ((trim(part_filter(m).at_wb(7:)) .eq. trim(stgbnd(stgbndindex).name)) .and.
-     &             (part_filter(m).node .eq. stgbnd(stgbndindex).node)) then
-                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                  ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+               if ((trim(part_filter(m).at_wb(7:)) .eq. trim(stgbnd(stgbndindex).name)) .and. &
+                  (part_filter(m).node .eq. stgbnd(stgbndindex).node)) then
+                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name), &
+                       ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
                   filterexist = .true.
                   cycle
                endif
@@ -336,20 +336,20 @@ c-----Check particle filters existence
             if (part_filter(m).at_wb_ndx .le. nobj2obj) then
                obj2objindex = part_filter(m).at_wb_ndx
                
-               if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_node) .and.
-     &              (obj2obj(obj2objindex).from_obj.obj_no .eq. part_filter(m).node)) .or.
-     &             ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_node) .and.
-     &              (obj2obj(obj2objindex).to_obj.obj_no .eq. part_filter(m).node))) then
-                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                   ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+               if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_node) .and. &
+                   (obj2obj(obj2objindex).from_obj.obj_no .eq. part_filter(m).node)) .or. &
+                  ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_node) .and. &
+                   (obj2obj(obj2objindex).to_obj.obj_no .eq. part_filter(m).node))) then
+                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name), &
+                        ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
                    filterexist = .true.
                    cycle
-               else if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_reservoir) .and.
-     &                   (obj2obj(obj2objindex).from_obj.obj_name .eq. part_filter(m).resname)) .or.
-     &                  ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_reservoir) .and.
-     &                  (obj2obj(obj2objindex).to_obj.obj_name .eq. part_filter(m).resname))) then
-                   write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                   ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
+               else if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_reservoir) .and. &
+                        (obj2obj(obj2objindex).from_obj.obj_name .eq. part_filter(m).resname)) .or. &
+                       ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_reservoir) .and. &
+                       (obj2obj(obj2objindex).to_obj.obj_name .eq. part_filter(m).resname))) then
+                   write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name), &
+                        ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
                    filterexist = .true.
                    cycle
                endif
@@ -370,7 +370,7 @@ c-----Check particle filters existence
          
       enddo
 
-c-----check that quality tide file includes full runtime
+!-----check that quality tide file includes full runtime
 
       if (qual_bin_file.filename .ne. ' ') then
          if(qual_bin_file.start_julmin_file .gt. start_julmin) then
@@ -397,7 +397,7 @@ c-----check that quality tide file includes full runtime
       istat= -1
 
       return
-      end
+end
 
 
 

@@ -1,48 +1,48 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-      subroutine process_gate(id,
-     &                        name,
-     &                        ObjConnTypeName,
-     &                        ObjConnID,
-     &                        nodeConn)
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
+subroutine process_gate(id, &
+                        name, &
+                        ObjConnTypeName, &
+                        ObjConnID, &
+                        nodeConn)
       use Gates, only: gateArray,nGate, MAX_GATES
       use IO_Units
       use logging
       use constants
       use grid_data
       implicit none
-      integer
-     &     ID
-     &     ,ObjConnType         ! connected to channel, reservoir, etc.
-     &     ,NodeConn            ! node connected to
-     &     ,name_to_objno       ! function to get object number
-     &     ,channo
-     &     ,resno
-     &     ,counter
-     &     ,i
+      integer &
+          ID &
+          ,ObjConnType &         ! connected to channel, reservoir, etc.
+          ,NodeConn &            ! node connected to
+          ,name_to_objno &       ! function to get object number
+          ,channo &
+          ,resno &
+          ,counter &
+          ,i
 
-      character
-     &     name*32
-     &     ,prev_name*32
-     &     ,ObjConnID*32        ! name of reservoir, number of channel
-     &     ,channoStr*10
+      character &
+          name*32 &
+          ,prev_name*32 &
+          ,ObjConnID*32 &        ! name of reservoir, number of channel
+          ,channoStr*10
       character(len=16) :: ObjConnTypeName
 
       logical :: useObj
@@ -52,8 +52,8 @@ C!</license>
       ObjConnType = obj_type_code(ObjConnTypeName)
             ngate=ngate+1
             if (ngate .gt. max_gates) then
-               write(unit_error,630)
-     &              'Too many gates specified; max allowed is:' ,max_gates
+               write(unit_error,630) &
+                   'Too many gates specified; max allowed is:' ,max_gates
                call exit(-1)
                return
             endif
@@ -78,12 +78,12 @@ C!</license>
                gateArray(ngate).objConnectedID=resno
 	         do i=1,res_geom(resno).nnodes
 	             if (res_geom(resno).node_no(i) .eq. gateArray(ngate).node) then
-	                write(unit_error,627)trim(name),trim(res_geom(resno).name),
-     &                  node_geom(gateArray(ngate).node).node_ID
- 627	                format('Gate ',a, ' attached from reservoir ', a, ' to node ',
-     &                  i5, /'conflicts with a gate or reservoir connection ' /
-     &                  'defined between the same reservoir and node. ' /
-     &                  'Use a single gate or reservoir connection.')     
+	                write(unit_error,627)trim(name),trim(res_geom(resno).name), &
+                       node_geom(gateArray(ngate).node).node_ID
+ 627	                format('Gate ',a, ' attached from reservoir ', a, ' to node ', &
+                       i5, /'conflicts with a gate or reservoir connection ' / &
+                       'defined between the same reservoir and node. ' / &
+                       'Use a single gate or reservoir connection.')     
                       call exit(1)
 	             end if
 	         end do
@@ -97,64 +97,64 @@ C!</license>
             end if
 
             gateArray(ngate).flowDirection=0.D0 ! fixme: depends on location upstream or down.
-            if (print_level .ge. 3)
-     &           write(unit_screen,'(i5,1x,a,i10)')
-     &           ngate,
-     &           trim(gateArray(ngate).name),
-     &           gateArray(ngate).ID
+            if (print_level .ge. 3) &
+                write(unit_screen,'(i5,1x,a,i10)') &
+                ngate, &
+                trim(gateArray(ngate).name), &
+                gateArray(ngate).ID
 
 
       return
-      end subroutine
+end subroutine
 
-c================================================================
+!================================================================
 
-      subroutine process_gate_device(
-     &                               gatename,
-     &                               name,
-     &                               structure_name,
-     &                               nduplicate,
-     &                               max_width,
-     &                               base_elev,
-     &                               height,
-     &                               cffrom,
-     &                               cfto,
-     &                               default_op_name)
-      use Gates, only: gateArray,maxNGate,
-     &     PIPE,WEIR,MAX_DEV,GATE_OPEN,GATE_CLOSE,
-     &     UNIDIR_TO_NODE,UNIDIR_FROM_NODE
+subroutine process_gate_device( &
+                               gatename, &
+                               name, &
+                               structure_name, &
+                               nduplicate, &
+                               max_width, &
+                               base_elev, &
+                               height, &
+                               cffrom, &
+                               cfto, &
+                               default_op_name)
+      use Gates, only: gateArray,maxNGate, &
+          PIPE,WEIR,MAX_DEV,GATE_OPEN,GATE_CLOSE, &
+          UNIDIR_TO_NODE,UNIDIR_FROM_NODE
       use io_units
       use constants
       
       
       implicit none
 
-c-----local variables
+!-----local variables
 
-      integer
-     &     gateID               ! gate ID
-     &     ,gateno              ! counter for gates
-     &     ,devno
-     &     ,nduplicate           ! number of dublicate structures
-     &     ,struct_type          ! type of structure (weir,pipe)
-     &     ,control_type         ! flow control device (type of gate)
-     &     ,count
-     &     ,ndx,i,nw
-     &     ,nout
-     &     ,default_op
-     &     ,get_objnumber       ! function to get object number
+      integer &
+          gateID &               ! gate ID
+          ,gateno &              ! counter for gates
+          ,devno &
+          ,nduplicate &           ! number of dublicate structures
+          ,struct_type &          ! type of structure (weir,pipe)
+          ,control_type &         ! flow control device (type of gate)
+          ,count &
+          ,ndx,i,nw &
+          ,nout &
+          ,default_op &
+          ,get_objnumber       ! function to get object number
       
       integer,external :: name_to_objno   
 
-      real*8
-     &     max_width
-     &     ,base_elev,height
-     &     ,CFfrom,CFto
-     &     ,from_op,to_op
+      real*8 &
+          max_width &
+          ,base_elev,height &
+          ,CFfrom,CFto &
+          ,from_op,to_op
 
-      character*32
-     &     name
-     &     ,gatename
+      character*32 &
+          name &
+          ,gatename
       character*8  structure_name
       character*16 default_op_name
       
@@ -167,9 +167,9 @@ c-----local variables
       elseif (structure_name(1:4) .eq. 'pipe') then
           struct_type = PIPE
       else
-          write(unit_error, *) "Gate structure not recognized: " 
-     &       // structure_name // ", Gate: "  // trim(gatename)
-     &       // " Device: " // trim(name)
+          write(unit_error, *) "Gate structure not recognized: "  &
+            // structure_name // ", Gate: "  // trim(gatename) &
+            // " Device: " // trim(name)
           call exit(-3)
       end if
 
@@ -190,9 +190,9 @@ c-----local variables
 	    to_op=0.
 	    from_op=1.0
 	 else
-		   write (unit_error,"('Unrecognized default operation for gate',1x,
-     &                   a,' device ',a, ' op ',a)")trim(gatename),
-     &                   trim(name),trim(default_op_name)
+		   write (unit_error,"('Unrecognized default operation for gate',1x, &
+                        a,' device ',a, ' op ',a)")trim(gatename), &
+                        trim(name),trim(default_op_name)
                call exit(-3)
 	         return
 	end if          
@@ -233,4 +233,4 @@ c-----local variables
 
 
       return
-      end subroutine
+end subroutine

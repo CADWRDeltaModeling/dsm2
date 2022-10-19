@@ -1,7 +1,7 @@
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function GetCurrentTideTime()
+integer function GetCurrentTideTime()
 
 	use hdfvars
 	use inclvars
@@ -11,11 +11,11 @@
 	GetCurrentTideTime=h5_time_start + (hdf5point)*h5_time_interval
 
 	return
-	end function
+end function
 
-***********************************************************************
-***********************************************************************
-	integer function calcHDF5NumberOfTimeIntervals() result (ans)
+!***********************************************************************
+!***********************************************************************
+integer function calcHDF5NumberOfTimeIntervals() result (ans)
 
 	use hdfvars
 	use inclvars
@@ -32,15 +32,15 @@
 	end if
 	return 
 	
-	end function
+end function
 
 
 
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function getHDF5TimeLength() result (ans)
+integer function getHDF5TimeLength() result (ans)
 
 	use hdfvars
 	use inclvars
@@ -54,12 +54,12 @@
 
 	return 
 	
-	end function
+end function
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function getHDF5EndTime() result (time)
+integer function getHDF5EndTime() result (time)
 
 	use hdfvars
 
@@ -72,12 +72,12 @@
 
 	return 
 	
-	end function
+end function
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function getHDF5IndexForTideTime(time) result (index)
+integer function getHDF5IndexForTideTime(time) result (index)
 
 	use hdfvars
 
@@ -92,12 +92,12 @@
 
 	return 
 	
-	end function
+end function
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function getHDF5IndexAtOrBeyondTime(tidetime) result(index)
+integer function getHDF5IndexAtOrBeyondTime(tidetime) result(index)
 
 	use hdfvars
 
@@ -119,18 +119,18 @@
 	  index = (reltime/intvl)+1
       endif
 	return 
-	end function
+end function
 
 
 
 
-**********************************************************************
-**********************************************************************
-      subroutine getTimeAttributes(file_id,
-     &                             hdf_start_julmin, 
-     &                             hdf_end_julmin,
-     &                             hdf_interval,
-     &                             hdf_ntime)
+!**********************************************************************
+!**********************************************************************
+subroutine getTimeAttributes(file_id, &
+                                   hdf_start_julmin, &
+                                   hdf_end_julmin, &
+                                   hdf_interval, &
+                                   hdf_ntime)
       use hdf5
       use h5lt
       implicit none
@@ -142,27 +142,27 @@
       integer, dimension(1) :: hdf5_read_buffer      
       integer        :: error   ! HDF5 Error flag
 
-      call h5ltget_attribute_int_f(file_id,"hydro", 
-     &           "Start time",
-     &           hdf5_read_buffer, error)
+      call h5ltget_attribute_int_f(file_id,"hydro", &
+                "Start time", &
+                hdf5_read_buffer, error)
       call verify_error(error, "Reading start time from hdf5 file")
       hdf_start_julmin = hdf5_read_buffer(1)
-      call h5ltget_attribute_int_f(file_id,"hydro", 
-     &           "Time interval", 
-     &           hdf5_read_buffer, error)
+      call h5ltget_attribute_int_f(file_id,"hydro", &
+                "Time interval", &
+                hdf5_read_buffer, error)
       hdf_interval = hdf5_read_buffer(1)
-      call h5ltget_attribute_int_f(file_id,"hydro", 
-     &           "Number of intervals", 
-     &           hdf5_read_buffer, error)
+      call h5ltget_attribute_int_f(file_id,"hydro", &
+                "Number of intervals", &
+                hdf5_read_buffer, error)
       hdf_ntime = hdf5_read_buffer(1)
       hdf_end_julmin=hdf_start_julmin+(hdf_ntime-1)*hdf_interval
       return
-      end subroutine
+end subroutine
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-      integer function getHDF5StartTime() RESULT (time)
+integer function getHDF5StartTime() RESULT (time)
       ! read the start time from the HDF5 file 
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
@@ -183,7 +183,7 @@
       integer,save :: prev_tidefile = 0
 
 	if (.not. (current_tidefile .eq. prev_tidefile)) then
-        a_data_dims(1) = 1
+          a_data_dims(1) = 1
         call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
         call h5aopen_name_f(hydro_id,"Start time",attr_id,error)
         call h5aread_f(attr_id, atype_id, temptime, a_data_dims, error)
@@ -193,12 +193,12 @@
       time = temptime
 
       return
-      end
+end
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-      integer function getHDF5TimeInterval() RESULT (out)
+integer function getHDF5TimeInterval() RESULT (out)
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
@@ -225,12 +225,12 @@
 
     
       return
-      end
+end
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-      integer function getHDF5NumberOfTimeIntervals() RESULT (out)
+integer function getHDF5NumberOfTimeIntervals() RESULT (out)
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
@@ -246,7 +246,7 @@
 
 
 	if (.not. (current_tidefile .eq. prev_tidefile)) then
-        a_data_dims(1) = 1
+          a_data_dims(1) = 1
         call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
         call h5aopen_name_f(hydro_id,"Number of intervals",attr_id,error)
         call h5aread_f(attr_id, atype_id, number, a_data_dims, error)
@@ -255,16 +255,16 @@
       out = number
 
       return
-      end
+end
 
 
 
-***********************************************************************
-***********************************************************************
+!***********************************************************************
+!***********************************************************************
 
-	integer function SetHDF5ToTime(tidetime) result(out)
-c----- Purpose: sets the tidefile to the first row that is at or
-c      beyond the input tidetime
+integer function SetHDF5ToTime(tidetime) result(out)
+!----- Purpose: sets the tidefile to the first row that is at or
+!      beyond the input tidetime
 	use hdfvars
 	implicit none
 	integer tidetime,tempndx
@@ -275,7 +275,7 @@ c      beyond the input tidetime
 
 	out=GetCurrentTideTime()
 	return
-	end
+end
 
 
 
