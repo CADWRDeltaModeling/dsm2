@@ -87,9 +87,8 @@ add_custom_command(
     OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp"
     COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
     COMMAND ${MOVE_CMD} op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
-    COMMAND ${MOVE_CMD} op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.tab.h
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
+    COMMENT "Generating op_rule_tab.cpp and op_rule.tab.h using bison" VERBATIM)
 target_link_libraries(OpRuleParser 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}

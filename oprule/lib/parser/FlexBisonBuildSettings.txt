@@ -2,11 +2,11 @@ PARSER
 Input
 %CYGWIN%\bison -l -p op_rule -d  c:\$(InputDir)\op_rule.y  
 copy c:\$(InputDir)\op_rule.tab.c c:\$(InputDir)\op_rule_tab.cpp  
-copy c:\$(InputDir)\op_rule.tab.h c:\$(InputDir)\op_rule_tab.h
+copy c:\$(InputDir)\op_rule.tab.h c:\$(InputDir)\op_rule.tab.h
 
 Output
 c:\$(InputDir)\op_rule_tab.cpp
-c:\$(InputDir)\op_rule_tab.h
+c:\$(InputDir)\op_rule.tab.h
 
 LEXER
 Input
