@@ -279,6 +279,7 @@ set(GTM_MERCURY ${DSM2_SOURCE_DIR}/mercury)
 set(GTM_TOOLS ${DSM2_SOURCE_DIR}/tools)
 set(GTM_TOOLS_DRIVER ${DSM2_SOURCE_DIR}/tools_driver)
 #------------------------- SUB PROJECTS --------------------------------
+add_subdirectory(${GTM_GTM})
 add_subdirectory(${GTM_GTM_CORE})
 add_subdirectory(${GTM_PROCESS_IO})
 add_subdirectory(${GTM_SEDIMENT})
@@ -290,18 +291,19 @@ add_subdirectory(${GTM_TOOLS})
 add_subdirectory(${GTM_TRANSPORT})
 # Add gtm executable
 file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
-add_executable(gtm ${GTM_SOURCES})
-set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
+add_executable(gtm_exe gtm/gtm_driver.f90)
+set_property(TARGET gtm_exe PROPERTY LINKER_LANGUAGE Fortran)
+add_dependencies(gtm_exe gtm_main)
 
 # Add sediment_bed_setup executable
 file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
 add_executable(sed_bed_init ${SEDIMENT_BED_SETUP_SOURCES})
 set_property(TARGET sed_bed_init PROPERTY LINKER_LANGUAGE Fortran)
 #------------------ DEPENDENCIES ---------------------
-target_link_libraries(gtm mercury gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+target_link_libraries(gtm_exe mercury gtm_main gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
 if (WIN32)
-set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
-target_link_libraries(gtm
+set_target_properties(gtm_exe PROPERTIES LINK_FLAGS "/STACK:8000000")
+target_link_libraries(gtm_exe
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -318,10 +320,10 @@ target_link_libraries(gtm
     )
 else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(gtm PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(gtm PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
-target_link_libraries(gtm
+set_target_properties(gtm_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
+target_include_directories(gtm_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(gtm_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_main gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
+target_link_libraries(gtm_exe
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
@@ -331,7 +333,7 @@ target_link_libraries(gtm
     -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     )
-target_link_libraries(gtm -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
+target_link_libraries(gtm_exe -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
 if (WIN32)
    set (CMAKE_Fortran_FLAGS "/extend_source:132")
@@ -370,7 +372,7 @@ endif (hydro_1000)
 
 #-------------- INSTALL ----------------#
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro_exe qual_exe gtm PTM sed_bed_init
+install(TARGETS hydro_exe qual_exe gtm_exe PTM sed_bed_init
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)

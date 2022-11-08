@@ -19,7 +19,7 @@
 !</license>
 !> Main program for General Transport Model
 !>@ingroup gtm_driver
-program gtm
+module dsm2gtm
 
     use gtm_precision
     use error_handling
@@ -142,17 +142,36 @@ program gtm
     integer :: ok
     real(gtm_real), allocatable :: input_time_series(:,:)
     real(gtm_real), allocatable :: constraint(:,:)
-    ! variables for mercury module
 
-    open(unit_error, file="error.log")
-    !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
+contains
 
-    !----- Start of DSM2-GTM Program  -----
+subroutine gtm_prepare1()
+!-----module, name and version
+    dsm2_module = gtm
+    dsm2_name = 'GTM'
+
+    open ( &
+        unit_screen &
+        , carriagecontrol='list' &
+        , buffered='NO' &
+        ) !! <NT>
+    open ( &
+        unit_error &
+        , carriagecontrol='list' &
+        , buffered='NO' &
+        ) !! <NT>
+end subroutine
+
+subroutine gtm_prepare2()
+!-----get optional starting input file from command line and
+!-----simulation name for Database read
+
+!----- Start of DSM2-GTM Program  -----
     call cpu_time(start)
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")
 
-    !----- Read input specification from *.inp text file -----
+!----- Read input specification from *.inp text file -----
     call get_command_args(init_input_file)
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
@@ -167,6 +186,9 @@ program gtm
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)
 
+end subroutine
+
+subroutine gtm_prepare_loop()
     ! assigen the initial concentration to cells and reservoirs
     restart_file_name = trim(gtm_io(1,1)%filename)
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
@@ -325,6 +347,9 @@ program gtm
     LL = zero
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
+end subroutine
+
+subroutine gtm_loop()
     ! start marching throught the time steps for simulation
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         LL = LL + 1
@@ -409,297 +434,301 @@ program gtm
             current_slice = slice_in_block
         end if
 
-        if (sub_time_step) then
-            sub_st = ceil_max_cfl
-            sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
-        else
-            sub_st = 1
-            sub_gtm_time_step = gtm_time_interval
+    if (sub_time_step) then
+        sub_st = ceil_max_cfl
+        sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
+    else
+        sub_st = 1
+        sub_gtm_time_step = gtm_time_interval
+    end if
+
+    do st = 1, sub_st
+        t_index = int(t_in_slice/sub_gtm_time_step) + st
+        new_current_time = current_time + dble(st-1)*sub_gtm_time_step
+
+        !---get time series for boundary conditions, this will update pathinput(:)%value;
+        !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
+        call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
+
+        do i = 1, n_ts_var   !use ts_name(i) to get the variable name
+            input_time_series(i,:) = pathinput(ts(i,:))%value
+        end do
+
+        ! set values to variables needed for sediment bed module
+        if (run_sediment) call set_sediment_bed(input_time_series(code_to_ts_id(ts_var_temp),:), n_cell)
+
+        ! set values to variables needed for mercury module
+        if (run_mercury) then
+            call set_mercury_inputs(input_time_series,                 &   !????????
+                                    n_cell,                            &
+                                    n_ts_var)
+            if (initialize_bed_mercury) then        !added dhh 20171114
+                call hg_init_sediment_bed(n_cell, n_chan, n_resv, init_input_file, int(gtm_start_jmin),  &
+                      int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
+                initialize_bed_mercury = .false.
+            endif
         end if
 
-        do st = 1, sub_st
-            t_index = int(t_in_slice/sub_gtm_time_step) + st
-            new_current_time = current_time + dble(st-1)*sub_gtm_time_step
+        call fill_hydro_info(flow,          &
+                             flow_lo,       &
+                             flow_hi,       &
+                             area,          &
+                             area_lo,       &
+                             area_hi,       &
+                             width,         &
+                             wet_p,         &
+                             depth,         &
+                             n_cell,        &
+                             dble(t_index), &
+                             dx_arr,        &
+                             gtm_time_interval)
 
-            !---get time series for boundary conditions, this will update pathinput(:)%value;
-            !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
-            call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
+        call fill_hydro_network(resv_height,  &
+                                resv_flow,    &
+                                qext_flow,    &
+                                tran_flow,    &
+                                n_resv,       &
+                                n_resv_conn,  &
+                                n_qext,       &
+                                n_tran,       &
+                                dble(t_index))
 
-            do i = 1, n_ts_var   !use ts_name(i) to get the variable name
-                input_time_series(i,:) = pathinput(ts(i,:))%value
-            end do
-
-            ! set values to variables needed for sediment bed module
-            if (run_sediment) call set_sediment_bed(input_time_series(code_to_ts_id(ts_var_temp),:), n_cell)
-
-            ! set values to variables needed for mercury module
-            if (run_mercury) then
-                call set_mercury_inputs(input_time_series,                 &   !????????
-                                        n_cell,                            &
-                                        n_ts_var)
-                if (initialize_bed_mercury) then        !added dhh 20171114
-                    call hg_init_sediment_bed(n_cell, n_chan, n_resv, init_input_file, int(gtm_start_jmin),  &
-                          int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
-                    initialize_bed_mercury = .false.
-                endif
-            end if
-
-            call fill_hydro_info(flow,          &
-                                 flow_lo,       &
-                                 flow_hi,       &
-                                 area,          &
-                                 area_lo,       &
-                                 area_hi,       &
-                                 width,         &
-                                 wet_p,         &
-                                 depth,         &
-                                 n_cell,        &
-                                 dble(t_index), &
-                                 dx_arr,        &
-                                 gtm_time_interval)
-
-            call fill_hydro_network(resv_height,  &
-                                    resv_flow,    &
-                                    qext_flow,    &
-                                    tran_flow,    &
-                                    n_resv,       &
-                                    n_resv_conn,  &
-                                    n_qext,       &
-                                    n_tran,       &
-                                    dble(t_index))
-
-            ! assign initial hydro data
-            if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
-                call prim2cons(mass_prev, conc, area, n_cell, n_var)
-                flow_prev = flow
-                area_prev = area
-                area_lo_prev = area_lo
-                area_hi_prev = area_hi
-                depth_prev = depth
-                wet_p_prev = wet_p
-                width_prev = width
-                prev_resv_height = resv_height
-                prev_resv_flow = resv_flow
-                prev_qext_flow = qext_flow
-                prev_tran_flow = tran_flow
-                budget_prev_flow_lo = flow_lo
-                budget_prev_flow_hi = flow_hi
-            end if
-            cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr
-
-            !------------------ End of Source Terms Implementation -----------------
-
-            if (apply_diffusion_prev) then   ! take dispersion term for advection calculation
-                boundary_diffusion_flux => network_boundary_diffusive_flux_prev
-                call explicit_diffusion_operator(explicit_diffuse_op,          &
-                                                 conc_prev,                    &
-                                                 area_lo_prev,                 &
-                                                 area_hi_prev,                 &
-                                                 disp_coef_lo_prev,            &
-                                                 disp_coef_hi_prev,            &
-                                                 n_cell,                       &
-                                                 n_var,                        &
-                                                 dble(new_current_time)*sixty, &
-                                                 dx_arr,                       &
-                                                 sub_gtm_time_step*sixty)
-            else !omit dispersion term in advection calculation
-                explicit_diffuse_op = zero
-            end if
-
-            !----- advection and source/sink -----
-            call advect(mass,                         &
-                        mass_prev,                    &
-                        flow,                         &
-                        flow_prev,                    &
-                        flow_lo,                      &
-                        flow_hi,                      &
-                        area,                         &
-                        area_prev,                    &
-                        area_lo,                      &
-                        area_hi,                      &
-                        explicit_diffuse_op,          &
-                        n_cell,                       &
-                        n_var,                        &
-                        dble(new_current_time)*sixty, &
-                        sub_gtm_time_step*sixty,      &
-                        dx_arr,                       &
-                        limit_slope,                  &
-                        width,                        &
-                        width_prev,                   &
-                        depth,                        &
-                        depth_prev,                   &
-                        wet_p,                        &
-                        wet_p_prev,                   &
-                        constraint,                   &
-                        constituents(:)%use_module,   &
-                        LL,                           &
-                        sed_percent)
-            if (nonnegative) then
-                where (mass.lt.zero) mass = zero
-            end if
-            call cons2prim(conc, mass, area, n_cell, n_var)
-
-            !--------- Diffusion ----------
-            if (apply_diffusion) then
-                boundary_diffusion_flux => network_boundary_diffusive_flux
-                call dispersion_coef(disp_coef_lo,         &
-                                     disp_coef_hi,         &
-                                     flow,                 &
-                                     flow_lo,              &
-                                     flow_hi,              &
-                                     area,                 &
-                                     area_lo,              &
-                                     area_hi,              &
-                                     gtm_start_jmin,       &
-                                     dx_arr,               &
-                                     sub_gtm_time_step*sixty,    &
-                                     n_cell,               &
-                                     n_var)
-                call diffuse(conc,                         &
-                             conc_prev,                    &
-                             mass,                         &
-                             area,                         &
-                             flow_lo,                      &
-                             flow_hi,                      &
-                             area_lo,                      &
-                             area_hi,                      &
-                             area_lo_prev,                 &
-                             area_hi_prev,                 &
-                             disp_coef_lo,                 &
-                             disp_coef_hi,                 &
-                             disp_coef_lo_prev,            &
-                             disp_coef_hi_prev,            &
-                             n_cell,                       &
-                             n_var,                        &
-                             dble(new_current_time)*sixty, &
-                             theta,                        &
-                             sub_gtm_time_step*sixty,      &
-                             dx_arr)
-                call prim2cons(mass,conc,area,n_cell,n_var)
-            end if
-
-            mass_prev = mass
-            conc_prev = conc
-            conc_resv_prev = conc_resv
+        ! assign initial hydro data
+        if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
+            call prim2cons(mass_prev, conc, area, n_cell, n_var)
             flow_prev = flow
             area_prev = area
             area_lo_prev = area_lo
             area_hi_prev = area_hi
-            width_prev = width
             depth_prev = depth
             wet_p_prev = wet_p
             width_prev = width
-            disp_coef_lo_prev = disp_coef_lo
-            disp_coef_hi_prev = disp_coef_hi
             prev_resv_height = resv_height
             prev_resv_flow = resv_flow
             prev_qext_flow = qext_flow
             prev_tran_flow = tran_flow
-            prev_node_conc = node_conc
-            prev_conc_stip = conc_stip
-            node_conc = LARGEREAL
-        end do ! end of loop of sub time step
-        ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
-        if (run_pdaf) then       
-            if (current_time .eq. gtm_start_jmin) then         
-                conc = init_c
-                conc_prev = init_c
-                budget_prev_conc = init_c       
-                conc_resv = init_r 
-                conc_resv_prev = init_r 
-                !prev_conc_stip = zero
-                call prim2cons(mass_prev, conc, area, n_cell, n_var)
-            end if
+            budget_prev_flow_lo = flow_lo
+            budget_prev_flow_hi = flow_hi
+        end if
+        cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr
+
+        !------------------ End of Source Terms Implementation -----------------
+
+        if (apply_diffusion_prev) then   ! take dispersion term for advection calculation
+            boundary_diffusion_flux => network_boundary_diffusive_flux_prev
+            call explicit_diffusion_operator(explicit_diffuse_op,          &
+                                             conc_prev,                    &
+                                             area_lo_prev,                 &
+                                             area_hi_prev,                 &
+                                             disp_coef_lo_prev,            &
+                                             disp_coef_hi_prev,            &
+                                             n_cell,                       &
+                                             n_var,                        &
+                                             dble(new_current_time)*sixty, &
+                                             dx_arr,                       &
+                                             sub_gtm_time_step*sixty)
+        else !omit dispersion term in advection calculation
+            explicit_diffuse_op = zero
         end if
 
-        ! add all sediment to ssc
-        if (ssc_index .ne. 0) then
-            do i = 1, n_cell
-                conc(i,ssc_index) = zero
-                do ivar = n_var-n_sediment+1,n_var
-                    conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
-                end do
-            end do
-            do i = 1, n_resv
-                conc_resv(i,ssc_index) = zero
-                do ivar = n_var-n_sediment+1,n_var
-                    conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
-                end do
-            end do
+        !----- advection and source/sink -----
+        call advect(mass,                         &
+                    mass_prev,                    &
+                    flow,                         &
+                    flow_prev,                    &
+                    flow_lo,                      &
+                    flow_hi,                      &
+                    area,                         &
+                    area_prev,                    &
+                    area_lo,                      &
+                    area_hi,                      &
+                    explicit_diffuse_op,          &
+                    n_cell,                       &
+                    n_var,                        &
+                    dble(new_current_time)*sixty, &
+                    sub_gtm_time_step*sixty,      &
+                    dx_arr,                       &
+                    limit_slope,                  &
+                    width,                        &
+                    width_prev,                   &
+                    depth,                        &
+                    depth_prev,                   &
+                    wet_p,                        &
+                    wet_p_prev,                   &
+                    constraint,                   &
+                    constituents(:)%use_module,   &
+                    LL,                           &
+                    sed_percent)
+        if (nonnegative) then
+            where (mass.lt.zero) mass = zero
+        end if
+        call cons2prim(conc, mass, area, n_cell, n_var)
+
+        !--------- Diffusion ----------
+        if (apply_diffusion) then
+            boundary_diffusion_flux => network_boundary_diffusive_flux
+            call dispersion_coef(disp_coef_lo,         &
+                                 disp_coef_hi,         &
+                                 flow,                 &
+                                 flow_lo,              &
+                                 flow_hi,              &
+                                 area,                 &
+                                 area_lo,              &
+                                 area_hi,              &
+                                 gtm_start_jmin,       &
+                                 dx_arr,               &
+                                 sub_gtm_time_step*sixty,    &
+                                 n_cell,               &
+                                 n_var)
+            call diffuse(conc,                         &
+                         conc_prev,                    &
+                         mass,                         &
+                         area,                         &
+                         flow_lo,                      &
+                         flow_hi,                      &
+                         area_lo,                      &
+                         area_hi,                      &
+                         area_lo_prev,                 &
+                         area_hi_prev,                 &
+                         disp_coef_lo,                 &
+                         disp_coef_hi,                 &
+                         disp_coef_lo_prev,            &
+                         disp_coef_hi_prev,            &
+                         n_cell,                       &
+                         n_var,                        &
+                         dble(new_current_time)*sixty, &
+                         theta,                        &
+                         sub_gtm_time_step*sixty,      &
+                         dx_arr)
+            call prim2cons(mass,conc,area,n_cell,n_var)
         end if
 
-        !---- print output to DSS file -----
-        call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
-        if (int(current_time) .ge. next_output_flush .or. current_time .eq. gtm_end_jmin) then
-            call incr_intvl(next_output_flush, next_output_flush, flush_intvl, TO_BOUNDARY)
-            call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
-        else
-            call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
-        endif
+        mass_prev = mass
+        conc_prev = conc
+        conc_resv_prev = conc_resv
+        flow_prev = flow
+        area_prev = area
+        area_lo_prev = area_lo
+        area_hi_prev = area_hi
+        width_prev = width
+        depth_prev = depth
+        wet_p_prev = wet_p
+        width_prev = width
+        disp_coef_lo_prev = disp_coef_lo
+        disp_coef_hi_prev = disp_coef_hi
+        prev_resv_height = resv_height
+        prev_resv_flow = resv_flow
+        prev_qext_flow = qext_flow
+        prev_tran_flow = tran_flow
+        prev_node_conc = node_conc
+        prev_conc_stip = conc_stip
+        node_conc = LARGEREAL
+    end do ! end of loop of sub time step
+    ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
+    if (run_pdaf) then       
+        if (current_time .eq. gtm_start_jmin) then         
+            conc = init_c
+            conc_prev = init_c
+            budget_prev_conc = init_c       
+            conc_resv = init_r 
+            conc_resv_prev = init_r 
+            !prev_conc_stip = zero
+            call prim2cons(mass_prev, conc, area, n_cell, n_var)
+        end if
+    end if
 
-        !----- print output to hdf5 file -----
-        !
-        if (use_gtm_hdf) then
-            if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
-                time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-                if (hdf_out .eq. 'channel') then
-                    call write_gtm_chan_hdf(gtm_hdf,               &
-                                            flow_lo,               &
-                                            flow_hi,               &
-                                            conc,                  &
-                                            n_chan,                &
-                                            n_cell,                &
-                                            n_var,                 &
-                                            gtm_hdf_time_intvl,    &
-                                            budget_prev_flow_lo,   &
-                                            budget_prev_flow_hi,   &
-                                            budget_prev_conc,      &
-                                            time_index_in_gtm_hdf, &
-                                            calc_budget)
-                    budget_prev_flow_lo = flow_lo
-                    budget_prev_flow_hi = flow_hi
-                    budget_prev_conc = conc
-                    if (use_sediment_bed) then   !<added:dhh
-                        call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
-                        if (run_mercury) then
-							call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,dx_arr, width, constituents(:)%use_module)
-						end if
+    ! add all sediment to ssc
+    if (ssc_index .ne. 0) then
+        do i = 1, n_cell
+            conc(i,ssc_index) = zero
+            do ivar = n_var-n_sediment+1,n_var
+                conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
+            end do
+        end do
+        do i = 1, n_resv
+            conc_resv(i,ssc_index) = zero
+            do ivar = n_var-n_sediment+1,n_var
+                conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
+            end do
+        end do
+    end if
+
+    !---- print output to DSS file -----
+    call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
+    if (int(current_time) .ge. next_output_flush .or. current_time .eq. gtm_end_jmin) then
+        call incr_intvl(next_output_flush, next_output_flush, flush_intvl, TO_BOUNDARY)
+        call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
+    else
+        call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
+    endif
+
+    !----- print output to hdf5 file -----
+    !
+    if (use_gtm_hdf) then
+        if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
+            time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
+            if (hdf_out .eq. 'channel') then
+                call write_gtm_chan_hdf(gtm_hdf,               &
+                                        flow_lo,               &
+                                        flow_hi,               &
+                                        conc,                  &
+                                        n_chan,                &
+                                        n_cell,                &
+                                        n_var,                 &
+                                        gtm_hdf_time_intvl,    &
+                                        budget_prev_flow_lo,   &
+                                        budget_prev_flow_hi,   &
+                                        budget_prev_conc,      &
+                                        time_index_in_gtm_hdf, &
+                                        calc_budget)
+                budget_prev_flow_lo = flow_lo
+                budget_prev_flow_hi = flow_hi
+                budget_prev_conc = conc
+                if (use_sediment_bed) then   !<added:dhh
+                    call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
+                    if (run_mercury) then
+                        call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,dx_arr, width, constituents(:)%use_module)
                     end if
-                else
-                    call write_gtm_hdf(gtm_hdf,                    &
-                                       conc,                       &
-                                       n_cell,                     &
-                                       n_var,                      &
-                                       time_index_in_gtm_hdf)
-                    !write(501,'(a15,<n_cell>(a1,f8.3))') cdt(1:9),((',',conc(i,1)),i=1,n_cell)
                 end if
-                if (n_resv .gt. 0) then
-                    call write_gtm_hdf_resv(gtm_hdf,               &
-                                            conc_resv,             &
-                                            n_resv,                &
-                                            n_var,                 &
-                                            time_index_in_gtm_hdf)
-                end if
-                if (debug_print==.true.) then
-                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,    &
-                                          flow,                    &
-                                          n_cell,                  &
-                                          time_index_in_gtm_hdf)
-                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id,    &
-                                          area ,                   &
-                                          n_cell,                  &
-                                          time_index_in_gtm_hdf)
-                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
-                                          cfl,                     &
-                                          n_cell,                  &
-                                          time_index_in_gtm_hdf)
-                end if
+            else
+                call write_gtm_hdf(gtm_hdf,                    &
+                                   conc,                       &
+                                   n_cell,                     &
+                                   n_var,                      &
+                                   time_index_in_gtm_hdf)
+                !write(501,'(a15,<n_cell>(a1,f8.3))') cdt(1:9),((',',conc(i,1)),i=1,n_cell)
+            end if
+            if (n_resv .gt. 0) then
+                call write_gtm_hdf_resv(gtm_hdf,               &
+                                        conc_resv,             &
+                                        n_resv,                &
+                                        n_var,                 &
+                                        time_index_in_gtm_hdf)
+            end if
+            if (debug_print==.true.) then
+                call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,    &
+                                      flow,                    &
+                                      n_cell,                  &
+                                      time_index_in_gtm_hdf)
+                call write_gtm_hdf_ts(gtm_hdf%cell_area_id,    &
+                                      area ,                   &
+                                      n_cell,                  &
+                                      time_index_in_gtm_hdf)
+                call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
+                                      cfl,                     &
+                                      n_cell,                  &
+                                      time_index_in_gtm_hdf)
             end if
         end if
+    end if
 
-        prev_julmin = int(current_time)
+    prev_julmin = int(current_time)
 
-    end do  ! end of loop for gtm time step
+end do  ! end of loop for gtm time step
+
+end subroutine
+
+subroutine gtm_wrapup()
 
     ! modify print_last_stage to write hotstart output file.
     restart_outfn = trim(gtm_io(1,2)%filename)
@@ -755,4 +784,9 @@ program gtm
     call cpu_time(finish)
     write(*,*) "Total CPU Time = ",finish - start," seconds."
     call exit(0)
-end program
+end subroutine gtm_wrapup
+
+
+subroutine gtm_main()
+end subroutine gtm_main
+end module dsm2gtm
