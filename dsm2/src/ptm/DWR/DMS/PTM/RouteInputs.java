@@ -232,6 +232,22 @@ public class RouteInputs {
 								.concat("Entrainment Probability"));
 						srWriter.newLine();
 					}
+					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonHORrouteBehavior")){
+						srWriter.write("Head of Old River Junction");
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("From").concat(",").concat("SJR Up Routing Probability").concat(",")
+								.concat("SJR Down Routing Probability").concat(",")
+								.concat("Old River routing Probability"));
+						srWriter.newLine();
+					}
+					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonTCrouteBehavior")){
+						srWriter.write("Turner Cut Junction");
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("From").concat(",").concat("SJR Up Routing Probability").concat(",")
+								.concat("SJR Down Routing Probability").concat(",")
+								.concat("Turner Cut routing Probability"));
+						srWriter.newLine();
+					}
 					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
 						String s = Integer.toString(PTMHydroInput.getExtFromIntNode(ndId));
 						for(Object item: elm)

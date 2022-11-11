@@ -176,8 +176,7 @@ public class TransProbs {
 			datetime = fields[1];
 			transition = fields[2];
 			transProbKey = junction + "_" + datetime + "_" + transition;
-			transProb = Double.parseDouble(fields[3]);
-							
+			transProb = Double.parseDouble(fields[3]); 			
 			transProbs.put(transProbKey, transProb);
 		}
 		

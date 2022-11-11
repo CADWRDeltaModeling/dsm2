@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -93,7 +94,9 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		default:
 			PTMUtil.systemExit("Unrecognized ChannelGroup. Exiting.");
 		}
-
+		RouteInputs rIn = getRouteInputs();
+		rIn.putEntrainmentRate(nodeId, 
+				new ArrayList<Object>(Arrays.asList(p.Id, fromChannelGroup, transProbToU, transProbToD, transProbToT)));
 		selectChannel(p, nodeId, upstreamChannel, downstreamChannel, distribChannel, 
 				transProbToU, transProbToD, transProbToT);
 	}
