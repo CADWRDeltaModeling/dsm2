@@ -17,4 +17,4 @@ target_sources(
           gtm_subs.f90
           gtm.f90
           state_variables_network.f90)
-add_dependencies(gtm_main gtm_core)
+add_dependencies(gtm_main gtm_core process_io mercury)

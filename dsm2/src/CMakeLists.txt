@@ -300,7 +300,7 @@ file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
 add_executable(sed_bed_init ${SEDIMENT_BED_SETUP_SOURCES})
 set_property(TARGET sed_bed_init PROPERTY LINKER_LANGUAGE Fortran)
 #------------------ DEPENDENCIES ---------------------
-target_link_libraries(gtm_exe mercury gtm_main gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+target_link_libraries(gtm_exe gtm_main mercury gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
 if (WIN32)
 set_target_properties(gtm_exe PROPERTIES LINK_FLAGS "/STACK:8000000")
 target_link_libraries(gtm_exe
