@@ -1,4 +1,4 @@
-# Pre-processor for generating South Delta transition probabilities for the ECO-PTM using the USGS routing model.
+# Preprocessor for generating South Delta transition probabilities for the ECO-PTM using the USGS routing model.
 # Doug Jackson
 # doug@QEDAconsulting.com
 library(rhdf5)
@@ -16,22 +16,26 @@ workingDir <- "/Users/djackson/Documents/QEDA/DWR/programs/routingPreprocessor"
 
 outputDir <- file.path(workingDir, "output")
 tideFile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_output_15apr22/routing_model_dsm2_15apr22_orig.h5"
-stationLocFile <- file.path(workingDir, "stationLoc.csv")
 
 sampleTime_min <- 15
 
 TClag_min <- 90
 
+stationLocFile <- file.path(workingDir, "stationLoc.csv")
+fitHORfile <- file.path(workingDir, "fitHOR.rds")
+fitTCfile <- file.path(workingDir, "fitTC.rds")
 flowScalingFile <- file.path(workingDir, "flowScaling.csv")
-coefsFile <- file.path(workingDir, "coefs.csv")
-covMeansFile <- file.path(workingDir, "covMeans.csv")
 barrierOpFile <- file.path(workingDir, "barrierOp.csv")
+flowBoundsFile <- file.path(workingDir, "flowBounds.csv")
 
 HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
+# Flag to indicate whether the 2011 statistical model should be used
+use2011 <- FALSE
+
 # Range of dates to calculate transition probabilities
-transProbsStartDate <- "01jan2011"
+transProbsStartDate <- "01dec2017" #"03jan1999"
 transProbsEndDate <- "31dec2017"
 
 plotHORstartDate <- "18may2013"
@@ -42,6 +46,9 @@ plotTCstartDate <- "20apr2016"
 plotTCstartTime <- "00:00"
 plotTCendDate <- "23apr2016"
 plotTCendTime <- "00:00"
+
+# Number used to indicate missing value
+missingVal <- -999
 
 # Number of CPU cores to use
 numCores <- 8
@@ -109,7 +116,6 @@ day_light <- function(date_time, loc = "old_river"){
     return(out)
 }
 
-# Barrier state from Mike Dodrill
 defineBarrier <- function() {
     # Head of Old River barrier info:
     # Exported from DSS gate input file:
@@ -144,70 +150,38 @@ string_to_difftime = function(s) {
     as.difftime(value, units = increment)
 }
 
-# Calculate the 15-minute transition probabilities at Head of Old River
-# Based on /Users/djackson/Documents/QEDA/DWR/fromXiao/routingSouthDelta_27jan22/Guide_HOR.html
-calcProbsHOR <- function(yes2011, barrierOpen, daytime,
+# Calculate the 15-minute transition probabilities at Head of Old River using fitted msm model
+calcProbsHOR <- function(yes2011, barrierState, daytime,
                          scaled_net_flow_D, scaled_tidal_D, 
                          scaled_net_flow_T, scaled_tidal_T,
-                         logest, log_slopes, covMeans) {
+                         OOR) {
     
-    cov_vec = c(yes_11 = yes2011 - covMeans["yes_11", "covMean"],
-                barrier_2Open = barrierOpen - covMeans["barrier_2Open", "covMean"],
-                s_g_cfs_3_new = scaled_net_flow_T - covMeans["s_g_cfs_3", "covMean"],
-                s_t_cfs_3_new = scaled_tidal_T - covMeans["s_t_cfs_3", "covMean"],
-                day2_day = daytime - covMeans["day2_day", "covMean"],
-                s_g_cfs_2_new = scaled_net_flow_D - covMeans["s_g_cfs_2", "covMean"],
-                s_t_cfs_2_new = scaled_tidal_D - covMeans["s_t_cfs_2", "covMean"])
-
-    for(i in 1:length(log_slopes)){
-        logest <- logest + log_slopes[[i]] * cov_vec[i]
+    if(OOR) {
+        p <- matrix(data=missingVal, nrow=3, ncol=3)
+    } else {
+        cov_list = list(barrier_2=barrierState, yes_11=yes2011, day=daytime,
+                        s_g_cfs_2=scaled_net_flow_D, s_g_cfs_3=scaled_net_flow_T,
+                        s_t_cfs_2=scaled_tidal_D, s_t_cfs_3=scaled_tidal_T)
+        p = pmatrix.msm(fitHOR, t=1, ci="none", covariates=cov_list)    
     }
-    
-    mat <- exp(logest)
-    diag(mat) <- 0
-    diag(mat) <- -rowSums(mat)
-    
-    p <- MatrixExp(as.matrix(mat), 1)
-    
+
     return(p)
 }
 
-# Calculate the 15-minute transition probabilities in Turner Cut
-# Based on /Users/djackson/Documents/QEDA/DWR/fromXiao/routingSouthDelta_27jan22/Guide_TC.html
+# Calculate the 15-minute transition probabilities in Turner Cut using fitted msm model
 calcProbsTC <- function(scaled_net_flow_U, scaled_tidal_U,
                         scaled_net_flow_D, scaled_tidal_D, 
                         scaled_net_flow_T, scaled_tidal_T,
-                        logest, log_slopes, covMeans) {
-  
-    # Subtract covariate means to be consistent with pmatrix.msm
-    cov_vec <- c(s_g_l_cfs_3_new = scaled_net_flow_T - covMeans["s_g_l_cfs_3", "covMean"],
-                 s_t_l_cfs_3_new = scaled_tidal_T - covMeans["s_t_l_cfs_3", "covMean"],
-                 s_g_l_cfs_2_new = scaled_net_flow_D - covMeans["s_g_l_cfs_2", "covMean"],
-                 s_t_l_cfs_2_new = scaled_tidal_D - covMeans["s_t_l_cfs_2", "covMean"],
-                 s_g_l_cfs_1_new = scaled_net_flow_U - covMeans["s_g_l_cfs_1", "covMean"],
-                 s_t_l_cfs_1_new = scaled_tidal_U - covMeans["s_t_l_cfs_1", "covMean"])
-
-    for(i in 1:length(log_slopes)){
-        logest <- logest + log_slopes[[i]] * cov_vec[i]
+                        OOR) {
+    
+    if(OOR) {
+        p <- matrix(data=missingVal, nrow=3, ncol=3)
+    } else {
+        cov_list <- list(s_g_l_cfs_1=scaled_net_flow_U, s_g_l_cfs_2=scaled_net_flow_D, s_g_l_cfs_3=scaled_net_flow_T,
+                         s_t_l_cfs_1=scaled_tidal_U, s_t_l_cfs_2=scaled_tidal_D, s_t_l_cfs_3=scaled_tidal_T)
+        p = pmatrix.msm(fitTC, t=1, ci="none", covariates=cov_list)
     }
-
-    mat <- exp(logest)
-    diag(mat) <- 0
-    diag(mat) <- -rowSums(mat)
-
-    p <- MatrixExp(as.matrix(mat), 1)
-
     return(p)
-}
-
-# Rename coefs data frame to use State 1, State 2, State 3 convention
-renameCoefsDF <- function(coefsDF) {
-    row.names(coefsDF) <- coefsDF$fromState
-    coefsDF <- coefsDF[c("fromU", "fromD", "fromT"), ]
-    row.names(coefsDF) <- c("State 1", "State 2", "State 3")
-    coefsDF <- coefsDF[, c("toU", "toD", "toT")]
-    names(coefsDF) <- c("State 1", "State 2", "State 3")
-    return(coefsDF)
 }
 ####################################################################################################
 # Run
@@ -324,14 +298,41 @@ stationFlow <- left_join(stationFlow, flowScaling, by="stationName")
 stationFlow <- stationFlow %>% mutate(netFlowScaled=(netFlow-netMean)/netStd,
                                       tidalFlowScaled=(tidalFlow-tidalMean)/tidalStd)
 
+# Define barrier status
+barrier <- defineBarrier()
+stationFlow$barrier <- ifelse(date(stationFlow$datetime) %in% barrier$date & 
+                                  stationFlow$stationName %in% HORstationNames, "Closed", "Open")
+
+# Identify flow conditions that are outside of the ranges used to fit the model
+flowBounds <- read.csv(flowBoundsFile)
+flowBounds$stationName <- paste0(flowBounds$location, "_", flowBounds$state)
+flowBounds <- flowBounds[, c("stationName", "measure", "barrier", "min", "max")]
+flowBounds <- flowBounds %>% pivot_wider(id_cols=c("stationName", "barrier"), names_from=measure, values_from=c("min", "max"))
+
+# Mark flows that are out of bounds in a single channel
+stationFlow <- left_join(stationFlow, flowBounds, by=c("stationName", "barrier"))
+stationFlow <- stationFlow %>% mutate(OOR=netFlow<min_Net | netFlow>max_Net | tidalFlow<min_Tidal | tidalFlow>max_Tidal)
+
+# Identify datetimes with flows out of bounds in any channel
+HORoOR <- stationFlow %>% filter(stationName %in% HORstationNames) %>% select(datetime, stationName, OOR) %>% 
+    pivot_wider(id_cols=datetime, names_from=stationName, values_from=OOR) %>% 
+    mutate(OOR=HOR_U | HOR_D | HOR_T) %>% select(datetime, OOR)
+TCoOR <- stationFlow %>% filter(stationName %in% TCstationNames) %>% select(datetime, stationName, OOR) %>% 
+    pivot_wider(id_cols=datetime, names_from=stationName, values_from=OOR) %>% 
+    mutate(OOR=TC_U | TC_D | TC_T) %>% select(datetime, OOR)
+
 cat("Saving flow data to", file.path(outputDir, "stationFlow.csv"), "\n")
 write.csv(stationFlow, file.path(outputDir, "stationFlow.csv"), row.names=F)
+
+# Drop columns used to calculate OOR from stationFlow
+stationFlow <- stationFlow %>% select(datetime:barrier)
 
 # Plot HOR
 cat("Saving HOR flow plot to", file.path(outputDir, "plotHORflow.png"), "\n")
 plotHORflow <- stationFlow %>% filter(datetime>=plotHORstartDatetime, datetime<=plotHORendDatetime, stationName %in% HORstationNames)
 p <- ggplot(plotHORflow) + geom_line(aes(x=datetime, y=netFlow, color=stationName), linetype="dashed") + 
     geom_line(aes(x=datetime, y=tidalFlow, color=stationName)) + 
+    ylab("flow") +
     ylim(-2000, 2100) + labs(title="Head of Old River") + theme_light()
 ggsave(file.path(outputDir, "plotHORflow.png"), width=figWidth, height=figHeight, dpi=figDPI)
 
@@ -340,17 +341,13 @@ cat("Saving Turner Cut flow plot to", file.path(outputDir, "plotTCflow.png"), "\
 plotTCflow <- stationFlow %>% filter(datetime>=plotTCstartDatetime, datetime<=plotTCendDatetime, stationName %in% TCstationNames)
 p <- ggplot(plotTCflow) + geom_line(aes(x=datetime, y=netFlow, color=stationName), linetype="dashed") + 
     geom_line(aes(x=datetime, y=tidalFlow, color=stationName)) +
+    ylab("flow") +
     labs(title="Turner Cut") + theme_light()
 ggsave(file.path(outputDir, "plotTCflow.png"), width=figWidth, height=figHeight, dpi=figDPI)
 
-# Load model coefficients
-coefs <- read.csv(coefsFile)
-
-# Load covariate means
-covMeans <- read.csv(covMeansFile)
-
-# Define barrier status
-barrier <- defineBarrier()
+# Load fitted models
+fitHOR <- readRDS(fitHORfile)
+fitTC <- readRDS(fitTCfile)
 
 # Create a logfile to monitor progress
 logFile <- file.path(workingDir, "routingPreprocessor.log")
@@ -358,55 +355,36 @@ cat("Calculating transition probabilities. Track progress in logfile:", logFile,
 cat("routingPreprocessor.R logfile\n", file=logFile)
 ######################################################
 # Calculate Head of Old River transition probabilities
-coefsHOR <- coefs %>% filter(junction=="HOR")
-parameters <- unique(coefsHOR$parameter)
-parameters <- parameters[parameters!="logBaseline"]
-covMeansHOR <- covMeans %>% filter(junction=="HOR")
-rownames(covMeansHOR) <- covMeansHOR$parameter
-
-logestHOR <- coefsHOR %>% filter(parameter=="logBaseline") %>% select(fromState, toU, toD, toT)
-logestHOR <- renameCoefsDF(logestHOR)
-
-log_slopesHOR <- list()
-for (thisParameter in parameters) {
-    thisCoefs <- coefsHOR %>% filter(parameter==thisParameter) %>% select(fromState, toU, toD, toT)
-    log_slopesHOR[[thisParameter]] <- renameCoefsDF(thisCoefs)
-}
 
 # Create flows data frame for calculating transition probabilities
 modelHORflow <- stationFlow %>% filter(datetime>transProbsStartDatetime, datetime<transProbsEndDatetime, stationName %in% HORstationNames) %>% 
-    select(datetime, stationName, netFlowScaled, tidalFlowScaled) %>% 
-    pivot_wider(id_cols=datetime, names_from=stationName, values_from=netFlowScaled:tidalFlowScaled)
+    select(datetime, stationName, netFlowScaled, tidalFlowScaled, barrier) %>% 
+    pivot_wider(id_cols=datetime, names_from=stationName, values_from=netFlowScaled:barrier)
+modelHORflow <- modelHORflow %>% mutate(barrier=barrier_HOR_U) %>% select(datetime, starts_with("netFlow"), starts_with("tidalFlow"), barrier)
+modelHORflow <- left_join(modelHORflow, HORoOR, by="datetime")
 
 for (transition in c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")) {
     modelHORflow[, transition] <- NA
 }
 modelHORflow <- as.data.frame(modelHORflow)
 
-# Calculate transition probabilities
+# Calculate transition probabilities using msm
 r <- foreach(i=1:nrow(modelHORflow), .combine=rbind, .packages=c("lubridate", "imputeTS", "slider", "msm")) %dopar% {
 
     if(i%%1000 == 0) {
         cat("HOR: calculating transition probabilities for row", i, "of", nrow(modelHORflow), "\n",
             file=logFile, append=T)
     }
-    
-    thisYear <- year(modelHORflow[i, "datetime"])
-    thisYear2011 <- ifelse(thisYear==2011, 1, 0)
-    
-    # In Mike Dodrill's original model, barrier_2Open was a factor with closed=1 and open=2. msm.parse.covariates converts this
-    # to a 0 and 1, respectively (see 23may22 Evernote)
-    thisBarrierOpen <- ifelse(date(modelHORflow$datetime[i]) %in% barrier$date, 0, 1)
 
-    # In Mike Dodrill's original model, day2_day was a factor with night=1 and day=2. msm.parse.covariates converts this 
-    # to a 0 and 1, respectively (see 23may22 Evernote)
-    thisDaytime <- ifelse(day_light(modelHORflow$datetime[i])=="day", 1, 0)
-    
-    thisProbs <- calcProbsHOR(thisYear2011, thisBarrierOpen, thisDaytime,
+    thisYear <- year(modelHORflow[i, "datetime"])
+    thisYear2011 <- ifelse(thisYear==2011 & use2011, 1, 0)
+    thisDaytime <- ifelse(day_light(modelHORflow$datetime[i])=="day", "2_day", "1_night")
+
+    thisProbs <- calcProbsHOR(thisYear2011, modelHORflow[i, "barrier"], thisDaytime,
                               modelHORflow[i, "netFlowScaled_HOR_D"], modelHORflow[i, "tidalFlowScaled_HOR_D"],
                               modelHORflow[i, "netFlowScaled_HOR_T"], modelHORflow[i, "tidalFlowScaled_HOR_T"],
-                              logestHOR, log_slopesHOR, covMeansHOR)
-    
+                              modelHORflow[i, "OOR"])
+
     modelHORflow$qUD[i] <- thisProbs[1, 2]
     modelHORflow$qUT[i] <- thisProbs[1, 3]
     modelHORflow$qDU[i] <- thisProbs[2, 1]
@@ -415,48 +393,36 @@ r <- foreach(i=1:nrow(modelHORflow), .combine=rbind, .packages=c("lubridate", "i
     modelHORflow$qTD[i] <- thisProbs[3, 2]
     modelHORflow[i, ]
 }
+cat("Assembling transition probabilities.\n", file=logFile, append=T)
 rownames(r) <- c()
 modelHORflow <- r
 ######################################################
 # Calculate Turner Cut transition probabilities
-coefsTC <- coefs %>% filter(junction=="TC")
-parameters <- unique(coefsTC$parameter)
-parameters <- parameters[parameters!="logBaseline"]
-covMeansTC <- covMeans %>% filter(junction=="TC")
-rownames(covMeansTC) <- covMeansTC$parameter
-
-logestTC <- coefsTC %>% filter(parameter=="logBaseline") %>% select(fromState, toU, toD, toT)
-logestTC <- renameCoefsDF(logestTC)
-
-log_slopesTC <- list()
-for (thisParameter in parameters) {
-    thisCoefs <- coefsTC %>% filter(parameter==thisParameter) %>% select(fromState, toU, toD, toT)
-    log_slopesTC[[thisParameter]] <- renameCoefsDF(thisCoefs)
-}
 
 # Create flows data frame for calculating transition probabilities
 modelTCflow <- stationFlow %>% filter(datetime>transProbsStartDatetime, datetime<transProbsEndDatetime, stationName %in% TCstationNames) %>% 
     select(datetime, stationName, netFlowScaled, tidalFlowScaled) %>% 
     pivot_wider(id_cols=datetime, names_from=stationName, values_from=netFlowScaled:tidalFlowScaled)
+modelTCflow <- left_join(modelTCflow, TCoOR, by="datetime")
 
 for (transition in c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")) {
     modelTCflow[, transition] <- NA
 }
 modelTCflow <- as.data.frame(modelTCflow)
 
-# Calculate transition probabilities
+# Calculate transition probabilities using msm
 r <- foreach(i=1:nrow(modelTCflow), .combine=rbind, .packages=c("lubridate", "imputeTS", "slider", "msm")) %dopar% {
 
     if(i%%1000 == 0) {
-        cat("TC: calculating transition probabilities for row", i, "of", nrow(modelHORflow), "\n",
+        cat("TC: calculating transition probabilities for row", i, "of", nrow(modelTCflow), "\n",
             file=logFile, append=T)
     }
     
     thisProbs <- calcProbsTC(modelTCflow[i, "netFlowScaled_TC_U"], modelTCflow[i, "tidalFlowScaled_TC_U"],
                              modelTCflow[i, "netFlowScaled_TC_D"], modelTCflow[i, "tidalFlowScaled_TC_D"],
                              modelTCflow[i, "netFlowScaled_TC_T"], modelTCflow[i, "tidalFlowScaled_TC_T"],
-                             logestTC, log_slopesTC, covMeansTC)
-    
+                             modelTCflow[i, "OOR"])
+
     modelTCflow$qUD[i] <- thisProbs[1, 2]
     modelTCflow$qUT[i] <- thisProbs[1, 3]
     modelTCflow$qDU[i] <- thisProbs[2, 1]
@@ -465,15 +431,27 @@ r <- foreach(i=1:nrow(modelTCflow), .combine=rbind, .packages=c("lubridate", "im
     modelTCflow$qTD[i] <- thisProbs[3, 2]
     modelTCflow[i, ]
 }
+cat("Assembling transition probabilities.\n", file=logFile, append=T)
 rownames(r) <- c()
 modelTCflow <- r
+
+# Save modelHORflow and modelTCflow for external analysis
+cat("temporary: save modelHORflow and modelTCflow.\n")
+write.csv(modelHORflow, file=file.path(outputDir, "modelHORflow.csv"), row.names=F)
+write.csv(modelTCflow, file=file.path(outputDir, "modelTCflow.csv"), row.names=F)
+
 ######################################################
 # Combine HOR and TC transition probabilities and write to an output file
 transProbsHOR <- modelHORflow %>% select(datetime, qUD, qUT, qDU, qDT, qTU, qTD) %>% mutate(junction="HOR")
 transProbsTC <- modelTCflow %>% select(datetime, qUD, qUT, qDU, qDT, qTU, qTD) %>% mutate(junction="TC")
 transProbs <- bind_rows(transProbsHOR, transProbsTC)
 
+# Ensure that the HOR and TC transProbs cover the same date ranges
+minDatetime <- max(min(transProbsHOR$datetime), min(transProbsTC$datetime))
+maxDatetime <- min(max(transProbsHOR$datetime), max(transProbsTC$datetime))
+transProbs <- transProbs %>% filter(datetime>=minDatetime, datetime<=maxDatetime)
+
 cat("Saving transition probabilities to", file.path(outputDir, "transProbs.csv"), "\n")
-transProbs <- transProbs %>% pivot_longer(cols=qUD:qTD, names_to="transition", values_to="transProb") %>% 
+transProbs <- transProbs %>% pivot_longer(cols=qUD:qTD, names_to="transition", values_to="transProb") %>%
     select(junction, datetime, transition, transProb) %>% arrange(datetime, junction, transition)
 write.csv(transProbs, file=file.path(outputDir, "transProbs.csv"), row.names=F, quote=F)

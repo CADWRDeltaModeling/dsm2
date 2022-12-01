@@ -2,13 +2,11 @@
  * 
  */
 package DWR.DMS.PTM;
-import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 /**
  * @author Doug Jackson, QEDA Consulting, LLC
@@ -17,9 +15,12 @@ import java.util.List;
 public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBehavior {
 	private int _nodeId;
 	private RouteInputs _rIn = null;
+	protected double transProbToU, transProbToD, transProbToT, distUD_ft, distUT_ft, distDT_ft;
+	protected String decisionType;
 	final String[] transitions = new String[]{"qUD", "qDU", "qDU", "qDT", "qTU", "qTD"};
 
-	final static float GATECLOSEDFLOW = Float.MIN_VALUE;	
+	final static float GATECLOSEDFLOW = Float.MIN_VALUE;
+	final static int MISSINGVALUE = -999;	
 
 	protected ChannelGroup fromChannelGroup, toChannelGroup;
 	public enum ChannelGroup {
@@ -86,19 +87,16 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	/**
 	 * Select channel based on transition probabilities
 	 * @param p							particle
-	 * @param nodeId		
+	 * @param nodeId					node
 	 * @param upstreamChannel			upstream Channel
 	 * @param downstreamChannel			downstream Channel
 	 * @param distribChannel			distributary Channel
-	 * @param transProbToU				probability of transitioning to upstream channel
-	 * @param transProbToD				probability of transitioning to downstream channel
-	 * @param transProbToT				probability of transitioning to distributary channel
 	 */
 	void selectChannel(Particle p, int nodeId, 
-			Channel upstreamChannel, Channel downstreamChannel, Channel distribChannel,
-			double transProbToU, double transProbToD, double transProbToT) {
+			Channel upstreamChannel, Channel downstreamChannel, Channel distribChannel) {
 		
 		double rand, adjTransProbToU, adjTransProbToD, adjTransProbToT;
+		double[] flowSplitTransProbs;
 		Channel chosenChannel;
 		int confusionFactor, channelId;
 		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel, tmLeft_sec, PTMtimeStep_sec;
@@ -113,6 +111,35 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		
 		// Initially assume we're not going to wait
 		wait = false;
+		
+		// If any of the transProbs are missing, revert to flow-split model
+		if((int)transProbToU==MISSINGVALUE || (int)transProbToD==MISSINGVALUE || (int)transProbToU==MISSINGVALUE) {
+			switch (fromChannelGroup) {
+			case UPSTREAM:
+				flowSplitTransProbs = calcFlowSplit(p, nodeId, upstreamChannel, downstreamChannel, distribChannel, distUD_ft, distUT_ft);
+				transProbToU = flowSplitTransProbs[0];
+				transProbToD = flowSplitTransProbs[1];
+				transProbToT = flowSplitTransProbs[2];
+				break;
+			case DOWNSTREAM:
+				flowSplitTransProbs = calcFlowSplit(p, nodeId, downstreamChannel, upstreamChannel, distribChannel, distUD_ft, distDT_ft);
+				transProbToD = flowSplitTransProbs[0];
+				transProbToU = flowSplitTransProbs[1];
+				transProbToT = flowSplitTransProbs[2];
+				break;
+			case DISTRIB:
+				flowSplitTransProbs = calcFlowSplit(p, nodeId, distribChannel, upstreamChannel, downstreamChannel, distUT_ft, distDT_ft);
+				transProbToT = flowSplitTransProbs[0];
+				transProbToU = flowSplitTransProbs[1];
+				transProbToD = flowSplitTransProbs[2];
+				break;
+			default:
+				PTMUtil.systemExit("Unrecognized ChannelGroup. Exiting.");
+			}
+		}
+		else {
+			decisionType = "msm";
+		}
 		
 		// Preprocessor provides transition probabilities per PTM time step. These need to be
 		// adjusted to match tmLeft
@@ -183,7 +210,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			// overwritten in the next time step
 			p.swimVelSetInJunction(true);
 		}
-		else {
+		else {			
 			// Calculate total effective outflows (including swimming velocity) in the chosen channel
 			channelId = chosenChannel.getEnvIndex();
 			p.getSwimHelper().setMeanSwimmingVelocity(p.Id, channelId);
@@ -221,6 +248,130 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		}	 
 	}
 	
+	/**
+	 * Calculate flow-split transition probabilities
+	 * @param p							particle
+	 * @param nodeId					node ID
+	 * @param fromChannel				channel eFish is entering from
+	 * @param channelTo1				first of channels that eFish could exit into
+	 * @param channelTo2				second of channels that eFish could exit into
+	 * @param distTo1_ft				distance in feet between entrance and first exit telemetry stations
+	 * @param distTo2_ft				distance in feet between entrance and second exit telemetry stations
+	 * @return							double[] with [transProbFrom, transProbTo1, transProbTo2]
+	 */
+	private double[] calcFlowSplit(Particle p, int nodeId, Channel fromChannel, Channel channelTo1, Channel channelTo2,
+			double distTo1_ft, double distTo2_ft) {
+		double transProbFrom, transProbTo1, transProbTo2, meanWait_sec, distExit_ft;
+		float channelAreaFrom, channelAreaTo1, channelAreaTo2, inflowFrom, outflowTo1, outflowTo2, posOutflowTo1, posOutflowTo2, 
+			relTransProbTo1, relTransProbTo2, velFrom, velTo1, velTo2, vel, PTMtimeStep_sec;
+		
+		// Minimum velocity based on the maximum no-action transition probability from the msm
+		float minVel_ftsec = 0.007f;
+		
+		// Initialize outputs
+		transProbFrom = transProbTo1 = transProbTo2 = MISSINGVALUE;
+		
+		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();
+		
+		channelAreaFrom = getChannelArea(nodeId, fromChannel);
+		channelAreaTo1 = getChannelArea(nodeId, channelTo1);
+		channelAreaTo2 = getChannelArea(nodeId, channelTo2);
+		
+		inflowFrom = -getOutflow(p, nodeId, fromChannel);
+		outflowTo1 = getOutflow(p, nodeId, channelTo1);
+		outflowTo2 = getOutflow(p, nodeId, channelTo2);
+		
+		// Calculate transit velocities
+		velFrom = inflowFrom/channelAreaFrom;
+		velTo1 = outflowTo1/channelAreaTo1;
+		velTo2 = outflowTo2/channelAreaTo2;
+		
+		// Use flow-split or area-split to calculate relative transProbs		
+		if (outflowTo1>0 || outflowTo2>0) {
+			posOutflowTo1 = Math.max(0, outflowTo1);
+			posOutflowTo2 = Math.max(0,  outflowTo2);
+			relTransProbTo1 = posOutflowTo1/(posOutflowTo1 + posOutflowTo2);
+			decisionType = "flow-split_";
+		}
+		else {
+			relTransProbTo1 = channelAreaTo1/(channelAreaTo1 + channelAreaTo2);
+			decisionType = "area-split_";
+		}
+		relTransProbTo2 = 1 - relTransProbTo1;
+		
+	    // Calculate the relTransProb-weighted distance to the exit stations
+	    distExit_ft = relTransProbTo1*distTo1_ft + relTransProbTo2*distTo2_ft;
+		
+	    // Determine the appropriate velocity to use for calculating transit time
+		if (inflowFrom>0) {
+			vel = velFrom;
+			decisionType+="fromVel";
+		}
+		else if (outflowTo1>0 && outflowTo2>0) {
+			vel = relTransProbTo1*velTo1 + relTransProbTo2*velTo2;
+			decisionType+="weightedAvgVel";
+		} else if (outflowTo1>0) {
+			vel = velTo1;
+			decisionType+="to1vel";
+		} else if (outflowTo2>0) {
+			vel = velTo2;
+			decisionType+="to2vel";
+		} else {
+			vel = minVel_ftsec;
+			decisionType+="minVel";
+		}
+
+		// Set mean wait time = mean transit time
+		meanWait_sec = distExit_ft/vel;
+		
+		// Calculate no-action transition probability
+		transProbFrom = 1 - (PTMtimeStep_sec/meanWait_sec);
+		
+		// Adjust the exit transition probabilities
+		transProbTo1 = (1 - transProbFrom)*relTransProbTo1;
+		transProbTo2 = 1 - (transProbFrom + transProbTo1);
+		
+		return new double[] {transProbFrom, transProbTo1, transProbTo2};
+	}
+	
+	/**
+	 * Calculate total effective outflow (including swimming velocity)
+	 * @param p							particle
+	 * @param nodeId					node ID
+	 * @param channel					channel in which to calculate outflow
+	 * @return							total effective outflow
+	 */
+	private float getOutflow(Particle p, int nodeId, Channel channel) {
+		int confusionFactor, channelId;
+		float swimmingVel, outflow;
+		
+		//  in all channels
+		channelId = channel.getEnvIndex();
+		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, channelId);
+			
+		// Swimming velocity here doesn't include confusion factor	
+		swimmingVel = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p, channelId);
+		confusionFactor = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(channelId);			
+		outflow = channel.getInflowWSV(nodeId, swimmingVel*confusionFactor);
+		
+		return outflow;
+	}
+	
+	/**
+	 * Obtain the channel area at the appropriate end of the channel
+	 * @param nodeId					node ID
+	 * @param channel					channel object
+	 * @return							channel area
+	 */
+	private float getChannelArea(int nodeId, Channel channel) {
+		if (channel.getUpNode().getEnvIndex()==nodeId) {
+			return channel.getFlowArea(0);
+		}
+		else {
+			return channel.getFlowArea(channel.getLength());
+		}
+	}
+
 	public abstract void makeRouteDecision(Particle p);
 	
 	int getNodeId(){return _nodeId;}

@@ -19,6 +19,12 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 
 	public SalmonTCrouteBehavior(RouteInputs in, Integer nodeId) {
 		super(in, nodeId);
+		
+		// Specify distances between telemetry stations. 
+		// At some point these should be added to the behavior input file instead.
+		distUD_ft = 10336.76;
+		distUT_ft = 1869.15;
+		distDT_ft = 9943.59;
 	}
 
 	@Override
@@ -33,7 +39,6 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		Map<String, Double> transProbs;
 		Channel fromChannel;
 		String transProbIndex;
-		Double transProbToU, transProbToD, transProbToT;
 
 		nodeId = getNodeId();
 
@@ -73,7 +78,7 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 			}
 		}
 
-		transProbToU = transProbToD = transProbToT = null;
+		transProbToU = transProbToD = transProbToT = MISSINGVALUE;
 		switch (fromChannelGroup) {
 		case UPSTREAM:
 			transProbToD = transProbs.get(transProbIndex + "_qUD");
@@ -94,9 +99,9 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 			PTMUtil.systemExit("Unrecognized ChannelGroup. Exiting.");
 		}
 		RouteInputs rIn = getRouteInputs();
+		decisionType = "None";
+		selectChannel(p, nodeId, upstreamChannel, downstreamChannel, distribChannel);
 		rIn.putEntrainmentRate(nodeId, 
-				new ArrayList<Object>(Arrays.asList(p.Id, fromChannelGroup, transProbToU, transProbToD, transProbToT)));
-		selectChannel(p, nodeId, upstreamChannel, downstreamChannel, distribChannel, 
-				transProbToU, transProbToD, transProbToT);
+				new ArrayList<Object>(Arrays.asList(p.Id, fromChannelGroup, transProbToU, transProbToD, transProbToT, decisionType)));
 	}
 }
