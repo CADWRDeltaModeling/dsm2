@@ -252,14 +252,14 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	 * Calculate flow-split transition probabilities
 	 * @param p							particle
 	 * @param nodeId					node ID
-	 * @param fromChannel				channel eFish is entering from
+	 * @param channelFrom				channel eFish is entering from
 	 * @param channelTo1				first of channels that eFish could exit into
 	 * @param channelTo2				second of channels that eFish could exit into
 	 * @param distTo1_ft				distance in feet between entrance and first exit telemetry stations
 	 * @param distTo2_ft				distance in feet between entrance and second exit telemetry stations
 	 * @return							double[] with [transProbFrom, transProbTo1, transProbTo2]
 	 */
-	private double[] calcFlowSplit(Particle p, int nodeId, Channel fromChannel, Channel channelTo1, Channel channelTo2,
+	private double[] calcFlowSplit(Particle p, int nodeId, Channel channelFrom, Channel channelTo1, Channel channelTo2,
 			double distTo1_ft, double distTo2_ft) {
 		double transProbFrom, transProbTo1, transProbTo2, meanWait_sec, distExit_ft;
 		float channelAreaFrom, channelAreaTo1, channelAreaTo2, inflowFrom, outflowTo1, outflowTo2, posOutflowTo1, posOutflowTo2, 
@@ -273,11 +273,11 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		
 		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();
 		
-		channelAreaFrom = getChannelArea(nodeId, fromChannel);
+		channelAreaFrom = getChannelArea(nodeId, channelFrom);
 		channelAreaTo1 = getChannelArea(nodeId, channelTo1);
 		channelAreaTo2 = getChannelArea(nodeId, channelTo2);
 		
-		inflowFrom = -getOutflow(p, nodeId, fromChannel);
+		inflowFrom = -getOutflow(p, nodeId, channelFrom);
 		outflowTo1 = getOutflow(p, nodeId, channelTo1);
 		outflowTo2 = getOutflow(p, nodeId, channelTo2);
 		
@@ -322,10 +322,10 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		}
 
 		// Set mean wait time = mean transit time
-		meanWait_sec = distExit_ft/vel;
+		meanWait_sec = distExit_ft/(vel + Float.MIN_VALUE);
 		
 		// Calculate no-action transition probability
-		transProbFrom = 1 - (PTMtimeStep_sec/meanWait_sec);
+		transProbFrom = Math.min(1, Math.max(0, 1 - (PTMtimeStep_sec/meanWait_sec)));
 		
 		// Adjust the exit transition probabilities
 		transProbTo1 = (1 - transProbFrom)*relTransProbTo1;
@@ -345,7 +345,6 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		int confusionFactor, channelId;
 		float swimmingVel, outflow;
 		
-		//  in all channels
 		channelId = channel.getEnvIndex();
 		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, channelId);
 			
