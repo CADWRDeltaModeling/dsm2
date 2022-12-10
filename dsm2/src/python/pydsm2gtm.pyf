@@ -1,0 +1,15 @@
+python module pydsm2gtm
+interface
+
+    subroutine py_gtm_init(inp_file) bind(C)
+        character, intent(in) :: inp_file(:)
+    end subroutine
+
+    subroutine py_gtm_loop()
+    end subroutine
+
+    subroutine py_gtm_wrapup()
+    end subroutine
+
+end interface
+end python module pydsm2gtm
