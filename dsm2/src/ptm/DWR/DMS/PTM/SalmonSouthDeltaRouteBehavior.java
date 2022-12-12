@@ -20,7 +20,13 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	final String[] transitions = new String[]{"qUD", "qDU", "qDU", "qDT", "qTU", "qTD"};
 
 	final static float GATECLOSEDFLOW = Float.MIN_VALUE;
-	final static int MISSINGVALUE = -999;	
+	final static int MISSING_VALUE = -999;
+	
+	protected VelMethods velMethod;
+	public enum VelMethods {
+		UPSTREAM_FIRST,
+		FLOW_WEIGHTED_AVG;
+	}
 
 	protected ChannelGroup fromChannelGroup, toChannelGroup;
 	public enum ChannelGroup {
@@ -34,6 +40,9 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		_nodeId = nodeId;
 		_rIn = in;
 		System.out.println("Created SalmonSouthDeltaRouteBehavior...");
+		
+		// Specify the velocity calculation method
+		velMethod = VelMethods.FLOW_WEIGHTED_AVG;
 	}
 
 	/**
@@ -113,7 +122,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		wait = false;
 		
 		// If any of the transProbs are missing, revert to flow-split model
-		if((int)transProbToU==MISSINGVALUE || (int)transProbToD==MISSINGVALUE || (int)transProbToU==MISSINGVALUE) {
+		if((int)transProbToU==MISSING_VALUE || (int)transProbToD==MISSING_VALUE || (int)transProbToU==MISSING_VALUE) {
 			switch (fromChannelGroup) {
 			case UPSTREAM:
 				flowSplitTransProbs = calcFlowSplit(p, nodeId, upstreamChannel, downstreamChannel, distribChannel, distUD_ft, distUT_ft);
@@ -262,14 +271,15 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	private double[] calcFlowSplit(Particle p, int nodeId, Channel channelFrom, Channel channelTo1, Channel channelTo2,
 			double distTo1_ft, double distTo2_ft) {
 		double transProbFrom, transProbTo1, transProbTo2, meanWait_sec, distExit_ft;
-		float channelAreaFrom, channelAreaTo1, channelAreaTo2, inflowFrom, outflowTo1, outflowTo2, posOutflowTo1, posOutflowTo2, 
-			relTransProbTo1, relTransProbTo2, velFrom, velTo1, velTo2, vel, PTMtimeStep_sec;
+		float channelAreaFrom, channelAreaTo1, channelAreaTo2, inflowFrom, outflowTo1, outflowTo2, 
+			posInflowFrom, posOutflowTo1, posOutflowTo2, totalFlow, relTransProbTo1, relTransProbTo2, 
+			velFrom, velTo1, velTo2, vel, PTMtimeStep_sec;
 		
 		// Minimum velocity based on the maximum no-action transition probability from the msm
 		float minVel_ftsec = 0.007f;
 		
 		// Initialize outputs
-		transProbFrom = transProbTo1 = transProbTo2 = MISSINGVALUE;
+		transProbFrom = transProbTo1 = transProbTo2 = MISSING_VALUE;
 		
 		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();
 		
@@ -303,24 +313,44 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	    distExit_ft = relTransProbTo1*distTo1_ft + relTransProbTo2*distTo2_ft;
 		
 	    // Determine the appropriate velocity to use for calculating transit time
-		if (inflowFrom>0) {
-			vel = velFrom;
-			decisionType+="fromVel";
+	    vel = 0.0f;
+		switch (velMethod) {
+		case UPSTREAM_FIRST:
+			if (inflowFrom>0) {
+				vel = velFrom;
+				decisionType+="fromVel";
+			}
+			else if (outflowTo1>0 && outflowTo2>0) {
+				vel = relTransProbTo1*velTo1 + relTransProbTo2*velTo2;
+				decisionType+="weightedAvgVel";
+			} else if (outflowTo1>0) {
+				vel = velTo1;
+				decisionType+="to1vel";
+			} else if (outflowTo2>0) {
+				vel = velTo2;
+				decisionType+="to2vel";
+			} else {
+				vel = minVel_ftsec;
+				decisionType+="minVel";
+			}
+			break;
+		case FLOW_WEIGHTED_AVG:
+			decisionType+="flowWeightedAvgVel";
+			
+			posInflowFrom = Math.max(0, inflowFrom);
+			posOutflowTo1 = Math.max(0, outflowTo1);
+			posOutflowTo2 = Math.max(0, outflowTo2);
+			
+			totalFlow = posInflowFrom + posOutflowTo1 + posOutflowTo2;
+			
+			vel = (velFrom*posInflowFrom + velTo1*posOutflowTo1 + velTo2*posOutflowTo2)/totalFlow;
+			
+			if (vel<Float.MIN_VALUE) {vel = minVel_ftsec;}			
+			break;
+		default:
+			PTMUtil.systemExit("Unrecognized velocity calculation method. Exiting.");
 		}
-		else if (outflowTo1>0 && outflowTo2>0) {
-			vel = relTransProbTo1*velTo1 + relTransProbTo2*velTo2;
-			decisionType+="weightedAvgVel";
-		} else if (outflowTo1>0) {
-			vel = velTo1;
-			decisionType+="to1vel";
-		} else if (outflowTo2>0) {
-			vel = velTo2;
-			decisionType+="to2vel";
-		} else {
-			vel = minVel_ftsec;
-			decisionType+="minVel";
-		}
-
+		
 		// Set mean wait time = mean transit time
 		meanWait_sec = distExit_ft/(vel + Float.MIN_VALUE);
 		

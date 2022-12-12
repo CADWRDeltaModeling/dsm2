@@ -78,7 +78,7 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 			}
 		}
 
-		transProbToU = transProbToD = transProbToT = MISSINGVALUE;
+		transProbToU = transProbToD = transProbToT = MISSING_VALUE;
 		switch (fromChannelGroup) {
 		case UPSTREAM:
 			transProbToD = transProbs.get(transProbIndex + "_qUD");
