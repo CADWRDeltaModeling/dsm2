@@ -334,9 +334,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 				decisionType+="minVel";
 			}
 			break;
-		case FLOW_WEIGHTED_AVG:
-			decisionType+="flowWeightedAvgVel";
-			
+		case FLOW_WEIGHTED_AVG:			
 			posInflowFrom = Math.max(0, inflowFrom);
 			posOutflowTo1 = Math.max(0, outflowTo1);
 			posOutflowTo2 = Math.max(0, outflowTo2);
@@ -345,7 +343,13 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			
 			vel = (velFrom*posInflowFrom + velTo1*posOutflowTo1 + velTo2*posOutflowTo2)/totalFlow;
 			
-			if (vel<Float.MIN_VALUE) {vel = minVel_ftsec;}			
+			if (vel<Float.MIN_VALUE) {
+				vel = minVel_ftsec;
+				decisionType+="minVel";
+			}
+			else {
+				decisionType+="flowWeightedAvgVel";
+			}
 			break;
 		default:
 			PTMUtil.systemExit("Unrecognized velocity calculation method. Exiting.");
