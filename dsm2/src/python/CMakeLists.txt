@@ -286,35 +286,30 @@ target_link_libraries(
   ${f2py_gtm_module_name}
   PRIVATE -Wl,--start-group
           gtm_main
-          mercury
           gtm_core
           common
-          gtm_core
+          transport
+          input_storage
+          input_storage_cpp
           process_io
           sediment
           sediment_bed
           sediment_bed_core
-          input_storage_cpp
-          input_storage
-          hdf_tidefile_fortran
-          hdf_tidefile_cpp
-          hydrolib
-          fixed
-          transport
-          oprule_interface_fortran
-          oprule_interface_cpp
-          klu_fortran
-          sparse
-          pattern_match_cpp
-          ${HDF5}
-          ${HDF5_FORTRAN}
-          ${HDF5_F90CSTUB}
-          ${HDF5_HL}
-          ${HDF5_HL_FORTRAN}
-          ${HDF5_HL_F90CSTUB}
-          ${SZLIB}
-          ${ZLIB}
+          do_module
+          mercury
           -Wl,--end-group
+          debug
+          ${OPRULE_DEBUG}
+          optimized
+          ${OPRULE_RELEASE}
+          debug
+          ${OPRULE_PARSER_DEBUG}
+          optimized
+          ${OPRULE_PARSER_RELEASE}
+          debug
+          ${INPUT_STORAGE_DEBUG}
+          optimized
+          ${INPUT_STORAGE_RELEASE}
           debug
           ${BOOST_FILESYSTEM_DEBUG}
           optimized
@@ -327,22 +322,20 @@ target_link_libraries(
           ${BOOST_SYSTEM_DEBUG}
           optimized
           ${BOOST_SYSTEM_RELEASE}
+          -Wl,--start-group
+          ${HDF5}
+          ${HDF5_FORTRAN}
+          ${HDF5_F90CSTUB}
+          ${HDF5_HL}
+          ${HDF5_HL_FORTRAN}
+          ${HDF5_HL_F90CSTUB}
+          ${SZLIB}
+          ${ZLIB}
+          -Wl,--end-group
           debug
           ${HECLIB_DEBUG}
           optimized
           ${HECLIB_RELEASE}
-          debug
-          ${OPRULE_PARSER_DEBUG}
-          optimized
-          ${OPRULE_PARSER_RELEASE}
-          debug
-          ${OPRULE_DEBUG}
-          optimized
-          ${OPRULE_RELEASE}
-          debug
-          ${INPUT_STORAGE_DEBUG}
-          optimized
-          ${INPUT_STORAGE_RELEASE}
           debug
           ${KLULIB_DEBUG}
           optimized
