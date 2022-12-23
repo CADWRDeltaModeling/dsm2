@@ -172,7 +172,6 @@ subroutine gtm_prepare2()
     call verify_error(ierror, "opening hdf interface")
 
 !----- Read input specification from *.inp text file -----
-    call get_command_args(init_input_file)
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
     call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files

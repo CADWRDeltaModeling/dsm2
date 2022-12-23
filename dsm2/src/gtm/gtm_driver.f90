@@ -5,7 +5,7 @@ program dsm2gtm_driver
     implicit none
     print *, 'New GTM loop!!!'
     call gtm_prepare1()
-    ! call get_command_args(init_input_file, model_name, echo_only)
+    call get_command_args(init_input_file)
     call gtm_prepare2()
 
     call gtm_prepare_loop()
