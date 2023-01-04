@@ -1,7 +1,6 @@
 program dsm2gtm_driver
     use dsm2gtm
-    ! use runtime_data
-    ! use runtime_data, only: julmin, end_julmin
+    use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     implicit none
     print *, 'New GTM loop!!!'
     call gtm_prepare1()
@@ -9,10 +8,15 @@ program dsm2gtm_driver
     call gtm_prepare2()
 
     call gtm_prepare_loop()
-    call gtm_loop()
-    ! do while (julmin .le. end_julmin)
-    !     call gtm_loop()
-    ! end do
+    print *, 'start', gtm_start_jmin !todel
+    print *, 'end', gtm_end_jmin !todel
+    do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
+        call gtm_loop()
+    end do
+    print *, gtm_start_jmin !todel
+    print *, gtm_end_jmin !todel
+    print *, gtm_time_interval !todel
+    print *, current_time !todel
     call gtm_wrapup()
     call exit(0)
 

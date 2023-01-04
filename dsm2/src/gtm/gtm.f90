@@ -346,92 +346,95 @@ subroutine gtm_prepare_loop()
     LL = zero
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
+
+    print *,'start_f',gtm_start_jmin !todel
+    print *,'end_f',gtm_end_jmin !todel
+    print *,'intvl_f',gtm_time_interval !todel
 end subroutine
 
 subroutine gtm_loop()
-    ! start marching throught the time steps for simulation
-    do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
-        LL = LL + 1
-        time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1
+    ! gtm simulation within each time step
+    LL = LL + 1
+    time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1
 
-        !---print out processing date on screen
-        cdt = jmin2cdt(int(current_time))   ! this function only used for screen status printout
-        if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine, only for screen printing
-            write(*,*) cdt(1:9)
-            prev_day =  cdt(1:9)
+    !---print out processing date on screen
+    cdt = jmin2cdt(int(current_time))   ! this function only used for screen status printout
+    if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine, only for screen printing
+        write(*,*) cdt(1:9)
+        prev_day =  cdt(1:9)
+    end if
+
+    !---read hydro data from hydro tidefile
+    call get_loc_in_hydro_buffer(iblock, slice_in_block, t_in_slice, current_time, hydro_start_jmin, &
+                                    memory_buffer, hydro_time_interval, gtm_time_interval)
+
+    if (iblock .ne. current_block) then ! check if need to read new block into buffer
+        current_block = iblock
+        current_slice = 0
+        time_offset = memory_buffer*(iblock-1)
+        call dsm2_hdf_ts(time_offset, memlen(iblock))
+        !call get_area_for_buffer(hydro_area, hydro_ws, n_comp, memory_buffer) ! can be deleted later
+        if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
+            call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_hydro_resv, prev_hydro_resv_flow,   &
+                                prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, &
+                                n_tran, time_offset+slice_in_block-2)
         end if
-
-        !---read hydro data from hydro tidefile
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, t_in_slice, current_time, hydro_start_jmin, &
-                                     memory_buffer, hydro_time_interval, gtm_time_interval)
-
-        if (iblock .ne. current_block) then ! check if need to read new block into buffer
-            current_block = iblock
-            current_slice = 0
-            time_offset = memory_buffer*(iblock-1)
-            call dsm2_hdf_ts(time_offset, memlen(iblock))
-            !call get_area_for_buffer(hydro_area, hydro_ws, n_comp, memory_buffer) ! can be deleted later
-            if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
-                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_hydro_resv, prev_hydro_resv_flow,   &
-                                    prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, &
-                                    n_tran, time_offset+slice_in_block-2)
-            end if
-        end if
+    end if
 
         !--- interpolate flow and water surface between computational points
-        if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
-            n_st = npartition_t + 1
-            if (prev_sub_ts .ne. 1) then
-                call deallocate_network_tmp
-                call allocate_network_tmp(npartition_t)
-            end if
-            call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, &
-                 prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
-            call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv,           &
-                 prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
-            ! to determine if sub time step is required based on CFL number
-            call fill_hydro_info(flow,          &
-                                 flow_lo,       &
-                                 flow_hi,       &
-                                 area,          &
-                                 area_lo,       &
-                                 area_hi,       &
-                                 width,         &
-                                 wet_p,         &
-                                 depth,         &
-                                 n_cell,        &
-                                 dble(1),       &
-                                 dx_arr,        &
-                                 gtm_time_interval)
-
-            cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
-            max_cfl = maxval(cfl)
-            ceil_max_cfl = ceiling(max_cfl)
-            if ((max_cfl .gt. one).and.(sub_time_step)) then
-                if (ceil_max_cfl .gt. max_num_sub_ts) then
-                    ceil_max_cfl = max_num_sub_ts
-                    write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
-                end if
-                sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
-                call deallocate_network_tmp
-                call allocate_network_tmp(npartition_t*ceil_max_cfl)
-                n_st = npartition_t*ceil_max_cfl + 1
-                call interp_network_linear(npartition_t*ceil_max_cfl, slice_in_block, n_comp,    &
-                     prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
-                call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block,               &
-                     prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
-                prev_sub_ts = ceil_max_cfl
-            end if
-            prev_comp_flow(:) = hydro_flow(:,slice_in_block)
-            prev_comp_ws(:) = hydro_ws(:,slice_in_block)
-            prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
-            prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
-            prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
-            prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
-            prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
-            prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)
-            current_slice = slice_in_block
+    if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
+        n_st = npartition_t + 1
+        if (prev_sub_ts .ne. 1) then
+            call deallocate_network_tmp
+            call allocate_network_tmp(npartition_t)
         end if
+        call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, &
+                prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
+        call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv,           &
+                prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
+        ! to determine if sub time step is required based on CFL number
+        call fill_hydro_info(flow,          &
+                                flow_lo,       &
+                                flow_hi,       &
+                                area,          &
+                                area_lo,       &
+                                area_hi,       &
+                                width,         &
+                                wet_p,         &
+                                depth,         &
+                                n_cell,        &
+                                dble(1),       &
+                                dx_arr,        &
+                                gtm_time_interval)
+
+        cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
+        max_cfl = maxval(cfl)
+        ceil_max_cfl = ceiling(max_cfl)
+        if ((max_cfl .gt. one).and.(sub_time_step)) then
+            if (ceil_max_cfl .gt. max_num_sub_ts) then
+                ceil_max_cfl = max_num_sub_ts
+                write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
+            end if
+            sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
+            call deallocate_network_tmp
+            call allocate_network_tmp(npartition_t*ceil_max_cfl)
+            n_st = npartition_t*ceil_max_cfl + 1
+            call interp_network_linear(npartition_t*ceil_max_cfl, slice_in_block, n_comp,    &
+                    prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
+            call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block,               &
+                    prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
+            prev_sub_ts = ceil_max_cfl
+        end if
+        prev_comp_flow(:) = hydro_flow(:,slice_in_block)
+        prev_comp_ws(:) = hydro_ws(:,slice_in_block)
+        prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
+        prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
+        prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
+        prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
+        prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
+        prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)
+        current_slice = slice_in_block
+    end if
 
     if (sub_time_step) then
         sub_st = ceil_max_cfl
@@ -624,13 +627,13 @@ subroutine gtm_loop()
         node_conc = LARGEREAL
     end do ! end of loop of sub time step
     ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
-    if (run_pdaf) then       
-        if (current_time .eq. gtm_start_jmin) then         
+    if (run_pdaf) then
+        if (current_time .eq. gtm_start_jmin) then
             conc = init_c
             conc_prev = init_c
-            budget_prev_conc = init_c       
-            conc_resv = init_r 
-            conc_resv_prev = init_r 
+            budget_prev_conc = init_c
+            conc_resv = init_r
+            conc_resv_prev = init_r
             !prev_conc_stip = zero
             call prim2cons(mass_prev, conc, area, n_cell, n_var)
         end if
@@ -722,8 +725,6 @@ subroutine gtm_loop()
     end if
 
     prev_julmin = int(current_time)
-
-end do  ! end of loop for gtm time step
 
 end subroutine
 

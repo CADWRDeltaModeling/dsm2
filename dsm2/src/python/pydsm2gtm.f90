@@ -1,15 +1,15 @@
 module pydsm2gtm
     use iso_c_binding
-    ! use network, only: MaxLocations
-    ! use runtime_data, only: julmin, end_julmin
-    ! use chstatus, only: WS, Q, H
-    ! use gates, only: Gate, GateDevice, gateArray, setFree
-    ! use fourpt
+    use gtm_precision, only: gtm_real
+    use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     use pydsm2utilities
-    ! use update_network
     use dsm2gtm, only: gtm_prepare1, gtm_prepare2, gtm_prepare_loop, &
                        gtm_loop, gtm_wrapup, init_input_file
     implicit none
+!f2py integer, parameter :: gtm_real
+!f2py real(gtm_real) :: gtm_start_jmin
+!f2py real(gtm_real) :: gtm_end_jmin
+!f2py real(gtm_real) :: gtm_time_interval
 
 contains
     subroutine py_gtm_init(inp_file) bind(C)
@@ -22,6 +22,8 @@ contains
         print *, 'prepare2'
         call gtm_prepare_loop()
         print *, 'prepare3'
+        print *, 'pyf90s', gtm_start_jmin
+        print *, 'pyf90e', gtm_end_jmin
     end subroutine
 
     subroutine py_gtm_loop()
