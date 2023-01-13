@@ -199,10 +199,10 @@ public class TravelTimeOutput {
 				if (velocity < 0.0001f)  
 					System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
 						+ velocity+", could cause an error at travel time calculation");
-				// when x<0 and dist<0, velocity has to be negative
-				tt -= (x-dist)/velocity;
+				// when x<0 and dist<0, velocity has to be negative.  However, it could have a round up error so take abs to be safe 
+				tt -= Math.abs(x-dist)/Math.abs(velocity);
 				if (tt < 0)
-					PTMUtil.systemExit("when record travel time, the residue time is negative, which is impossible.  System exit.");
+					PTMUtil.systemExit("when record travel time, the residue time is negative, which is impossible. velocity:"+velocity+" x:"+x+"  dist:"+dist+"  System exit.");
 				_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
 				_recorderTest.put(id, true);
 			}	
