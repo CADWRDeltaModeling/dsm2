@@ -237,7 +237,7 @@ public class RouteInputs {
 						srWriter.newLine();
 						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("From").concat(",").concat("SJR Up Routing Probability").concat(",")
 								.concat("SJR Down Routing Probability").concat(",")
-								.concat("Old River routing Probability"));
+								.concat("Old River routing Probability").concat(",").concat("Decision Type"));
 						srWriter.newLine();
 					}
 					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonTCrouteBehavior")){
@@ -245,7 +245,7 @@ public class RouteInputs {
 						srWriter.newLine();
 						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("From").concat(",").concat("SJR Up Routing Probability").concat(",")
 								.concat("SJR Down Routing Probability").concat(",")
-								.concat("Turner Cut routing Probability"));
+								.concat("Turner Cut routing Probability").concat(",").concat("Decision Type"));
 						srWriter.newLine();
 					}
 					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){

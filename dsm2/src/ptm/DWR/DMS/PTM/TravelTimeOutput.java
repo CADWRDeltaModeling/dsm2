@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 /**
  * @author xwang
@@ -146,18 +147,18 @@ public class TravelTimeOutput {
 		if (_pathName == null)
 			return;
 		
-		//System.err.println(id + " " + ndWb.get()+"  "+x+"  "+velocity+"  " + fromUpstream );
 		
+		/* after discussed with Adam Pope and Russell Perry of USGS, we decided that we lift the restrict that we only record travel times for particles from upstream  
 		// only record particles from upstream
 		if (fromUpstream){
 			String staName = _stationNames.get(ndWb);
-			/*
-			 if staName == null, the particle is not at the recording location
-			 _recorderTest != null, the particle has been recorded, don't record again
-			 a particle can hit multiple receiving stations.  
-			 the station with the shortest travel time is the one that the particle first hits.
-			 do not record travel time after the first hit
-			 * */
+			
+			 //if staName == null, the particle is not at the recording location
+			 //_recorderTest != null, the particle has been recorded, don't record again
+			 //a particle can hit multiple receiving stations.  
+			 //the station with the shortest travel time is the one that the particle first hits.
+			 //do not record travel time after the first hit
+			 
 			if ((staName != null) && (_recorderTest.get(id) == null)){
 				float dist = _staDist.get(ndWb);
 				float distDiff = Math.abs(x-dist);
@@ -176,6 +177,35 @@ public class TravelTimeOutput {
 					_recorderTest.put(id, true);
 				}
 			}
+		}
+	*/
+		
+		String staName = _stationNames.get(ndWb);
+		/*
+		if staName == null, the particle is not at the recording location
+		 _recorderTest != null, the particle has been recorded, don't record again
+		 a particle can hit multiple receiving stations.  
+		 the station with the shortest travel time is the one that the particle first hits.
+		 do not record travel time after the first hit
+		  * */
+		if ((staName != null) && (_recorderTest.get(id) == null)){
+			//System.err.println(id + " " + staName+ " "+ Arrays.toString(ndWb.array())+"  "+x+"  "+velocity+"  " + fromUpstream + "  " + _staDist);
+			float dist = _staDist.get(ndWb);
+			int sign = fromUpstream? 1: -1;
+			dist = sign*dist;
+			x = sign*x;
+			if (!(x < dist)) {
+				double tt = ageInSec/60.0d;
+				if (velocity < 0.0001f)  
+					System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
+						+ velocity+", could cause an error at travel time calculation");
+				// when x<0 and dist<0, velocity has to be negative
+				tt -= (x-dist)/velocity;
+				if (tt < 0)
+					PTMUtil.systemExit("when record travel time, the residue time is negative, which is impossible.  System exit.");
+				_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
+				_recorderTest.put(id, true);
+			}	
 		}
 	}
 	public void setThreshold(float t){_threshold = t;}
