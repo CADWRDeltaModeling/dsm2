@@ -341,7 +341,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			
 			totalFlow = posInflowFrom + posOutflowTo1 + posOutflowTo2;
 			
-			vel = (velFrom*posInflowFrom + velTo1*posOutflowTo1 + velTo2*posOutflowTo2)/totalFlow;
+			vel = (velFrom*posInflowFrom + velTo1*posOutflowTo1 + velTo2*posOutflowTo2)/(totalFlow + Float.MIN_VALUE);
 			
 			if (vel<Float.MIN_VALUE) {
 				vel = minVel_ftsec;
