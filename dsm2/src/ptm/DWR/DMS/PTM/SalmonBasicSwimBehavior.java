@@ -254,7 +254,6 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
 						 //if (p.Id==131)
 							 //System.err.println("first  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
-						 //_travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.addTimeUsed(tmToAdv);
 						 //here node and channel hasn't been changed yet because the survival calc needs to do with current ones
 						 p.checkSurvival();
@@ -374,7 +373,6 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.checkSurvival();
 						 if (p.isDead) return;
-						 //_travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.addTimeUsed(tmToAdv);
 					 }
 				 }// end the while in Channel
