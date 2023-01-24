@@ -52,10 +52,10 @@ public class TravelTimeOutput {
 		return -999999f;
 	}
 	private void setIdsDistance(List<String> stationText){
-		_outputStations = new ArrayList<IntBuffer>();
-		_stationNames = new ConcurrentHashMap<IntBuffer, String>();
+		//_outputStations = new ArrayList<IntBuffer>();
+		_stationNames = new ConcurrentHashMap<Integer, String>();
 		_ttHolder = new ConcurrentHashMap<String, Map<Integer, TTEntry>>();
-		_staDist = new ConcurrentHashMap<IntBuffer, Float>();
+		_staDist = new ConcurrentHashMap<Integer, Float>();
 		//TODO clean up later, sublisted in the calling function
 		//for (String stationLine: stationText.subList(1, stationText.size())){
 		for (String stationLine: stationText){
@@ -94,9 +94,9 @@ public class TravelTimeOutput {
 				}
 			}
 			IntBuffer ndWb = IntBuffer.wrap(station);
-			_outputStations.add(ndWb);
-			_stationNames.put(ndWb, items[3]);
-			_staDist.put(ndWb, new Float(d));
+			//_outputStations.add(ndWb);
+			_stationNames.put(station[1], items[3]);
+			_staDist.put(station[1], new Float(d));
 			_ttHolder.put(items[3], new ConcurrentHashMap<Integer, TTEntry>());
 		}
 	}
@@ -165,7 +165,7 @@ public class TravelTimeOutput {
 				// p.x is always > = 0
 				// if p.x >= dist record the travel time
 				if ((!(x<dist)) || (distDiff <_threshold)){
-					double tt = ageInSec/60.0d;
+					double tt = ageInSec;
 					if (distDiff>_threshold){
 						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
 						if (velocity < 0.0001f)  
@@ -173,14 +173,14 @@ public class TravelTimeOutput {
 							+ velocity+", could cause an error at travel time calculation");
 						tt -= (x-dist)/velocity;
 					}
-					_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
+					_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt/60.0d));
 					_recorderTest.put(id, true);
 				}
 			}
 		}
 	*/
 		
-		String staName = _stationNames.get(ndWb);
+		String staName = _stationNames.get(ndWb.get(1));
 		/*
 		if staName == null, the particle is not at the recording location
 		 _recorderTest != null, the particle has been recorded, don't record again
@@ -189,21 +189,24 @@ public class TravelTimeOutput {
 		 do not record travel time after the first hit
 		  * */
 		if ((staName != null) && (_recorderTest.get(id) == null)){
-			//System.err.println(id + " " + staName+ " "+ Arrays.toString(ndWb.array())+"  "+x+"  "+velocity+"  " + fromUpstream + "  " + _staDist);
-			float dist = _staDist.get(ndWb);
+			//if (velocity == Float.MAX_VALUE)
+				//System.err.println(id + " " + staName+ " "+ ndWb.get(1)+"  "+x+"  "+velocity+"  " + fromUpstream + "  " + _staDist);
+			float dist = _staDist.get(ndWb.get(1));
 			int sign = fromUpstream? 1: -1;
 			dist = sign*dist;
 			x = sign*x;
 			if (!(x < dist)) {
-				double tt = ageInSec/60.0d;
-				if (velocity < 0.0001f)  
+				double tt = ageInSec;
+				if (Math.abs(velocity) < 0.0001f)  
 					System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
 						+ velocity+", could cause an error at travel time calculation");
 				// when x<0 and dist<0, velocity has to be negative.  However, it could have a round up error so take abs to be safe 
 				tt -= Math.abs(x-dist)/Math.abs(velocity);
 				if (tt < 0)
-					PTMUtil.systemExit("when record travel time, the residue time is negative, which is impossible. velocity:"+velocity+" x:"+x+"  dist:"+dist+"  System exit.");
-				_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
+				//if (tt < 0 || (x<0 && dist<0 && velocity > 0) || (x>0 && dist>0 && velocity < 0))
+					//System.err.println("The travel time is negative. pId:"+id+"  velocity:"+velocity+" x:"+x+"  dist:"+dist+"  node/chan:"+ Arrays.toString(ndWb.array())+"  tt:"+tt+"  System exit.");
+					PTMUtil.systemExit("The travel time is negative. velocity:"+velocity+" x:"+x+"  dist:"+dist+"  node/chan:"+ Arrays.toString(ndWb.array())+"  tt:"+tt+"  System exit.");
+				_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt/60d));
 				_recorderTest.put(id, true);
 			}	
 		}
@@ -211,13 +214,13 @@ public class TravelTimeOutput {
 	public void setThreshold(float t){_threshold = t;}
 	public float getThreshold(){ return _threshold;}
 	// list of detection stations
-	private ArrayList<IntBuffer> _outputStations;
-	// map of IntBuffer<nodeId, wbId> and detection station name
-	private Map<IntBuffer, String> _stationNames = null;
+	//private ArrayList<IntBuffer> _outputStations;
+	// map of channel number and detection station name
+	private Map<Integer, String> _stationNames = null;
 	// detection station, {particleId, TTEntry} 
 	private Map<String, Map<Integer, TTEntry>> _ttHolder;
-	// map of IntBuffer<nodeId, wbId> and distance
-	private Map<IntBuffer, Float> _staDist;
+	// map of channel number and distance
+	private Map<Integer, Float> _staDist;
 	// test if travel time has been recorded Map<pId, hasRecorded>
 	private Map<Integer, Boolean> _recorderTest;
 	private String _pathName;

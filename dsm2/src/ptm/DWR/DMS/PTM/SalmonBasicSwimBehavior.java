@@ -139,8 +139,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			}
 			// Channel	
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
-				//just exit from a reservoir or a conveyance, thus, p.x = 0 or length.
-				//there is no need to +/- time from p.age. So pass velocity = max_value so that 
+				//if just exit from a reservoir or a conveyance, thus, p.x = 0 or length.
+				//there is no need to +/- time from p.age. if start a time step, no info about velocity.  So pass velocity = max_value so that 
 				//(p.x- the check station channel distance)/velocity = 0
 				 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, 
 						 IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()}), Float.MAX_VALUE, p.x, p.getFromUpstream());
@@ -250,7 +250,11 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
-						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
+						 //if the Travel Time recording station at the node, no need to calculate overshoot time so pass max float value 
+						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
+						 //if (p.Id==131)
+							 //System.err.println("first  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
+						 //_travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.addTimeUsed(tmToAdv);
 						 //here node and channel hasn't been changed yet because the survival calc needs to do with current ones
 						 p.checkSurvival();
@@ -269,8 +273,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //set new node so make node decision can calculate total node inflow and call a special behavior if necessary
 						 p.makeNodeDecision();
 						 // now p.wb is the new water body just selected
-						 // and p.x is set either 0 or channel length if p.wb is a channel
-						 
+						 // and p.x is set either 0 or channel length if p.wb is a channel						 
 						 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
 							  System.err.println("Reach Node, node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
@@ -288,13 +291,23 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						  }
 						 
 						 // wait for a time step
-						 // don't need to check survival because nothing has been changed since the last time step
+						 // For basic routing behavior code the particle will stay in the same place, but for some special code
+						 // it may select a new channel.  Therefore need to check survival and travel time
 						 if (p.particleWait){
 							 p.age += tmLeft;
 							 p.addTimeUsed(tmLeft);
 							 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId)
 								 System.err.println("Warning: the particle "+p.Id
 										 +" is set to wait by makeNodeDecision, will wait until next time step.");
+							 if (p.wb.getPTMType() == Waterbody.CHANNEL) {
+								 ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
+								 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
+								//if (p.Id==131)
+									//System.err.println("third  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
+								 p.checkSurvival();
+								 if(p.isDead)
+									 return;
+							 }
 							 return;
 						 }
 						 // check if the new water body is a channel
@@ -302,12 +315,14 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						// don't need to check survival because survival stations are only installed in channels
 						 if (p.wb.getPTMType() != Waterbody.CHANNEL)							 
 							 break;
-						 else{
+						 else{							 
 							 ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
 							 //just made node decision with a new node and channel, thus, p.x = 0 or length.
 							 //there is no need to +/- time from p.age. So pass velocity = max_value so that 
 							 //(p.x-the check station channel distance)/velocity = 0
-							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
+							 //if (p.Id==131)
+								 //System.err.println("second  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
+							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());							 
 							 //check survival when arrive a new channel
 							 p.checkSurvival();
 							 if(p.isDead)
