@@ -115,7 +115,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	public void updatePosition(Particle p, float delT){
 		/*
 		 * check if a particle is stuck in or comes back to the same channel after a threshold time
-		 * the threshold time = 30 days currently
+		 * the threshold time is user-defined
 		 */
 		
 		 if (_si.checkStuck(p.Id, p.wb.getEnvIndex(),p.age)){
