@@ -346,10 +346,6 @@ subroutine gtm_prepare_loop()
     LL = zero
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
-
-    print *,'start_f',gtm_start_jmin !todel
-    print *,'end_f',gtm_end_jmin !todel
-    print *,'intvl_f',gtm_time_interval !todel
 end subroutine
 
 subroutine gtm_loop()

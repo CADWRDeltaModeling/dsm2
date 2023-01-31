@@ -6,7 +6,7 @@ module pydsm2gtm
     use dsm2gtm, only: gtm_prepare1, gtm_prepare2, gtm_prepare_loop, &
                        gtm_loop, gtm_wrapup, init_input_file
     implicit none
-!f2py integer, parameter :: gtm_real
+!f2py integer, parameter :: gtm_real = 8
 !f2py real(gtm_real) :: gtm_start_jmin
 !f2py real(gtm_real) :: gtm_end_jmin
 !f2py real(gtm_real) :: gtm_time_interval
@@ -22,8 +22,6 @@ contains
         print *, 'prepare2'
         call gtm_prepare_loop()
         print *, 'prepare3'
-        print *, 'pyf90s', gtm_start_jmin
-        print *, 'pyf90e', gtm_end_jmin
     end subroutine
 
     subroutine py_gtm_loop()

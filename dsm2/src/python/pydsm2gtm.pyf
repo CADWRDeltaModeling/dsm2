@@ -1,5 +1,8 @@
 python module pydsm2gtm
 interface
+    integer :: gtm_real = 8
+    real(gtm_real) :: gtm_start_jmin
+    real(gtm_real) :: gtm_end_jmin
 
     subroutine py_gtm_init(inp_file) bind(C)
         character, intent(in) :: inp_file(:)
