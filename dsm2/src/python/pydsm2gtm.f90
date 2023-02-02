@@ -4,12 +4,13 @@ module pydsm2gtm
     use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     use pydsm2utilities
     use dsm2gtm, only: gtm_prepare1, gtm_prepare2, gtm_prepare_loop, &
-                       gtm_loop, gtm_wrapup, init_input_file
+                       gtm_loop, gtm_wrapup, init_input_file, current_time
     implicit none
 !f2py integer, parameter :: gtm_real = 8
 !f2py real(gtm_real) :: gtm_start_jmin
 !f2py real(gtm_real) :: gtm_end_jmin
 !f2py real(gtm_real) :: gtm_time_interval
+!f2py real(gtm_real) :: current_time
 
 contains
     subroutine py_gtm_init(inp_file) bind(C)

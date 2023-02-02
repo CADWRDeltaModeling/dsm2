@@ -3,6 +3,8 @@ interface
     integer :: gtm_real = 8
     real(gtm_real) :: gtm_start_jmin
     real(gtm_real) :: gtm_end_jmin
+    real(gtm_real) :: gtm_time_interval
+    real(gtm_real) :: current_time
 
     subroutine py_gtm_init(inp_file) bind(C)
         character, intent(in) :: inp_file(:)
