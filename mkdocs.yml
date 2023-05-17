@@ -1,0 +1,15 @@
+site_name: DSM2 version 8.2
+nav:
+ - Home: index.md
+ - Getting Started: getting_started.md
+ - Manual: manual/index.md
+ - Reference: reference/Background_Material_and_References.md
+ - Installation: installation.md
+ - Quick Start: quickstart.md
+ - Tutorials: tutorials/Tutorials.md
+ - FAQs: faqs/index.md
+ - Release Notes: releasenotes.md
+#theme: readthedocs
+theme:
+ name: material
+

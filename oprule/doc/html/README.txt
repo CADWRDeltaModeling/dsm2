@@ -1,1 +1,0 @@
-Directory is for automatically generated documentation, currently using doxygen.
