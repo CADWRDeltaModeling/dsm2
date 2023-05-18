@@ -15,7 +15,7 @@ Here is a link to one of the earlier versions of DSM2 which includes Vista: http
 You will need a Qual EC output DSS file, created by running Qual with the output specification file included here: output_channel_ec_for_x2.inp
 
 # Usage
-<path to vscript>\vscript x2_daily_v3.py <path to DSS EC output file> <path to output DSS file> <output DSS F part> <time window> <"sac" or "sjr">
+(path to vscript)\vscript x2_daily_v3.py (path to DSS EC output file) (path to output DSS file) (output DSS F part) (time window) ("sac" or "sjr")
 
 # Example
 d:\delta\dsm2_V8.2\vista\bin\vscript x2_daily.py ..\ex_2020\output\DCP_EX_2020_QUAL.dss x2_daily.dss Base_Study "01APR2001 0000 - 01OCT2015 0000" sac
