@@ -5,7 +5,7 @@ nav:
  - Manual: manual/index.md
  - Reference: reference/Background_Material_and_References.md
  - Installation: installation.md
- - Quick Start: quickstart.md
+ - Quick Start: quick_start.md
  - Tutorials: tutorials/Tutorials.md
  - FAQs: faqs/index.md
  - Release Notes: releasenotes.md
