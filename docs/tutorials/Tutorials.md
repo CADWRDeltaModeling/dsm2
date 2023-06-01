@@ -1,38 +1,27 @@
 # Tutorials
 
--   [An Introduction to DSM2
-    Tutorials](An_Introduction_to_DSM2_Tutorials)
--   [DSM2 Tutorial Overview](DSM2_Tutorial_Overview)
--   [Tutorial 1: Channels](Tutorial_1_Channels)
--   [Tutorial 2: Reservoirs, Gates,
-    Transfers](Tutorial_2_Reservoirs_Gates_Transfers)
--   [Tutorial 3: Layering](Tutorial_3_Layering)
--   [Tutorial 4: Time Varying Data](Tutorial_4_Time_Varying_Data)
--   [Tutorial 5: Advanced Output and Source
-    Tracking](Tutorial_5_Advanced_Output_and_Source_Tracking)
--   [Tutorial 6: Operating Rules](Tutorial_6_Operating_Rules)
--   [DSM2 Bay-Delta Tutorial 1: Historical
-    Simulation](DSM2_Bay-Delta_Tutorial_1_Historical_Simulation)
--   [DSM2 Bay-Delta Tutorial 2: Source Tracking
-    (Fingerprinting)](DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_)
--   [DSM2 Bay-Delta Tutorial 3: Planning
-    Simulation](DSM2_Bay-Delta_Tutorial_3_Planning_Simulation)
--   [DSM2 Bay-Delta Tutorial 4: Batch
-    Preprocessing](DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing)
--   [DSM2 Bay-Delta Tutorial 5: Suisun Marsh Operating
-    Rules](DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules)
--   [DSM2 Bay-Delta Tutorial: SDIP Permanent Gate
-    Simulation](DSM2_Bay-Delta_Tutorial_SDIP_Permanent_Gate_Simulation)
--   [DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal
-    Pumping](DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping)
--   [Delta Tutorial 8 - Temperature
-    Simulation](Delta_Tutorial_8_-_Temperature_Simulation)
--   [Delta Tutorial 9 - DO Simulation](Delta_Tutorial_9_-_DO_Simulation)
--   [Presentations](Presentations)
--   [CSDP Tutorial](CSDP_Tutorial)
--   [Background Slide Material](Background_Slide_Material)
--   [Troubleshooting](Troubleshooting)
--   [DSM2 FAQ](DSM2_FAQ)
+-   [An Introduction to DSM2 Tutorials](An_Introduction_to_DSM2_Tutorials.md)
+-   [DSM2 Tutorial Overview](DSM2_Tutorial_Overview.md)
+-   [Tutorial 1: Channels](Tutorial_1_Channels.md)
+-   [Tutorial 2: Reservoirs, Gates, Transfers](Tutorial_2_Reservoirs_Gates_Transfers.md)
+-   [Tutorial 3: Layering](Tutorial_3_Layering.md)
+-   [Tutorial 4: Time Varying Data](Tutorial_4_Time_Varying_Data.md)
+-   [Tutorial 5: Advanced Output and Source Tracking](Tutorial_5_Advanced_Output_and_Source_Tracking.md)
+-   [Tutorial 6: Operating Rules](Tutorial_6_Operating_Rules.md)
+-   [DSM2 Bay-Delta Tutorial 1: Historical Simulation](DSM2_Bay-Delta_Tutorial_1_Historical_Simulation.md)
+-   [DSM2 Bay-Delta Tutorial 2: Source Tracking (Fingerprinting)](DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_.md)
+-   [DSM2 Bay-Delta Tutorial 3: Planning Simulation](DSM2_Bay-Delta_Tutorial_3_Planning_Simulation.md)
+-   [DSM2 Bay-Delta Tutorial 4: Batch Preprocessing](DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing.md)
+-   [DSM2 Bay-Delta Tutorial 5: Suisun Marsh Operating Rules](DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules.md)
+-   [DSM2 Bay-Delta Tutorial: SDIP Permanent Gate Simulation](DSM2_Bay-Delta_Tutorial_SDIP_Permanent_Gate_Simulation.md)
+-   [DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal Pumping](DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping.md)
+-   [Delta Tutorial 8 - Temperature Simulation](Delta_Tutorial_8_-_Temperature_Simulation.md)
+-   [Delta Tutorial 9 - DO Simulation](Delta_Tutorial_9_-_DO_Simulation.md)
+-   [Presentations](../reference/Presentations.md)
+-   [CSDP Tutorial](../gis/CSDP_Tutorial.md)
+-   [Background Slide Material](../reference/Background_Slide_Material.md)
+-   [Troubleshooting](../build/Troubleshooting.md)
+-   [DSM2 FAQ](../faqs/index.md)
 
 The tutorial in PDF forms are here 
 

@@ -4,7 +4,7 @@
 
 CALSIM is a water operations simulation model. It meets demands using
 reservoir release operations and other operational criteria. A crucial
-operational criteria is meeting the salinity and X2 standards in the
+operational criterion is meeting the salinity and X2 standards in the
 Delta.
 
 CALSIM relies on DSM2 simulation of water quality standards. However
@@ -30,7 +30,7 @@ To verify the results derived from having a surrogate DSM2 (ANN) model
 in CALSIM, the CALSIM flows and gate conditions are converted into daily
 inputs (with assumptions for monthly to daily) for DSM2 and the output
 salinity is checked against the X2 or salinity standards in CALSIM. This
-is called a "full circle analysis".  Typically  these have been done for
+is called a "full circle analysis".  Typically these have been done for
 a select period of 16 years but can be extended to the entire period of
 82 years of simulation if desired.
 
@@ -39,32 +39,30 @@ a select period of 16 years but can be extended to the entire period of
 DSM2 needs flow and stage boundary conditions, i.e. the inputs at the
 edges of the domain that would drive the simulation.
 
-1.  Flow boundaries: CALSIM operates the reservoirs upstream of the
+1.  <B>Flow boundaries:</B> CALSIM operates the reservoirs upstream of the
     Delta and as a result the flow conditions are established by CALSIM
     simulations, though on a monthly time step resolution.
-2.  Gate positions:  CALSIM operates these to satisfy regulations and
+2.  <B>Gate positions</B>:  CALSIM operates these to satisfy regulations and
     other constraints. 
-3.  Stage boundary: The only one is the ocean boundary at Martinez that
+3.  <B>Stage boundary</B>: The only one is the ocean boundary at Martinez that
     is derived from astronomical stage at San Francisco with regression
     using historical data to transfer to Martinez (Planning tide
     generator)
-4.  Martinez EC boundary: This is derived from a flow salinity
+4.  <B>Martinez EC boundary:</B> This is derived from a flow salinity
     relationship based on G model and stage boundaries (Planning
     Martinez EC generator)
-5.  Vernalis EC boundary. Derived from flow regression equations (Needs
-    reference here)
-6.  Consumptive Use. These are represented in DSM2 at 258 nodes, CALSIM
+5.  <B>Vernalis EC boundary:</B> Derived from flow regression equations.
+6.  <B>Consumptive Use:</B> These are represented in DSM2 at 258 nodes, CALSIM
     does not directly simulate these, however they are provided as input
     to CALSIM based on consumptive use models
-7.  Agricultural Drain EC. These are the most uncertain of the boundary
+7.  <B>Agricultural Drain EC:</B> These are the most uncertain of the boundary
     conditions and are represented in DSM2 as annually repeating values.
 8.  Waste water treatment plants ??
 
 ## Implementation
 
 These boundary conditions are explicitly mapped in this document between
-the CALSIM and DSM2 schematics. [Schematics and
-Boundaries](Schematics_and_Boundaries)
+the CALSIM and DSM2 schematics. [Schematics and Boundaries](../gis/Schematics_and_Boundaries.md)
 
 ## Resolving Monthly - Daily conversions
 
@@ -122,4 +120,4 @@ users should add it to replace the regular timeseries.
 ## Attachments:
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[bat_prep.png](attachments/87228590/87228589.png) (image/png)  
+[bat_prep.png](../attachments/87228590/87228589.png) (image/png)  

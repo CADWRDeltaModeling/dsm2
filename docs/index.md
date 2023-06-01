@@ -23,7 +23,7 @@ buoyant particles based on the flow field simulated by HYDRO. PTM has
 multiple applications ranging from visualization of flow patterns to
 simulation of discrete organisms such as fish eggs and larvae.
 
-DSM2 is currently in version 8.2.x. Please send comments to Min Yu
+DSM2 is currently in version 8.2.2. Please send comments to Min Yu
 <a href="mailto:minyu@water.ca.gov"
 rel="nofollow">minyu@water.ca.gov</a>.
 

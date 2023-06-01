@@ -19,12 +19,11 @@ DSM2 Historical Simulation.docx</u> in the shared folder.
 
 ## **Prerequisites**
 
-****1.     ** **Window command prompt: double clicks two files in the
-folder: <a
-href="file:///Z:/lliang/cdec_data_retrieve/DSM2_updates/Update_DSM2/window_command"
-rel="nofollow">Window command</a>. It allows you to open a command
-window by clicking the current folder in Windows file explorer. Python
-scripts run in the command window.
+****1.     ** **Follow the instructions <a href='https://www.windowscentral.com/add-open-command-window-here-back-context-menu-windows-10'>here</a> to 
+add the option 'Open command window here' to the Windows Explorer context menu. You will need administrative privileges to do this, and you
+should only do this if you are comfortable modifying the registry in Windows 10. This will allow you to open 
+a command window by right clicking on a folder in Windows explorer. DSM2 models and Python
+scripts can be run in the command window.
 
 ****2.     ****HEC-DSSVue:  Download and install <a
 href="http://www.hec.usace.army.mil/software/hec-dssvue/downloads.aspx"
