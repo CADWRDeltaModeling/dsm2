@@ -53,13 +53,10 @@ channel grid created in tutorial 1 
     In DSM2 applications for the Delta, object to object transfers have
     been used to represent proposed peripheral canal withdrawal and
     outflow locations.   
-    Additional information can be found in the DSM2 documentation by
-    clicking on the \**START menu *\* \*\_Programs  DSM2_v8 
-    DSM2_documentation{\*}.\_ 
 
 1.  **Create the reservoir:**
     1.  In Windows Explorer, navigate to the
-        directory: *\\{DSM2_home}\tutorial\simple\t2_reservoir_gate_transfer*.
+        directory: *\\{DSM2_home}\tutorial\simple\t2_reservoir_gate_transfer*.<BR>
     2.  Open *hydro.inp.* At the bottom of the file, Add the skeleton
         for the reservoir table:
 
@@ -67,10 +64,10 @@ RESERVOIR
 NAME AREA BOT_ELEV  
 END
 
-1.  1.  Enter the following values into the appropriate fields:
-        1.  1.  Name: *res_1*
-            2.  Area (million sq ft): *40*
-            3.  Bottom elev (ft): *-24*
+1.  1.  Enter the following values into the appropriate fields:<BR>
+        1.  Name: *res_1*<BR>
+        2.  Area (million sq ft): *40*<BR>
+        3.  Bottom elev (ft): *-24*<BR>
     2.  Note from Figure 1 that the reservoir has two connections; one
         at Node 3, and one at Node 4. These will go in a child table
         called RESERVOIR_CONNECTION. Some DSM2 input data tables are
@@ -87,17 +84,17 @@ RES_NAME NODE COEF_IN COEF_OUT
 END
 
 1.  1.  Enter the following values into the appropriate fields for the
-        first connection:
-        1.  1.  Res Name: res_1
-            2.  Node: *3*
-            3.  Res Coef (in): *200*
-            4.  Res Coef (out): *200*
+        first connection:<BR>
+        1.  Res Name: res_1<BR>
+        2.  Node: *3*<BR>
+        3.  Res Coef (in): *200*<BR>
+        4.  Res Coef (out): *200*<BR>
     2.  Enter the following values into the appropriate fields for the
-        second connection:
-        1.  1.  Res Name: res_1
-            2.  Node: *4*
-            3.  Res Coef (in): *200*
-            4.  Res Coef (out): *200*
+        second connection:<BR>
+        1.  Res Name: res_1<BR>
+        2.  Node: *4*<BR>
+        3.  Res Coef (in): *200*<BR>
+        4.  Res Coef (out): *200*<BR>
     3.  Save the current settings.
 
   
@@ -106,7 +103,7 @@ it is good practice to set appropriate initial conditions. It is
 recommended to set all flows to zero and reservoir stage to zero.
 
 1.  **Add Initial Conditions for the Reservoir:**
-    1.  Create the *Reservoir Initial Conditions* *table*:
+    1.  Create the *Reservoir Initial Conditions* *table*:<BR>
         1.  The header and data are
 
 RESERVOIR_IC  
@@ -119,58 +116,56 @@ END 
         GATE_DEVICE. Note from Figure 1 that the gate is located at Node
         2 of Channel 2. This gate consists of both a weir and a pipe.
         Therefore, two rows of information will be needed for
-        the *GATE_DEVICE* table.
-    2.  At the bottom of hydro.inp, add the skeleton for the GATE table:
+        the *GATE_DEVICE* table.<BR>
+    2.  At the bottom of hydro.inp, add the skeleton for the GATE table:<BR>
 
 GATE  
 NAME FROM_OBJ FROM_IDENTIFIER TO_NODE  
 END
 
-1.  1.  In the *Gates* *table*:
+1.  1.  In the *Gates* *table*:<BR>
         1.  Add a row and enter the following values into the
-            appropriate fields:
-            1.  Name: *gate_1*
-            2.  From object: *channel*
+            appropriate fields:<BR>
+            1.  Name: *gate_1*<BR>
+            2.  From object: *channel*<BR>
             3.  From identifier: *2 \[note that this 2 refers to channel
-                2\]*
-            4.  to Node: *2 \[note that this 2 refers to node 2\]*
-        2.  Create a GATE_WEIR_DEVICE table with the following fields:
+                2\]*<BR>
+            4.  to Node: *2 \[note that this 2 refers to node 2\]*<BR>
+        2.  Create a GATE_WEIR_DEVICE table with the following fields:<BR>
 
 GATE_NAME, DEVICE, NDUPLICATE, WIDTH, ELEV, HEIGHT, CF_FROM_NODE,
-CF_TO_NODE, DEFAULT_OP
+CF_TO_NODE, DEFAULT_OP<BR>
 
-1.  1.  1.  Enter the following values into the appropriate fields:
-            1.  Gate Name: gate_1
-            2.  Device: *weir*
-            3.  NDuplicate: *2*
-            4.  Width: *20*
-            5.  Elev: *2*
-            6.  Height: *9999.0*
-            7.  CF from Node: *0.8*
-            8.  CF to Node: *0.8*
-            9.  Default Op: *gate_openNote: don't forget to close your
-                table with END.*  How many weirs does this gate have?  
-                Hint: check out the value for number of duplicates
+1.  Enter the following values into the appropriate fields:<BR>
+    1.  Gate Name: gate_1<BR>
+    2.  Device: *weir*<BR>
+    3.  NDuplicate: *2*<BR>
+    4.  Width: *20*<BR>
+    5.  Elev: *2*<BR>
+    6.  Height: *9999.0*<BR>
+    7.  CF from Node: *0.8*<BR>
+    8.  CF to Node: *0.8*<BR>
+    9.  Default Op: *gate_openNote: don't forget to close your
+            table with END.*  How many weirs does this gate have?  
+            Hint: check out the value for number of duplicates<BR>
 
   
 
-1.  1.  1.  Create a GATE_PIPE_DEVICE table by looking up the
-            appropriate headers in the DSM2 documentation by clicking on
-            the START menu and selecting START
-            menu *Programs*  *DSM2_v8*  *DSM2_documentation*  All
-            table headers have to be in capital letters.
+1.  Create a GATE_PIPE_DEVICE table by looking up the
+        appropriate headers in the DSM2 documentation. All
+        table headers have to be in capital letters.
 
-    2.  Again, in the *Gate Devices* table:
+    2.  Again, in the *Gate Devices* table:<BR>
         1.  On a new line enter the following values into the
-            appropriate fields:
-            1.  Gate Name: gate_1
-            2.  Device Name: *pipe*
-            3.  Number of duplicates: *2*
-            4.  Radius: *2*
-            5.  Elevation: *2*
-            6.  Flow coefficient from Node: *0.8*
-            7.  Flow coefficient to Node: *0.8*
-            8.  Default Operation: *gate_open*
+            appropriate fields:<BR>
+            1.  Gate Name: gate_1<BR>
+            2.  Device Name: *pipe*<BR>
+            3.  Number of duplicates: *2*<BR>
+            4.  Radius: *2*<BR>
+            5.  Elevation: *2*<BR>
+            6.  Flow coefficient from Node: *0.8*<BR>
+            7.  Flow coefficient to Node: *0.8*<BR>
+            8.  Default Operation: *gate_open*<BR>
 
     3.  Save the current settings.  How would you change the gate device
         table to only allow flow in one direction? Hint: review gate
@@ -183,19 +178,19 @@ reservoir to another node or reservoir. We are going to create a
 continuous transfer of 40cfs of water from the reservoir res_1 to node
 6.
 
-1.  1.  Below the gate input, create the *TRANSFER* *table*
-        1.  The headers are:
+1.  Below the gate input, create the *TRANSFER* *table*
+    1.  The headers are:
 
 TRANSFER  
 NAME FROM_OBJ FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER  
 END
 
-1.  1.  1.  Enter the following values into the appropriate fields:
-            1.  Name: *transfer_1*
-            2.  From Object: *reservoir*
-            3.  To identifier: *res_1*
-            4.  To Object: *node*
-            5.  To identifier: *6*
+1.  Enter the following values into the appropriate fields:<BR>
+        1.  Name: *transfer_1*<BR>
+        2.  From Object: *reservoir*<BR>
+        3.  To identifier: *res_1*<BR>
+        4.  To Object: *node*<BR>
+        5.  To identifier: *6*<BR>
 
     2.  Save the current settings.
 
@@ -208,18 +203,18 @@ flow. This is done on a separate table, so that the specifications of
 the transfer can be used with different operations or hydrologies. Flow
 will be 40cfs.
 
-1.  1.  In hydro.inp, create the *Transfer Time Series* table:
-        1.  The headers are:
+1.  In hydro.inp, create the *Transfer Time Series* table:<BR>
+    1.  The headers are:
 
 INPUT_TRANSFER_FLOW  
 TRANSFER_NAME FILLIN FILE PATH  
 END
 
-1.  1.  1.  Enter the following values into the appropriate fields:
-            1.  Input Name: *transfer_1*
-            2.  Fillin: *last*
-            3.  Input File: *constant*
-            4.  Path/Value: *40*
+1.  Enter the following values into the appropriate fields:<BR>
+        1.  Input Name: *transfer_1*<BR>
+        2.  Fillin: *last*<BR>
+        3.  Input File: *constant*<BR>
+        4.  Path/Value: *40*<BR>
 
     2.  Save the current settings.
 
@@ -232,16 +227,16 @@ values. See Basic Tutorial 4 for more information on using time series
 data in DSM2. 
 
 1.  **Running HYDRO and QUAL**
-    1.  In Windows Explorer, navigate to the directory: \_  
+    1.  In Windows Explorer, navigate to the directory: \_  <BR>
           
-        Unknown macro: {DSM2_home}tutorialsimple{\_}.
+        Unknown macro: {DSM2_home}tutorialsimple{\_}.<BR>
     2.  Right-click on the directory, *t2_reservoir_gate_transfer*, and
-        select *Open Command Window Here*.
-    3.  In the command window, type: *hydro hydro.inp*.
-    4.  In the command window, type: *qual qual.inp*.
+        select *Open Command Window Here*.<BR>
+    3.  In the command window, type: *hydro hydro.inp*.<BR>
+    4.  In the command window, type: *qual qual.inp*.<BR>
     5.  Open the *output.dss* file in
-        the *t2_reservoir_gate_transfer* directory, and examine  the
-        results.
+        the *t2_reservoir_gate_transfer* directory, and examine the
+        results.<BR>
 
   
 
@@ -251,15 +246,15 @@ data in DSM2. 
         connection in the documentation. Write it down next to the gate
         equation. Assuming they both represent the same basic orifice
         physics, what terms in the gate equation does the reservoir
-        coefficient C lump together?
+        coefficient C lump together?<BR>
     2.  Clifton Court Forebay has five duplicate radial gates connecting
         it to the surrounding channel. Each has a crest elevation of
-        -10.1ft and a width of 20ft:
+        -10.1ft and a width of 20ft:<BR>
         1.  If water is at 0 ft and the five gates are open, what is the
-            area exposed to flow?
+            area exposed to flow?<BR>
         2.  If the weirs are perfectly efficient (no loss, coefficients
             of 1.0), what would be the equivalent "lumped" reservoir
-            coefficient for these gates?
+            coefficient for these gates?<BR>
         3.  DSM2 version 6 had a calibrated reservoir coefficient of
             1800^^ Note that the value of 1800 is the DSM2v6 value of
             2400 adjusted so that it matches the reservoir equation and
@@ -269,25 +264,25 @@ data in DSM2. 
             assumptions of the model? What alternate value might you
             use? Why might the version 6 value have been acceptable –
             are there explanations having to do with the model
-            assumptions?
+            assumptions?<BR>
 
 ## Attachments:
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddaved66c7e251a12fc539b16dd2a232b5d1.png](attachments/87228759/87228758.png)
+[worddaved66c7e251a12fc539b16dd2a232b5d1.png](../attachments/87228759/87228758.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](attachments/87228759/87228760.png)
+[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../attachments/87228759/87228760.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav8833b1c831b4ff3c27cb1f7ef0c33253.png](attachments/87228759/87228761.png)
+[worddav8833b1c831b4ff3c27cb1f7ef0c33253.png](../attachments/87228759/87228761.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](attachments/87228759/87228762.png)
+[worddavf9e3aa73957a24bdb115e43494948841.png](../attachments/87228759/87228762.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](attachments/87228759/87228763.png)
+[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228759/87228763.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](attachments/87228759/87228764.png)
+[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../attachments/87228759/87228764.png)
 (image/png)  

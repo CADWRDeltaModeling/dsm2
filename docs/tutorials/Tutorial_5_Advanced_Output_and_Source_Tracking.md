@@ -21,15 +21,8 @@ file, *hydro.inp*. We will add some outputs and also take a look at how
 data in *hydro.inp* is prioritized. The second part introduces the use
 of *groups* for source tracking. This tutorial uses the simple channel
 network shown in Figure 1.  
-<img src="attachments/87228777/87228779.png"
-data-image-src="attachments/87228777/87228779.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228779"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavd56eb5f63f4c9181cb2a8632c8c6c562.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="623" height="385" />**dummy_res**  
+![figure 1](../attachments/87228777/87228779.png)
+**dummy_res**  
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**  
   
@@ -55,15 +48,7 @@ downstream of the gate and reservoir 1.
         and in *output_hydro_tutorial.inp* it has been defined as
         channel 1 location 100.
 
-<img src="attachments/87228777/87228778.png"
-data-image-src="attachments/87228777/87228778.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228778"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="29" height="29" /> For
+<img src=../../attachments/87228777/87228778.png width="29" height="29"/> For
 flow data at bnd_1, will the output be written at the upstream end of
 the channel (location 0) or 100ft downstream?  
 **Answer:** The output will be for 100ft downstream because the output
@@ -71,15 +56,8 @@ request in the launch file (e.g. *hydro.inp* or *qual.inp*) supersedes
 all other output requests that have the same identifier. In this case
 the identifier is the NAME and VARIABLE combination (e.g. bnd_1 and
 flow).  
-<img src="attachments/87228777/87228778.png"
-data-image-src="attachments/87228777/87228778.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228778"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="29" height="29" /> How
+<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
+ How
 would you get output at channel 1 and both location 0 and location
 100?  
 **Answer:** Give each location a unique identifier, eg. bnd_1 and
@@ -103,9 +81,9 @@ Consumptive Use (DICU) diversions, etc. In this section, we will create
 two output groups: boundary locations and water quality constituent
 source locations.
 
-1.  1.  In the study directory, create a file called
+1.  In the study directory, create a file called
         *group_tutorial.inp*.
-    2.  In the *group_tutorial.inp* file, add a group table. Note that
+2.  In the *group_tutorial.inp* file, add a group table. Note that
         this is a parent table for overwriting/layering purposes. Define
         a boundary and a sources group:
 
@@ -115,83 +93,59 @@ boundary
 sources  
 END
 
-1.  1.  Now define the group members. Create the GROUP_MEMBER table
+1.  Now define the group members. Create the GROUP_MEMBER table
         below the GROUP table:
 
 GROUP_MEMBER  
 GROUP_NAME MEMBER_TYPE PATTERN  
 END
 
-1.  1.  In the *Group Members* *table*:
+1.  In the *Group Members* *table*:<BR>
         1.  Enter a row with the following values in the appropriate
-            fields:
-            1.  GROUP_NAME: *boundary*
-            2.  MEMBER_TYPE: *stage*
-            3.  PATTERN: *.**stream.***
+            fields:<BR>
+            1.  GROUP_NAME: *boundary*<BR>
+            2.  MEMBER_TYPE: *stage*<BR>
+            3.  PATTERN: *.**stream.***<BR>
             4.  Note that the dot-star .\* in the above pattern is a
                 "regular expression" wildcard. You can use any standard
                 Perl-style regular expression in groups, but the html
                 documentation for GROUPS describes most of the patterns
-                you can put in a GROUP_MEMBER that are really useful.
+                you can put in a GROUP_MEMBER that are really useful.<BR>
 
-<img src="attachments/87228777/87228778.png"
-data-image-src="attachments/87228777/87228778.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228778"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="29" height="29" />
+<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
 Look in the *input_boundary_hydro_tutorial.inp* file and determine what
 boundary conditions are part of the boundary group based on the member
 type "stage" and the pattern ".**stream.**".
 
-1.  1.  1.  Enter another row with the following values in the
-            appropriate fields:
-            1.  GROUP_NAME: *boundary*
-            2.  MEMBER_TYPE: *flow_boundary*
-            3.  PATTERN: *.**stream.***
+1.  Enter another row with the following values in the
+        appropriate fields:<BR>
+        1.  GROUP_NAME: *boundary*<BR>
+        2.  MEMBER_TYPE: *flow_boundary*<BR>
+        3.  PATTERN: *.**stream.***<BR>
 
-<img src="attachments/87228777/87228778.png"
-data-image-src="attachments/87228777/87228778.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228778"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="29" height="29" />
+<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
 Look in the *input_boundary_hydro_tutorial.inp* file and determine what
 boundary conditions are part of the boundary group based on the member
 type "flow_boundary" and the pattern ".**stream.**".
 
-1.  1.  1.  In the *Group Members* *table* insert another row with the
-            following values in the appropriate fields:
-            1.  GROUP_NAME: *sources*
-            2.  MEMBER_TYPE: *source_sink*
-            3.  PATTERN: *source1*
+1.  In the *Group Members* *table* insert another row with the
+        following values in the appropriate fields:<BR>
+        1.  GROUP_NAME: *sources*<BR>
+        2.  MEMBER_TYPE: *source_sink*<BR>
+        3.  PATTERN: *source1*<BR>
 
-<img src="attachments/87228777/87228778.png"
-data-image-src="attachments/87228777/87228778.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228778"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="29" height="29" />
+<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
 Look in the various qual input files and determine which inputs will
 make up the sources group defined above.
 
-1.  1.  In the *qual.inp* file, create the GROUPS (note the plural)
+1.  In the *qual.inp* file, create the GROUPS (note the plural)
         include block that will reference this file:
 
 GROUPS  
 group_tutorial.inp  
 END
 
-1.  1.  Save the current settings.
+1.  Save the current settings.
 
   
 
@@ -265,15 +219,7 @@ Create a new file called output_qual_sourcetrack.inp.
         examine the results. Do a mass balance to make sure the source
         tracking adds up.
 
-<img src="attachments/87228777/87228776.png"
-data-image-src="attachments/87228777/87228776.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228776"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavfc12b6cdb26e67dfc2a101ee2af340bd.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228777"
-data-linked-resource-container-version="1" width="82" height="96" />
+<img src="../../attachments/87228777/87228776.png" width="82" height="96" />
 
 1.  **Brain Teaser**
 
@@ -283,12 +229,12 @@ boundary?
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](attachments/87228777/87228776.png)
+<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../../attachments/87228777/87228776.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](attachments/87228777/87228778.png)
+<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddavf9e3aa73957a24bdb115e43494948841.png](../../attachments/87228777/87228778.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](attachments/87228777/87228779.png)
+<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../../attachments/87228777/87228779.png)
 (image/png)  

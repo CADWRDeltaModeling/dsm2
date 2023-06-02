@@ -256,15 +256,7 @@ S35 and S97 monitoring stations</p></td>
 
   
   
-<img src="attachments/87228788/87228787.png"
-data-image-src="attachments/87228788/87228787.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228787"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddav62354693aafde1936ce4744dcf144ea0.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228788"
-data-linked-resource-container-version="1" width="594" height="457" />
+<img src="../../attachments/87228788/87228787.png" width="594" height="457" />
 
 ## Steps:
 
@@ -327,6 +319,6 @@ d\. Launch HYDRO with the command:
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav62354693aafde1936ce4744dcf144ea0.png](attachments/87228788/87228787.png)
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddav62354693aafde1936ce4744dcf144ea0.png](../../attachments/87228788/87228787.png)
 (image/png)  

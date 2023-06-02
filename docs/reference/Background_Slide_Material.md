@@ -9,26 +9,26 @@ All</a>
 ## Attachments:
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[IIA.05.Banks pumping.kts.ppt](attachments/87228854/87228853.ppt)
-(application/vnd.ms-powerpoint)  
+[IIA.05.Banks pumping.kts.ppt](../attachments/87228854/87228853.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" /> [DSM2
-reservoirs and gates.ppt](attachments/87228854/87228855.ppt)
-(application/vnd.ms-powerpoint)  
+reservoirs and gates.ppt](../attachments/87228854/87228855.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" /> [DSM2
-Delta Applications Intro.ppt](attachments/87228854/87228856.ppt)
-(application/vnd.ms-powerpoint)  
+Delta Applications Intro.ppt](../attachments/87228854/87228856.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" /> [DSM2
-boundary conditions.ppt](attachments/87228854/87228857.ppt)
-(application/vnd.ms-powerpoint)  
+boundary conditions.ppt](../attachments/87228854/87228857.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" /> [DSM2
-analysis tools.ppt](attachments/87228854/87228858.ppt)
-(application/vnd.ms-powerpoint)  
+analysis tools.ppt](../attachments/87228854/87228858.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[DeltaTutorial-Planning_PermanentBarriers.doc](attachments/87228854/87228859.doc)
-(application/msword)  
+[DeltaTutorial-Planning_PermanentBarriers.doc](../attachments/87228854/87228859.doc)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[Tutorial maps.ppt](attachments/87228854/87228860.ppt)
-(application/vnd.ms-powerpoint)  
+[Tutorial maps.ppt](../attachments/87228854/87228860.ppt)
+<BR>
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[Reservoir and Gate equations.ppt](attachments/87228854/87228861.ppt)
-(application/vnd.ms-powerpoint)  
+[Reservoir and Gate equations.ppt](../attachments/87228854/87228861.ppt)
+<BR>

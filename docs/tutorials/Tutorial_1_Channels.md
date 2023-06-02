@@ -29,10 +29,8 @@ grid 
     except Channel 5 the cross sections have been assigned at the
     midpoint of the channel. In Channel 5 the cross-sections are
     assigned at fractions 0.2 and 0.8 of the length of the channel
-    measured from the upstream end. The DSM2 distribution includes a map
-    of the Delta grid with arrows pointing from upstream to downstream
-    (the positive direction is typically seaward flow)
-    e.g. *\delta\dsm2_v8\documentation\DSM2_Grid2.0.pdf.*
+    measured from the upstream end. The [DSM2 grid map](https://data.cnra.ca.gov/dataset/dsm2) includes arrows 
+    pointing from upstream to downstream, indicating the positive direction of flow.
 
     <table class="wrapped confluenceTable">
     <tbody>
@@ -46,7 +44,7 @@ grid 
     elevation lists the data (width) or cumulative data (wetted perimeter
     and area) below the given elevation. Anything above the top elevation is
     extrapolated using a slope given by a global scalar
-    called<em>levee_slope</em>.<br />
+    called <em>levee_slope</em>.<br />
     <br />
     <strong>Figure 2: Piecewise linear bathymetry</strong><br />
     For instance, for a cross section half way downstream in a fictitious
@@ -66,7 +64,7 @@ grid 
     <p>The above table is in the single-file DSM2 cross-section format. An
     analogous table is produced by the Cross Section Development Program
     (CSDP). We will practice using both in the tutorial. The
-    parameter<em>levee_slope</em>is seldom changed from its standard value
+    parameter <em>levee_slope</em> is seldom changed from its standard value
     of 0.33.</p>
     </div></td>
     </tr>
@@ -79,9 +77,9 @@ grid 
 
 1.  **Open the hydro input file and add parameters:**
     1.  For this tutorial, you will want to use Notepad++
-        (recommended <a href="http://notepad-plus.sourceforge.net/"
+        (recommended <a href="https://notepad-plus-plus.org/"
         style="text-decoration: none;"
-        rel="nofollow">http://notepad-plus.sourceforge.net</a>), Textpad
+        rel="nofollow">https://notepad-plus-plus.org/</a>), Textpad
         or Emacs – some text editor that will not add special markup to
         your input.
     2.  Navigate to
@@ -563,10 +561,7 @@ grid 
             previous run, and is what we are trying to match.
         2.  Rerun hydro using the command:
 
-    ``` python
     > hydro hydro_csdp.inp
-    ```
-
       
 
     1.  1.  Compare the echoed cross-sections to those
@@ -588,9 +583,7 @@ grid 
         5.  Run the model using *channel_hydro_echo.inp*. At a command
             prompt type:
 
-    ``` python
     > hydro channel_hydro_echo.inp
-    ```
 
       
 
@@ -625,59 +618,59 @@ grid 
 ## Attachments:
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav9894d5ad3645a3d4dcca771791ed6ad0.png](attachments/87228739/87228738.png)
+[worddav9894d5ad3645a3d4dcca771791ed6ad0.png](../attachments/87228739/87228738.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavacdb763f7814807ae1cee2e37e7cb36a.png](attachments/87228739/87228740.png)
+[worddavacdb763f7814807ae1cee2e37e7cb36a.png](../attachments/87228739/87228740.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavcf31df39a0b70101e885bccc73c06634.png](attachments/87228739/87228741.png)
+[worddavcf31df39a0b70101e885bccc73c06634.png](../attachments/87228739/87228741.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavc62041d7d99031387651e87bef05c94c.png](attachments/87228739/87228742.png)
+[worddavc62041d7d99031387651e87bef05c94c.png](../attachments/87228739/87228742.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav5c53d93320a102e56a6cc9f283292eb3.png](attachments/87228739/87228743.png)
+[worddav5c53d93320a102e56a6cc9f283292eb3.png](../attachments/87228739/87228743.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb6a63211b4b9979e82bf279fed459047.png](attachments/87228739/87228744.png)
+[worddavb6a63211b4b9979e82bf279fed459047.png](../attachments/87228739/87228744.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav21c20dc2a8dba2bb107fee628b41a137.png](attachments/87228739/87228745.png)
+[worddav21c20dc2a8dba2bb107fee628b41a137.png](../attachments/87228739/87228745.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddava88bd90db3de962e7f96da3b1f2909fe.png](attachments/87228739/87228746.png)
+[worddava88bd90db3de962e7f96da3b1f2909fe.png](../attachments/87228739/87228746.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavec32b1550654d1f335e93b8c9a94363c.png](attachments/87228739/87228747.png)
+[worddavec32b1550654d1f335e93b8c9a94363c.png](../attachments/87228739/87228747.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav93cd7067934415ddc9fb611bb5bf2149.png](attachments/87228739/87228748.png)
+[worddav93cd7067934415ddc9fb611bb5bf2149.png](../attachments/87228739/87228748.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[BasicTutorial1-Channels.doc](attachments/87228739/87228749.doc)
+[BasicTutorial1-Channels.doc](../attachments/87228739/87228749.doc)
 (application/msword)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav457e267c6829c66a691aad41b4e6e433.png](attachments/87228739/87228750.png)
+[worddav457e267c6829c66a691aad41b4e6e433.png](../attachments/87228739/87228750.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](attachments/87228739/87228751.png)
+[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../attachments/87228739/87228751.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb255646388081f14834ad64cb2ebb184.png](attachments/87228739/87228752.png)
+[worddavb255646388081f14834ad64cb2ebb184.png](../attachments/87228739/87228752.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav4210fc49d3b08515b01f2dd5efbf5d85.png](attachments/87228739/87228753.png)
+[worddav4210fc49d3b08515b01f2dd5efbf5d85.png](../attachments/87228739/87228753.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](attachments/87228739/87228754.png)
+[worddavf9e3aa73957a24bdb115e43494948841.png](../attachments/87228739/87228754.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](attachments/87228739/87228755.png)
+[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228739/87228755.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddava830b637c91154fb80e4ecec9aa946da.png](attachments/87228739/87228756.png)
+[worddava830b637c91154fb80e4ecec9aa946da.png](../attachments/87228739/87228756.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav205660d02ed6265e4cb0afe559da213a.png](attachments/87228739/87228757.png)
+[worddav205660d02ed6265e4cb0afe559da213a.png](../attachments/87228739/87228757.png)
 (image/png)  

@@ -30,10 +30,8 @@
     simulated by HYDRO. PTM has multiple applications ranging from
     visualization of flow patterns to simulation of discrete organisms
     such as fish eggs and larvae. A fourth module for sediment transport
-    is currently being developed. Further information is available on
-    the web at <a
-    href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm"
-    rel="nofollow">http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm</a>  
+    is currently being developed. 
+
     **HYDRO**  
     1-D flow, velocity, depth, and water surface elevations\*QUAL\*  
     1-D fate and transport of conservative and non-conservative
@@ -80,9 +78,10 @@
     DSM2 planning studies are typically run under a 16-year sequence of
     Delta inflows and exports derived from statewide water transfer and
     storage simulations using CalSim-II More information on CalSim-II
-    can be found on the web at <a
-    href="http://baydeltaoffice.water.ca.gov/modeling/hydrology/CalSim/index.cfm"
-    rel="nofollow"><strong>http://baydeltaoffice.water.ca.gov/modeling/hydrology/CalSim/index.cfm</strong></a>
+    can be found on the web at 
+    
+    <a href="https://water.ca.gov/Library/Modeling-and-Analysis/Central-Valley-models-and-tools/CalSim-II"
+    rel="nofollow"><strong>https://water.ca.gov/Library/Modeling-and-Analysis/Central-Valley-models-and-tools/CalSim-II</strong></a>
     .. Planning simulations can use historical or astronomical tidal
     data which incorporate influences of the spring-neap tidal cycle or
     simulations can use an average repeating tide (typically the 19-year

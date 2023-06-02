@@ -16,28 +16,12 @@ on-the-fly; e.g., a gate can be directed to automatically close when
 stage conditions reach a certain threshold. In this tutorial we will
 create operating rules to operate a gate and to regulate a source/sink
 inflow.  
-<img src="attachments/87228781/87228782.png"
-data-image-src="attachments/87228781/87228782.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228782"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddave8e1df4e853bb46c4ee6f68afece040d.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228781"
-data-linked-resource-container-version="5" width="29" height="29" />
+<img src="../../attachments/87228781/87228782.png" width="29" height="29" />
 Extensive documentation on the DSM2 operating rules can be found at:  
 START menu *Programs*  *DSM2_v8*  *DSM2_documentation* Operating
 Rules
 
-gate_2 <img src="attachments/87228781/87228780.png"
-data-image-src="attachments/87228781/87228780.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228780"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavd56eb5f63f4c9181cb2a8632c8c6c562.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228781"
-data-linked-resource-container-version="5" width="623" height="347" />**dummy_res**  
+gate_2 <img src="../../attachments/87228781/87228780.png" width="623" height="347" />**dummy_res**  
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**
 
@@ -119,23 +103,15 @@ OPERATING_RULE
 NAME ACTION TRIGGER  
 END
 
-1.  1.  1.  Enter the following values into the appropriate fields:
-            1.  Name: *weir_close*
-            2.  Action Definition: "*SET gate_op(gate=gate_2,
-                device=weir, direction=from_node) TO CLOSE RAMP 30MIN"*
+1.  Enter the following values into the appropriate fields:
+        1.  Name: *weir_close*
+        2.  Action Definition: "*SET gate_op(gate=gate_2,
+            device=weir, direction=from_node) TO CLOSE RAMP 30MIN"*
 
-<img src="attachments/87228781/87228782.png"
-data-image-src="attachments/87228781/87228782.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228782"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddave8e1df4e853bb46c4ee6f68afece040d.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228781"
-data-linked-resource-container-version="5" width="29" height="29" /> You
+<img src="../../attachments/87228781/87228782.png" width="29" height="29" /> You
 must use quotes for inputs with spaces.
 
-1.  1.  1.  1.  Trigger Definition: "*stage_critical AND op_applies"*
+1.  Trigger Definition: "*stage_critical AND op_applies"*
 
     2.  Create an OPERATION include block in hydro.inp and add the new
         file so that it will be used by DSM2-HYDRO.
@@ -144,7 +120,7 @@ OPERATION
 oprule_tutorial.inp  
 END
 
-1.  1.  Save the current settings.
+1.  Save the current settings.
 
   
 Note that the expressions stage_critical and op_applies will be created
@@ -159,10 +135,10 @@ we will define these expressions.
 
 1.  1.  In the *Operating Rules* *table* enter the following values into
         the appropriate fields:
-        1.  1.  Name: *weir_open*
-            2.  Action Definition: "*SET gate_op(gate=gate_2,
+        1.  Name: *weir_open*
+        2.  Action Definition: "*SET gate_op(gate=gate_2,
                 device=weir, direction=from_node) TO OPEN RAMP 30MIN"*
-            3.  Trigger Definition: "( stage_relax AND op_applies) OR
+        3.  Trigger Definition: "( stage_relax AND op_applies) OR
                 NOT(op_applies)"
     2.  Save the current settings.
     3.  In the *hydro.inp* file, add the following environmental
@@ -470,9 +446,9 @@ we will override it in a new layer.
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](attachments/87228781/87228780.png)
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../../attachments/87228781/87228780.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](attachments/87228781/87228782.png)
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddave8e1df4e853bb46c4ee6f68afece040d.png](../../attachments/87228781/87228782.png)
 (image/png)  

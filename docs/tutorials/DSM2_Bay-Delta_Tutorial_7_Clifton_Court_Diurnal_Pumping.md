@@ -4,15 +4,7 @@
 
 ## Background: ***The Banks pumping facility is often operated on a diurnal schedule, emphasizing pumping during off-peak electricity hours. An example of summer electricity prices for the year 2005 is shown in Figure*** ***1:***
 
-<img src="attachments/87228791/87228792.png"
-data-image-src="attachments/87228791/87228792.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228792"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddav1716141bfb59d0a475a7b5d067b70f84.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228791"
-data-linked-resource-container-version="1" width="646" height="371" />  
+<img src="../../attachments/87228791/87228792.png" width="646" height="371" />  
 **Figure 1: Example wholesale electricity prices in July 2005 (CWEMF, KT
 Shum)**
 
@@ -25,15 +17,7 @@ total that satisfies the daily average requested by CALSIM. We will use
 the ACCUMULATE function to track the total. In a later step we will
 attenuate pumping to avoid drawing Clifton Court Forebay below -2ft
 NGVD.  
-<img src="attachments/87228791/87228790.png"
-data-image-src="attachments/87228791/87228790.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228790"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf97850b4a4a68ee61b2712f2069b4eb3.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228791"
-data-linked-resource-container-version="1" width="624" height="428" />  
+<img src="../../attachments/87228791/87228790.png" width="624" height="428" />  
 **Figure 2: Diurnal Variation in Pumping, July-August 2004 (CWEMF, KT
 Shum)**
 
@@ -208,9 +192,9 @@ not operating on any big transient negative flows.
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf97850b4a4a68ee61b2712f2069b4eb3.png](attachments/87228791/87228790.png)
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddavf97850b4a4a68ee61b2712f2069b4eb3.png](../../attachments/87228791/87228790.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav1716141bfb59d0a475a7b5d067b70f84.png](attachments/87228791/87228792.png)
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+[worddav1716141bfb59d0a475a7b5d067b70f84.png](../../attachments/87228791/87228792.png)
 (image/png)  
