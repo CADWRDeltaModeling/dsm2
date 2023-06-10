@@ -1,9 +1,7 @@
 # How does DSM2-Hydro calculate channel volume?
 
 -   Hydro creates virtual cross-sections by interpolating cross-section
-    input (see
-    <a href="http://msb-confluence/display/DSM2/Tutorial+1%3A+Channels"
-    style="letter-spacing: 0.0px;" rel="nofollow">Tutorial 1: Channels</a>)
+    input (see [Tutorial 1: Channels](../tutorials/Tutorial_1_Channels.md))
     to create virtual cross-sections. Virtual cross-sections are created
     and used internally in Hydro by interpolating cross-section input.
 -   Virtual cross-sections are usually not seen by the user. If the
@@ -32,8 +30,7 @@
 
 ## References
 
-Annual reports can be found here: 
-\\nasbdo\Delta_Mod\Share\AnnualReports\\
+Annual reports can be found [here](https://data.cnra.ca.gov/dataset/methodology-for-flow-and-salinity-estimates-in-the-sacramento-san-joaquin-delta-and-suisun-marsh).
 
 Ferreira I. and Sandhu, N. 2016 "Chapter 3: DSM2 Extension: A GIS-Based
 Approach."  In: Methodology for Flow and Salinity Estimates in the

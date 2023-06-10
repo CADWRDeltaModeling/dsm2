@@ -187,14 +187,3 @@ not operating on any big transient negative flows.
         policy with a time series controlling SWP instead of an
         operating rule?
 
-  
-  
-
-## Attachments:
-
-<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf97850b4a4a68ee61b2712f2069b4eb3.png](../../attachments/87228791/87228790.png)
-(image/png)  
-<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav1716141bfb59d0a475a7b5d067b70f84.png](../../attachments/87228791/87228792.png)
-(image/png)  

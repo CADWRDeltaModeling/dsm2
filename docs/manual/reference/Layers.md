@@ -34,7 +34,7 @@ data-linked-resource-container-version="1" height="250" />
 ### Example: Channel
 
 Consider the above example using text input. We are going to
-createCHANNEL tables representing the channel connectivity, and assume
+create CHANNEL tables representing the channel connectivity, and assume
 the geometry is provided with CSDP style cross-sections listed in
 an XSECT table (child items are always associated with parent items in
 the same file).

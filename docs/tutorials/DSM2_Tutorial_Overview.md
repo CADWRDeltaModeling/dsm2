@@ -78,11 +78,9 @@
     DSM2 planning studies are typically run under a 16-year sequence of
     Delta inflows and exports derived from statewide water transfer and
     storage simulations using CalSim-II More information on CalSim-II
-    can be found on the web at 
-    
-    <a href="https://water.ca.gov/Library/Modeling-and-Analysis/Central-Valley-models-and-tools/CalSim-II"
+    can be found on the web at <a href="https://water.ca.gov/Library/Modeling-and-Analysis/Central-Valley-models-and-tools/CalSim-II"
     rel="nofollow"><strong>https://water.ca.gov/Library/Modeling-and-Analysis/Central-Valley-models-and-tools/CalSim-II</strong></a>
-    .. Planning simulations can use historical or astronomical tidal
+    . Planning simulations can use historical or astronomical tidal
     data which incorporate influences of the spring-neap tidal cycle or
     simulations can use an average repeating tide (typically the 19-year
     mean tide). Planning simulations typically assess impacts of

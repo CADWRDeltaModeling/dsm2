@@ -15,7 +15,7 @@ channel grid created in tutorial 1 
     identical to the simple channel model from Tutorial 1. Note that
     each tutorial is self contained, so it is not necessary to do
     Tutorial 1 before completing this tutorial.  
-      
+      ![](../../attachments/87228759/87228764.png)
     **Figure 1- Simple channel with a new reservoir, gate, and flow
     transfer.**   
     The following steps will instruct you on how to create these new
@@ -70,7 +70,7 @@ END
         3.  Bottom elev (ft): *-24*<BR>
     2.  Note from Figure 1 that the reservoir has two connections; one
         at Node 3, and one at Node 4. These will go in a child table
-        called RESERVOIR_CONNECTION. Some DSM2 input data tables are
+        called RESERVOIR_CONNECTION. <img src="../../attachments/5931233/5931235.png" width="29" height="29" />Some DSM2 input data tables are
         related to each other in what is referred to as a parent/child
         relationship. In the case of reservoirs, the RESERVOIR table is
         the parent table and the RESERVOIR_CONNECTIONS table is the
@@ -98,7 +98,7 @@ END
     3.  Save the current settings.
 
   
- To ensure conservation of mass at the beginning of a DSM2 simulation,
+<img src="../../attachments/5931233/5931235.png" width="29" height="29" /> To ensure conservation of mass at the beginning of a DSM2 simulation,
 it is good practice to set appropriate initial conditions. It is
 recommended to set all flows to zero and reservoir stage to zero.
 
@@ -146,13 +146,13 @@ CF_TO_NODE, DEFAULT_OP<BR>
     7.  CF from Node: *0.8*<BR>
     8.  CF to Node: *0.8*<BR>
     9.  Default Op: *gate_openNote: don't forget to close your
-            table with END.*  How many weirs does this gate have?  
+            table with END.* <img src="../../attachments/5931233/5931236.png" width="29" height="29" />How many weirs does this gate have?  
             Hint: check out the value for number of duplicates<BR>
 
   
 
 1.  Create a GATE_PIPE_DEVICE table by looking up the
-        appropriate headers in the DSM2 documentation. All
+        appropriate headers in the DSM2 documentation. <img src="../../attachments/5931233/5931235.png" width="29" height="29" />All
         table headers have to be in capital letters.
 
     2.  Again, in the *Gate Devices* table:<BR>
@@ -167,7 +167,7 @@ CF_TO_NODE, DEFAULT_OP<BR>
             7.  Flow coefficient to Node: *0.8*<BR>
             8.  Default Operation: *gate_open*<BR>
 
-    3.  Save the current settings.  How would you change the gate device
+    3.  Save the current settings.  <img src="../../attachments/5931233/5931236.png" width="29" height="29" /> How would you change the gate device
         table to only allow flow in one direction? Hint: review gate
         operation options in the documentation.
 
@@ -218,9 +218,10 @@ END
 
     2.  Save the current settings.
 
+<img src="../../attachments/5931233/5931236.png" width="29" height="29" />
  How would you change the flow transfer from a constant value to a time
 varying value?  
-  
+![](../../attachments/87228759/87228761.png)
 Note: the values shown in the last two columns are descriptions of the
 information that would go in that field; they are not actual field
 values. See Basic Tutorial 4 for more information on using time series
@@ -235,14 +236,17 @@ data in DSM2. 
     3.  In the command window, type: *hydro hydro.inp*.<BR>
     4.  In the command window, type: *qual qual.inp*.<BR>
     5.  Open the *output.dss* file in
-        the *t2_reservoir_gate_transfer* directory, and examine the
+        the *t2_reservoir_gate_transfer* directory, and examine <img src="../../attachments/87228759/87228760.png" width="100"/> the
         results.<BR>
 
   
 
 1.  **Brain teasers**
     1.  The equation for inflow from a node to a reservoir through a
-        gate is as follows:  Lookup the equation for a reservoir
+        gate is as follows:  
+        ![](../../attachments/87228759/87228758.png)
+        
+        Lookup the equation for a reservoir
         connection in the documentation. Write it down next to the gate
         equation. Assuming they both represent the same basic orifice
         physics, what terms in the gate equation does the reservoir
@@ -266,23 +270,3 @@ data in DSM2. 
             are there explanations having to do with the model
             assumptions?<BR>
 
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddaved66c7e251a12fc539b16dd2a232b5d1.png](../attachments/87228759/87228758.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../attachments/87228759/87228760.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav8833b1c831b4ff3c27cb1f7ef0c33253.png](../attachments/87228759/87228761.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](../attachments/87228759/87228762.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228759/87228763.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../attachments/87228759/87228764.png)
-(image/png)  

@@ -16,12 +16,12 @@ on-the-fly; e.g., a gate can be directed to automatically close when
 stage conditions reach a certain threshold. In this tutorial we will
 create operating rules to operate a gate and to regulate a source/sink
 inflow.  
-<img src="../../attachments/87228781/87228782.png" width="29" height="29" />
+<img src="../../images/icon_warning.png" width="29" height="29" />
 Extensive documentation on the DSM2 operating rules can be found at:  
 START menu *Programs*  *DSM2_v8*  *DSM2_documentation* Operating
 Rules
 
-gate_2 <img src="../../attachments/87228781/87228780.png" width="623" height="347" />**dummy_res**  
+<img src="../../images/fig_res_conn_w_trans.png" width="623" height="347" />
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**
 

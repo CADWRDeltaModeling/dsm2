@@ -13,7 +13,7 @@
 -   [DSM2 Bay-Delta Tutorial 3: Planning Simulation](DSM2_Bay-Delta_Tutorial_3_Planning_Simulation.md)
 -   [DSM2 Bay-Delta Tutorial 4: Batch Preprocessing](DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing.md)
 -   [DSM2 Bay-Delta Tutorial 5: Suisun Marsh Operating Rules](DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules.md)
--   [DSM2 Bay-Delta Tutorial: SDIP Permanent Gate Simulation](DSM2_Bay-Delta_Tutorial_SDIP_Permanent_Gate_Simulation.md)
+-   [DSM2 Bay-Delta Tutorial 6: SDIP Permanent Gate Simulation](DSM2_Bay-Delta_Tutorial_6_SDIP_Permanent_Gate_Simulation.md)
 -   [DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal Pumping](DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping.md)
 -   [Delta Tutorial 8 - Temperature Simulation](Delta_Tutorial_8_-_Temperature_Simulation.md)
 -   [Delta Tutorial 9 - DO Simulation](Delta_Tutorial_9_-_DO_Simulation.md)

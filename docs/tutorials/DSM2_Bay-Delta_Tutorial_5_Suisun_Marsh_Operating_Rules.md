@@ -316,9 +316,3 @@ d\. Launch HYDRO with the command:
         Is the gate over operating or underoperating?
     2.  How can you further enhance the operating rule? Discuss the
         boatlock and flashboards.
-
-## Attachments:
-
-<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav62354693aafde1936ce4744dcf144ea0.png](../../attachments/87228788/87228787.png)
-(image/png)  

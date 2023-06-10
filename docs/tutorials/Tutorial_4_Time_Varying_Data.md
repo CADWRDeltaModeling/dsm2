@@ -13,7 +13,7 @@ time varying input data. 
     conditions and gate timings were set as constant, and no input files
     were needed. In this section, the model is set to read time-varying
     information stored in HEC-DSS files.   
-     The U.S. Army Corps of Engineers' Hydrologic Engineering Center
+    <img src="../images/fig_usace_logo.png"/> The U.S. Army Corps of Engineers' Hydrologic Engineering Center
     Data Storage System, or HEC-DSS, is a database system designed to
     efficiently store and retrieve scientific data that is typically
     sequential. Such data types include, but are not limited to, time
@@ -24,7 +24,8 @@ time varying input data. 
     including VISTA (DWR), or HEC-DSSVue. Each time series is described
     in the database using DSS Pathnames (see column headings in figure).
     For DSM2 the pathnames are typically used as follows:  
-      
+![Calsim DSS Paths](../images/fig_calsim_dss_paths.png)
+
     A-Part: Data Source  
     B-Part: Location  
     C-Part: Variable  
@@ -35,6 +36,7 @@ time varying input data. 
     For more information see the [HEC-DSS
     website](https://www.hec.usace.army.mil/software/hec-dssvue/).<BR>
     **dummy_res**  
+    ![reservoir connections with ](../images/fig_res_conn_w_trans.png)
     **Figure 1:** **Simple channel with a reservoir, gate, flow transfer
     and dummy reservoir.**   
       
@@ -58,7 +60,7 @@ END
         3.  Input File: *${TUTORIALINPUT}*
         4.  Path/Value: */TUTORIAL/TRANSFER/FLOW//15MIN/CONSTANT/*
 
- The HEC-DSS pathnames are referred to using forward slashes  
+<img src="../../images/icon_warning.png" width=29 height=29/> The HEC-DSS pathnames are referred to using forward slashes  
 /A-Part/B-Part/C-Part/D-Part/E-Part/F-Part/  
 In the example above, the A-Part is Tutorial, the B-Part is TRANSFER,
 etc. and the D-Part isn't specified. 
@@ -248,18 +250,3 @@ END
 
     5.  Open the *output.dss* file in the *t4_timevar* directory, and
         examine the results.
-
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228772/87228771.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../attachments/87228772/87228773.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd3c47550a5acba791ade46d63cc8e9ec.png](../attachments/87228772/87228774.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav00147407c8837037ad26cf9c606f8f1f.png](../attachments/87228772/87228775.png)
-(image/png)  

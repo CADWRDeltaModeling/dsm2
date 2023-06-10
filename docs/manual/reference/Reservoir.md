@@ -212,9 +212,7 @@ snippet
 ##### VOLUME
 
 Volume (in units of acre-ft) of the reservoir at specified elevation.
-The volume is calculated as explained in [Code Fix on Reservoir Volume
-Calculation (Planning
-Release?)](http://msb-confluence/pages/viewpage.action?pageId=84672761).
+The volume is calculated as explained [here](Reservoir_Volume_Calculation.md).
 
 #### Table Info
 
@@ -226,25 +224,3 @@ NAME
 
 GRID
 
-  
-
-  
-
--   Brad Tom  Nicky Sandhu Need a sample table here. See the reservoir
-    page for formatting 
--   Brad Tom  Nicky Sandhu Any best practices, caveats, gotchas need to
-    be documented next.
-
-  
-
-  
-
-  
-
-  
-
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[reservoir_annual_report_snippet.png](attachments/87228567/87228566.png)
-(image/png)  

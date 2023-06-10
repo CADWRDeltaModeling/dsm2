@@ -41,7 +41,7 @@ We will begin by creating a study space to house the planning study.
         1.  CALSIMNAME to ocap_2005A01A_EWA2_71_novamp_DV (CalSim output
             file without the ".dss" extension)
         2.  CALSIMSTUDY_ORIGINAL to 2005A01A
-        3.  CALSIMDIR to ../data/calsim
+        3.  ~~ CALSIMDIR to ../data/calsim ~~
     7.  Save your data
     8.  Launch the preprocessing system. Obtain a command prompt and
         type:
@@ -68,7 +68,7 @@ We will begin by creating a study space to house the planning study.
         run.
     4.  Run the sdip simulation, for hydro and qual by typing:
 
-\> hydro hydro.inp,ocap_sdip_tutorial.dss  
+\> hydro hydro.inp,~~ocap_sdip_tutorial.dss  ~~
 \> qual qual_ec.inp
 
 1.  1.  Uncomment and Repeat these steps (a-c) and run hydro and qual

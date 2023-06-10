@@ -20,7 +20,8 @@ primary file. The layering concept will be demonstrated by adding a
 "dummy" reservoir connected to nodes 5 and 6 (Figure 1) that will be
 "turned on" or "turned off" in a simulation. We will also use
 DSM2MODIFIER to differentiate between alternative simulations.  
-**dummy_res**  
+  
+![Alt text](../../images/fig_res_conn_w_trans.png)
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**
 
@@ -28,7 +29,7 @@ dummy reservoir.**
 
 In order to use layers, the input tables have to be gathered into
 individual input files.   
- Key points about layering:
+<img src="../../images/icon_warning.png" width=29 height=29/> Key points about layering:
 
 -   Each file represents a layer
 -   Information in the launch file (*hydro.inp* or *qual.inp*)
@@ -56,7 +57,7 @@ individual input files. 
             into *grid_tutorial_base.inp* and save the file. Note: leave
             the RESERVOIR_IC in the *hydro.inp* file.
         6.  Similarly move the TRANSFER and GATE information
-            from *hydro.inp* to *grid_tutorial_base.inp*.  Be sure to
+            from *hydro.inp* to *grid_tutorial_base.inp*. <img src="../../images/icon_warning.png" width=29 height=29/> Be sure to
             move the GATE child tables too. Leave the
             INPUT_TRANSFER_FLOW table in the *hydro.inp* file.
         7.  Make sure the data tables listed above have been removed
@@ -71,7 +72,7 @@ individual input files. 
 GRID  
 grid_tutorial_base.inp  
 END  
- Be sure that there is a carriage return at the end of each \*.inp
+<img src="../../images/icon_warning.png" width=29 height=29/> Be sure that there is a carriage return at the end of each \*.inp
 file. 
 
 1.  **Running HYDRO and QUAL with grid information in separate files**
@@ -112,7 +113,7 @@ F Part of the DSS Path).
         already, so we are going to add a dummy reservoir in our
         grid_tutorial_base layer. Later in this tutorial, we will learn
         how to use layers to disable this feature as well.   
-         The ability to mask and delete features such as reservoirs and
+        <img src="../../images/icon_warning.png" width=29 height=29/> The ability to mask and delete features such as reservoirs and
         gates in DSM2 is often used in planning runs to "turn on" and
         "turn off" features when studying planning alternatives. 
 
@@ -190,7 +191,7 @@ GRID
 grid_tutor*ial_base.inp*  
 grid_tutor*ial_revision.inp*  
 *END*  
- The include files will be prioritized in the order they are read, later
+<img src="../../images/icon_warning.png" width=29 height=29/> The include files will be prioritized in the order they are read, later
 files replacing earlier ones. In this example, the information
 in *grid_tutorial_revision.inp* has priority
 over *grid_tutorial_base.inp*, thus any duplicate information
@@ -220,7 +221,7 @@ END
 1.  1.  By overriding the name "dummy_res" and also marking it unused,
         you have now effectively removed dummy_res from the
         calculations. The child table is automatically ignored as well
-        (so in a sense the entries there are unnecessary).  What is the
+        (so in a sense the entries there are unnecessary). <img src="../../images/icon_question.png" width=29 height=29/> What is the
         difference between commenting out "dummy_res" in the revision
         layer and using a carat (^) in the revision layer?  
         **Answer:** Commenting out the reservoir in the revision layer
@@ -281,7 +282,9 @@ END
         res_1 4 200.0 200.0  
         dummy_res 5 220.0 220.0   
         dummy_res 6 220.0 220.0   
-        END  Why is it necessary to copy the reservoir connection
+        END  
+        
+        <img src="../../images/icon_question.png" width=29 height=29/>Why is it necessary to copy the reservoir connection
         entries to the revision file?  
         **Answer:** When you override a layer (file) with another entry
         in a parent table that has the same identifier, you COMPLETELY
@@ -417,7 +420,7 @@ channel_ic_revision*.inp*
                 4 get included in the output file? If not, what would
                 you change to get output for channel 4?
 
-         Only output specified in the input files is written to the
+        <img src="../../images/icon_warning.png" width=29 height=29/> Only output specified in the input files is written to the
         output.dss file. However, output for all locations is recorded
         in the hdf5 \*.h5 output file. 
 
@@ -515,6 +518,7 @@ in mind are
     is given in Table 1 on the next page.
 
 <!-- -->
+<img src="../../images/fig_einstein_idea.png" width=100 height=100/>
 
 1.  **Brain Teaser**
     1.  For the same change in elevation between the reservoir and
@@ -612,17 +616,3 @@ RESERVOIR_CONCENTRATION</p></td>
 </tbody>
 </table>
 
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../attachments/87228767/87228766.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](../attachments/87228767/87228768.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228767/87228769.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../attachments/87228767/87228770.png)
-(image/png)  

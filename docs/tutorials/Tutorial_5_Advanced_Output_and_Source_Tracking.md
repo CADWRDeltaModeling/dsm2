@@ -21,8 +21,7 @@ file, *hydro.inp*. We will add some outputs and also take a look at how
 data in *hydro.inp* is prioritized. The second part introduces the use
 of *groups* for source tracking. This tutorial uses the simple channel
 network shown in Figure 1.  
-![figure 1](../attachments/87228777/87228779.png)
-**dummy_res**  
+![figure 1](../images/fig_res_conn_w_trans.png)
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**  
   
@@ -48,7 +47,7 @@ downstream of the gate and reservoir 1.
         and in *output_hydro_tutorial.inp* it has been defined as
         channel 1 location 100.
 
-<img src=../../attachments/87228777/87228778.png width="29" height="29"/> For
+<img src=../../images/icon_question.png width="29" height="29"/> For
 flow data at bnd_1, will the output be written at the upstream end of
 the channel (location 0) or 100ft downstream?  
 **Answer:** The output will be for 100ft downstream because the output
@@ -56,7 +55,7 @@ request in the launch file (e.g. *hydro.inp* or *qual.inp*) supersedes
 all other output requests that have the same identifier. In this case
 the identifier is the NAME and VARIABLE combination (e.g. bnd_1 and
 flow).  
-<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
+<img src="../../images/icon_question.png" width="29" height="29" />
  How
 would you get output at channel 1 and both location 0 and location
 100?  
@@ -112,7 +111,7 @@ END
                 documentation for GROUPS describes most of the patterns
                 you can put in a GROUP_MEMBER that are really useful.<BR>
 
-<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
+<img src="../../images/icon_question.png" width="29" height="29" />
 Look in the *input_boundary_hydro_tutorial.inp* file and determine what
 boundary conditions are part of the boundary group based on the member
 type "stage" and the pattern ".**stream.**".
@@ -123,7 +122,7 @@ type "stage" and the pattern ".**stream.**".
         2.  MEMBER_TYPE: *flow_boundary*<BR>
         3.  PATTERN: *.**stream.***<BR>
 
-<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
+<img src="../../images/icon_question.png" width="29" height="29" />
 Look in the *input_boundary_hydro_tutorial.inp* file and determine what
 boundary conditions are part of the boundary group based on the member
 type "flow_boundary" and the pattern ".**stream.**".
@@ -134,7 +133,7 @@ type "flow_boundary" and the pattern ".**stream.**".
         2.  MEMBER_TYPE: *source_sink*<BR>
         3.  PATTERN: *source1*<BR>
 
-<img src="../../attachments/87228777/87228778.png" width="29" height="29" />
+<img src="../../images/icon_question.png" width="29" height="29" />
 Look in the various qual input files and determine which inputs will
 make up the sources group defined above.
 
@@ -219,22 +218,10 @@ Create a new file called output_qual_sourcetrack.inp.
         examine the results. Do a mass balance to make sure the source
         tracking adds up.
 
-<img src="../../attachments/87228777/87228776.png" width="82" height="96" />
+<img src="../../images/fig_einstein_idea.png" width="82" height="96" />
 
 1.  **Brain Teaser**
 
 How would you set up a source tracking simulation to determine what
 percentage of water/flow at a given location originated from a specified
 boundary?
-
-## Attachments:
-
-<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../../attachments/87228777/87228776.png)
-(image/png)  
-<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](../../attachments/87228777/87228778.png)
-(image/png)  
-<img src="../../images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavd56eb5f63f4c9181cb2a8632c8c6c562.png](../../attachments/87228777/87228779.png)
-(image/png)  

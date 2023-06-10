@@ -70,57 +70,5 @@ DSM2-vista also supports export data to hec-dss format (One or multiple
 timeseries path could be selected) See the following menu option as
 example. 
 
-<img src="attachments/87229021/87229020.png"
-data-image-src="attachments/87229021/87229020.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87229020"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2019-3-18_12-8-58.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87229021"
-data-linked-resource-container-version="1" />
+<img src="../../attachments/87229021/87229020.png"/>
 
-## Related articles
-
-  
-
--   Page:
-
-    [Updating the DSM2 historical
-    simulation](/display/DSM2/Updating+the+DSM2+historical+simulation)
-
--   Page:
-
-    [DSM2 Modernization Y2022](/display/DSM2/DSM2+Modernization+Y2022)
-
--   Page:
-
-    [DSM2 Fortran Coding
-    Standards](/display/DSM2/DSM2+Fortran+Coding+Standards)
-
--   Page:
-
-    [DSM2 - How to read hdf5 output
-    files](/display/DSM2/DSM2+-+How+to+read+hdf5+output+files)
-
--   Page:
-
-    [Mini Calibration (2009)](/pages/viewpage.action?pageId=18055205)
-
-  
-
-  
-
-  
-
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-3-18_12-8-58.png](attachments/87229021/87229020.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[VistaOpeningHDF5Files.mp4](attachments/87229021/87229022.mp4)
-(video/mp4)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[VistaOpeningHDF5Files.gif](attachments/87229021/87229023.gif)
-(image/gif)  

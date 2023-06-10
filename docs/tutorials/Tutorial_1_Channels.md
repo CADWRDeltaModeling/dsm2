@@ -1,5 +1,6 @@
 # Tutorial 1: Channels
 
+
 **Task**  
 Run DSM2 for a steady boundary condition flow and salinity
 (EC-electrical conductivity) simulation for a simple straight channel
@@ -11,6 +12,7 @@ grid 
 -   Creating channels
 
 -   Establishing initial and boundary conditions  
+
     The purpose of this tutorial is twofold: to get a start with the
     DSM2 model and to get practice setting up channels. We will set up a
     simple channel-only grid with simple constant boundary conditions
@@ -22,7 +24,9 @@ grid 
     module.   
     For the tutorial, the channels have the following configuration and
     specifications:  
-      
+    ![Alt text](../attachments/5931233/5931232.png) /> 
+    ![Alt text](../images/fig_res_conn_w_trans.png)
+
     **Figure 1 - Simple channel configuration and specifications.**   
     Note that there are two cross-section geometries labeled A and B
     which will be specified later in this tutorial. In all the channels
@@ -31,6 +35,7 @@ grid 
     assigned at fractions 0.2 and 0.8 of the length of the channel
     measured from the upstream end. The [DSM2 grid map](https://data.cnra.ca.gov/dataset/dsm2) includes arrows 
     pointing from upstream to downstream, indicating the positive direction of flow.
+
 
     <table class="wrapped confluenceTable">
     <tbody>
@@ -46,6 +51,7 @@ grid 
     extrapolated using a slope given by a global scalar
     called <em>levee_slope</em>.<br />
     <br />
+    ![](../attachments/5931233/5931234.png)
     <strong>Figure 2: Piecewise linear bathymetry</strong><br />
     For instance, for a cross section half way downstream in a fictitious
     channel 123 the five layers of a cross-section with elevations given by
@@ -70,7 +76,6 @@ grid 
     </tr>
     </tbody>
     </table>
-
       
     The following steps will instruct you on how to create the channels,
     give them very simple boundary conditions and run the model.
@@ -104,6 +109,7 @@ grid 
     3.  Add the following run date, run time and temporary directory
         scalars at the top of the *SCALAR* table and save. 
 
+
         <table class="wrapped confluenceTable">
         <tbody>
         <tr class="odd">
@@ -116,7 +122,8 @@ grid 
         <tbody>
         <tr class="header">
         <th class="confluenceTh"><div class="content-wrapper">
-        <p> Spaces or tabs can be used between values</p>
+        <img src="../../attachments/5931233/5931235.png" width="29" height="29" />
+        Spaces or tabs can be used between values
         </div></th>
         </tr>
         &#10;</tbody>
@@ -183,9 +190,8 @@ grid 
         <tbody>
         <tr class="odd">
         <td class="confluenceTd"><div class="content-wrapper">
-        <img src="attachments/5931233/5931235.png"
-        data-image-src="http://msb-confluence/download/attachments/5931233/worddave8e1df4e853bb46c4ee6f68afece040d.png?version=1&amp;modificationDate=1496695416326&amp;api=v2"
-        width="29" height="29" />Typically in DSM2 input files, the order of the
+        <img src="../../attachments/5931233/5931235.png" width="29" height="29" />
+        Typically in DSM2 input files, the order of the
         tables is not important. However, when one table refers to information
         defined in another table, the "parent" table with the definition
         typically appears first in the input file. In this case the CHANNEL
@@ -235,7 +241,7 @@ grid 
     8.  Copy the cross section data from Channel 5 Distance 0.8 to use
         it for Channel 6, but change the Distance to 0.5.
 
-     Make sure the table is terminated with an END line with a carriage
+        <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> Make sure the table is terminated with an END line with a carriage
     return and save your file. 
 
 4.  **In HYDRO, set the Boundary information:  
@@ -243,7 +249,7 @@ grid 
 
     In this section we are going assign very simple boundary conditions
     to the upper and lower ends of the channel system.   
-     Note that if you do not set boundary conditions at the end of a
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> Note that if you do not set boundary conditions at the end of a
     channel, a "no-flow" boundary (Q=0.0) is assumed.
 
     1.  The upstream boundary will be a constant inflow.
@@ -262,7 +268,7 @@ grid 
         FILLIN field is an instruction to the model as to how to
         interpolate data in time, which is not relevant for a constant
         value.  
-        DSM2 assumes consistent units and typically simulates flows in
+                <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> DSM2 assumes consistent units and typically simulates flows in
         cfs.
 
     3.  Start an input table for the downstream stage boundary: The
@@ -283,7 +289,7 @@ grid 
     5.  In the BOUNDARY_STAGE table, enter the following values into the
         appropriate fields and save:
 
-     Although spaces or tabs can be used, columns with spaces tend to
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> Although spaces or tabs can be used, columns with spaces tend to
     look better when opened in a different viewer. You can use the
     dsm2_tidy utility to clean up columns and spaces. Type dsm2_tidy
     --help at a command prompt for more info.
@@ -303,7 +309,7 @@ grid 
 5.  ****In HYDRO, set the Initial Conditions for stage and flow:  
     ****
 
-     A default hydrodynamic initial condition is required for every
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> A default hydrodynamic initial condition is required for every
     channel in DSM2.  
     The initial condition can be replaced using a restart file, but the
     default must still be entered now. For each of the channels, the
@@ -314,12 +320,12 @@ grid 
 
     1.  1.  In the hydro.inp file, start the initial condition table:
 
-        CHANNEL_IC
-        CHAN_NO DISTANCE STAGE FLOW
-        1 0 0.0 0.0
-        1 length 0.0 0.0
-        [further data will go here]
-        END
+        CHANNEL_IC<BR>
+        CHAN_NO DISTANCE STAGE FLOW<BR>
+        1 0 0.0 0.0<BR>
+        1 length 0.0 0.0<BR>
+        [further data will go here]<BR>
+        END<BR>
 
     Copy the two lines of data and paste them into the input file for
     all of the channels. Refer back to Figure 1 for the channel numbers.
@@ -339,10 +345,10 @@ grid 
     1.  1.  In *hydro.inp*, create the skeleton OUTPUT_CHANNEL table
             using the following header:
 
-        OUTPUT_CHANNEL
-        NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE
-        [data will go here]
-        END
+        OUTPUT_CHANNEL<BR>
+        NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE<BR>
+        [data will go here]<BR>
+        END<BR>
 
       
 
@@ -359,14 +365,14 @@ grid 
             following run time and temporary directory SCALARS above the
             others:
 
-        SCALAR
-        NAME VALUE
-        run_start_date 02JAN1992
-        run_end_date 01MAR1992
-        run_start_time 0000
-        run_end_time 0000
-        temp_dir c:/temp
-        [Existing scalars]
+        SCALAR<BR>
+        NAME VALUE<BR>
+        run_start_date 02JAN1992<BR>
+        run_end_date 01MAR1992<BR>
+        run_start_time 0000<BR>
+        run_end_time 0000<BR>
+        temp_dir c:/temp<BR>
+        [Existing scalars]<BR>
         END
 
 8.  ****In QUAL, set the Boundary Concentration information:  
@@ -375,12 +381,12 @@ grid 
     1.  1.  Boundary conditions in QUAL for the constituent *ec* are
             specified in the NODE_CONCENTRATION table:
 
-        NODE_CONCENTRATION
-        NAME NODE_NO VARIABLE FILLIN FILE PATH
+        NODE_CONCENTRATION<BR>
+        NAME NODE_NO VARIABLE FILLIN FILE PATH<BR>
         END
 
       
-    The names of the inputs must be EXACTLY the same as given in hydro –
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> The names of the inputs must be EXACTLY the same as given in hydro –
     this is how input concentrations are matched with input flows.
 
     1.  1.  In the *Node* *Concentration* table, add an upstream
@@ -394,11 +400,11 @@ grid 
                 2.  Node: *1*
                 3.  Variable: *ec*
                 4.  Fillin: *last*
-                5.   The period after the value is to indicate it is not
+                5.          <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> The period after the value is to indicate it is not
                     an integer.Input File: *constant*
                 6.  Path/Value: *200*
 
-     DSM2 does not care what units are used for constituent
+            <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> DSM2 does not care what units are used for constituent
     concentrations, but all concentrations must be in the same units.
     For *ec*, uS/cm are typically used.
 
@@ -433,13 +439,13 @@ grid 
     1.  1.  In *qual.inp*, create a QUAL Output table:
         2.  In the *OUTPUT_CHANNEL* table, add the following lines:
 
-        OUTPUT_CHANNEL
-        NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE
-        bnd_1 1 0 ec 15min inst ${QUALOUTDSSFILE}
-        bnd_6 6 length ec 15min inst ${QUALOUTDSSFILE}
-        chan2_half 2 7500 ec 15min inst ${QUALOUTDSSFILE}
-        chan2_length 2 length ec 15min inst ${QUALOUTDSSFILE}
-        chan2004 2004 0 ec 15min inst ${QUALOUTDSSFILE}
+        OUTPUT_CHANNEL<BR>
+        NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE<BR>
+        bnd_1 1 0 ec 15min inst ${QUALOUTDSSFILE}<BR>
+        bnd_6 6 length ec 15min inst ${QUALOUTDSSFILE}<BR>
+        chan2_half 2 7500 ec 15min inst ${QUALOUTDSSFILE}<BR>
+        chan2_length 2 length ec 15min inst ${QUALOUTDSSFILE}<BR>
+        chan2004 2004 0 ec 15min inst ${QUALOUTDSSFILE}<BR>
         END
 
       
@@ -452,10 +458,11 @@ grid 
     ****
 
     DSM2v8 runs hydro and qual sequentially. The hydrodynamic data from
-    the hydro run is an input to the qual simulation.   
-     Hydro can be run without qual, but can qual be run without
+    the hydro run is an input to the qual simulation. 
+
+    <img src="../../attachments/5931233/5931236.png" width="29" height="29" /> Hydro can be run without qual, but can qual be run without
     hydro?   
-     The DSM2 tutorials assume that you have installed Microsoft's power
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> The DSM2 tutorials assume that you have activated Microsoft's power
     tool ***Open Command Window Here***. To get this and other
     recommended 3<sup>rd</sup> party extras for DSM2, go to
     the ***Recommended Third Party Extras*** section of the DSM2
@@ -475,12 +482,12 @@ grid 
             Unknown macro: {DSM2_home}tutorialsimple{\_}.
         2.  shift+Right-click on the directory, *t1_channels*, and
             select *Open Command Window Here*.
-
+    ![](../../attachments/5931233/5931237.png)">
     <!-- -->
 
     1.  1.  In the command window, type: *hydro hydro.inp* and press
             enter.
-
+    ![](../../attachments/5931233/5931238.png)
       
     Note that several lines will appear in the command window very
     quickly. There may then be a delay while data is processed. Then
@@ -505,7 +512,7 @@ grid 
     You can also run the model using cross-sections in the CSDP format.
     This is the form most familiar to DSM2 users. Mixing CSDP format
     with other formats may produce unpredictable results.  
-     Two caveats. First, there are no *rectangular cross-sections* in
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> Two caveats. First, there are no *rectangular cross-sections* in
     Version 8. The rectangular and irregular cross-sections in Version 6
     were not consistent: a regular cross-section and its equivalent
     representation in the irregular format did not give the same result.
@@ -523,7 +530,7 @@ grid 
     a new launch file called hydro_csdp.inp that is going to reference
     the text files instead of listing the data explicitly.
 
-    1.  1.  Copy *hydro.inp* to *hydro_csdp.inp*  it doesn't matter what
+    1.  1.  Copy *hydro.inp* to *hydro_csdp.inp* <img src="../../attachments/5931233/5931235.png" width="29" height="29" />  it doesn't matter what
             you name the file, but don't skip this step
         2.  In *hydro_csdp.inp*, erase the XSECT_LAYER table and replace
             it with the following XSECT table that will point to the
@@ -536,7 +543,7 @@ grid 
         END
 
       
-    When running DSM2v8, use either the Version 8 format (XSECT_LAYER
+    <img src="../../attachments/5931233/5931235.png" width="29" height="29" /> When running DSM2v8, use either the Version 8 format (XSECT_LAYER
     from section 3 in this tutorial) or use the CSDP format presented in
     this part of the tutorial. DO NOT MIX AND MATCH IN ONE FILE.
 
@@ -597,7 +604,7 @@ grid 
 
 ------------------------------------------------------------------------
 
- 
+ <img src="../../attachments/5931233/5931239.png" width="100" height="100" />
 
 1.  **Brain teasers**
     1.  What is the actual delta-x between computational points for each
@@ -614,63 +621,3 @@ grid 
         dredged channel in a study?
 
   
-
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav9894d5ad3645a3d4dcca771791ed6ad0.png](../attachments/87228739/87228738.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavacdb763f7814807ae1cee2e37e7cb36a.png](../attachments/87228739/87228740.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavcf31df39a0b70101e885bccc73c06634.png](../attachments/87228739/87228741.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavc62041d7d99031387651e87bef05c94c.png](../attachments/87228739/87228742.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav5c53d93320a102e56a6cc9f283292eb3.png](../attachments/87228739/87228743.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb6a63211b4b9979e82bf279fed459047.png](../attachments/87228739/87228744.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav21c20dc2a8dba2bb107fee628b41a137.png](../attachments/87228739/87228745.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddava88bd90db3de962e7f96da3b1f2909fe.png](../attachments/87228739/87228746.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavec32b1550654d1f335e93b8c9a94363c.png](../attachments/87228739/87228747.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav93cd7067934415ddc9fb611bb5bf2149.png](../attachments/87228739/87228748.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[BasicTutorial1-Channels.doc](../attachments/87228739/87228749.doc)
-(application/msword)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav457e267c6829c66a691aad41b4e6e433.png](../attachments/87228739/87228750.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavfc12b6cdb26e67dfc2a101ee2af340bd.png](../attachments/87228739/87228751.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb255646388081f14834ad64cb2ebb184.png](../attachments/87228739/87228752.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav4210fc49d3b08515b01f2dd5efbf5d85.png](../attachments/87228739/87228753.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavf9e3aa73957a24bdb115e43494948841.png](../attachments/87228739/87228754.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddave8e1df4e853bb46c4ee6f68afece040d.png](../attachments/87228739/87228755.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddava830b637c91154fb80e4ecec9aa946da.png](../attachments/87228739/87228756.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav205660d02ed6265e4cb0afe559da213a.png](../attachments/87228739/87228757.png)
-(image/png)  

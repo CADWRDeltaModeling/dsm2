@@ -11,10 +11,7 @@ non-conservative constituent runs.
 
 ### INPUT_CLIMATE
 
-Climate input assigns time varying properties to
-to <a href="file:///U:/dsm2/doc/html/reference/gate.html"
-rel="nofollow">gate</a> parameters, The table assigns a time series data
-source.
+Climate input assigns time varying properties to [gate](Gate.md) parameters, The table assigns a time series data source.
 
 #### Field Descriptions
 

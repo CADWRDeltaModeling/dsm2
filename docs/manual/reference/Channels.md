@@ -15,9 +15,9 @@ Conditions table.
 
 ## Tables:
 
--   [CHANNEL](#Channels-channel)
--   [XSECT](#Channels-xsect)
--   [XSECT_LAYER](#Channels-xsect_layer)
+-   [CHANNEL](#CHANNEL)
+-   [XSECT](#XSECT)
+-   [XSECT_LAYER](#XSECT_LAYER)
 
   
 

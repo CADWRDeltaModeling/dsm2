@@ -26,14 +26,7 @@ channel system, with each part building in complexity from its
 predecessor. It is recommended that the tutorials be completed in order,
 but it is not necessary since the tutorials are self contained.  
 
-<img src="attachments/87228733/87228736.png"
-data-image-src="attachments/87228733/87228736.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228736"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavefcb05a5de66d3bbb80de43fc104db25.png"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228733"
-data-linked-resource-container-version="1" width="624" height="83" />  
+<img src="../../attachments/87228733/87228736.png" width="624" height="83" />  
 
 **Figure 1: DSM2 Basic Tutorials**  
 
@@ -42,15 +35,7 @@ familiarize you with Delta specific DSM2 applications and tasks. In
 addition a DSM2 Overview document has been provided that describes the
 DSM2 modules (HYDRO, QUAL, and PTM) and their typical modes of
 application (historical, real-time and planning).  
-<img src="attachments/87228733/87228735.png"
-data-image-src="attachments/87228733/87228735.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228735"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddav60051e935447589caefd1f91c8321714.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228733"
-data-linked-resource-container-version="1" width="530" height="82" />  
+<img src="../../attachments/87228733/87228735.png" width="530" height="82" />  
 
 **Figure 2: DSM2 Delta Tutorials**  
 
@@ -94,24 +79,8 @@ threshold.
 
 There are two icons that are used to highlight information in the
 tutorials.  
-<img src="attachments/87228733/87228734.png"
-data-image-src="attachments/87228733/87228734.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228734"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddave8e1df4e853bb46c4ee6f68afece040d.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228733"
-data-linked-resource-container-version="1" width="29" height="29" />
+<img src="../../attachments/87228733/87228734.png" width="29" height="29" />
 Indicates a DSM2 "gotcha" moment in which extra care may be necessary.  
-<img src="attachments/87228733/87228732.png"
-data-image-src="attachments/87228733/87228732.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228732"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddavf9e3aa73957a24bdb115e43494948841.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228733"
-data-linked-resource-container-version="1" width="29" height="29" />
+<img src="../../attachments/87228733/87228732.png" width="29" height="29" />
 Indicates a question to put your new found DSM2 knowledge to the test.
 

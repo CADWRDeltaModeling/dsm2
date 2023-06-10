@@ -1,7 +1,7 @@
 
 # Contents
 
--   [Overview](/Delta_DSM2_Documentation)
+-   [Overview](../Delta_DSM2_Documentation)
 -   [Getting Started ](/Getting_Started)
     -   [Download and installation](/Getting_Started#GettingStarted-DownloadandInstallation)
     -   [Recommended third party extras](/Getting_Started#GettingStarted-ThirdPartyExtras)
