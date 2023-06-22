@@ -1,5 +1,6 @@
 # DSM2
 
+
 ## Overview:
 
 The Delta Simulation Model II (DSM2) is a one-dimensional mathematical
@@ -27,6 +28,8 @@ DSM2 is currently in version 8.2.2. Please send comments to Min Yu
 <a href="mailto:minyu@water.ca.gov"
 rel="nofollow">minyu@water.ca.gov</a>.
 
-  
+# For more information
+[DSM2 Quick Start page](https://github.com/CADWRDeltaModeling/DSM2TrainingSeries)
+[DSM2 source code GitHub repository](https://github.com/CADWRDeltaModeling/dsm2)
 
 ------------------------------------------------------------------------
