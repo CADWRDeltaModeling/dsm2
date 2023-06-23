@@ -92,6 +92,8 @@ module hdf_util
        call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
        call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
        call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
+       call get_int_attribute_from_hdf5(nquadpts, "Number of quadrature points")
+       call get_real_attribute_from_hdf5(hydro_theta, "Hydro theta")
        hydro_end_jmin = hydro_start_jmin + (hydro_ntideblocks-1)*hydro_time_interval
        return
    end subroutine
@@ -924,6 +926,20 @@ module hdf_util
        return
    end subroutine
 
+   !> Read real attributes from hydro tidefile
+   subroutine get_real_attribute_from_hdf5(attr_value, attr_name)
+       use h5lt
+       implicit none
+       character(len=*), intent(in) :: attr_name
+       real(gtm_real), intent(out) ::attr_value
+       real(gtm_real), dimension(1) :: hdf5_read_buffer
+       integer  :: error                             ! HDF5 Error flag
+       call h5ltget_attribute_double_f(hydro_file_id,"hydro",    &
+               attr_name, hdf5_read_buffer, error)
+       call verify_error(error, "Reading attribute from hdf5 file")
+       attr_value = hdf5_read_buffer(1)
+       return
+   end subroutine
 
    !> Calculate max dimension for irreg_geom array
    !> Updated variables are n_irreg, chan_index, num_xsect_chan and num_elev_chan.

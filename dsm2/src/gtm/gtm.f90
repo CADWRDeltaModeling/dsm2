@@ -325,6 +325,24 @@ program gtm
     LL = zero
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
+
+     if (nquadpts == 1) then        
+         quadpt(1)=0.5
+         quadwt(1)=1.0
+     else if (nquadpts == 2) then
+         quadpt(1)=0.
+         quadpt(2)=1.0
+         quadwt(1)=0.5
+         quadwt(2)=0.5
+     else if (nquadpts == 3) then
+         quadpt(1)=0.
+         quadpt(2)=0.5
+         quadpt(3)=1.0
+         quadwt(1)=0.25
+         quadwt(2)=0.5
+         quadwt(3)=0.25
+     endif
+
     ! start marching throught the time steps for simulation
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         LL = LL + 1
@@ -368,8 +386,8 @@ program gtm
             ! to determine if sub time step is required based on CFL number
             call fill_hydro_info(flow,          &
                                  flow_lo,       &
-                                 flow_hi,       &
-                                 area,          &
+                                 flow_hi,       &  
+                                 area,          &                               
                                  area_lo,       &
                                  area_hi,       &
                                  width,         &

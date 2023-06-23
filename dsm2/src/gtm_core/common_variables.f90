@@ -49,6 +49,10 @@ module common_variables
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
+     integer :: nquadpts = LARGEINT                 !< Number of quadrature points
+     real(gtm_real) :: hydro_theta = 0.d0           !< Hydro theta from hydro
+     real(gtm_real), save:: quadwt(MaxQuadPts)
+     real(gtm_real), save:: quadpt(MaxQuadPts)
 
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
      real(gtm_real), allocatable :: disp_arr(:)            !< dispersion coeff

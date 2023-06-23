@@ -132,6 +132,7 @@ module advection
         real(gtm_real) :: flux_lo(ncell,nvar)      !< flux on lo side of cell, time centered
         real(gtm_real) :: flux_hi(ncell,nvar)      !< flux on hi side of cell, time centered
         real(gtm_real) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
+        real(gtm_real) :: mass_closure(ncell)
 !        real(gtm_real) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                  !external flows        !<TODO: make array dimensions effective
         logical        :: limit_slope              !< whether slope limiter is used
@@ -285,6 +286,10 @@ module advection
                                  time,                &
                                  dt,                  &
                                  dx)
+         !accumulative mass closure error
+         mass_closure =( (area - area_prev) + (dt/dx)*(flow_hi-flow_lo) )
+
+         !print *, "mass closure:", mass_closure(2099), mass_closure(2099)
          return
     end subroutine
 
