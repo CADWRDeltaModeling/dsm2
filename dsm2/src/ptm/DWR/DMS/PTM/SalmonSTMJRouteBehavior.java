@@ -59,8 +59,14 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		float pStm = ratios[2];
 		double a = calcA(new float[]{qStm, deltaQSut, pStm});
 		double b = calcB(new float[]{qSut, pSut});
-		double piSut = pi(b, a, 1, 1);
-		double piStm = pi(a, b, 1, 1);
+		int sutGate = 1;
+		int stmGate = 1;
+		if ((Math.abs(qSutCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && sut.isFishScreenInstalled()))
+			sutGate = 0;
+		if ((Math.abs(qStmCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && stm.isFishScreenInstalled()))
+			stmGate = 0;
+		double piSut = pi(b, a, sutGate, stmGate);
+		double piStm = pi(a, b, stmGate, sutGate);
 		double stmProb = piStm/(1.0d-piSut);
 		rIn.putEntrainmentRate(nodeId, 
 				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1],ratios[2],qSutCFS,qStmCFS,deltaQSut,stmProb)));

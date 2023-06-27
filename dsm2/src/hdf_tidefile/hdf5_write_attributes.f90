@@ -40,6 +40,7 @@ subroutine hdf5_write_attributes()
     use dsm2_tidefile_input_storage_fortran
     use network
     use gates, only: ngate
+    use netcntrl_common, only: Theta
     implicit none
 
     integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
@@ -71,12 +72,15 @@ subroutine hdf5_write_attributes()
 
     integer, dimension(1) :: hdf5_dummy_integer
     integer(SIZE_T) :: hdf5_int_size
+    integer :: scalar
+    real(gtm_real), dimension(1) :: hdf5_dummy_real
 
     integer cdt2jmin
     EXTERNAL cdt2jmin
 
     a_data_dims(1) = 1
     hdf5_int_size = 1
+    scalar = 1
 
     ! Creating attributes for HDF5
     call h5screate_simple_f(arank, adims, aspace_id, error)
@@ -152,6 +156,16 @@ subroutine hdf5_write_attributes()
     call h5ltset_attribute_int_f(hydro_id, ".", &
                                  "Number of intervals", &
                                  hdf5_dummy_integer, hdf5_int_size, error)
+
+    hdf5_dummy_integer =  nquadpts
+    call h5ltset_attribute_int_f(hydro_id,".",
+                                 "Number of quadrature points",
+                                 hdf5_dummy_integer, hdf5_int_size, error)
+
+    hdf5_dummy_real =  theta
+    call h5ltset_attribute_double_f(hydro_id,".",
+                                    "Hydro theta",
+                                    hdf5_dummy_real, scalar, error)
 
     ! Write out channel geometry
     call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)

@@ -39,6 +39,9 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  */
 package DWR.DMS.PTM;
 import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import java.nio.IntBuffer;
 /*
  * main function of PTM
  */
@@ -196,13 +199,20 @@ public class MainPTM {
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
                 // write out restart file information
-                if ( outRestart != null ) outRestart.output();
-      
+                if ( outRestart != null ) outRestart.output();      
             }
             if(Environment.getParticleType().equalsIgnoreCase("Salmon_Particle")){
+            	Map<Integer, IntBuffer> lastTraces = new HashMap<Integer, IntBuffer>();
+            	for (int i=0; i<numberOfParticles; i++){
+            		Particle p = particleArray[i];
+            		if (p.nd!=null && p.wb != null) {
+            			int[] ndwb = {p.nd.getEnvIndex(), p.wb.getEnvIndex()};
+            			lastTraces.put(p.Id, IntBuffer.wrap(ndwb));
+            		}
+                }
             	//print out travel times
             	Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
-            	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
+            	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates(lastTraces);
             	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();                     
             
             	rIn.writeEntrainmentRates();
@@ -231,6 +241,10 @@ public class MainPTM {
             	fluxCalculator.writeOutput(); 
             }
            
+            if (TransProbs.getFileOpen()) {
+            	TransProbs.closeFile();
+            }
+            
             System.out.println("done simulation");
             
         }catch(Exception e){

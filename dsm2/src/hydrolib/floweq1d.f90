@@ -48,6 +48,8 @@ contains
         !   Purpose:  Compute and store coefficients of an integral form
         !             of the dynamic-wave equation (for computing
         !             1-D unsteady flow in open channels).
+        use channel_schematic &
+            ,only: UpstreamPointer
 
         !   Program notes:
         !     Variables are integrated over time using an average weighted
@@ -140,6 +142,10 @@ contains
         !        Area2 = CxArea(X2,Z2)
         Velocity2 = Q2 / Area2
         BetaVelocity2 = 1.0 * Velocity2
+                
+        !if (UpstreamPointer() + Up - 1==1151 .and.  Iteration == 1 ) then
+        !    print *, Q1, Q2, Z1, Z2, Area1, Area2
+        !end if
 
         !-----Time increment and weighting.
         DT = DFLOAT( NetworkTimeIncrement() )
@@ -211,13 +217,13 @@ contains
         DNDX(2) = -DNDX(1)
 
         QuadPts = NetworkQuadPts()
-
+        
         do 200 K=1,QuadPts
 
             !--------Estimate quadrature-point values.
 
             call NetworkQuadPtWt( K, QuadPt, QuadWt )
-
+            
             !--------Interpolation functions.
             N(1) = 1.0 - QuadPt
             N(2) = QuadPt
@@ -350,7 +356,7 @@ contains
 
         end if
 
-        DynamicWaveEq = .true.
+        DynamicWaveEq = .true.        
 
         return
     end function

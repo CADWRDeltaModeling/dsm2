@@ -31,22 +31,23 @@ public class SalmonHoldingTimeCalculator {
 		_channelGroups = si.getChannelGroups();
 	}
 
-	public boolean getDaytimeHolding(int pId, int chanId){
+	public boolean getDaytimeHolding(Particle p, int chanId){
 		Map<Integer, Boolean> pidDaytimeHoldings =  _daytimeHoldings.get(getGroupName(chanId));
 		float daytimeNotSwimPercent = _swimParameters.get(getGroupName(chanId))[4];
-		if (DEBUG && pId == 1)
+		if (DEBUG && p.Id == 1)
 			System.err.println(getGroupName(chanId) + "  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-					+"  daytime holding:" + pidDaytimeHoldings.get(pId) + "  not swim pct:" + daytimeNotSwimPercent);
-		if (pidDaytimeHoldings.get(pId) == null){
+					+"  daytime holding:" + pidDaytimeHoldings.get(p.Id) + "  not swim pct:" + daytimeNotSwimPercent);
+		if (pidDaytimeHoldings.get(p.Id) == null){
 			boolean pDaytimeHolding = PTMUtil.getRandomNumber() < daytimeNotSwimPercent;
-			pidDaytimeHoldings.put(pId, pDaytimeHolding); 
+			pidDaytimeHoldings.put(p.Id, pDaytimeHolding); 
+			p.setToHold(pDaytimeHolding);
 		}
-		if (DEBUG && pId == 1)
+		if (DEBUG && p.Id == 1)
 			System.err.println("channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-					+"  daytime holding:" + pidDaytimeHoldings.get(pId));
-		return pidDaytimeHoldings.get(pId);
+					+"  daytime holding:" + pidDaytimeHoldings.get(p.Id));
+		return pidDaytimeHoldings.get(p.Id);
 	}
-	boolean daytimeHolding(int pId, int chanId){
+	boolean daytimeHolding(Particle p, int chanId){
     	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime, Globals.TIME_ZONE);
     	//TODO will use LocaTime when switch to Java 1.8
     	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > _sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < _sunset_hour) 
@@ -54,7 +55,7 @@ public class SalmonHoldingTimeCalculator {
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunset_hour && curr.get(Calendar.MINUTE)<_sunset_min);
     	//change to a new daytime holding algorithm, please see notes
     	//return (isDaytime && (PTMUtil.getRandomNumber() < _daytimeNotSwimPercent));
-    	return (isDaytime && getDaytimeHolding(pId, chanId));
+    	return (isDaytime && getDaytimeHolding(p, chanId));
 	}
 	// Rearing holding time is the time when a particle to swimming again, i.e., current model time + holding time
 	//TODO cast float to int e.g., 900.6 = 900, good enough?   

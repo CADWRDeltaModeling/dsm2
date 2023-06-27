@@ -32,6 +32,7 @@ module gtm_network
     real(gtm_real), allocatable :: flow_mesh_hi(:,:)
     real(gtm_real), allocatable :: area_mesh_lo(:,:)
     real(gtm_real), allocatable :: area_mesh_hi(:,:)
+    real(gtm_real), allocatable :: area_mesh(:,:)
     real(gtm_real), allocatable :: resv_height_mesh(:,:)
     real(gtm_real), allocatable :: resv_flow_mesh(:,:)
     real(gtm_real), allocatable :: qext_flow_mesh(:,:)
@@ -47,6 +48,7 @@ module gtm_network
     real(gtm_real), allocatable :: sub_flow_mesh_hi(:,:)
     real(gtm_real), allocatable :: sub_area_mesh_lo(:,:)
     real(gtm_real), allocatable :: sub_area_mesh_hi(:,:)
+    real(gtm_real), allocatable :: sub_area_mesh(:,:)
     real(gtm_real), allocatable :: sub_resv_height_mesh(:,:)
     real(gtm_real), allocatable :: sub_resv_flow_mesh(:,:)
     real(gtm_real), allocatable :: sub_qext_flow_mesh(:,:)
@@ -69,6 +71,7 @@ module gtm_network
         allocate(flow_mesh_hi(nt+1, n_cell), stat = istat)
         allocate(area_mesh_lo(nt+1, n_cell), stat = istat)
         allocate(area_mesh_hi(nt+1, n_cell), stat = istat)
+        allocate(area_mesh(nt+1, n_cell), stat = istat)
         allocate(flow_volume_change(nt, n_cell), stat = istat)
         allocate(area_volume_change(nt, n_cell), stat = istat)
         allocate(resv_height_mesh(nt+1, n_resv), stat = istat)
@@ -85,6 +88,7 @@ module gtm_network
         flow_mesh_hi = LARGEREAL
         area_mesh_lo = LARGEREAL
         area_mesh_hi = LARGEREAL
+        area_mesh = LARGEREAL
         resv_height_mesh = LARGEREAL
         resv_flow_mesh = LARGEREAL
         qext_flow_mesh = LARGEREAL
@@ -101,7 +105,7 @@ module gtm_network
     subroutine deallocate_network_tmp()
         implicit none
         deallocate(flow_mesh_lo, flow_mesh_hi)
-        deallocate(area_mesh_lo, area_mesh_hi)
+        deallocate(area_mesh_lo, area_mesh_hi, area_mesh)
         deallocate(width_mesh, wet_p_mesh, depth_mesh)
         deallocate(resv_height_mesh)
         deallocate(resv_flow_mesh)
@@ -122,6 +126,7 @@ module gtm_network
         allocate(sub_flow_mesh_hi(nt+1, n_cell), stat = istat)
         allocate(sub_area_mesh_lo(nt+1, n_cell), stat = istat)
         allocate(sub_area_mesh_hi(nt+1, n_cell), stat = istat)
+        allocate(sub_area_mesh(nt+1, n_cell), stat =  istat)
         allocate(sub_flow_volume_change(nt, n_cell), stat = istat)
         allocate(sub_area_volume_change(nt, n_cell), stat = istat)
         allocate(sub_resv_height_mesh(nt+1, n_resv), stat = istat)
@@ -138,6 +143,7 @@ module gtm_network
         sub_flow_mesh_hi = LARGEREAL
         sub_area_mesh_lo = LARGEREAL
         sub_area_mesh_hi = LARGEREAL
+        sub_area_mesh = LARGEREAL
         sub_resv_height_mesh = LARGEREAL
         sub_resv_flow_mesh = LARGEREAL
         sub_qext_flow_mesh = LARGEREAL
@@ -155,7 +161,7 @@ module gtm_network
     subroutine deallocate_sub_network_tmp()
         implicit none
         deallocate(sub_flow_mesh_lo, sub_flow_mesh_hi)
-        deallocate(sub_area_mesh_lo, sub_area_mesh_hi)
+        deallocate(sub_area_mesh_lo, sub_area_mesh_hi, sub_area_mesh)
         deallocate(sub_width_mesh, sub_wet_p_mesh, sub_depth_mesh)
         deallocate(sub_resv_height_mesh)
         deallocate(sub_resv_flow_mesh)
@@ -220,7 +226,7 @@ module gtm_network
                                   hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
                                   prev_ws(up_comp), prev_ws(down_comp),                         &
                                   hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),       &
-                                  prev_flow_lo_tmp, prev_flow_hi_tmp)
+                                  prev_flow_lo_tmp, prev_flow_hi_tmp, area_mesh)
         end do
         return
     end subroutine
@@ -299,7 +305,7 @@ module gtm_network
                                   hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),             &
                                   prev_ws(up_comp), prev_ws(down_comp),                                   &
                                   hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),                 &
-                                  prev_flow_lo_tmp, prev_flow_hi_tmp)
+                                  prev_flow_lo_tmp, prev_flow_hi_tmp, sub_area_mesh)
         end do
         return
     end subroutine
@@ -343,7 +349,7 @@ module gtm_network
     subroutine hydro_info(flow,         &
                           flow_lo,      &
                           flow_hi,      &
-                          area,         &
+                          area,         &                          
                           area_lo,      &
                           area_hi,      &
                           width,        &
@@ -360,8 +366,8 @@ module gtm_network
         real(gtm_real), intent(in) :: dx(ncell)            !< Spatial step
         real(gtm_real), intent(out) :: flow(ncell)         !< Cell and time centered flow
         real(gtm_real), intent(out) :: flow_lo(ncell)      !< Low face flow, time centered
-        real(gtm_real), intent(out) :: flow_hi(ncell)      !< High face flow, time centered
-        real(gtm_real), intent(out) :: area(ncell)         !< Cell center area, old time
+        real(gtm_real), intent(out) :: flow_hi(ncell)      !< High face flow, time centered 
+        real(gtm_real), intent(out) :: area(ncell)         !< Cell averaged area, time centered       
         real(gtm_real), intent(out) :: area_lo(ncell)      !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered
         real(gtm_real), intent(out) :: width(ncell)        !< With, time centered
@@ -374,7 +380,8 @@ module gtm_network
         flow    = half * (flow_mesh_lo(time_in_mesh,:)+flow_mesh_hi(time_in_mesh,:))
         area_lo = area_mesh_lo(time_in_mesh,:)
         area_hi = area_mesh_hi(time_in_mesh,:)
-        area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
+        area = area_mesh(time_in_mesh,:)
+        !area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
         width = width_mesh(time_in_mesh,:)
         wet_p = wet_p_mesh(time_in_mesh,:)
         depth = depth_mesh(time_in_mesh,:)
@@ -418,7 +425,8 @@ module gtm_network
         flow    = half * (sub_flow_mesh_lo(time_in_mesh,:)+sub_flow_mesh_hi(time_in_mesh,:))
         area_lo = sub_area_mesh_lo(time_in_mesh,:)
         area_hi = sub_area_mesh_hi(time_in_mesh,:)
-        area    = half * (sub_area_mesh_lo(time_in_mesh,:)+sub_area_mesh_hi(time_in_mesh,:))
+        area = sub_area_mesh(time_in_mesh,:)
+        !area    = half * (sub_area_mesh_lo(time_in_mesh,:)+sub_area_mesh_hi(time_in_mesh,:))
         width = sub_width_mesh(time_in_mesh,:)
         wet_p = sub_wet_p_mesh(time_in_mesh,:)
         depth = sub_depth_mesh(time_in_mesh,:)
@@ -518,7 +526,8 @@ module gtm_network
         flow    = half * (flow_mesh_lo(time_in_mesh,:)+flow_mesh_hi(time_in_mesh,:))
         area_lo = area_mesh_lo(time_in_mesh,:)
         area_hi = area_mesh_hi(time_in_mesh,:)
-        area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
+        area = area_mesh(time_in_mesh,:)
+        !area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
         !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
     end subroutine

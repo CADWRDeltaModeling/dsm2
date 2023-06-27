@@ -346,6 +346,23 @@ subroutine gtm_prepare_loop()
     LL = zero
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
+
+    if (nquadpts == 1) then
+        quadpt(1)=0.5
+        quadwt(1)=1.0
+    else if (nquadpts == 2) then
+        quadpt(1)=0.
+        quadpt(2)=1.0
+        quadwt(1)=0.5
+        quadwt(2)=0.5
+    else if (nquadpts == 3) then
+        quadpt(1)=0.
+        quadpt(2)=0.5
+        quadpt(3)=1.0
+        quadwt(1)=0.25
+        quadwt(2)=0.5
+        quadwt(3)=0.25
+    endif
 end subroutine
 
 subroutine gtm_loop()
@@ -731,7 +748,7 @@ subroutine gtm_wrapup()
     if (run_pdaf) then
         call print_last_stage(jmin2cdt(int(gtm_end_jmin)),int(gtm_end_jmin),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) !replace current_time by gtm_end_jmin
     else
-        call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) 
+        call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn)
     end if
 
     if (use_sediment_bed) then

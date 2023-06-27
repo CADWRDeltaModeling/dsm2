@@ -134,13 +134,17 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 			float dir = 0;
 			if(qSacDDCFS < 0)
 				dir = 1;
+			//gate open 1, close 0
 			int dccGate = 1;
-			if ((Math.abs(qDCCFS) < GATECLOSEDFLOW))
+			int gsGate = 1;
+			if ((Math.abs(qGsCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && gs.isFishScreenInstalled()))
+				gsGate = 0;
+			if ((Math.abs(qDCCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && dcc.isFishScreenInstalled()))
 				dccGate = 0;
 			double a = calcA(new float[]{qSacDD, qGss, dir});
 			double b = calcB(new float[]{qSacDD, dtQSac});
-			double piDcc = pi(b, a, dccGate,1);
-			double piGs = pi(a, b, 1, dccGate);	
+			double piDcc = pi(b, a, dccGate,gsGate);
+			double piGs = pi(a, b, gsGate, dccGate);	
 			gsProbability = piGs/(1.0d-piDcc);
 			rIn.putEntrainmentRate(nodeId, 
 					new ArrayList<Object>(Arrays.asList(p.Id, qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc, piGs, gsProbability)));

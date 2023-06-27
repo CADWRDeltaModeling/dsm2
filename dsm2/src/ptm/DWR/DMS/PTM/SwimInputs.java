@@ -36,7 +36,7 @@ public class SwimInputs {
 				}
 			}
 			else if (fishType.equalsIgnoreCase("SALMON_PARTICLE")){
-				if (inText.size()<11)
+				if (inText.size()<12)
 					PTMUtil.systemExit("information missing in Swim_Inputs section");
 				try{
 					//_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT"); //no longer used
@@ -48,7 +48,8 @@ public class SwimInputs {
 					_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "MAXIMUM_CONFUSION_PROBABILITY");
 					_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "CONFUSION_PROBABILITY_SLOPE");
 					_randomAccess = PTMUtil.getBooleanFromLine(inText.get(7), "RANDOM_ACCESS");
-					_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY"); 
+					_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY");
+					THRESHOLD_STUCK = PTMUtil.getIntFromLine(inText.get(9), "Stuck_Threshold")*24*60*60;
 				}catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
@@ -262,7 +263,7 @@ public class SwimInputs {
 	//<pid,<channel,initial visit time>> // if previous channel and current channel equal for too long, take the particle out of the system
 	private Map<Integer, Map<Integer, Double>> _pStuck = new HashMap<Integer, Map<Integer, Double>>();
 	//threshold of a particle being stuck or back to the same channel
-	private final int THRESHOLD_STUCK = 30*24*60*60;
+	private int THRESHOLD_STUCK;
 	
 	private ParticleBehavior _smeltBehavior = null;
 	

@@ -137,6 +137,11 @@ subroutine hdf5_read_attributes()
 !      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of intervals",attr_id,error)
       call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
+      call h5aopen_name_f(hydro_id,"Number of quadrature points",attr_id,error)
+      call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
+c     call h5aclose_f(attr_id, error)
+      call h5aopen_name_f(hydro_id,"Hydro theta",attr_id,error)
+      call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
 !     call h5aclose_f(attr_id, error)
       in_data_dims(1) = n_chan_tf
 

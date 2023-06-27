@@ -470,4 +470,36 @@ public class PTMUtil {
 		_useNewRandomSeed = true;
 	} 
 	public static boolean getUseNewRandomSeed(){return _useNewRandomSeed;}
+	public static int[] getEnvNodeChanIds(String[] items){
+		if (items.length<2)
+			PTMUtil.systemExit("SYSTEM EXIT: Barrier or fish screen ID input line should have more than 3 items, and less items noticed. ");
+		Integer wbId=null;
+		Integer nodeId = getEnvNodeId(items[0]);
+		// find external channel id or reservoir/obj2obj name
+		try{
+			wbId = Integer.parseInt(items[1]);
+			wbId = PTMHydroInput.getIntFromExtChan(wbId);
+		}catch(NumberFormatException e){
+			if ((wbId=PTMEnv.getReservoirObj2ObjEnvId(items[1])) == null){
+				e.printStackTrace();
+				PTMUtil.systemExit("SYSTEM EXIT:wrong channel/reservior/obj2obj id:" + items[1]);
+			}
+		}
+		if (nodeId == null || wbId == null)
+			PTMUtil.systemExit("SYSTEM EXIT: wrong node/channel/reservior/obj2obj ids, node id: " + items[0]+" waterbody Id: "+items[1]);
+		return new int[] {nodeId, wbId};
+	}
+	public static Integer getEnvNodeId(String idStr){
+		Integer nodeId = null;
+		if (idStr == null)
+			PTMUtil.systemExit("SYSTEM EXIT: try to get internal Id for Node but the string is empty. ");
+		try{
+			nodeId = Integer.parseInt(idStr);
+		}catch(NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("SYSTEM EXIT: node id has a wrong format:" + idStr);
+		}
+		nodeId = PTMHydroInput.getIntFromExtNode(nodeId);
+		return nodeId;
+	}
 }

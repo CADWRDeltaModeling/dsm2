@@ -45,8 +45,9 @@ module gtm_precision
    real(gtm_real), parameter :: third = one/three      !< Real constant  1/3  properly typed
    real(gtm_real), parameter :: fourth   =  2.5d-1     !< Real constant  0.25 properly typed
    real(gtm_real), parameter :: pi = acos(-one)        !< Pi
-   real(gtm_real), parameter :: hydro_theta =  6.d-1   !< Real constant 0.6  properly typed
+   !real(gtm_real), parameter :: hydro_theta =  0.6d-1   !< Real constant 0.6  properly typed
    real(gtm_real), parameter :: million = 1.d6         !< Real constant 1,000,000 property typed
+   real(gtm_real), parameter :: MaxQuadPts = 3         !< Max # of quadrature points
 
    integer, parameter :: LARGEINT = -123456789
 

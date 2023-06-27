@@ -46,14 +46,18 @@ public class BasicRouteBehavior {
 	}
 	boolean prescreen(Particle p, float wbInflows) {
 	    // if the Node is at a Node with zero flow, for example at the
-	    // end of a slough, then move the Particle into the Channel a
+	    // end of a slough/barrier/gate/fish screen, then move the Particle into the Channel a
 	    // small amount. p.y and p.z will be calculated in Swimming Behavior module later.
 
-	    if (Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1) {	    	
+	    if ((Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1)||(p.wb!= null && p.wb.flowAt[p.wb.getNodeLocalIndex(p.nd.getEnvIndex())]==0.0f) ||
+	    		(p.wb != null && p.wb.isFishScreenInstalled() && p.nd.isFishScreenInstalled())){	    	
 	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    		p.x = 0;
-	    	else
-	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);	    		
+	    	else {
+	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);
+	    		//if (PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())==307 &&p.wb.flowAt[p.wb.getNodeLocalIndex(p.nd.getEnvIndex())]==0.0f && p.nd.getNumberOfWaterbodies() != 1)
+	    			//System.err.println(p.Id + "  "+PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())+"  "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()));
+	    	}
 	    	return false;
 	    }
 	    return true;

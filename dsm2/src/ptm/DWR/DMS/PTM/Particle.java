@@ -202,6 +202,10 @@ public class Particle{
 	  private long _swimmingTime; 
 	  // time in second used by a particle from the beginning of a time step
 	  private float _timeUsedInSecond;
+	  // current model time step
+	  private float _tStepInSecs = 0;
+	  // the particle holding status
+	  private boolean _isAHolder = false;
 	  /**
 	   *  Creates a default Particle<br>
 	   *  The random number generator is initialized to random_seed<br>
@@ -317,6 +321,7 @@ public class Particle{
 		  // insertion time is checked in PTMEnv.
 		  // if a insertion time is earlier than the model start time, simulation exits because a particle needs hydro info when inserted.
 		  _timeUsedInSecond = 0;
+		  _tStepInSecs = delT;
 		  long currPTime = getCurrentParticleTimeExact();
 		  if((!inserted && currPTime >= insertionTime)||_reInsert){ //when current time reach insertion time
 			  _swimHelper.insert(this);
@@ -522,6 +527,17 @@ public class Particle{
 		  _swimmingTime = time;
 	  }
 	  public void addTimeUsed(float deltaT){ _timeUsedInSecond += deltaT; }
+	  // particle remembers seconds left within a model time step (usually 900 seconds) after certain sub-time-steps.
+	  public float getTmLeftInSecs() {
+		  float t_step_left = _tStepInSecs -  _timeUsedInSecond;
+		  if (t_step_left < 0)
+			  PTMUtil.systemExit("Called getTmLeftInSecs and got negative number, system exit");
+		  return t_step_left;
+	  }
+	  //check if the particle is a holder. fish particles have holding behaviors, e.g., holding during day time.  
+	  public boolean isAHolder() {return _isAHolder;}
+	  //set holding.  
+	  public void setToHold(boolean toHold) {_isAHolder = toHold;}
 	  //will be overridden in Arron's behaved particle
 	  protected void updateOtherParameters(float delT){}
 	  protected float calcZDisplacementExtRandom(float timeStep){return 0.0f;}
