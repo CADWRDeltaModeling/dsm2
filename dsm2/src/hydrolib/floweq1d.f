@@ -143,10 +143,6 @@ contains
         Velocity2 = Q2 / Area2
         BetaVelocity2 = 1.0 * Velocity2
                 
-        !if (UpstreamPointer() + Up - 1==1151 .and.  Iteration == 1 ) then
-        !    print *, Q1, Q2, Z1, Z2, Area1, Area2
-        !end if
-
         !-----Time increment and weighting.
         DT = DFLOAT( NetworkTimeIncrement() )
         Theta = NetworkTheta()
