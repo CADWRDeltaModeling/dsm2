@@ -41,6 +41,7 @@ subroutine hdf5_write_attributes()
     use network
     use gates, only: ngate
     use netcntrl_common, only: Theta
+    use gtm_precision, only: gtm_real
     implicit none
 
     integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
@@ -158,13 +159,13 @@ subroutine hdf5_write_attributes()
                                  hdf5_dummy_integer, hdf5_int_size, error)
 
     hdf5_dummy_integer =  nquadpts
-    call h5ltset_attribute_int_f(hydro_id,".",
-                                 "Number of quadrature points",
+    call h5ltset_attribute_int_f(hydro_id,".", &
+                                 "Number of quadrature points", &
                                  hdf5_dummy_integer, hdf5_int_size, error)
 
     hdf5_dummy_real =  theta
-    call h5ltset_attribute_double_f(hydro_id,".",
-                                    "Hydro theta",
+    call h5ltset_attribute_double_f(hydro_id,".", &
+                                    "Hydro theta", &
                                     hdf5_dummy_real, scalar, error)
 
     ! Write out channel geometry
