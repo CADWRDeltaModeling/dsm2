@@ -46,7 +46,7 @@ import java.nio.IntBuffer;
  * main function of PTM
  */
 public class MainPTM {
-
+	public static boolean MULTI_THREADED = false;
     public static void main(String[] args) {
     	//DEBUG = true;
         try {
@@ -185,17 +185,20 @@ public class MainPTM {
                 swimHelper.updateCurrentInfo(allWbs);
                 //update barrier op infos, etc.
                 routeHelper.updateCurrentInfo(allWbs, Globals.currentModelTime);
-                if (DEBUG) System.out.println("Updated flows");         	
-            	// update Particle positions
-                for (int i=0; i<numberOfParticles; i++){
-            		// timeStep in seconds (PTMTimeStep in minutes)!
-                	if (DEBUG) System.out.println("Update particle " + i +" position");
-            		particleArray[i].updatePosition(timeStep);
-            		if (DEBUG) System.out.println("Updated particle "+i +" position");
-            		//set Particle._timeUsedInSecond = 0.0
-            		particleArray[i].clear();
+                if (DEBUG) System.out.println("Updated flows");
+                if (MULTI_THREADED){
+                	ParticleLoop.doAll(particleArray, timeStep);
+                } else {
+	            	// update Particle positions
+	                for (int i=0; i<numberOfParticles; i++){
+	            		// timeStep in seconds (PTMTimeStep in minutes)!
+	                	if (DEBUG) System.out.println("Update particle " + i +" position");
+	            		particleArray[i].updatePosition(timeStep);
+	            		if (DEBUG) System.out.println("Updated particle "+i +" position");
+	            		//set Particle._timeUsedInSecond = 0.0
+	            		particleArray[i].clear();
+	                }
                 }
-      
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
                 // write out restart file information
