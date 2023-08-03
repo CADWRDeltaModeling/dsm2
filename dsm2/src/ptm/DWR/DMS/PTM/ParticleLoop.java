@@ -17,27 +17,30 @@ public class ParticleLoop {
 	// Create a thread pool executor with a fixed number of threads
 	public static ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 
-	public static void doAll(Particle[] particleArray, int timeStep) {
+	public static void doAll(final Particle[] particleArray, final int timeStep) {
 		int numberOfParticles = particleArray.length;
 		int elementsPerThread = (numberOfParticles + NUM_THREADS - 1) / NUM_THREADS;
 
-		List<Callable<Void>> tasks = new ArrayList<>();
+		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
 
 		// Create tasks for each chunk of the particle array
 		for (int i = 0; i < NUM_THREADS; i++) {
 			final int startIndex = i * elementsPerThread;
 			final int endIndex = Math.min((i + 1) * elementsPerThread, numberOfParticles);
-			tasks.add(() -> {
-				for (int j = startIndex; j < endIndex; j++) {
-					Particle particle = particleArray[j];
-					if (DEBUG)
-						System.out.println("Update particle " + j + " position");
-					particle.updatePosition(timeStep);
-					if (DEBUG)
-						System.out.println("Updated particle " + j + " position");
-					particle.clear();
+			tasks.add(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					for (int j = startIndex; j < endIndex; j++) {
+						Particle particle = particleArray[j];
+						if (DEBUG)
+							System.out.println("Update particle " + j + " position");
+						particle.updatePosition(timeStep);
+						if (DEBUG)
+							System.out.println("Updated particle " + j + " position");
+						particle.clear();
+					}
+					return null;
 				}
-				return null;
 			});
 		}
 
@@ -50,7 +53,9 @@ public class ParticleLoop {
 			for (Future<Void> result : results) {
 				result.get(); // This will throw an exception if a task failed
 			}
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
 
