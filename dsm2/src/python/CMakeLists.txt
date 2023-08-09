@@ -18,6 +18,9 @@ execute_process(
   OUTPUT_VARIABLE F2PY_INCLUDE_DIR
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+  # Convert into a nice CMake Path variable
+set(F2PY_INCLUDE_DIR ${F2PY_INCLUDE_DIR} CACHE PATH "F2PY include directory")
+
 include_directories(BEFORE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS}
                     ${F2PY_INCLUDE_DIR})
 
