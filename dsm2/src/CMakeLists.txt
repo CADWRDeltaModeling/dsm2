@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.2.2)
 ############ options
 option(hydro_1000 "Enable running hydro at 1000 ft resolution: Default OFF" OFF)
+option(BUILD_PYTHON "Build Python wrappers: Default OFF" OFF)
 #add_compile_options(-fpp)
 ############ GIT information
 # in case Git is not available, we default to "unknown"
@@ -98,7 +99,9 @@ add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
 # add_subdirectory(${DSM2_TIMEVAR})
 add_subdirectory(${DSM2_QUAL})
-add_subdirectory(${DSM2_PYTHON})
+if (BUILD_PYTHON)
+  add_subdirectory(${DSM2_PYTHON})
+endif()
 #--------------- HYDRO EXE -------------------------
 add_executable(hydro_exe hydro/hydro_driver.f90)
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
