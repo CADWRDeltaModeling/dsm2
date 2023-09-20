@@ -1,13 +1,17 @@
-cmake_minimum_required(VERSION 3.2.2)
-enable_language(Fortran)
+cmake_minimum_required(VERSION 3.17)
+project(hydrolib LANGUAGES Fortran)
+
 # search by file pattern and include in library
-if(WIN32)
-  set(CMAKE_Fortran_FLAGS "/free")
-else(WIN32)
-  set(CMAKE_Fortran_FLAGS "-free")
-endif(WIN32)
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile"
-                    "../fixed" "../${HDF5_DIR}/include/static")
-file(GLOB sources *.f *.f90)
-add_library(hydrolib STATIC ${sources})
-add_dependencies(hydrolib hdf_tidefile_fortran common)
+file(GLOB SOURCES *.f *.f90)
+add_library(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${Fortran_MODULE_DIRECTORY}
+    ${HDF5_Fortran_MODULE_PATH})
+
+add_dependencies(${PROJECT_NAME} klu_fortran hdf_tidefile gtm_core common)
+
+# target_include_directories(${PROJECT_NAME} PRIVATE
+# "${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile"
+# "../fixed" "${HDF5_Fortran_MODULE_PATH}")

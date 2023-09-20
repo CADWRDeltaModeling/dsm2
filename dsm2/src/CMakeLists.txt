@@ -1,93 +1,218 @@
-cmake_minimum_required (VERSION 3.2.2)
-############ options
-option(hydro_1000 "Enable running hydro at 1000 ft resolution: Default OFF" OFF)
-option(BUILD_PYTHON "Build Python wrappers: Default OFF" OFF)
-#add_compile_options(-fpp)
-############ GIT information
-# in case Git is not available, we default to "unknown"
-set(GIT_HASH "unknown")
+cmake_minimum_required(VERSION 3.17)
 
-# find Git and if available set GIT_HASH variable
-find_package(Git QUIET)
-if(GIT_FOUND)
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} log -1 --pretty=format:%h
-    OUTPUT_VARIABLE GIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-    )
-endif()
+# Set CMake module path, keep this for later
+# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DSM2_TOP_DIR}/cmake")
+PROJECT(DSM2 LANGUAGES C CXX Fortran)
 
-message(STATUS "Git hash is ${GIT_HASH}")
-#############
-PROJECT(DSM2)
-enable_language(C CXX Fortran)
-#
-string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
-#-----------------------------------------------------------------------------
-# Set the core names of all the libraries
-#-----------------------------------------------------------------------------
-set (DSM2_COMMON_LIB_CORENAME   "dsm2common")
-set (DSM2_IO_LIB_CORENAME       "dsm2io")
-#-----------------------------------------------------------------------------
-# Set the true names of all the libraries if customized by external project
-#-----------------------------------------------------------------------------
-set (DSM2_COMMON_LIB_NAME     "${DSM2_COMMON_LIB_CORENAME}")
-set (DSM2_IO_LIB_NAME         "${DSM2_IO_LIB_CORENAME}")
-#-----------------------------------------------------------------------------
-# Define some CMake variables for use later in the project
-#-----------------------------------------------------------------------------
-set (DSM2_COMMONS_DIR       ${DSM2_SOURCE_DIR}/common)
-set (DSM2_FIXED_DIR         ${DSM2_SOURCE_DIR}/fixed)
-set (DSM2_HDF_TIDEFILE      ${DSM2_SOURCE_DIR}/hdf_tidefile)
-set (DSM2_HYDRO             ${DSM2_SOURCE_DIR}/hydro)
-set (DSM2_HYDROLIB          ${DSM2_SOURCE_DIR}/hydrolib)
-set (DSM2_INPUT_STORAGE     ${DSM2_SOURCE_DIR}/input_storage)
-set (DSM2_KLU_FORTRAN       ${DSM2_SOURCE_DIR}/klu_fortran)
-set (DSM2_OPRULE_INTERFACE  ${DSM2_SOURCE_DIR}/oprule_interface)
-set (DSM2_PATTERN_MATCH ${DSM2_SOURCE_DIR}/pattern_match)
-set (DSM2_PTM      ${DSM2_SOURCE_DIR}/ptm)
-set (DSM2_QUAL      ${DSM2_SOURCE_DIR}/qual)
-set (DSM2_SPARSE      ${DSM2_SOURCE_DIR}/sparse)
-# set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
-set (DSM2_PYTHON      ${DSM2_SOURCE_DIR}/python)
-#
-#FIXME: change top directory to one-less. There should be a better way
-set(DSM2_TOP_DIR "../..")
-if (DEFINED THIRD_PARTY_DIR)
-  set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
+option(BUILD_SHARED_LIBS OFF)
+set(DSM2_TOP_DIR ${CMAKE_SOURCE_DIR}/../..)
+set(CMAKE_Fortan_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "MSVC runtime library" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG_INIT /MDd CACHE STRING "Flags used by the compiler during all build types." FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE_INIT /MD CACHE STRING "Flags used by the compiler during all build types." FORCE)
+set(CMAKE_Fortran_FLAGS_DEBUG_INIT /MDd CACHE STRING "Flags used by the compiler during all build types." FORCE)
+set(CMAKE_Fortran_FLAGS_RELEASE_INIT /MD CACHE STRING "Flags used by the compiler during all build types." FORCE)
+
+if(DEFINED THIRD_PARTY_DIR)
+    set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
 else()
-  set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+    set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
 endif()
 
-# FFLAGS depend on the compiler
-get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-# include the common macros for compiler flags and third party libraries
-include(${DSM2_TOP_DIR}/CmakeLibraryMacro.txt)
-set_compiler_flags()
-#---------------LIBRARIES-------------------------------------------------
-find_libs()
-#----------------- EXECUTABLES --------------------------------------------
+set(CMAKE_DEBUG_POSTFIX d)
+
+# Boost library
+if(WIN32)
+    set(BOOST_VERSION 1_83)
+    set(STATIC_LIB_SUFFIX "lib")
+else(WIN32)
+    set(BOOST_VERSION 1_69)
+    set(STATIC_LIB_SUFFIX "a")
+endif(WIN32)
+
+set(BOOST_DIR ${DSM2_THIRD_PARTY_DIR}/boost_${BOOST_VERSION}_0)
+set(BOOST_INCLUDE_DIR ${BOOST_DIR}/include/boost-1_83/)
+set(BOOST_LIB_DIR ${BOOST_DIR}/lib)
+
+if(WIN32)
+    set(BOOST_VC_VERSION "vc143")
+    set(BOOST_RELEASE_VERSION "-${BOOST_VC_VERSION}-mt-x64-${BOOST_VERSION}")
+    set(BOOST_DEBUG_VERSION "-${BOOST_VC_VERSION}-mt-gd-x64-${BOOST_VERSION}")
+else(WIN32)
+    set(BOOST_VC_VERSION "")
+    set(BOOST_RELEASE_VERSION "")
+    set(BOOST_DEBUG_VERSION "")
+endif(WIN32)
+
+list(APPEND BOOST_LIB_NAMES filesystem regex "system") # unit_test_framework)
+
+foreach(NAME IN LISTS BOOST_LIB_NAMES)
+    message(STATUS "Looking for boost library ${NAME}, boost_${NAME}${BOOST_RELEASE_VERSION}.${STATIC_LIB_SUFFIX}")
+    unset(LIB)
+    unset(LIBD)
+    find_library(LIB NAMES libboost_${NAME}${BOOST_RELEASE_VERSION}.${STATIC_LIB_SUFFIX}
+        PATHS ${BOOST_LIB_DIR} NO_CACHE NO_DEFAULT_PATH)
+        find_library(LIBD NAMES libboost_${NAME}${BOOST_DEBUG_VERSION}.${STATIC_LIB_SUFFIX}
+        PATHS ${BOOST_LIB_DIR} NO_CACHE NO_DEFAULT_PATH)
+    message(STATUS "LIB: ${LIB}")
+
+    if(LIB)
+        message(STATUS "Found boost library ${NAME}: ${LIB}")
+        list(APPEND BOOST_LIBRARIES_RELEASE ${LIB})
+        list(APPEND BOOST_LIBRARIES_DEBUG ${LIBD})
+    else()
+        message(FATAL_ERROR "Could not find boost library ${BOOST_LIBLRARY_NAME}")
+    endif()
+endforeach()
+
+# HDF5
+list(APPEND HDF5_LIB_NAMES
+    hdf5 hdf5_hl hdf5_fortran hdf5_hl_fortran
+    hdf5_f90cstub hdf5_hl_f90cstub z szaec aec)
+
 if(MSVC)
-  #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /NODEFAULTLIB:libifcoremd.lib /MANIFEST:NO")
-  #set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /NODEFAULTLIB:mscvcprt.lib /NODEFAULTLIB:libucrtd.lib /MANIFEST:NO")
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG
-      "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib  /MANIFEST:NO")
-  set(CMAKE_EXE_LINKER_FLAGS_RELEASE
-      "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib  /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (VS_STARTUP_PROJECT hydro)
+    set(HDF5_DIR ${DSM2_THIRD_PARTY_DIR}/hdf5-1.10.10-win64)
+    set(HDF5_LIB_DIR "${HDF5_DIR}/lib")
+    set(HDF5_Fortran_MODULE_PATH "${HDF5_DIR}/mod/static")
+    set(HDF5_LIB_PREFIX "lib")
+    set(HDF5_DEBUG_SUFFIX "_D")
+
+    foreach(NAME IN LISTS HDF5_LIB_NAMES)
+        unset(LIB)
+        find_library(LIB NAMES ${HDF5_LIB_PREFIX}${NAME}${HDF5_DEBUG_SUFFIX}.${STATIC_LIB_SUFFIX}
+            PATHS ${HDF5_LIB_DIR} NO_CACHE NO_DEFAULT_PATH)
+
+        if(LIB)
+            list(APPEND HDF5_LIBRARIES ${LIB})
+        else()
+            message(FATAL_ERROR "Could not find HDF5 library ${NAME}: ${HDF5_LIB_PREFIX}${NAME}${HDF5_DEBUG_SUFFIX}.${STATIC_LIB_SUFFIX}")
+        endif()
+    endforeach()
+
 else(MSVC)
-  #set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
-  #set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
+    message(FATAL_ERROR "DSM2 is only supported on Windows")
+endif(MSVC)
+
+# SparseSuite KLU solver library
+set(KLULIB_PATH "${DSM2_THIRD_PARTY_DIR}/SuiteSparse/KLU")
+
+if(WIN32)
+    find_library(KLULIB_DEBUG ${LIB_PREFIX}KLU.${STATIC_LIB_SUFFIX} PATHS "${KLULIB_PATH}/build/Debug" NO_DEFAULT_PATH)
+    find_library(KLULIB_RELEASE ${LIB_PREFIX}KLU.${STATIC_LIB_SUFFIX} PATHS "${KLULIB_PATH}/build/Release" NO_DEFAULT_PATH)
+else(WIN32)
+    find_library(KLULIB_DEBUG ${LIB_PREFIX}KLU${TOOLSET}.${STATIC_LIB_SUFFIX} PATHS "${KLULIB_PATH}/build/Debug" NO_DEFAULT_PATH)
+    find_library(KLULIB_RELEASE ${LIB_PREFIX}KLU${TOOLSET}.${STATIC_LIB_SUFFIX} PATHS "${KLULIB_PATH}/build/Release" NO_DEFAULT_PATH)
+endif(WIN32)
+
+# Setting up the static link option
+# NOTE I am not sure if BUILD_SHARED_LIBS should take care of this automatically.
+# if(MSVC)
+# if(BUILD_SHARED_LIBS)
+# if(CMAKE_BUILD_TYPE MATCHES Debug)
+# add_compile_options(/MDd)
+# else()
+# add_compile_options(/MD)
+# endif()
+# else(BUILD_SHARED_LIBS)
+# if(CMAKE_BUILD_TYPE MATCHES Debug)
+# add_compile_options(/MTd)
+# else()
+# add_compile_options(/MT)
+# endif()
+# endif(BUILD_SHARED_LIBS)
+# else(MSVC)
+# message(FATAL_ERROR "DSM2 is only supported on Windows")
+# endif(MSVC)
+
+# HEClib
+if(MSVC)
+    set(LIB_PREFIX "")
+    set(DEBUG_COMPILE "d")
+else(MSVC)
+    set(LIB_PREFIX "lib")
+    set(TOOLSET "_intel")
+    set(STATIC_COMPILE "")
+    set(DEBUG_COMPILE "")
+endif(MSVC)
+
+set(HECLIB_DIR ${DSM2_THIRD_PARTY_DIR}/heclib)
+set(HECLIB_LIB_PATH ${HECLIB_DIR}/lib)
+
+if(MSVC)
+    find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX} PATHS ${HECLIB_LIB_PATH} NO_DEFAULT_PATH)
+    message(STATUS "HECLIB_RELEASE: ${HECLIB_RELEASE}")
+    list(APPEND HECLIB_LIBRARIES_RELEASE ${HECLIB_RELEASE})
+    find_library(HECLIB_DEBUG NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
+    list(APPEND HECLIB_LIBRARIES_DEBUG ${HECLIB_DEBUG})
+    message(STATUS "HECLIB_LIBRARIES_RELEASE: ${HECLIB_LIBRARIES_RELEASE}")
+    message(STATUS "HECLIB_LIBRARIES_DEBUG: ${HECLIB_LIBRARIES_DEBUG}")
+else(MSVC)
+    message(FATAL_ERROR "DSM2 is only supported on Windows")
+
+    # find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
+endif(MSVC)
+
+# Oprule/Input storage
+find_library(OPRULE_DEBUG
+    NAMES ${LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX}
+    PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_PARSER_DEBUG
+    NAMES ${LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_RELEASE
+    NAMES ${LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+    PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_PARSER_RELEASE
+    NAMES ${LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+    PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+
+find_library(INPUT_STORAGE_DEBUG
+    NAMES ${LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX}
+    PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(INPUT_STORAGE_RELEASE
+    NAMES ${LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+    PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+
+# # MKL
+find_library(MKL_CORE_LIB NAMES mkl_core.lib PATHS)
+find_library(MKL_INTEL_LIB NAMES mkl_intel_c.lib PATHS)
+
+# Set Fortran module file directory
+set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
+
+# Shared lib build setting
+if(MSVC)
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+        set(Fortran_MODULE_DIR
+            ${CMAKE_Fortan_MODULE_DIRECTORY}/Debug)
+    else()
+        set(Fortran_MODULE_DIR
+            ${CMAKE_Fortan_MODULE_DIRECTORY}/Release)
+    endif()
+else()
+    set(Fortran_MODULE_DIR
+        ${CMAKE_Fortan_MODULE_DIRECTORY})
 endif()
-include_directories("${DSM2_TOP_DIR}/input_storage/src")
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
-#------------------------- SUB PROJECTS --------------------------------
-add_subdirectory(${DSM2_COMMONS_DIR})
+
+# set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
+set(DSM2_COMMONS_DIR ${DSM2_SOURCE_DIR}/common)
+set(DSM2_FIXED_DIR ${DSM2_SOURCE_DIR}/fixed)
+set(DSM2_HDF_TIDEFILE ${DSM2_SOURCE_DIR}/hdf_tidefile)
+set(DSM2_HYDRO ${DSM2_SOURCE_DIR}/hydro)
+set(DSM2_HYDROLIB ${DSM2_SOURCE_DIR}/hydrolib)
+set(DSM2_INPUT_STORAGE ${DSM2_SOURCE_DIR}/input_storage)
+set(DSM2_KLU_FORTRAN ${DSM2_SOURCE_DIR}/klu_fortran)
+set(DSM2_OPRULE_INTERFACE ${DSM2_SOURCE_DIR}/oprule_interface)
+set(DSM2_PATTERN_MATCH ${DSM2_SOURCE_DIR}/pattern_match)
+set(DSM2_PTM ${DSM2_SOURCE_DIR}/ptm)
+set(DSM2_QUAL ${DSM2_SOURCE_DIR}/qual)
+set(DSM2_SPARSE ${DSM2_SOURCE_DIR}/sparse)
+
+# set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
+set(DSM2_PYTHON ${DSM2_SOURCE_DIR}/python)
+
 # generate the files now
-execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
+# execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
+add_subdirectory(${DSM2_COMMONS_DIR})
 add_subdirectory(${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_FIXED_DIR})
 add_subdirectory(${DSM2_HDF_TIDEFILE})
@@ -97,331 +222,50 @@ add_subdirectory(${DSM2_KLU_FORTRAN})
 add_subdirectory(${DSM2_OPRULE_INTERFACE})
 add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
+
+# GTM
+set(DSM2_GTM_CORE ${DSM2_SOURCE_DIR}/gtm_core)
+add_subdirectory(${DSM2_GTM_CORE})
+
 # add_subdirectory(${DSM2_TIMEVAR})
-add_subdirectory(${DSM2_QUAL})
-if (BUILD_PYTHON)
-  add_subdirectory(${DSM2_PYTHON})
-endif()
-#--------------- HYDRO EXE -------------------------
-add_executable(hydro_exe hydro/hydro_driver.f90)
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
-add_dependencies(hydro_exe fourpt)
-if (WIN32)
-else (WIN32)
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
-endif (WIN32)
-set_property(TARGET hydro_exe PROPERTY LINKER_LANGUAGE Fortran)
-if (WIN32)
-set_target_properties(hydro_exe PROPERTIES COMPILE_FLAGS "/Qmkl:sequential") #linker in windows in plain vanilla and doesn't understand ifort flags
-#set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "/libs:static /threads")
-target_link_libraries(hydro_exe DEBUG libucrtd.lib OPTIMIZED libucrt.lib libmmt.lib)
-target_link_libraries(hydro_exe fourpt common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran)
-else (WIN32)
-# link statically with intel libraries - avoids intel library redistribution
-# full static is not working on linux due to lack of standard .a libraries
-set_target_properties(hydro_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(hydro_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(hydro_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group fourpt gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran -Wl,--end-group)
-endif (WIN32)
-if (WIN32)
-target_link_libraries(hydro_exe
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+# add_subdirectory(${DSM2_QUAL})
+
+# Build HYDRO
+set(HYDRO_BIN hydro_exe)
+add_executable(${HYDRO_BIN})
+add_dependencies(${HYDRO_BIN} fourpt)
+target_sources(${HYDRO_BIN} PRIVATE hydro/hydro_driver.f90)
+target_link_libraries(${HYDRO_BIN} PRIVATE
+    gtm_core fixed input_storage_cpp input_storage
+    oprule_interface_fortran oprule_interface_cpp hydrolib
+    pattern_match hdf_tidefile hdf_tidefile_cpp klu_fortran common fourpt
+    debug sparse
+    debug ${BOOST_LIBRARIES_DEBUG} optimized ${BOOST_LIBRARIES_RELEASE}
+    ${HDF5_LIBRARIES}
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${HECLIB_LIBRARIES_DEBUG} optimized ${HECLIB_LIBRARIES_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
-	  ${IFCORE_LIB}
-    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
-    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-    )
-else (WIN32)
-target_link_libraries(hydro_exe
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
-    )
-target_link_libraries(hydro_exe -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
-endif (WIN32)
-set_target_properties(common PROPERTIES Fortran_PREPROCESS on)
-set_target_properties(hydrolib PROPERTIES Fortran_PREPROCESS on)
-if (hydro_1000)
-    message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 1000 ft spatial resolution")
-    target_compile_definitions(common PRIVATE hydro_1000=1)
-    target_compile_definitions(hydrolib PRIVATE hydro_1000=1)
-else (hydro_1000)
-    message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 2000 ft spatial resolution")
-endif (hydro_1000)
-# QUAL EXE
-# file(GLOB QUAL_SOURCES qual/*.f qual/*.f90)
-# if (WIN32)
-#    set (CMAKE_Fortran_FLAGS "/extend_source:132")
-# else (WIN32)
-#    set (CMAKE_Fortran_FLAGS "-extend-source 132")
-# endif (WIN32)
-# add_executable(qual ${QUAL_SOURCES})
-add_executable(qual_exe qual/qual_driver.f90)
-set_property(TARGET qual_exe PROPERTY LINKER_LANGUAGE Fortran)
-add_dependencies(qual_exe qual_core)
-if (WIN32)
-target_link_libraries(qual_exe debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-target_link_libraries(qual_exe qual_core gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse)
-target_link_libraries(qual_exe
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-	  ${IFCORE_LIB}
-    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
-    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-    )
-else (WIN32)
-set_target_properties(qual_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(qual_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(qual_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group qual_core gtm_core common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse -Wl,--end-group)
-target_link_libraries(qual_exe
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    )
-target_link_libraries(qual_exe -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
-endif (WIN32)
-# PTM DLL
-file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
-if (WIN32)
-   set (CMAKE_Fortran_FLAGS "/extend_source:132")
-else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend-source 132")
-endif (WIN32)
-add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
-add_dependencies(ptm_fortran common fixed hydrolib)
-file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
-add_library(PTM SHARED ${PTM_JAVA_CPP_SOURCES})
-include(FindJNI)
-target_include_directories(PTM PUBLIC ${JNI_INCLUDE_DIRS})
-if (WIN32)
-target_link_libraries(PTM ptm_fortran common fixed hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
-add_dependencies(PTM common fixed hydrolib)
-target_link_libraries(PTM
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-	  ${IFCORE_LIB}
-    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
-    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-	  debug libcpmtd.lib optimized libcpmt.lib
-    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
-    )
-else (WIN32)
-set_target_properties(PTM PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_link_libraries(PTM ptm_fortran -Wl,-rpath='$ORIGIN/lib' -Wl,--whole-archive common fixed input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
-target_link_libraries(PTM
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    )
-endif (WIN32)
-#PTM java
-find_package(Java 1.6 REQUIRED)
-message(STATUS "Found Java version ${Java_VERSION}")
-get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-file(TO_CMAKE_PATH $ENV{JAVA_HOME}/jre JAVA_JRE_HOME)
-message(STATUS "Using Java env variable $ENV{JAVA_HOME} location to guess JAVA_JRE_HOME is -> ${JAVA_JRE_HOME}")
-include(UseJava)
-file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
-file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
-add_jar(PTM_JAR
-  SOURCES ${PTM_JAVA_SOURCES}
-  INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
-  ENTRY_POINT "DWR/DMS/PTM/MainPTM"
-  OUTPUT_NAME PTM)
-install_jar(PTM_JAR ${CMAKE_BINARY_DIR})
-#--------------- GTM EXE -------------------------
-#-----------------------------------------------------------------------------
-# Define some CMake variables for use later in the project
-#-----------------------------------------------------------------------------
-set(GTM_GTM       ${DSM2_SOURCE_DIR}/gtm)
-set(GTM_GTM_CORE    ${DSM2_SOURCE_DIR}/gtm_core)
-set(GTM_PROCESS_IO ${DSM2_SOURCE_DIR}/process_io)
-set(GTM_TRANSPORT ${DSM2_SOURCE_DIR}/transport)
-set(GTM_DO_MODULE ${DSM2_SOURCE_DIR}/do_module)
-set(GTM_SEDIMENT ${DSM2_SOURCE_DIR}/sediment)
-set(GTM_SEDIMENT_BED_CORE ${DSM2_SOURCE_DIR}/sediment_bed_core)
-set(GTM_SEDIMENT_BED ${DSM2_SOURCE_DIR}/sediment_bed)
-set(GTM_SEDIMENT_BED_SETUP ${DSM2_SOURCE_DIR}/sediment_bed_setup)
-set(GTM_MERCURY ${DSM2_SOURCE_DIR}/mercury)
-set(GTM_TOOLS ${DSM2_SOURCE_DIR}/tools)
-set(GTM_TOOLS_DRIVER ${DSM2_SOURCE_DIR}/tools_driver)
-#------------------------- SUB PROJECTS --------------------------------
-add_subdirectory(${GTM_GTM})
-add_subdirectory(${GTM_GTM_CORE})
-add_subdirectory(${GTM_PROCESS_IO})
-add_subdirectory(${GTM_SEDIMENT})
-add_subdirectory(${GTM_SEDIMENT_BED_CORE})
-add_subdirectory(${GTM_SEDIMENT_BED})
-add_subdirectory(${GTM_DO_MODULE})
-add_subdirectory(${GTM_MERCURY})
-add_subdirectory(${GTM_TOOLS})
-add_subdirectory(${GTM_TRANSPORT})
-# Add gtm executable
-file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
-add_executable(gtm_exe gtm/gtm_driver.f90)
-set_property(TARGET gtm_exe PROPERTY LINKER_LANGUAGE Fortran)
-add_dependencies(gtm_exe gtm_main)
+)
 
-# Add sediment_bed_setup executable
-file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
-add_executable(sed_bed_init ${SEDIMENT_BED_SETUP_SOURCES})
-set_property(TARGET sed_bed_init PROPERTY LINKER_LANGUAGE Fortran)
-#------------------ DEPENDENCIES ---------------------
-target_link_libraries(gtm_exe gtm_main mercury gtm_core common transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
-if (WIN32)
-set_target_properties(gtm_exe PROPERTIES LINK_FLAGS "/STACK:8000000")
-target_link_libraries(gtm_exe
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
-    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
-    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-    debug libcpmtd.lib optimized libcpmt.lib
-    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
-    )
-else (WIN32)
-message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(gtm_exe PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(gtm_exe PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(gtm_exe -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_main gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
-target_link_libraries(gtm_exe
-    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
-    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
-    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    )
-target_link_libraries(gtm_exe -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
-endif (WIN32)
-if (WIN32)
-   set (CMAKE_Fortran_FLAGS "/extend_source:132")
-else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend-source 132")
-endif (WIN32)
+# target_link_options(${HYDRO_BIN} PRIVATE
+# "/NODEFAULTLIB:LIBUCRT" "/NODEFAULTLIB:MSVCRT")
+set(MKL_ARCH intel64)
+set(MKL_THREADING sequential)
+set(MKL_INTERFACE lp64)
+find_package(MKL REQUIRED)
 
-target_link_libraries(sed_bed_init common process_io)
-set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "/STACK:8000000")
-if (WIN32)
-target_link_libraries(sed_bed_init
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug libcpmtd.lib optimized libcpmt.lib
-    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
-    )
-else (WIN32)
-message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "-qmkl=sequential -static-intel")
-target_include_directories(sed_bed_init PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(sed_bed_init -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core process_io -Wl,--end-group)
-target_link_libraries(sed_bed_init
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    )
-target_link_libraries(sed_bed_init -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
-endif (WIN32)
-set_target_properties(gtm_core PROPERTIES Fortran_PREPROCESS on)
-if (hydro_1000)
-    message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 1000 ft spatial resolution")
-    target_compile_definitions(gtm_core PRIVATE hydro_1000=1)
-else (hydro_1000)
-    message("hydro_1000 is on: ${hydro_1000} --> hydro_exe will run at 2000 ft spatial resolution")
-endif (hydro_1000)
-#-------------- TEST -------------------#
+# Should check if Intel Windows compiler, not MSVC
+if(MSVC)
+    # target_link_libraries(${HYDRO_BIN} PRIVATE
+    # debug libcmtd.lib debug libmmtd.lib debug libifcoremtd.lib debug libircmtd.lib
+    # optimized libcmt.lib optimized libmmt.lib optimized libifcoremt.lib optimized libircmt.lib)
+    target_link_libraries(${HYDRO_BIN} PRIVATE ${mkl_core_file} ${mkl_intel_lp64_file} ${mkl_intel_thread_file})
+    # target_link_options(${HYDRO_BIN} PRIVATE "/Qmkl-ilp64")
+else(MSVC)
+    message(FATAL_ERROR "DSM2 is only supported on Windows")
+    target_link_options(${HYDRO_BIN} PRIVATE "-mkl=sequential")
+endif(MSVC)
 
-#-------------- INSTALL ----------------#
-set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro_exe qual_exe gtm_exe PTM sed_bed_init
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION bin)
-install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
-message("Copy jar files over to bin/lib")
-install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
-install(DIRECTORY ${JAVA_JRE_HOME} DESTINATION bin USE_SOURCE_PERMISSIONS)
-if (WIN32)
-  install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
-  message("Windows exes are static so Intel redistribution files are not needed.")
-else (WIN32)
-  install(PROGRAMS ptm/bin/ptm DESTINATION bin)
-  message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
-  message("compiler path: ${CMAKE_C_COMPILER}")
-  get_filename_component(COMPILER_DIR ${CMAKE_C_COMPILER} DIRECTORY)
-  set(INTEL_DIR "${COMPILER_DIR}/../../compiler/lib/ia32_lin")
-  set(RUNTIME_DEPENDENCIES
-    ${INTEL_DIR}/libintlc.so.5 ${INTEL_DIR}/libcilkrts.so.5 ${INTEL_DIR}/libirng.so
-    ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so ${INTEL_DIR}/libimf.so)
-  install(FILES ${RUNTIME_DEPENDENCIES} DESTINATION bin/lib)
-endif (WIN32)
-#------------- PACKAGE WINDOWS -----------------$
-if (WIN32)
-  set(CPACK_GENERATOR "ZIP")
-else (WIN32)
-  set(CPACK_GENERATOR "TGZ")
-endif (WIN32)
-#-------------- PACKAGE --------------------------#
-set(CPACK_PACKAGE_NAME "DSM2")
-set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
-set(CPACK_PACKAGE_VERSION_MAJOR "8")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "${GIT_HASH}")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE)
-set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
-include(CPack)
-
-
-
-
-#if(CMAKE_Fortran_COMPILER MATCHES ifort)
-    #add_compile_options(-fpp)
-#    target_compile_options(DSM2 PUBLIC -fpp)
-#    target_compile_options(DSM2 PUBLIC -fpp)
-#endif()
-#set_source_files_properties(
-#    PROPERTIES Fortran_PREPROCESS ON)
+# include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")

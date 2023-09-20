@@ -1,17 +1,20 @@
-cmake_minimum_required (VERSION 3.2.2)
-enable_language(Fortran)
+cmake_minimum_required(VERSION 3.17)
+project(fixed LANGUAGES Fortran)
+
 # add pre build command
-#add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+# add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # search by file pattern and include in library
-if (WIN32)
-   set (CMAKE_Fortran_FLAGS "/extend_source:132")
-else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend-source 132")
-endif (WIN32)
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "..\\hydrolib" "..\\timevar" "../${HDF5_DIR}/include/static")
-set(GTM_CORE_DIR "../gtm_core")
-include_directories(${GTM_CORE_DIR})
-file(GLOB sources *.f *.f90)
-add_library(fixed ${sources})
-add_dependencies(fixed hdf_tidefile_fortran gtm_core input_storage)
+add_library(${PROJECT_NAME})
+file(GLOB SOURCES *.f *.f90)
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${DSM2_CORE_DIR}
+    ${Fortran_MODULE_DIRECTORY}
+    ${DSM2_HYDROLIB}
+    ${HDF5_Fortran_MODULE_PATH})
+
+# target_link_libraries(${PROJECT_NAME} PRIVATE
+# hdf_tidefile_fortran gtm_core input_storage common)
+
 # target_link_libraries(fixed gtm_core)
+add_dependencies(${PROJECT_NAME} hdf_tidefile common)

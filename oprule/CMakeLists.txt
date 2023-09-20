@@ -1,64 +1,84 @@
-cmake_minimum_required (VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.17)
 PROJECT(OpRuleAll)
 enable_language(C CXX Fortran)
+
 #
 string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Set the core names of all the libraries
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 set(DSM2_TOP_DIR "../")
-if (DEFINED THIRD_PARTY_DIR)
+
+if(DEFINED THIRD_PARTY_DIR)
   set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
 else()
   set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
 endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "" FORCE)
+# message(FATAL_ERROR "CMAKE_MSVC_RUNTIME_LIBRARY: ${CMAKE_MSVC_RUNTIME_LIBRARY}")
+
 # include the common macros for compiler flags and third party libraries
-include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
-set_compiler_flags()
-#---------------LIBRARIES-------------------------------------------------
-find_libs()
-#-------------add linker flags and excluded and included libraries
+# include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
+# set_compiler_flags()
+# ---------------LIBRARIES-------------------------------------------------
+# find_libs()
+set(BOOST_VERSION 1_83)
+set(BOOST_DIR ${DSM2_THIRD_PARTY_DIR}/boost_${BOOST_VERSION}_0)
+set(BOOST_INCLUDE_DIR ${BOOST_DIR}/include/boost-1_83/)
+set(BOOST_LIB_DIR ${BOOST_DIR}/lib)
+set(HDF5_INCLUDE_DIR ${DSM2_THIRD_PARTY_DIR}/HDF5-1.10.10-win64/include)
+
+# -------------add linker flags and excluded and included libraries
 if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (VS_STARTUP_PROJECT hydro)
+  # set(CMAKE_EXE_LINKER_FLAGS
+  # "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  # set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  # set(VS_STARTUP_PROJECT hydro)
 else(MSVC)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
   set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
 endif()
-#include_directories()
-#--------------------- OPRULE LIB ------------------------------------
+
+# include_directories()
+# --------------------- OPRULE LIB ------------------------------------
 file(GLOB SOURCES lib/rule/*.cpp)
-#list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/ItemInputState.cpp")
+
+# list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/ItemInputState.cpp")
 file(GLOB HEADERS oprule/rule/*.h)
 include_directories(${CMAKE_SOURCE_DIR})
-add_library(OperatingRule ${SOURCES} ${HEADERS})
-set_target_properties(OperatingRule
-    PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(OperatingRule
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
-    ${MMT_LIB} ${CMT_LIB_RELEASE}
-    )
 set(CMAKE_DEBUG_POSTFIX "d")
-if (WIN32)
-    set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs14_mt")
-    set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
-else (WIN32)
-    set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_intel")
-    set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
-endif (WIN32)
+add_library(OperatingRule ${SOURCES} ${HEADERS})
+target_include_directories(OperatingRule PUBLIC
+  ${HDF5_INCLUDE_DIR}
+  ${BOOST_INCLUDE_DIR})
+set_target_properties(OperatingRule
+  PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# target_link_libraries(OperatingRule
+# debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+# debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+# debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+# debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
+# ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+# ${MMT_LIB} ${CMT_LIB_RELEASE}
+# )
+set(CMAKE_DEBUG_POSTFIX "d")
+
+if(WIN32)
+  set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule")
+else(WIN32)
+  set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_intel")
+endif(WIN32)
+
 add_custom_command(TARGET OperatingRule POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy
-     "$<TARGET_FILE:OperatingRule>"
-     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OperatingRule>"
+  "$<TARGET_FILE:OperatingRule>"
+  "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OperatingRule>"
   COMMENT "Copying OperatingRule lib to output directory")
-#--------------------- OPRULE PARSER LIB ------------------------------------
+
+# --------------------- OPRULE PARSER LIB ------------------------------------
 file(GLOB SOURCES lib/parser/*.cpp)
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/Parser-notyet.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelTimeNodeFactory.cpp")
@@ -75,76 +95,78 @@ list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/Parser-notyet
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ptr_wrapper.h")
 include_directories(src)
 add_library(OpRuleParser ${SOURCES} ${HEADERS} ${PARSER_HEADERS} "oprule/rule/ActionSet.h")
+target_include_directories(OpRuleParser PUBLIC ${BOOST_INCLUDE_DIR})
 set_target_properties(OpRuleParser
-    PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # add pre build command
-if (WIN32)
- set (MOVE_CMD move /Y)
-else (WIN32)
- set (MOVE_CMD mv)
-endif (WIN32)
+if(WIN32)
+  set(MOVE_CMD move /Y)
+else(WIN32)
+  set(MOVE_CMD mv)
+endif(WIN32)
+
 add_custom_command(
-    OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"
-    COMMAND flex -L -P op_rule -o op_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule.cpp using flex")
+  OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"
+  COMMAND flex -L -P op_rule -o op_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+  COMMENT "Generating op_rule.cpp using flex")
 add_custom_command(
-    OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp"
-    COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
-    COMMAND ${MOVE_CMD} op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
-target_link_libraries(OpRuleParser
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
-    ${MMT_LIB} ${CMT_LIB_RELEASE}
-    )
-set(CMAKE_DEBUG_POSTFIX "d")
-if (WIN32)
-    set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs14_mt")
-    set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
-else (WIN32)
-    set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_intel")
-    set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
-endif (WIN32)
+  OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp"
+  COMMAND bison -l -v -p op_rule -d ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
+  COMMAND ${MOVE_CMD} op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+  COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
+
+# target_link_libraries(OpRuleParser
+# debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+# debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+# debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+# debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
+# ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+# ${MMT_LIB} ${CMT_LIB_RELEASE}
+# )
+if(WIN32)
+  set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser")
+else(WIN32)
+  set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_intel")
+endif(WIN32)
+
 add_custom_command(TARGET OpRuleParser POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy
-     "$<TARGET_FILE:OpRuleParser>"
-     "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OpRuleParser>"
+  "$<TARGET_FILE:OpRuleParser>"
+  "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OpRuleParser>"
   COMMENT "Copying OperatingRule parser lib to output directory")
 
-#-------------------- TestOperatingRule exe -----------------
+# -------------------- TestOperatingRule exe -----------------
 # search by file pattern and include in library
-#file(GLOB TEST_OPRULE_CXX_SOURCES test/rule/*.cpp)
-#list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/ModelStateTestFixture.cpp")
-#list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/TestStateAction.cpp")
-#file(GLOB TEST_OPRULE_CXX_HEADERS test/rule/*.h)
-#add_executable(TestOperatingRule ${TEST_OPRULE_CXX_SOURCES} ${TEST_OPRULE_CXX_HEADERS})
-#set_property(TARGET TestOperatingRule PROPERTY LINKER_LANGUAGE CXX)
-#target_link_libraries(TestOperatingRule
-#    OperatingRule OpRuleParser
-#    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-#    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-#    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-#    debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
-#    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
-#    ${MMT_LIB} ${CMT_LIB_RELEASE}
-#    )
-#-------------------- TestParser exe -----------------
+# file(GLOB TEST_OPRULE_CXX_SOURCES test/rule/*.cpp)
+# list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/ModelStateTestFixture.cpp")
+# list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/TestStateAction.cpp")
+# file(GLOB TEST_OPRULE_CXX_HEADERS test/rule/*.h)
+# add_executable(TestOperatingRule ${TEST_OPRULE_CXX_SOURCES} ${TEST_OPRULE_CXX_HEADERS})
+# set_property(TARGET TestOperatingRule PROPERTY LINKER_LANGUAGE CXX)
+# target_link_libraries(TestOperatingRule
+# OperatingRule OpRuleParser
+# debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+# debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+# debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+# debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
+# ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+# ${MMT_LIB} ${CMT_LIB_RELEASE}
+# )
+# -------------------- TestParser exe -----------------
 # search by file pattern and include in library
 # file(GLOB TEST_PARSER_CXX_SOURCES test/parser/*.cpp)
 # file(GLOB TEST_PARSER_CXX_HEADERS test/parser/*.h)
 # add_executable(TestParser ${TEST_PARSER_CXX_SOURCES} ${TEST_PARSER_CXX_HEADERS})
 # set_property(TARGET TestParser PROPERTY LINKER_LANGUAGE CXX)
 # target_link_libraries(TestParser
-#     OperatingRule OpRuleParser
-#     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-#     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-#     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-#     debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
-#     ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
-#     ${MMT_LIB} ${CMT_LIB_RELEASE}
-#     )
+# OperatingRule OpRuleParser
+# debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+# debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+# debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+# debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
+# ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+# ${MMT_LIB} ${CMT_LIB_RELEASE}
+# )
