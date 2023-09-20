@@ -267,7 +267,7 @@ def prep_component(component,outdir):
     infile = open(os.path.join(indir,"fortran_binding_template.f90"),"r")
     txt = infile.read()
     infile.close()
-    fortfile = "%s_input_storage.fi" % component.name
+    fortfile = "%s_input_storage.f90" % component.name
     outfile = open(os.path.join(outdir,fortfile),"w")
     txt = do_txt_replace(txt)
     outfile.write(txt)
@@ -287,7 +287,7 @@ def prep_component(component,outdir):
     conditional_read_hdf5_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + read_buffer_hdf5_line + "}"
     read_hdf5_buffer_cond_lines.append(conditional_read_hdf5_buffer_line)
 
-    fortran_include_lines.append("include \"%s\"" % fortfile)
+    fortran_include_lines.append("#include \"%s\"" % fortfile)
 
     # add the FORTRAN .f90 file for this object as an include to the main module
 
@@ -377,7 +377,7 @@ def finalize(outdir):
     f=open(os.path.join(indir,"input_storage_fortran_template.f90"),"r")
     txt=f.read()
     f.close()
-    txt=txt.replace("// Fortran Include Files DO NOT ALTER THIS LINE AT ALL","\n       ".join(fortran_include_lines))
+    txt=txt.replace("// Fortran Include Files DO NOT ALTER THIS LINE AT ALL","\n".join(fortran_include_lines))
     f=open(os.path.join(outdir,"input_storage_fortran.f90"),"w")
     f.write(txt)
     f.close()

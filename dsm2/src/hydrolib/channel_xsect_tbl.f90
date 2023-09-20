@@ -136,12 +136,8 @@ contains
         double precision X
         interface
             double precision function CBRT(Y)
+                !DEC$ ATTRIBUTES C, ALIAS:'cbrt' :: CBRT
                 double precision Y
-         !DEC$ IF DEFINED(_WIN32)
-            !DEC$ ATTRIBUTES C, ALIAS:'_cbrt' :: CBRT
-    	 !DEC$ ELSE
-            !DEC$ ATTRIBUTES C, ALIAS:'cbrt' :: CBRT
-	     !DEC$ END IF
             end function CBRT
         end interface
         CBRTC = CBRT(%VAL(X))
@@ -1389,7 +1385,7 @@ contains
             I = II
             if( X < XDistance(I) ) exit
         end do
-        if (X < XDistance(I)) then 
+        if (X < XDistance(I)) then
             if(INT(X)/=INT(XDistance(LastTable(Branch)))) then
                 write(unit_error,*) ' *** warning(SetXi)'
                 write(unit_error,*) X,' > maximum XDistance = ', &

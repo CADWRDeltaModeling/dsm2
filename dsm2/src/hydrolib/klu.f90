@@ -8,53 +8,43 @@
 	integer :: matrix_size
       interface
         integer*8 function klu_fortran_init()
-        !DEC$ ATTRIBUTES C :: _klu_fortran_init
         end function
         integer*8 function klu_fortran_analyze(n, ap, ai, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_analyze
         integer, intent(in) :: n
         integer*8, intent(in) :: k_common
           integer, intent(in) :: ap(*), ai(*)
         end function
         integer*8 function klu_fortran_factor(ap, ai, ax, k_symbolic, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_factor
           integer*8, intent(in) :: k_common,k_symbolic
           integer, intent(in) :: ap(*), ai(*)
           real*8, intent(in) :: ax(*)
         end function
         subroutine klu_fortran_refactor(ap, ai, ax, k_symbolic, k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_refactor
           integer*8, intent(in) :: k_symbolic, k_common
           integer*8, intent(inout) :: k_numeric
           integer, intent(in) :: ap(*), ai(*)
           real*8, intent(in) :: ax(*)
         end subroutine
         subroutine klu_fortran_solve(k_symbolic, k_numeric, n, nrhs, b, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_solve
           integer*8, intent(in) :: k_symbolic, k_numeric, k_common
           integer, intent(in) :: n, nrhs
           real*8, intent(inout) :: b(*)
         end subroutine
         subroutine klu_fortran_free_numeric(k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_free_numeric
           integer*8, intent(in) :: k_numeric, k_common
         end subroutine
         subroutine klu_fortran_free(k_symbolic, k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_free
           integer*8, intent(in) :: k_symbolic, k_numeric, k_common
         end subroutine
         real*8 function klu_fortran_condest(ap, ax, k_symbolic, k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_condest
           integer*8, intent(in) :: k_symbolic, k_numeric, k_common
           integer, intent(in) :: ap(*)
           real*8, intent(in) :: ax(*)
         end function
         real*8 function klu_fortran_rcond(k_symbolic, k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_rcond
           integer*8, intent(in) :: k_symbolic, k_numeric, k_common
         end function
         real*8 function klu_fortran_rgrowth(ap, ai, ax, k_symbolic, k_numeric, k_common)
-        !DEC$ ATTRIBUTES C :: _klu_fortran_rgrowth
           integer*8, intent(in) :: k_symbolic, k_numeric, k_common
           integer, intent(in) :: ap(*), ai(*)
           real*8, intent(in) :: ax(*)
