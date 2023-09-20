@@ -1,9 +1,10 @@
 #include "klu.h"
 #include "klu_version.h"
+#include <stdint.h>
 
 //#define NT
 #ifdef _WIN32
-#define STDCALL  
+#define STDCALL
 #define klu_fortran_init             STDCALL KLU_FORTRAN_INIT
 #define klu_fortran_analyze          STDCALL KLU_FORTRAN_ANALYZE
 #define klu_fortran_factor           STDCALL KLU_FORTRAN_FACTOR
@@ -33,39 +34,39 @@ static klu_common Common;
 /**
  * Initialize pointer to common with defaults and return handle
 **/
-long klu_fortran_init()
+int64_t klu_fortran_init()
 {
 	klu_defaults (&Common);
 	Common.scale=-1; // no scaling
 	Common.btf=0; // no btf reordering
 	Common.tol=1e-13; // pivot tolerance
-	return (long) &Common;
+	return &Common;
 }
 
 
 /**
 * Symbolic factorization ( do once only if the non-zero locations remain the same )
 **/
-long klu_fortran_analyze(int *n, int *Ap, int *Ai, long* common){
+int64_t klu_fortran_analyze(int *n, int *Ap, int *Ai, int64_t* common){
 	klu_common* Common = (klu_common*) *common;
 	klu_symbolic* Symbolic = klu_analyze (*n, Ap, Ai, Common);
-	return (long) Symbolic;
+	return Symbolic;
 }
 
 /**
-* Factorize based on symbolic factorization and common defaults
+* Factorize based on symbolic factorization and commonS defaults
 */
-long klu_fortran_factor(int *Ap, int *Ai, double *Ax, long *symbolic, long *common){
+int64_t klu_fortran_factor(int *Ap, int *Ai, double *Ax, int64_t *symbolic, int64_t *common){
 	klu_common* Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = klu_factor (Ap, Ai, Ax, Symbolic, Common) ;
-	return (long) Numeric;
+	return Numeric;
 }
 
 /**
-* refactorize based on previous factorization ( good as long as non-zero positions don't change)
+* refactorize based on previous factorization ( good as int64_t as non-zero positions don't change)
 */
-void klu_fortran_refactor(int *Ap, int *Ai, double *Ax, long* symbolic, long *numeric, long *common){
+void klu_fortran_refactor(int *Ap, int *Ai, double *Ax, int64_t* symbolic, int64_t *numeric, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
@@ -75,7 +76,7 @@ void klu_fortran_refactor(int *Ap, int *Ai, double *Ax, long* symbolic, long *nu
 /**
 * solve based on previous factor or refactor.
 */
-void klu_fortran_solve(long *symbolic, long *numeric, int* n, int* nrhs, double *b, long *common){
+void klu_fortran_solve(int64_t *symbolic, int64_t *numeric, int* n, int* nrhs, double *b, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
@@ -83,7 +84,7 @@ void klu_fortran_solve(long *symbolic, long *numeric, int* n, int* nrhs, double 
 }
 
 //accurate condition number estimation, high condition number is ill-conditioned
-double klu_fortran_condest(int *Ap, double *Ax, long *symbolic, long *numeric, long *common){
+double klu_fortran_condest(int *Ap, double *Ax, int64_t *symbolic, int64_t *numeric, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
@@ -91,7 +92,7 @@ double klu_fortran_condest(int *Ap, double *Ax, long *symbolic, long *numeric, l
 	return Common->condest;
 }
 //cheap reciprocal condition number estimation, low reciprocal is ill-conditioned
-double klu_fortran_rcond(long *symbolic, long *numeric, long *common){
+double klu_fortran_rcond(int64_t *symbolic, int64_t *numeric, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
@@ -99,7 +100,7 @@ double klu_fortran_rcond(long *symbolic, long *numeric, long *common){
 	return Common->rcond;
 }
 //Computes the reciprocal pivot growth, small rgrowth implies inaccurate factorization
-double klu_fortran_rgrowth(int *Ap, int *Ai, double *Ax, long *symbolic, long *numeric, long *common){
+double klu_fortran_rgrowth(int *Ap, int *Ai, double *Ax, int64_t *symbolic, int64_t *numeric, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
@@ -109,7 +110,7 @@ double klu_fortran_rgrowth(int *Ap, int *Ai, double *Ax, long *symbolic, long *n
 /**
 * free numeric memory
 */
-void klu_fortran_free_numeric(long *numeric, long *common){
+void klu_fortran_free_numeric(int64_t *numeric, int64_t *common){
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
 	klu_common *Common = (klu_common*) *common;
     klu_free_numeric (&Numeric, Common) ;
@@ -118,7 +119,7 @@ void klu_fortran_free_numeric(long *numeric, long *common){
 /**
 * free memory
 */
-void klu_fortran_free(long *symbolic, long *numeric, long *common){
+void klu_fortran_free(int64_t *symbolic, int64_t *numeric, int64_t *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
