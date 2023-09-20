@@ -230,67 +230,6 @@ module common_xsect
     end subroutine
 
 
-    !> Calculate area of channel cross section based on given X, Z and channel number
-    subroutine CxArea(area,                  &        ! return cross section area
-                      X,                     &        ! distance from upstream
-                      Z,                     &        ! water surface elevation
-                      branch)                         ! channel no
-        implicit none
-        real(gtm_real), intent(in) :: Z               !< water surface elevation
-        real(gtm_real), intent(in) :: X               !< distance from upstream
-        integer, intent(in) :: branch                 !< channel no
-        real(gtm_real), intent(out) :: area           !< CxArea
-        real(gtm_real) :: virt_deltax
-        integer :: vsecno_forX
-        integer :: vindex
-        integer :: i, si, di, ei, OK
-        real(gtm_real) :: z1, z2, y1, y2, b1, b2, a1
-        real(gtm_real) :: dz, slope, width
-        real(gtm_real) :: wet_p, hydro_radius
-        if (num_xsect_chan(branch)>1) then
-            virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
-        else
-            virt_deltax = chan_geom(branch)%channel_length
-        end if
-        vsecno_forX = nint(X/virt_deltax) + 1
-        si = xsect_index(branch) + vsecno_forX - 1
-        vindex = virt_xsect(si)%prev_elevation_index
-        do while ((Z .lt. virt_xsect(si)%elevation(vindex)) .and. (vindex .gt. 1))
-            vindex = vindex - 1
-        end do
-        OK = 0
-        do i = vindex, num_elev_chan(branch)-1
-           if (OK .eq. 0) then
-               if (Z.ge.virt_xsect(si)%elevation(i) .and. Z.lt.virt_xsect(si)%elevation(i+1)) then
-                   OK = 1
-                   ei = i
-               end if
-           end if
-        end do
-        virt_xsect(si)%prev_elevation_index=ei ! caching for performance improvement only
-        if (OK .eq. 0) then
-            write(*,*) 'water surface is beyond limit at branch ',branch,', X=',X,', Z=',Z
-        end if
-        z1 = virt_xsect(si)%elevation(ei)
-        z2 = virt_xsect(si)%elevation(ei+1)
-        dz = z2 - z1
-        if ( abs(dz) <= Small) then
-            write(*,*) 'Channel width, wet perimeter, dwetperimeter division by zero'
-        endif
-        slope = (Z-z2)/dz
-        y1 = virt_xsect(si)%width(ei)
-        y2 = virt_xsect(si)%width(ei+1)
-        width = (y2-y1)*slope + y2
-        a1 = virt_xsect(si)%area(ei)
-        b1 = virt_xsect(si)%width(ei)
-        b2 = width
-        area = a1 + half * ( b1 + b2 )* (Z - z1)
-        wet_p = virt_xsect(si)%wet_p(ei) + two*dsqrt(((b2-b1)*half)**2+(Z-z1)**2)
-        hydro_radius = area/wet_p
-        return
-    end subroutine
-
-
     !> Calculate information of channel cross section based on given X, Z and channel number
     subroutine CxInfo(area,                  &        ! return cross section area
                       width,                 &        ! return channel width

@@ -14,7 +14,7 @@
 #define get_model_hour GETMODELHOUR
 #define get_model_minute GETMODELMINUTE
 #define get_model_ticks GETMODELTICKS
-#define cdate_to_jul_min CDT2JMIN
+#define cdate_to_jul_min UTILITIES_mp_CDT2JMIN
 #define time_step_seconds NETCNTRL_mp_NETWORKTIMEINCREMENT
 #else
 #define get_model_year getmodelyear_
