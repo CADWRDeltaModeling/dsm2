@@ -20,7 +20,7 @@
 
 module runtime_data
     use type_defs
-    include '../common/version.fi'  ! version of hydro, qual, and ptm
+    include 'dsm2_version.f90'  ! version of hydro, qual, and ptm
 
     !-----dates, timestep
     !-----Note: julian minutes are minutes from 01jan1900 0000 (31dec1899 2400)
