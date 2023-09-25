@@ -616,7 +616,7 @@ module gtm_hdf_ts_write
                                 time_index)
         use hdf5
         implicit none
-        integer, intent(in) :: data_id                          !< data id
+        integer(HID_T), intent(in) :: data_id                   !< data id
         integer, intent(in) :: ncell                            !< number of cells
         real(gtm_real), intent(in) :: cell_ts(ncell)            !< cell data from transport module
         integer, intent(in) :: time_index                       !< time index to write the data
@@ -1024,8 +1024,8 @@ module gtm_hdf_ts_write
         implicit none
         integer(HID_T),intent(in) :: dest_id    !< Destination group identifier
         character*(*), intent(in) :: name       !< Name of array
-  	    integer, intent(in)       :: strlen     !< Length of string element
-	    integer, intent(in)       :: nstr       !< Dimension of string array
+  	    integer(HSIZE_T), intent(in)       :: strlen   !< Length of string element
+	    integer(HSIZE_T), intent(in)       :: nstr     !< Dimension of string array
 	    character(len=strlen),dimension(nstr), intent(in) :: arr    !< string array
 
         integer(HID_T) :: dspace_id     ! Dataspace identifier
