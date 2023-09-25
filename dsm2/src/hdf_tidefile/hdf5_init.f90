@@ -291,6 +291,7 @@ subroutine CloseHDF5()
 
 !-------Close the file
  333  if (print_level .gt.1) write(unit_screen,*)"Closing HDF5 file"
+    call h5fflush_f(file_id, H5F_SCOPE_GLOBAL_F, error)
 	call h5fclose_f(file_id, error)
 	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing hdf file: ",error
