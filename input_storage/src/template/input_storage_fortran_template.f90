@@ -6,7 +6,7 @@
 module input_storage_fortran
 	   contains
 
-// Fortran Include Files DO NOT ALTER THIS LINE AT ALL
+      // Fortran Include Files DO NOT ALTER THIS LINE AT ALL
 
        subroutine clear_all_buffers(ierror)
           !DEC$ ATTRIBUTES ALIAS:'clear_all_buffers_f' :: clear_all_buffers_f
