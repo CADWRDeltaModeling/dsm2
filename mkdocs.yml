@@ -2,17 +2,17 @@ site_name: DSM2 version 8.2
 repo_url: https://github.com/CADWRDeltaModeling/dsm2
 edit_uri: edit/mkdocs/docs/
 nav:
- - Home: index.md
- - Getting Started: getting_started.md
- - Manual: manual/index.md
- - Reference: reference/Background_Material_and_References.md
- - Installation: installation.md
-   - DSM2 Training Series (new for 2023): dsm2_training_series.md
-   - Quick Start: dsm2_training_series.md
- - Planning Studies: dsm2_training_series.md
- - Tutorials: tutorials/Tutorials.md
- - FAQs: faqs/index.md
- - Release Notes: releasenotes.md
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Manual: manual/index.md
+  - Reference: reference/Background_Material_and_References.md
+  - Installation: installation.md
+  - DSM2 Training Series (new for 2023):
+    - Quick Start: dsm2_training_series.md
+    - Planning Studies: dsm2_training_series.md
+  - Tutorials: tutorials/Tutorials.md
+  - FAQs: faqs/index.md
+  - Release Notes: releasenotes.md
 #theme: readthedocs
 theme:
  name: material
