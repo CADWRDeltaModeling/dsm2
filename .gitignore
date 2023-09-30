@@ -5,6 +5,7 @@
 **/build
 **/BUILD_DBG
 build/*
+build*/
 lib/**
 third_party/**
 *.pyc

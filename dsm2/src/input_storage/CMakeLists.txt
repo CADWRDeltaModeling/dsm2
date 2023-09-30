@@ -54,21 +54,22 @@ set(${PROJECT_NAME}_cpp_sources
 set(${PROJECT_NAME}_sources input_storage_fortran.f90)
 
 add_custom_command(
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
-    OUTPUT ${${PROJECT_NAME}_cpp_sources} ${${PROJECT_NAME}_sources}
-    DEPENDS
-        generate.py
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/template/fortran_binding_template.f90
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/template/input_storage_fortran_template.f90
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/generate_input_storage.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
+  OUTPUT ${${PROJECT_NAME}_cpp_sources} ${${PROJECT_NAME}_sources}
+  DEPENDS
+    generate.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/template/fortran_binding_template.f90
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/template/input_storage_fortran_template.f90
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/generate_input_storage.py
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(${PROJECT_NAME}_cpp ${${PROJECT_NAME}_cpp_sources})
 target_include_directories(
-    ${PROJECT_NAME}_cpp
-    PUBLIC ${BOOST_INCLUDE_DIR} ${DSM2_TOP_DIR}/input_storage/src/
-           ${HDF5_DIR}/include)
+  ${PROJECT_NAME}_cpp
+  PUBLIC ${Boost_INCLUDE_DIRS}
+         ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/
+         ${HDF5_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
-target_include_directories(${PROJECT_NAME} PRIVATE ${HDF5_Fortran_MODULE_PATH})
+target_include_directories(${PROJECT_NAME} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_cpp)
