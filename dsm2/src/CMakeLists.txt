@@ -54,7 +54,7 @@ else(MSVC)
   set(STATIC_LIB_SUFFIX "a")
 endif(MSVC)
 
-# Oprule/Input storage
+# Oprule/Input storage. This will be consolidated later.
 find_library(
   OPRULE_DEBUG
   NAMES
@@ -84,10 +84,6 @@ find_library(
   PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
-message(
-  STATUS
-    ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-)
 find_library(
   INPUT_STORAGE_DEBUG
   NAMES
@@ -103,7 +99,8 @@ find_library(
   PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
-# Module directories for MSVC multi-config generators
+# Module directories for MSVC multi-config generators. This can be rewritten
+# with generators. By the way, is this necessary?
 if(MSVC)
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(Fortran_MODULE_DIR ${CMAKE_Fortan_MODULE_DIRECTORY}/Debug)
@@ -131,8 +128,6 @@ set(DSM2_SPARSE ${DSM2_SOURCE_DIR}/sparse)
 # set (DSM2_TIMEVAR ${DSM2_SOURCE_DIR}/timevar)
 set(DSM2_PYTHON ${DSM2_SOURCE_DIR}/python)
 
-# generate the files now
-# execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_COMMONS_DIR})
 add_subdirectory(${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_FIXED_DIR})
@@ -147,9 +142,6 @@ add_subdirectory(${DSM2_PATTERN_MATCH})
 # GTM
 set(DSM2_GTM_CORE ${DSM2_SOURCE_DIR}/gtm_core)
 add_subdirectory(${DSM2_GTM_CORE})
-
-# add_subdirectory(${DSM2_TIMEVAR})
-# add_subdirectory(${DSM2_QUAL})
 
 # Build HYDRO
 set(HYDRO_BIN hydro_exe)
@@ -192,3 +184,32 @@ target_link_libraries(
 target_compile_options(
   ${HYDRO_BIN} PRIVATE "$<TARGET_PROPERTY:MKL::MKL,INTERFACE_COMPILE_OPTIONS>")
 target_link_libraries(${HYDRO_BIN} PRIVATE "$<LINK_ONLY:MKL::MKL>")
+
+# Build Qual
+set(QUAL_BIN qual)
+add_executable(${QUAL_BIN})
+set_target_properties(${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
+file(GLOB QUAL_SOURCES qual/*.f90)
+target_sources(${QUAL_BIN} PRIVATE ${QUAL_SOURCES})
+target_link_libraries(
+  ${QUAL_BIN}
+  PRIVATE fixed
+          hydrolib
+          hdf_tidefile
+          hdf_tidefile_cpp
+          gtm_core
+          input_storage
+          input_storage_cpp
+          common
+          pattern_match
+          sparse
+          debug
+          ${INPUT_STORAGE_DEBUG}
+          optimized
+          ${INPUT_STORAGE_RELEASE}
+          ${Boost_LIBRARIES}
+          ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES}
+          ${KLU_LIBRARIES}
+          ${HEClib_LIBRARIES})
+
