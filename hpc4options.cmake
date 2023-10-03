@@ -1,5 +1,5 @@
 set(JAVA_HOME
-    /home/knam/local/jdk/jdk1.6.0_45-64bit
+    $ENV{HOME}/local/jdk/jdk1.6.0_45_64bit
     CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
     icc

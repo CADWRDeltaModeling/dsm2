@@ -26,7 +26,7 @@ subroutine process_particle_flux_output(name, from_wb, to_wb,interval,filename)
       use constants
       use constants_ptm
       use groups
-      use utilities, only: loccarr
+      use utilities, only: loccarr, split_epart
       !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
       character*40  from_wb, to_wb
@@ -137,7 +137,7 @@ subroutine process_particle_group_output(name, groupname,interval,filename)
       use iopath_data
       use common_ptm
       use constants_ptm
-      use utilities, only: loccarr
+      use utilities, only: loccarr, split_epart
       !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
       character*40  groupname
@@ -256,7 +256,7 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       use constants
       use iopath_data
       use logging
-      use utilities, only: loccarr
+      use utilities, only: loccarr, split_epart
       implicit none
 
       character &
@@ -421,7 +421,7 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       use constants
       use iopath_data
       use logging
-      use utilities, only: loccarr
+      use utilities, only: loccarr, split_epart
       implicit none
 
       character &

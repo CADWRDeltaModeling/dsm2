@@ -34,6 +34,7 @@ subroutine check_fixed_ptm(istat)
       use groups, only: WriteGroupMembers2File
       use network
       use netcntrl_common
+      use utilities, only : incr_intvl, diff2dates, cdt2jmin
       implicit none
 
 !-----Local variables
@@ -53,13 +54,8 @@ subroutine check_fixed_ptm(istat)
           ,obj2objindex &       ! obj2obj index used for iterating through obj2obj transfer
           ,ext2intnode
 
-      integer*4 &
-          cdt2jmin &            ! character date/time to julian minute
-          ,incr_intvl           ! increment julian minute by interval function
-
       character &
-          diff2dates*14 &       ! return DSS date given start and diff
-          ,jmin2cdt*14 &        ! julian minute to character date/time function
+          jmin2cdt*14 &         ! julian minute to character date/time function
           ,tmpdate*14 &         ! temporary date for comparison
           ,tmpstr*32            ! temporary string for name comparison
 

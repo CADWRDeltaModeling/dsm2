@@ -30,7 +30,7 @@ public class Globals{
    * initializes by loading library
    */
   public static void initialize(){
-    System.loadLibrary("PTM");
+    System.loadLibrary("ptm");
   }
   /**
    * current model time

@@ -122,10 +122,9 @@ set(DSM2_KLU_FORTRAN ${DSM2_SOURCE_DIR}/klu_fortran)
 set(DSM2_OPRULE_INTERFACE ${DSM2_SOURCE_DIR}/oprule_interface)
 set(DSM2_PATTERN_MATCH ${DSM2_SOURCE_DIR}/pattern_match)
 set(DSM2_PTM ${DSM2_SOURCE_DIR}/ptm)
-set(DSM2_QUAL ${DSM2_SOURCE_DIR}/qual)
 set(DSM2_SPARSE ${DSM2_SOURCE_DIR}/sparse)
 
-# set (DSM2_TIMEVAR ${DSM2_SOURCE_DIR}/timevar)
+set(DSM2_TIMEVAR ${DSM2_SOURCE_DIR}/timevar)
 set(DSM2_PYTHON ${DSM2_SOURCE_DIR}/python)
 
 add_subdirectory(${DSM2_COMMONS_DIR})
@@ -138,6 +137,7 @@ add_subdirectory(${DSM2_KLU_FORTRAN})
 add_subdirectory(${DSM2_OPRULE_INTERFACE})
 add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
+# add_subdirectory(${DSM2_TIMEVAR})
 
 # GTM
 set(DSM2_GTM_CORE ${DSM2_SOURCE_DIR}/gtm_core)
@@ -213,3 +213,52 @@ target_link_libraries(
           ${KLU_LIBRARIES}
           ${HEClib_LIBRARIES})
 
+# Build PTM dynamic library (.dll or .so). Better to move to a subdirectory.
+set(PTM_FORTRAN ptm_fortran)
+# Better to move this into the subdirectroy later.
+file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f90)
+add_library(${PTM_FORTRAN} STATIC ${PTM_FORTRAN_SOURCES})
+target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
+file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
+
+set(PTM_DYNLIB ptm)
+add_library(${PTM_DYNLIB} SHARED ${PTM_JAVA_CPP_SOURCES})
+target_link_libraries(
+  ${PTM_DYNLIB}
+  PRIVATE ${PTM_FORTRAN}
+          fixed
+          hdf_tidefile
+          hdf_tidefile_cpp
+          gtm_core
+          input_storage
+          input_storage_cpp
+          common
+          pattern_match
+          debug
+          ${INPUT_STORAGE_DEBUG}
+          optimized
+          ${INPUT_STORAGE_RELEASE}
+          ${Boost_LIBRARIES}
+          ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES}
+          ${HEClib_LIBRARIES})
+find_package(JNI REQUIRED)
+target_include_directories(${PTM_DYNLIB} PUBLIC ${JNI_INCLUDE_DIRS})
+
+# Build PTM Java
+find_package(Java 1.6 REQUIRED)
+message(STATUS "Found Java version ${Java_VERSION}")
+# Need to include UseJava to use add_jar.
+include(UseJava)
+get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
+# file(TO_CMAKE_PATH ${JAVA_HOME}/jre JAVA_JRE_HOME)
+set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
+file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
+file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
+add_jar(
+  ptm_jar
+  SOURCES ${PTM_JAVA_SOURCES}
+  INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
+  ENTRY_POINT "DWR/DMS/PTM/MainPTM"
+  OUTPUT_NAME ptm)
+add_dependencies(ptm_jar ${PTM_DYNLIB})

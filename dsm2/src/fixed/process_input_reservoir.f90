@@ -33,7 +33,7 @@ subroutine process_input_reservoir(Name, &
       use logging
       use grid_data
       use envvar
-      use utilities, only: loccarr, diff2dates, split_epart, fillin_code
+      use utilities, only: loccarr, split_epart, fillin_code
       implicit none
 
 

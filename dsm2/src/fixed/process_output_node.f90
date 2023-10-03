@@ -34,7 +34,7 @@ subroutine process_output_node(name, &
       use iopath_data
       use grid_data
       use envvar
-      use utilities, only: loccarr
+      use utilities, only: loccarr, split_epart
       implicit none
 
       character &

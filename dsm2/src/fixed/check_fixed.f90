@@ -45,7 +45,7 @@ subroutine check_fixed(istat)
     use mod_readdss
     use mod_writedss
 
-    use utilities, only: loccarr, jmin2cdt, cdt2jmin, incr_intvl
+    use utilities, only: loccarr, jmin2cdt, incr_intvl
 
     implicit none
 

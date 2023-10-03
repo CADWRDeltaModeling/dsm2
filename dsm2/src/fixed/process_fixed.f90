@@ -29,8 +29,9 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
       Use Groups, only : GROUP_ALL
       use iopath_data
       use gates, only : gateArray,deviceIndex
+      use utilities, only: split_epart
       implicit none
-      
+
       logical &
           ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
@@ -661,6 +662,7 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
       use iopath_data
       use common_ptm
       use constants_ptm
+      use utilities, only : split_epart
       implicit none
 
 
@@ -848,22 +850,23 @@ end
 
 subroutine input_group_output(field_names, mxflds, nfields, nflds, &
           ifld, rifld, line, ibegf, ilenf, idelmt, istat)
- 
+
 !-----process a character line into data arrays for particle group output
       use IO_Units
       use iopath_data
       use common_ptm
       use constants_ptm
       !use ptm_local   !todo: why is ptm_local leaking into common?
+      use utilities, only: split_epart
       implicit none
 
- 
+
       logical &
           ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
- 
+
 !-----local variables
- 
+
       integer &
           mxflds &               ! maximum number of fields
           ,nfields &             ! number of fields in data line (input)
