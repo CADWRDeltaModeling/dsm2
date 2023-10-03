@@ -30,7 +30,7 @@ message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 # Find libraries
 find_package(Boost REQUIRED COMPONENTS filesystem regex system)
 
-set(HDF5_USE_STATIC_LIBRARIES ON)
+set(HDF5_USE_STATIC_LIBRARIES TRUE)
 find_package(HDF5 REQUIRED COMPONENTS HL Fortran)
 
 find_package(HEClib REQUIRED)
@@ -39,6 +39,7 @@ find_package(KLU REQUIRED)
 
 find_package(Loki REQUIRED)
 
+set(MKL_LINK static)
 set(MKL_ARCH intel64)
 set(MKL_THREADING sequential)
 set(MKL_INTERFACE lp64)
@@ -58,25 +59,29 @@ find_library(
   OPRULE_DEBUG
   NAMES
     ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  PATH_SUFFIXES "Debug"
   NO_DEFAULT_PATH)
 find_library(
   OPRULE_PARSER_DEBUG
   NAMES
     ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  PATH_SUFFIXES "Debug"
   NO_DEFAULT_PATH)
 find_library(
   OPRULE_RELEASE
   NAMES
     ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 find_library(
   OPRULE_PARSER_RELEASE
   NAMES
     ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
 message(
@@ -87,13 +92,15 @@ find_library(
   INPUT_STORAGE_DEBUG
   NAMES
     ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  PATH_SUFFIXES "Debug"
   NO_DEFAULT_PATH)
 find_library(
   INPUT_STORAGE_RELEASE
   NAMES
     ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
 # Module directories for MSVC multi-config generators
