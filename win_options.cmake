@@ -23,7 +23,7 @@ set(BOOST_ROOT
     "${THIRD_PARTY_DIR}/boost-1.83.0"
     CACHE PATH "Boost root directory")
 set(HDF5_ROOT
-    "${THIRD_PARTY_DIR}/hdf5-1.10.10"
+    "${THIRD_PARTY_DIR}/hdf5-1.14.2"
     CACHE PATH "HDF5 root directory")
 set(HEClib_ROOT
     "${THIRD_PARTY_DIR}/heclib-6"
