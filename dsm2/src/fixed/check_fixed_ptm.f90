@@ -34,7 +34,7 @@ subroutine check_fixed_ptm(istat)
       use groups, only: WriteGroupMembers2File
       use network
       use netcntrl_common
-      use utilities, only : incr_intvl, diff2dates, cdt2jmin
+      use utilities, only : incr_intvl, diff2dates, cdt2jmin, jmin2cdt
       implicit none
 
 !-----Local variables
@@ -55,8 +55,7 @@ subroutine check_fixed_ptm(istat)
           ,ext2intnode
 
       character &
-          jmin2cdt*14 &         ! julian minute to character date/time function
-          ,tmpdate*14 &         ! temporary date for comparison
+          tmpdate*14 &          ! temporary date for comparison
           ,tmpstr*32            ! temporary string for name comparison
 
  605  format(/a,' date incorrect: ',a)

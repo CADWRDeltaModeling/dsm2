@@ -256,16 +256,16 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       use constants
       use iopath_data
       use logging
-      use utilities, only: loccarr, split_epart
+      use utilities, only: loccarr, split_epart, fillin_code
       implicit none
 
       character &
           name*32 &
           ,resname*32 &
           ,at_wb*32 &
-          ,fillin*8 &
           ,filename*128 &
-          ,inpath*392
+          ,inpath*392 &
+          ,fillin*8
       integer node
 
       character*32  objtmp
@@ -284,7 +284,6 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
           ,istat
 
       integer, external :: ext2intnode
-      integer, external :: fillin_code
       real*8 ftmp
 
       call locase(name)
@@ -421,7 +420,7 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       use constants
       use iopath_data
       use logging
-      use utilities, only: loccarr, split_epart
+      use utilities, only: loccarr, split_epart, fillin_code
       implicit none
 
       character &
@@ -449,7 +448,6 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
           ,istat
 
       integer, external :: ext2intnode
-      integer, external :: fillin_code
       real*8 ftmp
 
       call locase(name)

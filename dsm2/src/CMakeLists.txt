@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
 project(DSM2 LANGUAGES Fortran C CXX)
-set(CMAKE_Fortan_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 
@@ -99,17 +98,6 @@ find_library(
   PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
-# Module directories for MSVC multi-config generators. This can be rewritten
-# with generators. By the way, is this necessary?
-if(MSVC)
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(Fortran_MODULE_DIR ${CMAKE_Fortan_MODULE_DIRECTORY}/Debug)
-  else()
-    set(Fortran_MODULE_DIR ${CMAKE_Fortan_MODULE_DIRECTORY}/Release)
-  endif()
-else()
-  set(Fortran_MODULE_DIR ${CMAKE_Fortan_MODULE_DIRECTORY})
-endif()
 
 # set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
 set(DSM2_COMMONS_DIR ${DSM2_SOURCE_DIR}/common)
@@ -218,18 +206,24 @@ set(PTM_FORTRAN ptm_fortran)
 # Better to move this into the subdirectroy later.
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f90)
 add_library(${PTM_FORTRAN} STATIC ${PTM_FORTRAN_SOURCES})
-target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
-file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
+add_dependencies(${PTM_FORTRAN} hydrolib hdf_tidefile common)
+target_include_directories(
+  ${PTM_FORTRAN} PUBLIC ${Fortan_MODULE_DIRECTORY}
+                        ${HDF5_Fortran_INCLUDE_DIRS})
 
 set(PTM_DYNLIB ptm)
+file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
 add_library(${PTM_DYNLIB} SHARED ${PTM_JAVA_CPP_SOURCES})
 target_link_libraries(
   ${PTM_DYNLIB}
   PRIVATE ${PTM_FORTRAN}
           fixed
+          hydrolib
           hdf_tidefile
           hdf_tidefile_cpp
           gtm_core
+          oprule_interface_cpp
+          oprule_interface
           input_storage
           input_storage_cpp
           common

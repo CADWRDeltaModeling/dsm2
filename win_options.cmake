@@ -1,3 +1,7 @@
+# ~~~~
+# Example of CMake settings
+# Please change the values to match your environment
+# ~~~~
 set(JAVA_HOME
     "C:/Program Files/Java/jdk1.6.0_45"
     CACHE PATH "Java home")
@@ -23,7 +27,7 @@ set(BOOST_ROOT
     "${THIRD_PARTY_DIR}/boost-1.83.0"
     CACHE PATH "Boost root directory")
 set(HDF5_ROOT
-    "${THIRD_PARTY_DIR}/hdf5-1.14.2"
+    "${THIRD_PARTY_DIR}/HDF5-1.14.2-win64"
     CACHE PATH "HDF5 root directory")
 set(HEClib_ROOT
     "${THIRD_PARTY_DIR}/heclib-6"

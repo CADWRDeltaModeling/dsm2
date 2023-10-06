@@ -19,7 +19,7 @@ set(BOOST_ROOT
     $ENV{HOME}/local/boost-1.83.0
     CACHE PATH "Boost root directory")
 set(HDF5_ROOT
-    $ENV{HOME}/local/hdf5-1.10.10
+    $ENV{HOME}/local/HDF5-1.14.2-Linux/HDF_Group/HDF5/1.14.2
     CACHE PATH "HDF5 root directory")
 set(HEClib_ROOT
     $ENV{HOME}/local/heclib-6

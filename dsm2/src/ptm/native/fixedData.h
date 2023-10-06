@@ -103,7 +103,7 @@
 #define getRestartInputFilename GET_RESTART_INPUT_FILENAME
 #define getModelDate GET_MODEL_DATE
 #define getModelTime GET_MODEL_TIME
-#define cdt2jmin CDT2JMIN
+#define cdt2jmin UTILITIES_mp_CDT2JMIN
 #define initFluxOutput INIT_FLUX_OUTPUT
 #define writeFluxOutput WRITE_FLUX_OUTPUT
 #define closeFluxOutput CLOSE_FLUX_OUTPUT
@@ -220,7 +220,7 @@
 #define getConveyorName get_conveyor_name_
 #define getModelDate get_model_date_
 #define getModelTime get_model_time_
-#define cdt2jmin cdt2jmin_
+#define cdt2jmin utilities_mp_cdt2jmin_
 #define initFluxOutput init_flux_output_
 #define writeFluxOutput write_flux_output_
 #define closeFluxOutput close_flux_output_
