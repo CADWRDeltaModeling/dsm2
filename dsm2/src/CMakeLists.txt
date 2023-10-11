@@ -98,7 +98,6 @@ find_library(
   PATH_SUFFIXES "Release"
   NO_DEFAULT_PATH)
 
-
 # set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
 set(DSM2_COMMONS_DIR ${DSM2_SOURCE_DIR}/common)
 set(DSM2_FIXED_DIR ${DSM2_SOURCE_DIR}/fixed)
@@ -207,9 +206,7 @@ set(PTM_FORTRAN ptm_fortran)
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f90)
 add_library(${PTM_FORTRAN} STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(${PTM_FORTRAN} hydrolib hdf_tidefile common)
-target_include_directories(
-  ${PTM_FORTRAN} PUBLIC ${Fortan_MODULE_DIRECTORY}
-                        ${HDF5_Fortran_INCLUDE_DIRS})
+target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
 
 set(PTM_DYNLIB ptm)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)

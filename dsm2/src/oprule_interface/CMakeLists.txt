@@ -5,8 +5,7 @@ set(LIB_FORT ${PROJECT_NAME})
 add_library(${LIB_FORT})
 file(GLOB FORTRAN_SOURCES *.f *.f90 *.fi)
 target_sources(${LIB_FORT} PRIVATE ${FORTRAN_SOURCES})
-target_include_directories(${LIB_FORT} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS}
-                                               ${Fortan_MODULE_DIRECTORY})
+target_include_directories(${LIB_FORT} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
 
 add_dependencies(${LIB_FORT} hydrolib)
 set(LIB_CXX ${PROJECT_NAME}_cpp)

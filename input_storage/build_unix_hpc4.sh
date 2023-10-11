@@ -1,4 +1,8 @@
 #!/usr/bin/bash
+module purge
+module load gcc/6.1.0
+module load compiler/2022.1.0
+module load cmake/3.21.1
 cmake -E remove_directory build
 cmake -E make_directory build
 cd build
