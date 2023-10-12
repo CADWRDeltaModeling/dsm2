@@ -1,9 +1,6 @@
-cmake_minimum_required (VERSION 3.17)
+cmake_minimum_required(VERSION 3.17)
 enable_language(CXX Fortran)
-# add pre build command
-#add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-# search by file pattern and include in library
-#set (CMAKE_Fortran_FLAGS "/extend-source:132")
 file(GLOB sources *.f90)
 add_library(process_io ${sources})
 add_dependencies(process_io gtm_core input_storage)
+target_include_directories(process_io PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})

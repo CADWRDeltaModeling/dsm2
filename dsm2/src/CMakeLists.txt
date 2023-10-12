@@ -99,20 +99,20 @@ find_library(
   NO_DEFAULT_PATH)
 
 # set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
-set(DSM2_COMMONS_DIR ${DSM2_SOURCE_DIR}/common)
-set(DSM2_FIXED_DIR ${DSM2_SOURCE_DIR}/fixed)
-set(DSM2_HDF_TIDEFILE ${DSM2_SOURCE_DIR}/hdf_tidefile)
-set(DSM2_HYDRO ${DSM2_SOURCE_DIR}/hydro)
-set(DSM2_HYDROLIB ${DSM2_SOURCE_DIR}/hydrolib)
-set(DSM2_INPUT_STORAGE ${DSM2_SOURCE_DIR}/input_storage)
-set(DSM2_KLU_FORTRAN ${DSM2_SOURCE_DIR}/klu_fortran)
-set(DSM2_OPRULE_INTERFACE ${DSM2_SOURCE_DIR}/oprule_interface)
-set(DSM2_PATTERN_MATCH ${DSM2_SOURCE_DIR}/pattern_match)
-set(DSM2_PTM ${DSM2_SOURCE_DIR}/ptm)
-set(DSM2_SPARSE ${DSM2_SOURCE_DIR}/sparse)
+set(DSM2_COMMONS_DIR common)
+set(DSM2_FIXED_DIR fixed)
+set(DSM2_HDF_TIDEFILE hdf_tidefile)
+set(DSM2_HYDRO hydro)
+set(DSM2_HYDROLIB hydrolib)
+set(DSM2_INPUT_STORAGE input_storage)
+set(DSM2_KLU_FORTRAN klu_fortran)
+set(DSM2_OPRULE_INTERFACE oprule_interface)
+set(DSM2_PATTERN_MATCH pattern_match)
+set(DSM2_PTM ptm)
+set(DSM2_SPARSE sparse)
 
-set(DSM2_TIMEVAR ${DSM2_SOURCE_DIR}/timevar)
-set(DSM2_PYTHON ${DSM2_SOURCE_DIR}/python)
+set(DSM2_TIMEVAR timevar)
+set(DSM2_PYTHON python)
 
 add_subdirectory(${DSM2_COMMONS_DIR})
 add_subdirectory(${DSM2_INPUT_STORAGE})
@@ -127,8 +127,8 @@ add_subdirectory(${DSM2_PATTERN_MATCH})
 # add_subdirectory(${DSM2_TIMEVAR})
 
 # GTM
-set(DSM2_GTM_CORE ${DSM2_SOURCE_DIR}/gtm_core)
-add_subdirectory(${DSM2_GTM_CORE})
+set(GTM_CORE gtm_core)
+add_subdirectory(${GTM_CORE})
 
 # Build HYDRO
 set(HYDRO_BIN hydro_exe)
@@ -253,3 +253,86 @@ add_jar(
   ENTRY_POINT "DWR/DMS/PTM/MainPTM"
   OUTPUT_NAME ptm)
 add_dependencies(ptm_jar ${PTM_DYNLIB})
+
+# Build GTM
+set(GTM_BIN gtm_exe)
+set(GTM_MAIN gtm_main)
+set(GTM_PROCESS_IO process_io)
+set(GTM_SEDIMENT_BED_CORE sediment_bed_core)
+set(GTM_SEDIMENT_BED sediment_bed)
+set(GTM_SEDIMENT sediment)
+set(GTM_MERCURY mercury)
+set(GTM_TRANSPORT transport)
+
+add_subdirectory(gtm)
+add_subdirectory(${GTM_PROCESS_IO})
+add_subdirectory(${GTM_SEDIMENT})
+add_subdirectory(${GTM_SEDIMENT_BED_CORE})
+add_subdirectory(${GTM_SEDIMENT_BED})
+add_subdirectory(${GTM_MERCURY})
+add_subdirectory(${GTM_TRANSPORT})
+# add_subdirectory(${GTM_SEDIMENT_BED}) add_subdirectory(${GTM_DO_MODULE})
+# add_subdirectory(${GTM_MERCURY}) add_subdirectory(${GTM_TOOLS})
+
+add_executable(${GTM_BIN} gtm/gtm_driver.f90)
+add_dependencies(${GTM_BIN} ${GTM_MAIN})
+set_target_properties(${GTM_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
+target_link_libraries(
+  ${GTM_BIN}
+  PRIVATE ${GTM_MAIN}
+          ${GTM_MERCURY}
+          ${GTM_SEDIMENT_BED}
+          ${GTM_SEDIMENT_BED_CORE}
+          ${GTM_SEDIMENT}
+          ${GTM_TRANSPORT}
+          ${GTM_CORE}
+          ${GTM_PROCESS_IO}
+          input_storage
+          input_storage_cpp
+          common
+          debug
+          ${INPUT_STORAGE_DEBUG}
+          optimized
+          ${INPUT_STORAGE_RELEASE}
+          ${Boost_LIBRARIES}
+          ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES}
+          ${HEClib_LIBRARIES})
+
+set(GTM_SEDIMENT_BED_SETUP sediment_bed_setup)
+add_subdirectory(${GTM_SEDIMENT_BED_SETUP})
+
+# INSTALL Section
+install(
+  TARGETS ${HYDRO_BIN} ${QUAL_BIN} ${PTM_DYNLIB} ${GTM_BIN} sed_bed_init
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION bin)
+install_jar(ptm_jar DESTINATION bin)
+install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
+install(
+  DIRECTORY ${JAVA_HOME}/jre
+  DESTINATION bin
+  USE_SOURCE_PERMISSIONS)
+if(WIN32)
+  install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
+  message(
+    "Windows exes are static so Intel redistribution files are not needed.")
+else(WIN32)
+  install(PROGRAMS ptm/bin/ptm DESTINATION bin)
+endif(WIN32)
+
+# CPack
+set(CPACK_PACKAGE_NAME "DSM2")
+set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
+set(CPACK_PACKAGE_VERSION_MAJOR "8")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION
+    "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+)
+set(LICENSE_FILE ../../LICENSE.txt)
+cmake_path(ABSOLUTE_PATH LICENSE_FILE)
+set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
+include(CPack)

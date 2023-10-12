@@ -3,7 +3,6 @@ program dsm2gtm_driver
     use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     implicit none
 
-    print *, 'New GTM loop!!!'
     call gtm_prepare1()
     call get_command_args(init_input_file)
     call gtm_prepare2()

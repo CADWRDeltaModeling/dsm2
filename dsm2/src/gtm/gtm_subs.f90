@@ -684,7 +684,7 @@ module gtm_subs
     !> calculate area for memory buffer
     subroutine get_area_for_buffer(hyd_area, hyd_ws, ncomp, buffer)
         use common_variables, only: comp_pt
-        use common_xsect
+        use common_xsect, only: CxArea
         implicit none
         integer, intent(in) :: ncomp                          !< number of computational points
         integer, intent(in) :: buffer                         !< size of memory buffer
