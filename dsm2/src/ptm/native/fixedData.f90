@@ -2135,7 +2135,7 @@
 !=======================================================================
 
       REAL*8 FUNCTION CxArea(X, Z)
-      use common_xsect !, disabled => CxArea  !@# CxArea is also a subroutine defined in module common_xsect.
+      use common_xsect, disabled => CxArea  !@# CxArea is also a subroutine defined in module common_xsect.
       use network
       IMPLICIT NONE
 
