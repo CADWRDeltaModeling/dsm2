@@ -103,7 +103,7 @@ module process_gtm_input
         logical :: append_text=.false.
         integer :: ierror = 0
         call write_buffer_profile_to_text(dsm2_name,         &
-                                          out_echo_filename, &
+                                          trim(out_echo_filename), &
                                           .false.,           &
                                           ierror)
         call verify_error(ierror,"Error writing echoed text")
