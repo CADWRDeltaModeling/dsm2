@@ -346,7 +346,8 @@ contains
 
     real*8 function CxArea(X, Z)
         use io_units
-        use common_xsect, disabled => Small !@# Small declared below.
+        use common_xsect, only: chan_index, num_layers, &
+            virt_elevation, virt_width, virt_area
         implicit none
 
         !   Purpose:
