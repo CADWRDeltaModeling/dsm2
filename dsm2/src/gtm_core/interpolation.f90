@@ -63,18 +63,24 @@ module interpolation
         real(gtm_real), dimension(nt,ncell), intent(inout) :: mesh_hi    !< interpolated mesh at high face
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: volume_change  !< volume change for each cell
         real(gtm_real) :: total_volume_change, factor                      ! local variable
+        real(gtm_real) :: a_theta, b_theta, c_theta, d_theta               ! local variable
         integer :: i, j                                                    ! local variable
         integer :: end_c
         end_c = start_c + nx - 1
+        ! Applying semi-implicitness theta to time interpolation. 
+        a_theta = (one - hydro_theta)*a*2.0
+        c_theta = hydro_theta*c*2.0
+        b_theta = (one - hydro_theta)*b*2.0
+        d_theta = hydro_theta*d*2.0
         mesh_lo(1,start_c) = a
         mesh_lo(nt,start_c) = c
         mesh_hi(1,end_c) = b
         mesh_hi(nt,end_c) = d
-        do i = 2, nt
+        do i = 2, nt-1
             factor = (dble(i)-one)/(dble(nt)-one)
-            mesh_lo(i,start_c) = a + factor*(c-a)
-            mesh_hi(i,end_c) = b + factor*(d-b)
-        end do
+            mesh_lo(i,start_c) = a_theta + factor*(c_theta-a_theta)
+            mesh_hi(i,end_c) = b_theta + factor*(d_theta-b_theta)
+        end do        
         do i = 1, nt
             do j = 1, nx-1
                 factor = dble(j)/dble(nx)
@@ -193,7 +199,7 @@ module interpolation
             wet_p(j,end_c) = half * (dh_lo(j,end_c) + dh_hi(j,end_c))
             depth(j,end_c) = half * (dp_lo(j,end_c) + dp_hi(j,end_c))
             ! calculate volume averaged area
-            do i = 1, nx-1
+            do i = 1, nx
                 x1 = up_x+dx*(dble(i)-one)
                 x2 = up_x+dx*(dble(i))
                 z1 = ws(j,i)
@@ -423,7 +429,6 @@ module interpolation
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change, area_mesh)
         if ((nt-1)*dt.lt.20 .and. nt.gt.2 .and. nx.gt.2) call interp_flow_from_area_theta(flow_mesh_lo, flow_mesh_hi, flow_volume_change,ncell, start_c, dt, nt, nx,  &
                           flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)
-        !print *, "area_volumne_change:", area_volume_change(:,2099), "flow_volume_change:", flow_volume_change(:,2099), ((nt-1)*dt.lt.20 .and. nt.gt.2 .and. nx.gt.2) 
         return
     end subroutine
 

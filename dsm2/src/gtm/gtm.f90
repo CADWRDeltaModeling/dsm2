@@ -82,6 +82,7 @@ module dsm2gtm
     real(gtm_real), allocatable :: explicit_diffuse_op(:,:)
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)
+    real(gtm_real), allocatable :: mass_closure(:)
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion
     real(gtm_real), allocatable :: sed_percent(:,:,:)!<percentages of compositions at boundaries  & 10 is the maximum number of
@@ -223,6 +224,7 @@ subroutine gtm_prepare_loop()
     allocate(cfl(n_cell))
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    allocate(mass_closure(n_cell))
 
     write(*,*) "You need to have ",n_cell," number of cells in initial file."
 
@@ -393,6 +395,7 @@ subroutine gtm_loop()
                                 n_tran, time_offset+slice_in_block-2)
         end if
     end if
+        !print *, "time info", current_time, slice_in_block, current_slice, iblock, current_block, npartition_t, time_offset+slice_in_block-2
 
         !--- interpolate flow and water surface between computational points
     if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
@@ -577,7 +580,18 @@ subroutine gtm_loop()
         if (nonnegative) then
             where (mass.lt.zero) mass = zero
         end if
-        call cons2prim(conc, mass, area, n_cell, n_var)
+        mass_closure =( (area - area_prev) + (sub_gtm_time_step*sixty/dx_arr)*(flow_hi-flow_lo) )            
+        !apply mass closure correction. 
+        if (maxval(abs(mass_closure/area_prev))>0.01) then
+            print *, "maximum mass closure error: ", maxval(abs(mass_closure/area_prev))
+        endif
+        !if (st<sub_st) then
+        !    area = area-mass_closure
+        !    call cons2prim(conc, mass, area, n_cell, n_var) 
+        !elseif:
+        call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass. 
+        call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step. 
+        !endif 
 
         !--------- Diffusion ----------
         if (apply_diffusion) then
@@ -620,7 +634,7 @@ subroutine gtm_loop()
 
         mass_prev = mass
         conc_prev = conc
-        conc_resv_prev = conc_resv
+        ! conc_resv_prev = conc_resv
         flow_prev = flow
         area_prev = area
         area_lo_prev = area_lo

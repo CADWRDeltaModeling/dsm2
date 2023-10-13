@@ -288,8 +288,6 @@ module advection
                                  dx)
          !accumulative mass closure error
          mass_closure =( (area - area_prev) + (dt/dx)*(flow_hi-flow_lo) )
-
-         !print *, "mass closure:", mass_closure(2099), mass_closure(2099)
          return
     end subroutine
 
@@ -474,7 +472,7 @@ module advection
         do ivar=1,nvar
             mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
         end do
-
+    
         ! compute the source at the new time from the predictor
         call cons2prim(conc,    &
                        mass,    &
