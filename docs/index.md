@@ -1,4 +1,4 @@
-# DSM2
+# DSM2 Documentation
 
 
 ## Overview:
