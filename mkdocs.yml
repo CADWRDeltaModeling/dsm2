@@ -8,8 +8,8 @@ nav:
   - Reference: reference/Background_Material_and_References.md
   - Installation: installation.md
   - DSM2 Learning Series (new for 2023):
-    - Quick Start: docs/dsm2_learning_series.md
-    - Planning Studies: docs/dsm2_learning_series.md
+    - Quick Start: dsm2_learning_series.md
+    - Planning Studies: dsm2_learning_series.md
   - Tutorials (archive): tutorials/Tutorials.md
   - FAQs: faqs/index.md
   - Release Notes: releasenotes.md
