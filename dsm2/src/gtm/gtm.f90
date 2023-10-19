@@ -549,49 +549,49 @@ subroutine gtm_loop()
             explicit_diffuse_op = zero
         end if
 
-        !----- advection and source/sink -----
-        call advect(mass,                         &
-                    mass_prev,                    &
-                    flow,                         &
-                    flow_prev,                    &
-                    flow_lo,                      &
-                    flow_hi,                      &
-                    area,                         &
-                    area_prev,                    &
-                    area_lo,                      &
-                    area_hi,                      &
-                    explicit_diffuse_op,          &
-                    n_cell,                       &
-                    n_var,                        &
-                    dble(new_current_time)*sixty, &
-                    sub_gtm_time_step*sixty,      &
-                    dx_arr,                       &
-                    limit_slope,                  &
-                    width,                        &
-                    width_prev,                   &
-                    depth,                        &
-                    depth_prev,                   &
-                    wet_p,                        &
-                    wet_p_prev,                   &
-                    constraint,                   &
-                    constituents(:)%use_module,   &
-                    LL,                           &
-                    sed_percent)
-        if (nonnegative) then
-            where (mass.lt.zero) mass = zero
-        end if
-        mass_closure =( (area - area_prev) + (sub_gtm_time_step*sixty/dx_arr)*(flow_hi-flow_lo) )            
-        !apply mass closure correction. 
-        if (maxval(abs(mass_closure/area_prev))>0.01) then
-            print *, "maximum mass closure error: ", maxval(abs(mass_closure/area_prev))
-        endif
-        !if (st<sub_st) then
-        !    area = area-mass_closure
-        !    call cons2prim(conc, mass, area, n_cell, n_var) 
-        !elseif:
-        call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass. 
-        call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step. 
-        !endif 
+            !----- advection and source/sink -----
+            call advect(mass,                         &
+                        mass_prev,                    &
+                        flow,                         &
+                        flow_prev,                    &
+                        flow_lo,                      &
+                        flow_hi,                      &
+                        area,                         &
+                        area_prev,                    &
+                        area_lo,                      &
+                        area_hi,                      &
+                        explicit_diffuse_op,          &
+                        n_cell,                       &
+                        n_var,                        &
+                        dble(new_current_time)*sixty, &
+                        sub_gtm_time_step*sixty,      &
+                        dx_arr,                       &
+                        limit_slope,                  &
+                        width,                        &
+                        width_prev,                   &
+                        depth,                        &
+                        depth_prev,                   &
+                        wet_p,                        &
+                        wet_p_prev,                   &
+                        constraint,                   &
+                        constituents(:)%use_module,   &
+                        LL,                           &
+                        sed_percent)
+            if (nonnegative) then
+                where (mass.lt.zero) mass = zero
+            end if
+            mass_closure =( (area - area_prev) + (sub_gtm_time_step*sixty/dx_arr)*(flow_hi-flow_lo) )
+            !apply mass closure correction.
+            if ((maxval(abs(mass_closure/area_prev))>0.01) .and. (print_level .ge. 5)) then
+                write(unit_screen,*), "maximum mass closure error greater than 1% of cell volume: ", maxval(abs(mass_closure/area_prev))
+            endif
+            !if (st<sub_st) then
+            !    area = area-mass_closure
+            !    call cons2prim(conc, mass, area, n_cell, n_var)
+            !elseif:
+            call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass.
+            call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step.
+            !endif
 
         !--------- Diffusion ----------
         if (apply_diffusion) then
@@ -632,39 +632,39 @@ subroutine gtm_loop()
             call prim2cons(mass,conc,area,n_cell,n_var)
         end if
 
-        mass_prev = mass
-        conc_prev = conc
-        ! conc_resv_prev = conc_resv
-        flow_prev = flow
-        area_prev = area
-        area_lo_prev = area_lo
-        area_hi_prev = area_hi
-        width_prev = width
-        depth_prev = depth
-        wet_p_prev = wet_p
-        width_prev = width
-        disp_coef_lo_prev = disp_coef_lo
-        disp_coef_hi_prev = disp_coef_hi
-        prev_resv_height = resv_height
-        prev_resv_flow = resv_flow
-        prev_qext_flow = qext_flow
-        prev_tran_flow = tran_flow
-        prev_node_conc = node_conc
-        prev_conc_stip = conc_stip
-        node_conc = LARGEREAL
-    end do ! end of loop of sub time step
-    ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
-    if (run_pdaf) then
-        if (current_time .eq. gtm_start_jmin) then
-            conc = init_c
-            conc_prev = init_c
-            budget_prev_conc = init_c
-            conc_resv = init_r
-            conc_resv_prev = init_r
-            !prev_conc_stip = zero
-            call prim2cons(mass_prev, conc, area, n_cell, n_var)
+            mass_prev = mass
+            conc_prev = conc
+            conc_resv_prev = conc_resv
+            flow_prev = flow
+            area_prev = area
+            area_lo_prev = area_lo
+            area_hi_prev = area_hi
+            width_prev = width
+            depth_prev = depth
+            wet_p_prev = wet_p
+            width_prev = width
+            disp_coef_lo_prev = disp_coef_lo
+            disp_coef_hi_prev = disp_coef_hi
+            prev_resv_height = resv_height
+            prev_resv_flow = resv_flow
+            prev_qext_flow = qext_flow
+            prev_tran_flow = tran_flow
+            prev_node_conc = node_conc
+            prev_conc_stip = conc_stip
+            node_conc = LARGEREAL
+        end do ! end of loop of sub time step
+        ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
+        if (run_pdaf) then
+            if (current_time .eq. gtm_start_jmin) then
+                conc = init_c
+                conc_prev = init_c
+                budget_prev_conc = init_c
+                conc_resv = init_r
+                conc_resv_prev = init_r
+                !prev_conc_stip = zero
+                call prim2cons(mass_prev, conc, area, n_cell, n_var)
+            end if
         end if
-    end if
 
     ! add all sediment to ssc
     if (ssc_index .ne. 0) then

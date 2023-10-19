@@ -61,6 +61,9 @@ subroutine hdf5_write_attributes()
     integer     ::    cg_rank = 2 ! Dataset rank
     integer(HSIZE_T), dimension(7) :: cg_data_dims
 
+    integer(HID_T) :: cx_dspace_id ! Dataspace identifier
+    integer     ::    cx_rank = 1 ! Dataset rank
+
     integer(HID_T) :: cparms  !dataset creatation property identifier
     integer(HSIZE_T), dimension(2) :: h_offset
     integer(HID_T) :: memspace ! memspace identifier
@@ -244,6 +247,16 @@ subroutine hdf5_write_attributes()
     call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
     call h5dwrite_f(cg_dset_id, H5T_NATIVE_REAL, bottom_el2, cg_data_dims, &
                     error, mem_space_id=memspace, file_space_id=cg_dspace_id)
+
+    ! Write out chan_dx
+    cx_dims(1) = nchans
+    call h5screate_simple_f(cx_rank, cx_dims, cx_dspace_id, error)
+    call h5dcreate_f(geom_id, "channel_dx", H5T_NATIVE_REAL, &
+        cx_dspace_id, cx_dset_id, error, cparms)
+    call h5dwrite_f(cx_dset_id,H5T_NATIVE_REAL, &
+        chan_dx, cx_dims, error)
+    call h5sclose_f (cx_dspace_id, error)
+    call h5dclose_f(cx_dset_id,error)
 
     call WriteReservoirFlowConnectionsHDF5
     call WriteNodeFlowConnectionsHDF5

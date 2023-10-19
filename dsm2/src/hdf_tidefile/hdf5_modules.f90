@@ -36,6 +36,8 @@ module hdfvars
       integer(HSIZE_T), dimension(1) :: bname_dims = (/0/) ! Dataset dimensions
       integer(HID_T) :: bnode_dset_id	! Boundary Node Dataset identifier 
       integer(HSIZE_T), dimension(1) :: bnode_dims = (/0/) ! Dataset dimensions
+      integer(HSIZE_T), dimension(1) :: cx_dims != (/0/) ! Dataset dimensions
+      integer(HID_T) :: cx_dset_id ! Channel dx Dataset identifier
 
       integer(HSIZE_T),parameter :: chanFlowIdx = 0
       integer(HSIZE_T),parameter :: chanStageIdx = 2

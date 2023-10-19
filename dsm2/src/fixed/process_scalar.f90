@@ -177,7 +177,13 @@ subroutine process_scalar(Param, Val)
     elseif (Param .eq. 'deltax') then
 !--------keyword 'length' means use channel length for each delta x
         if (index(Val, 'len') .eq. 0) then
-            read (Val, '(f10.0)', err=810) deltax_requested
+            !read(Val, '(f10.0)', err=810) deltax_requested
+            read(Val, '(a20)', err=810) deltax_fn
+            if (deltax_fn(len_trim(deltax_fn)-4+1:len_trim(deltax_fn))/='.csv') then
+                read(deltax_fn,'(f10.0)') deltax_requested
+            else
+                deltax_requested=0.0
+            endif
         else
             deltax_requested = 0.0
         end if
