@@ -41,17 +41,17 @@ module grid_data
         ,max_obj2obj=50 &
         ,max_stgbnd=5 &
         )
-     
+
     !@#type(channel_t) :: chan_geom(0:max_channels)
     type(channel_t), allocatable :: chan_geom(:)    !@# From GTM (module common_variables)
     type(node_t) :: node_geom(0:max_nodes)
     type(xsect_t) :: xsect_geom(0:max_xsects_tot)
-      
+
     real*8 :: &
         area_tolerance               ! max allowable ratio of virt_area(MSL) @ chan ends
     real*8 :: levee_slope            ! slope of levees for xsect width extrapolation
-     
-          
+
+
     integer :: &
         max_reservoirs               ! maximum number of reservoirs
     integer :: nreser                ! actual number of reservoirs
@@ -62,7 +62,7 @@ module grid_data
         )
 
     type(reservoir_t) :: res_geom(0:max_reservoirs)
-      
+
     !-----Node id numbers
 
     integer :: node_id(0:max_nodes)
@@ -79,7 +79,7 @@ module grid_data
 
     !-----Direct object to object flow transfer
     type(obj2obj_t) :: obj2obj(max_obj2obj)
-      
+
     !-----stage boundary object
     type(stgbnd_t) :: stgbnd(max_stgbnd)
 
@@ -88,6 +88,8 @@ module grid_data
 
     !-----used by virtual_xsect
     real*8 :: deltax_requested       ! delta x to use in spatial discretization
+    character*20 deltax_fn            ! delta x defined by a file
+    real(kind=4), allocatable :: chan_dx(:)  ! variable dx for dsm2
 
     !-----accounting and object names, value codes, period type names
     integer,parameter :: max_group_memberships=20 ! max number of group memberships
@@ -101,16 +103,9 @@ module grid_data
         )
 
     type(qext_t) :: qext(max_qext)
-    
+
     integer :: const_qext(max_qext,max_conqext)
     integer :: n_conqext(max_qext)   ! number of constituents at external flow
     common /com_conqext/ const_qext, n_conqext
-               
-end module
 
-   
-     
-      
-    
-    
-     
+end module

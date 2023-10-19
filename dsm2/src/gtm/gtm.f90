@@ -328,7 +328,7 @@ program gtm
     allocate (sed_percent(n_node,n_qext,n_var))
     sed_percent(:,:,:) =0.0d0
 
-     if (nquadpts == 1) then        
+     if (nquadpts == 1) then
          quadpt(1)=0.5
          quadwt(1)=1.0
      else if (nquadpts == 2) then
@@ -389,8 +389,8 @@ program gtm
             ! to determine if sub time step is required based on CFL number
             call fill_hydro_info(flow,          &
                                  flow_lo,       &
-                                 flow_hi,       &  
-                                 area,          &                               
+                                 flow_hi,       &
+                                 area,          &
                                  area_lo,       &
                                  area_hi,       &
                                  width,         &
@@ -558,18 +558,18 @@ program gtm
             if (nonnegative) then
                 where (mass.lt.zero) mass = zero
             end if
-            mass_closure =( (area - area_prev) + (sub_gtm_time_step*sixty/dx_arr)*(flow_hi-flow_lo) )            
-            !apply mass closure correction. 
-            if (maxval(abs(mass_closure/area_prev))>0.01) then
-                print *, "maximum mass closure error: ", maxval(abs(mass_closure/area_prev))
+            mass_closure =( (area - area_prev) + (sub_gtm_time_step*sixty/dx_arr)*(flow_hi-flow_lo) )
+            !apply mass closure correction.
+            if ((maxval(abs(mass_closure/area_prev))>0.01) .and. (print_level .ge. 5)) then
+                write(unit_screen,*), "maximum mass closure error greater than 1% of cell volume: ", maxval(abs(mass_closure/area_prev))
             endif
             !if (st<sub_st) then
             !    area = area-mass_closure
-            !    call cons2prim(conc, mass, area, n_cell, n_var) 
+            !    call cons2prim(conc, mass, area, n_cell, n_var)
             !elseif:
-            call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass. 
-            call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step. 
-            !endif 
+            call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass.
+            call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step.
+            !endif
 
             !--------- Diffusion ----------
             if (apply_diffusion) then
@@ -612,6 +612,7 @@ program gtm
 
             mass_prev = mass
             conc_prev = conc
+            conc_resv_prev = conc_resv
             flow_prev = flow
             area_prev = area
             area_lo_prev = area_lo
@@ -631,13 +632,13 @@ program gtm
             node_conc = LARGEREAL
         end do ! end of loop of sub time step
         ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
-        if (run_pdaf) then       
-            if (current_time .eq. gtm_start_jmin) then         
+        if (run_pdaf) then
+            if (current_time .eq. gtm_start_jmin) then
                 conc = init_c
                 conc_prev = init_c
-                budget_prev_conc = init_c       
-                conc_resv = init_r 
-                conc_resv_prev = init_r 
+                budget_prev_conc = init_c
+                conc_resv = init_r
+                conc_resv_prev = init_r
                 !prev_conc_stip = zero
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
             end if
@@ -737,7 +738,7 @@ program gtm
     if (run_pdaf) then
         call print_last_stage(jmin2cdt(int(gtm_end_jmin)),int(gtm_end_jmin),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) !replace current_time by gtm_end_jmin
     else
-        call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) 
+        call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn)
     end if
 
     if (use_sediment_bed) then

@@ -155,7 +155,7 @@ subroutine check_fixed_hydro(istat)
         return
     end if
 
- 
+
     !----  nquadpts=nquadpts-1
 
     if (time_step_intvl_hydro /= ' ') then
@@ -437,7 +437,7 @@ subroutine check_fixed_hydro(istat)
                 pathinput(i)%obj_no == node) then
                 nflwbnd=nflwbnd+1
             endif
-        enddo          
+        enddo
     enddo
 
     !-----fill FourPt connection arrays
@@ -531,14 +531,23 @@ subroutine check_fixed_hydro(istat)
     PreviousH100   = 99999
 
     !-----fill FourPt channel and related arrays and check validity
-    if (deltax_requested <= 0.) then
-        write(unit_error,*) "Delta x not specified"
-        call exit(3)
-    end if
+    !if (deltax_requested <= 0.) then
+    !    write(unit_error,*) "Delta x not specified"
+    !    call exit(3)
+    !end if
     do intchan=1,nchans
         Lines(intchan)=2       ! means values given at two depths
         FirstTable(intchan) = USR+1
-        dx(intchan)=deltax_requested
+        if (chan_dx(intchan)<=0) then
+            if (deltax_requested<=0.) then
+                write(unit_error,*) "zero dx found for chan_id:", intchan
+                call exit(3)
+            else
+                dx(intchan)=deltax_requested
+            endif
+        else
+            dx(intchan)=chan_dx(intchan)
+        endif
         OneOverManning(intchan)=1./chan_geom(intchan)%manning
     enddo
 
@@ -576,7 +585,9 @@ subroutine check_fixed_hydro(istat)
 
             Offset(USR)=LNUM+1
             leng=float(chan_geom(intchan)%length)
-            if (deltax_requested == 0) then
+            if (chan_dx(intchan)/=0) then
+                dx_r = chan_dx(intchan)
+            elseif (deltax_requested == 0) then
                 dx_r = chan_geom(intchan)%length
             elseif (deltax_requested /= 0) then
                 dx_r = deltax_requested
@@ -816,7 +827,7 @@ do pth=1,ninpaths
 end
 
 integer function node2hydrochan(node,data_flow_type)
-      
+
     !-----convert a DSM2 node number to a hydro connecting channel,
     !-----depending on input data type (flow or stage)
     use IO_Units
@@ -835,7 +846,7 @@ integer function node2hydrochan(node,data_flow_type)
 
     !-----include files
 
-      
+
     !-----local variables
     integer j                 ! index
     !-----flow inputs must go to a hydro channel with a flow condition code
@@ -855,7 +866,7 @@ integer function node2hydrochan(node,data_flow_type)
             node2hydrochan=node_geom(node)%upstream(1)
         endif
     endif
-      
+
     if (data_flow_type) then  ! node flow input
         node2hydrochan=0
         !--------check upstream channel end connections to node first...

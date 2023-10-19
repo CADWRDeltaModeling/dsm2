@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -165,25 +165,25 @@ c---- read all text into buffers and process envvironmental variables
          inquire(file=init_input_file, exist=file_exists)
          if (.not. file_exists)then
              write(unit_error,*)"Input file does not exist: ",init_input_file
-             call exit(1)     
+             call exit(1)
          end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
          call initialize_runtimes()
          call buffer_input_grid()    ! processes grid
       end if
-      
+
 c------ process input that is in buffers
       call buffer_input_common()
       call buffer_input_hydro()
 
       call process_text_gate_input()
-      call process_text_oprule_ts_input()      
+      call process_text_oprule_ts_input()
       call write_input_buffers()
       if (echo_only) call exit(1)
 
 c------ end of input reading and echo, start checking data
-      
+
 
       call check_fixed(istat)
       if (istat .ne. 0) then
@@ -195,6 +195,7 @@ c------ end of input reading and echo, start checking data
       call virtual_xsect        ! create virtual cross-section lookup table
 
       call check_fixed_hydro(istat)
+
       if (istat .ne. 0) then
          write(unit_error, *)
      &        'Error in checking fixed fourpt data; run stopped.'
@@ -221,14 +222,13 @@ c-----calculate julian minute of end of each DSS interval
      &        ' Initialization of Reservoir flow failed...'
          call exit(1)
       end if
-      
+
       ! Initialize time series with data from initial time
       ! todo: make sure this behaves with reservoirs
       OK = SetBoundaryValuesFromData()
 
       ! Oprules cannot be parsed until channel network is defined
       call process_text_oprule_input()
-
 
       if ( .not. InitializeSolver() ) THEN
          write(unit_error,*)
@@ -238,15 +238,14 @@ c-----calculate julian minute of end of each DSS interval
 
       OK = InitNetBalance()
       call init_store_outpaths(istat)
-
       if ( io_files(hydro,io_hdf5,io_write).use ) then ! hydro binary file output
          call DetermineFirstTidefileInterval()
          OK = InitHydroTidefile()
-C--special treatment to avoid averaging in the begining         
+C--special treatment to avoid averaging in the begining
          julmin = julmin - time_step
          OK = AverageFlow()
          julmin = julmin + time_step
-         
+
 	   OK = WriteHydroToTidefile(.TRUE.)
       endif
 
@@ -266,7 +265,7 @@ C--special treatment to avoid averaging in the begining
       current_date=jmin2cdt(julmin)
 
       do while (julmin .le. end_julmin) ! normal time run
-         
+
 
          DO I=1,TotalStreamLocations()
             QOld(I)=Q(I)
@@ -274,7 +273,7 @@ C--special treatment to avoid averaging in the begining
 
          DO i=1,Nreser
             YResOld(i)=YRes(i)
-            call calculateReservoirGeometry(i, Yres(i), 
+            call calculateReservoirGeometry(i, Yres(i),
      &                             reser_area, reser_vol)
             VResOld(i)=reser_vol
             DO j=1,res_geom(i).nnodes
@@ -414,7 +413,7 @@ c@@@         OK = ReportNetBalance()
       WRITE(unit_output,*)
      &     '   -----------------------------'
 
-      
+
 
 C      OK = CloseSolver()
 

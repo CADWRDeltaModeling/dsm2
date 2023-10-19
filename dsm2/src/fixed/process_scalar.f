@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -28,13 +28,13 @@ C!</license>
       use iopath_data
       use common_qual
       use common_ptm
-      use envvar 
+      use envvar
       use network
       use netcntrl_common
       implicit none
 
-      include '../qual/param.inc'      
-      include '../qual/bltm1.inc'    
+      include '../qual/param.inc'
+      include '../qual/bltm1.inc'
 
       integer                  :: itmp
       character(LEN=32), intent(in)    :: Val   ! parameter Val
@@ -121,7 +121,7 @@ c--------global rates for non-conserative const.
          read(Val, '(f8.4)', err=810) lambda1
       elseif (Param .eq. 'lambda2') then
          read(Val, '(f8.4)', err=810) lambda2
-c--------------heat and temperature related parameters         
+c--------------heat and temperature related parameters
       elseif (Param .eq. 'elev') then
          read(Val, '(f8.2)', err=810) elev
       elseif (Param .eq. 'lat') then
@@ -165,13 +165,13 @@ c--------------heat and temperature related parameters
       elseif (Param .eq. 'temp_alg_resp') then
          read(Val, '(f8.3)', err=810) thet(temp_alg_resp)
       elseif (Param .eq. 'temp_alg_set') then
-         read(Val, '(f8.3)', err=810) thet(temp_alg_set)         
+         read(Val, '(f8.3)', err=810) thet(temp_alg_set)
       elseif (Param .eq. 'tf_start_date') then
          tf_start_date(1:9)=Val(1:9)
       elseif (Param .eq. 'tf_start_time') then
          tf_start_date(11:14)=Val(1:4)
 	  elseif (Param .eq. 'alg_bod' ) then
-           read(Val, '(f8.4)', err=810) alg_bod 
+           read(Val, '(f8.4)', err=810) alg_bod
 	  elseif (Param .eq. 'temp_alg_die') then
            read(Val, '(f8.3)', err=810) thet(temp_alg_die)
       elseif (Param .eq. 'display_intvl') then
@@ -179,7 +179,13 @@ c--------------heat and temperature related parameters
       elseif (Param .eq. 'deltax') then
 !c--------keyword 'length' means use channel length for each delta x
          if (index(Val, 'len') .eq. 0) then
-            read(Val, '(f10.0)', err=810) deltax_requested
+            !read(Val, '(f10.0)', err=810) deltax_requested
+            read(Val, '(a20)', err=810) deltax_fn
+            if (deltax_fn(len_trim(deltax_fn)-4+1:len_trim(deltax_fn))/='.csv') then
+                read(deltax_fn,'(f10.0)') deltax_requested
+            else
+                deltax_requested=0.0
+            endif
          else
             deltax_requested=0.0
          endif
@@ -308,11 +314,11 @@ c--------------heat and temperature related parameters
 	   write(unit_error,610)"ptm_shear_vel not used in this version of PTM"
          call exit(-2)
       elseif (Param .eq. 'repeating_tide') then
-         write(unit_error,610)"repeating_tide is deprecated"         
+         write(unit_error,610)"repeating_tide is deprecated"
       elseif (Param .eq. 'warmup_run') then
-         call exit(-2)    
+         call exit(-2)
       elseif (Param .eq. 'output_inst') then
-         read(Val, '(l2)', err=810) output_inst                    
+         read(Val, '(l2)', err=810) output_inst
       else
          write(unit_error,610), Param, Val
          call exit(-1)
@@ -320,12 +326,7 @@ c--------------heat and temperature related parameters
       return
  810  continue
       write(unit_error, '(a,a)') 'Type conversion error on field ' //
-     &     Param 
+     &     Param
       call exit(-2)
-     
-      
 
       end subroutine
-         
-      
-         

@@ -40,13 +40,22 @@ contains
         !-----The height is the distance above the lowest point in the cross-section.
         use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         use constants, only: miss_val_r !@# Before merging, 'miss_val_r' came from DSM2's common_xsect.
+        use io_units, only: unit_error, unit_screen
         implicit none
 
         integer &
             channo  &              ! dsm channel number
             ,vsecno &             ! number of virtual xsect within chan. (upstream=1)
             ,i      &             ! do loop counters
-            ,j
+            ,j      &             !
+            ,alocstat &
+            ,error  &
+            ,status &
+            ,chan_len &
+            ,dx_len
+        integer :: dx_channo(1:nchans)  ! channo read from the input deltax file for variable dx
+        integer :: dx_num
+        real :: dx_var
 
         !-----initialize index arrays
         do vsecno=1,max_virt_xsects
@@ -69,6 +78,44 @@ contains
         !-----used by check_area
         if (area_tolerance <= 0) then
             area_tolerance = 2.0   ! default area tolerance
+        endif
+
+        !----Read in variable dx
+        allocate(chan_dx(nchans),stat=alocstat)
+        chan_dx = 0.0
+        if (deltax_fn(len_trim(deltax_fn)-4+1:len_trim(deltax_fn))=='.csv') then
+            open(unit=120, file=deltax_fn)
+            i = 1
+            do
+                read(120,*,iostat=status)  dx_num, dx_var
+                if (status/=0) exit
+                dx_channo(i) = dx_num
+                chan_dx(i) = dx_var
+                i = i + 1
+            enddo
+            close(120)
+
+            dx_len = size(chan_dx)
+
+            ! check if dx_channo(i) matches exactly the chan_geom(i)%chan_no in the grid file.
+            if (nchans/=dx_len) then
+                write(unit_error,*) &
+                    'The number of input dx does not match the number of channels: ', nchans, dx_len
+                call exit(3)
+            else
+                error=0
+                do i = 1, nchans
+                    if (dx_channo(i)/=chan_geom(i)%chan_no) then
+                        error=1
+                        write(unit_screen,*) &
+                            "chan_no for dx: ", dx_channo(i), " does not match ", chan_geom(i)%chan_no
+                    endif
+                enddo
+                if (error==1) then
+                    write(unit_error,*) "chan_no for dx is not consistent with chan_no for grid"
+                    call exit(3)
+                endif
+            endif
         endif
 
         do channo=1,nchans
@@ -325,14 +372,15 @@ contains
 
 
         integer  channo               ! dsm channel number
-
         real*8  dx_r                ! stores value of deltax_requested
 
-
         !-----find the virtual deltax (requested value divided by 2)
-        if (deltax_requested == 0) then
+
+        if (chan_dx(channo)>0.0) then
+            dx_r = chan_dx(channo)
+        elseif (deltax_requested == 0.0) then
             dx_r = chan_geom(channo)%length
-        elseif (deltax_requested /= 0) then
+        elseif (deltax_requested /= 0.0) then
             dx_r = deltax_requested
         endif
 
@@ -533,7 +581,7 @@ contains
                 y8=tempz_centroid(downindex,virtelev)
                 !-----------calculate xsect property array index for current layer
                 di = dindex(channo,vsecno,virtelev)
-                
+
                 if (di > max_layers) then
                     write(unit_error,*) '***error'
                     write(unit_error,*) 'Maximum number of max_layers exceeded,di=', di, '>', max_layers

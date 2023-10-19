@@ -31,7 +31,7 @@ module common_xsect
 
 	!@# Module grid_data is required for merging.
 	use grid_data, only: chan_geom, max_channels, &
-		nchans, levee_slope, area_tolerance, deltax_requested, xsect_geom
+		nchans, levee_slope, area_tolerance, deltax_requested, xsect_geom, chan_dx, deltax_fn
 
     implicit none
     integer :: n_irreg                         !< actual number of irregular cross sections
