@@ -29,7 +29,7 @@ DSM2 is currently in version 8.2.2. Please send comments to Min Yu
 rel="nofollow">minyu@water.ca.gov</a>.
 
 # For more information
-[DSM2 Learning Series](https://github.com/CADWRDeltaModeling/DSM2LearningSeries)<BR>
+[DSM2 Learning Series](https://cadwrdeltamodeling.github.io/dsm2/dsm2_learning_series/)<BR>
 [DSM2 source code GitHub repository](https://github.com/CADWRDeltaModeling/dsm2)
 
 ------------------------------------------------------------------------
