@@ -1,0 +1,1202 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Update DSM2 historical simulation - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#update-dsm2-historical-simulation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Update DSM2 historical simulation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-schematic-of-updating-procedures" class="md-nav__link">
+    The schematic of updating procedures
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-dicu-update-under-the-folder-dicu" class="md-nav__link">
+    Step 1: DICU Update (under the folder /DICU)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-dsm2-boundary-inputs-update-under-the-folder-dsm2_flow_stage_ec_input" class="md-nav__link">
+    Step 2: DSM2 Boundary Inputs Update (under the folder /DSM2_flow_stage_EC_input)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-martinez-boundaries-update" class="md-nav__link">
+    Step 3: Martinez boundaries Update
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-gate-operations-update-under-the-folder-gateoperations" class="md-nav__link">
+    Step 4: Gate operations update (under the folder \gateoperations)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachments" class="md-nav__link">
+    Attachments:
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="update-dsm2-historical-simulation">Update DSM2 historical simulation</h1>
+<h2 id="introduction"><strong>Introduction</strong></h2>
+<p>The historical simulation of Delta Simulation Model II (DSM2) simulates
+the ground truth of Sacramento-San Joaquin Delta(Delta) hydrodynamics
+and water quality. It requires collecting the observed flows, stages,
+and water quality at the model boundaries and the actual gate operations
+as much as possible, converting them into the data format DSM2
+recognizes, and conducting quality assurance and quality control
+(QA/QC). The missing inputs must be filled to make DSM2 run
+successfully. This document directs all the procedures of preparing the
+inputs for DSM2 historical simulation. All the required scripts and
+information for updating DSM2 historical simulation have been included
+in the package. The package has been saved in the shared folder
+\nasbdo\Delta_Mod\Share\lanliang\Update_DSM2_package. Some links might
+not be effective on this page, but work well in the document <u>Update
+DSM2 Historical Simulation.docx</u> in the shared folder.</p>
+<h2 id="prerequisites"><strong>Prerequisites</strong></h2>
+<p><strong><em>*1.     </em>* </strong>Follow the instructions <a href='https://www.windowscentral.com/add-open-command-window-here-back-context-menu-windows-10'>here</a> to 
+add the option 'Open command window here' to the Windows Explorer context menu. You will need administrative privileges to do this, and you
+should only do this if you are comfortable modifying the registry in Windows 10. This will allow you to open 
+a command window by right clicking on a folder in Windows explorer. DSM2 models and Python
+scripts can be run in the command window.</p>
+<p><strong><em>*2.     </em></strong>*HEC-DSSVue:  Download and install <a
+href="http://www.hec.usace.army.mil/software/hec-dssvue/downloads.aspx"
+rel="nofollow">HEC-DSSVue</a>. It is essential for visualizing and
+examining data and converting data into the required formats.</p>
+<p><strong>3.     </strong>Vtools: Download and install <a
+href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/vtools/install_vtools.html#prerequisites"
+rel="nofollow">Vtools</a>. It is the tools to process the DSS data. Its
+functions are called by the python scripts to update DSM2 historical
+simulation.</p>
+<p><strong><em>*4.  </em>*  </strong>Python: Download and install Python 2.7, the version
+compatible with Vtools, from the websites of
+<a href="https://www.python.org/downloads/" rel="nofollow">Python</a> or
+<a href="https://www.anaconda.com/download/" rel="nofollow">Anaconda</a>.</p>
+<h2 id="the-schematic-of-updating-procedures"><strong>The schematic of updating procedures</strong></h2>
+<p>The schematic indicates the four major steps for updating the inputs for
+a DSM2 simulation of historical Delta hydrodynamics and electrical
+conductivity (EC). Each step consists of collecting part of data and
+conducting QA/QC. The technical specification of the procedure has been
+described below. Once the four steps for updating the DSM2 historical
+simulation are conducted, the latest version of the DSS files
+(DICU_YYYYMM.dss, histYYYYMM.dss, and gates-v8-YYYYMM.dss) are
+generated. Copy these three DSS files in the DSM2 subfolder \timeseries
+and the DSM2 historical simulation update is completed. </p>
+<p><img src="attachments/87228633/87228632.png"
+data-image-src="attachments/87228633/87228632.png"
+data-unresolved-comment-count="0" data-linked-resource-id="87228632"
+data-linked-resource-version="1" data-linked-resource-type="attachment"
+data-linked-resource-default-alias="plots_for_chapters.png"
+data-base-url="http://msb-confluence"
+data-linked-resource-content-type="image/png"
+data-linked-resource-container-id="87228633"
+data-linked-resource-container-version="1" height="400" /></p>
+<h2 id="step-1-dicu-update-under-the-folder-dicu"><strong>Step 1: DICU Update (under the folder /DICU)</strong></h2>
+<p><strong>1.     </strong> <strong>Retrieve CIMIS data</strong></p>
+<p><strong>-</strong>          Log in
+<a href="http://wwwcimis.water.ca.gov/Auth/Login.aspx"
+rel="nofollow">CIMIS</a> with the user name <u>wildej</u> and password
+<u>delta</u>, and click <u>DATA</u> and then <u>My Reports.</u></p>
+<p><strong>-</strong>          Under the list <u>Quick Reports</u>, click <u>Execute
+monthly Report</u>, <u>List 1</u>, and then the report is loaded in an
+Excel spreadsheet. This report includes the precipitation and reference
+ET and other climatic data at stations Davis(6), Brentwood(47),
+Manteca(70), Twitchell(140), Lodi West(166), Tracy(167). Right now, the
+data at Lodi West are missing on that spreadsheet.</p>
+<p><strong>-</strong>         Log off CIMIS and close the browser.</p>
+<p><strong>2.     </strong> <strong>Prepare precipitation and evapotranspiration data in
+DICU-YYYYMM.xlsm</strong></p>
+<p><strong>-</strong>          Delete the second and third columns in the downloaded
+spreadsheet, and copy the data into<a
+href="file:///Z:/lliang/cdec_data_retrieve/DSM2_updates/Update_DSM2/DICU/DICU-201712.xlsm"
+rel="nofollow">DICU-YYYYMM.xlsm</a>  on <u>CIMISData</u> sheet with the
+same format.</p>
+<p><strong>-</strong>          Check data on PrecipLookupToDSS sheet are correctly
+linked to the data on CIMISData sheet. Sometimes, the data is not
+available in some months or some stations on CIMISData. When the
+downloaded spreadsheet is pasted on the CIMISData sheet, the
+precipitation and reference ET on CIMISData will be automatically copied
+to another sheet <u>PrecipLookupToDSS</u>. In order to make the data
+automatically transfer from CIMISData to PrecipLookupToDSS, the rows of
+the missing data in CIMISData have to be filled with blanks.</p>
+<p><strong>-</strong>          Extend the data on TimeSeries sheet, and keep the same
+formulas on each column. The long-term mean values in the columns, such
+as “Mean Evap-ET”, “DICU Ave Evap(mm)” and “Hist Ave Evap”, could repeat
+the same values as those in the previous year.</p>
+<p><strong>-</strong>          Save the spreadsheet. Do not close the file. It will be
+used for updating the precipitation and reference ET for the DICU model.</p>
+<p><strong>3.     </strong> <strong>Update the input files in DICU model</strong></p>
+<p><strong>-</strong>          Go to <a
+href="file:///D:/delta/dsm2_v8/studies/hist2015/DICU/DICU/PRECIP/7STATION-DAT-Y2K"
+rel="nofollow">DICU/Precip/7STATION-DAT-Y2K</a> , open the Precip input
+file 7STAPREC.WY20XX. The file saves the monthly precipitation in the
+water year 20XX at seven stations: Davis, Rio Vista, Brentwood, Tracy,
+Stockton, Lodi and Galt. CIMIS has not collected the precipitation data
+at Galt for recent several decades. Update the precipitation with the
+same station names from the spreadsheet PrecipLookupToDSS, and copy the
+same precipitation at Lodi into the column of Galt.</p>
+<p><strong>-</strong>          Starting from WY2015, the Lodi West data from CIMIS is
+missing, so the Lodi precipitation after April 2015 is downloaded from 
+<a
+href="http://ipm.ucanr.edu/calludt.cgi/PCSTATIONDATA?MAP=&amp;STN=LODI-01.P1440&amp;SCALE=Daily"
+rel="nofollow">the National Centers for Environmental Information</a>,
+University of California Agriculture &amp; Natural Resources (UCANR). Pasted
+the downloaded Lodi precipitation on the spreadsheet PrecipLookupToDSS.</p>
+<p><strong>-</strong>          Update the Precip file located at
+DICU/PRECIP/7STATION-DAT-Y2K . If some of the downloaded Lodi data are
+missing, the precipitation at Stockton can be taken as the substitute,
+since Stockton is the nearest available station to Lodi.</p>
+<p><strong>-</strong>          Save the Precip file. (If starting a new water year, make
+sure to copy the file for the next water year with the appropriate name
+of the next water year + 1 so the average precip information will not be
+lost!)</p>
+<p><strong>-</strong>          Water year type. Go to
+<a href="http://cdec.water.ca.gov/cgi-progs/iodir/WSIHIST"
+rel="nofollow">the website</a> to get the water year type, and go to the
+folder DICU/DICU5IN1/1922-20**(the current year to update), and update
+WYTYPES file with textpad.</p>
+<p><strong>-</strong>          Pan evaporation. Go to
+<a href="file:///D:/delta/dsm2_v8/studies/hist2015/DICU/DICU/PAN-EVAP"
+rel="nofollow">DICU/PAN_EVAP</a>, update README-2YYY.txt file with the
+Manteca pan evap (in and mm), AVE EVAP of DICU_YYYYMM.xlsm and ET ADJ
+FACTR from the “TimeSeries” worksheet of DICU_YYYYMM.xlsm to keep a
+record of the data used.</p>
+<p><strong>-</strong>          Update DICU5.5 txt file. Go to
+<u>DICU/DICU5/1922-20**,</u> update DICU5.5 txt file at the bottom.
+You will want to update the water year type and the ET adjustment
+factors which are in rows where the values are from column in the
+“TimeSeries” worksheet of DICU_YYYYMM.xlsm. Also remember this is by
+water year and the data spacing must not change.<strong> </strong></p>
+<p><strong>4.     </strong> <strong>Run DICU</strong></p>
+<p><strong>-</strong>          Go to DICU/DICU5IN1/1922-20**, update dicu5in1.py. The
+lines marked with “Update here!” must be updated. Open the command
+window, and run:</p>
+<p>python dicu5in1.py</p>
+<p><strong>-</strong>          Go to DICU/DICU5/1922-20**, update and run the python
+script run-dicu5.py. The lines marked with “update folder name” must be
+updated. Open the command window, and run:</p>
+<p>python run-dicu5.py</p>
+<p><strong>-</strong>          Go to DICU/NODCU/NODCU12/1922-20**/, update and run the
+python script bat1922-20**.py. The lines marked with “update folder
+name”, “update the year”, and “update the month” must be updated. Open
+the command window, and run:</p>
+<p>python bat1922-20**.py</p>
+<p><strong>-</strong>           Copy the file DICU_YYYYMM.dss from
+/DICU/NODCU/NODCU12/1922-20**/ to the folder /timeseries of the DSM2
+historical simulation.</p>
+<h2 id="step-2-dsm2-boundary-inputs-update-under-the-folder-dsm2_flow_stage_ec_input"><strong>Step 2: DSM2 Boundary Inputs Update (under the folder</strong> <strong>/DSM2_flow_stage_EC_input)</strong></h2>
+<p><strong>1.     </strong> <strong>Boundary inputs from CDEC</strong></p>
+<p><strong>-</strong>          Most DSM2 boundary data can be retrieved from CDEC. The
+python script Retrieve_data_fromCDEC.py can retrieve the data of CDEC
+stations as an input text file defines, and write the retrieved data
+into a DSS file.</p>
+<p>The input text file is a queue of the information of the requested CDEC
+stations, and each line in the file contains the station ID, sensor
+number, and duration of one CDEC station.</p>
+<p>The data in the DSS file is the raw data with data gaps frequently. To
+conduct writing the timeseries in the DSS file without interruptions,
+they are defined as irregular timeseries.</p>
+<p>Get a command prompt window under the folder /DSM2_flow_stage_EC_input,
+and type the line below to retrieve the DSM2 boundary data.</p>
+<p>Python Retrieve_data_fromCDEC.py arg1 arg2 arg3 arg4</p>
+<p>where</p>
+<p>Arg1 – The first argument, the text file of the CDEC station
+information. To retrieve DSM2 boundaries, Arg1 is
+<u>Delta_boundaries.txt</u>. The DSM2 boundary flows, stages, and ECs,
+from CDEC are included in this text file. Table 1 lists the DSM2
+boundaries, and their corresponding CDEC stations and related
+information, which the text file has included. CDEC does not have the
+DSM2 boundary, Mokelumne River inflow.</p>
+<p>Arg2 – The second argument, the starting date of the data, formatted as
+mm/dd/yyyy.</p>
+<p>Arg3 – The third argument, the ending date of the data, formatted as
+mm/dd/yyyy.</p>
+<p>Arg4 – The fourth argument, the name of the DSS file that stores the
+retrieved data.</p>
+<p>Below is an example to download the DSM inputs from 1/1/2017 through
+12/31/2017 and write the retrieved data into a DSS file named as
+update201712.dss.</p>
+<p>Python Retrieve_data_fromCDEC.py Delta_boundaries.txt 1/1/2017
+12/31/2017 update201712.dss</p>
+<p><strong>Table 1 The CDEC stations to retrieve
+data as the DSM2 inputs</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CDEC station</strong></td>
+<td><strong>RKI name</strong></td>
+<td><strong>DSM2 input type</strong></td>
+<td><strong>Input location</strong></td>
+<td><strong>Time interval</strong></td>
+</tr>
+<tr>
+<td>LIS</td>
+<td>BYOLO040</td>
+<td>flow</td>
+<td>Yolo Bypass</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>YBY</td>
+<td>BYOLO040</td>
+<td>flow</td>
+<td>Yolo Bypass</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>VNS</td>
+<td>RSAN112</td>
+<td>flow</td>
+<td>San Joaquin River at Vernalis</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>FPT</td>
+<td>RSAC155</td>
+<td>flow</td>
+<td>Sacramento River at Freeport</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>NHG</td>
+<td>RCAL009</td>
+<td>flow</td>
+<td>Calaveras River at Stockton</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>MHB</td>
+<td>RCSM075</td>
+<td>flow</td>
+<td>Cosumnes River at Michigan Bar</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>HRO</td>
+<td>CHSWP003</td>
+<td>export</td>
+<td>Banks puming</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>TRP</td>
+<td>CHDMC004</td>
+<td>export</td>
+<td>Jones (Tracy) pumping</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>BKS</td>
+<td>SLBAR002</td>
+<td>export</td>
+<td>North Bay Aqueduct</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>CCW</td>
+<td>CHVCT001</td>
+<td>export</td>
+<td>Middle River pumping</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>IDB</td>
+<td>ROLD034</td>
+<td>export</td>
+<td>Old River pumping near Discovery Bay</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>INB</td>
+<td>CHCCC006</td>
+<td>export</td>
+<td>Rock Slough pumping near Brentwood</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>MRZ</td>
+<td>RSAC054</td>
+<td>stage</td>
+<td>Martinez</td>
+<td>15 MIN</td>
+</tr>
+<tr>
+<td>MRZ</td>
+<td>RSAC054</td>
+<td>EC</td>
+<td>Martinez</td>
+<td>1 HOUR</td>
+</tr>
+<tr>
+<td>SRH</td>
+<td>RSAC139</td>
+<td>EC</td>
+<td>Sacramento River at Hood</td>
+<td>1 DAY</td>
+</tr>
+<tr>
+<td>VER</td>
+<td>RSAN112</td>
+<td>EC</td>
+<td>Vernalis</td>
+<td>1 DAY</td>
+</tr>
+</tbody>
+</table>
+<p><strong>-</strong>          QA/QC of all the data in the DSS file except Martinez
+stage and EC. Conduct QA/QC and remove errors for those timeseries.
+Martinez stage and EC will be processed independently after Step 2.</p>
+<p><strong>-</strong>          Use HEC-DSSVue to fill the data gaps. HEC-DSSVue can
+automatically fill the gaps with several time steps missing by
+interpolation when converting irregular to regular timeseries. There is
+another way to fill the gaps with longer intervals. Go to the menu of
+HEC-DSSVue, and click: Tools->Math Functions->General->Estimate
+missing values.</p>
+<p><strong>-</strong>          Use HEC-DSSVue to convert the irregular timeseries into
+regular timeseries. Go to the menu of HEC-DSSVue, and click:
+Tools->Math Functions->Time Functions->select operator:
+min/max/avg/…over period -> select function type: average over period
+-> select new period intervals as Table 1 -> Compute->save with the
+default pathnames.</p>
+<p><strong>-</strong>          Copy and paste the file update201712.dss with regular
+timeseries into the folder /merge_data.</p>
+<p><strong>2.     </strong> <strong>Retrieve ancillary data from CDEC</strong></p>
+<p><strong>-</strong>          Call the same Python script Retrieve_data_fromCDEC.py to
+retrieve extra data for QA/QC, filling data gaps at Martinez, and
+checking the gates operation times. The CDEC stations for fulfilling
+those functions are listed in the text file, ancillary_stations.txt.
+Below is an example to download the ancillary data from 1/1/2017 through
+12/31/2017 and write the retrieved data into a DSS file named as
+ancillary201712.dss.</p>
+<p>Python Retrieve_data_fromCDEC.py ancillary_stations.txt
+1/1/2017 12/31/2017 ancillary201712.dss</p>
+<p><strong><em>*3.    </em>*Download data from other sources</strong></p>
+<p><strong>-</strong>          San Francisco stage for updating Martinez stage</p>
+<p>Go to the website:
+<a href="http://tidesandcurrents.noaa.gov/waterlevels.html?id=9414290"
+rel="nofollow">http://tidesandcurrents.noaa.gov/waterlevels.html?id=9414290</a></p>
+<p>Choose the options:</p>
+<p>Units: Feet</p>
+<p>Timezone: LST</p>
+<p>Datum: MLLW</p>
+<p>Interval: Hourly</p>
+<p>Update: Data Only</p>
+<p>When the data list shows on the screen, click the button: Export to CSV,
+to save the data in a csv file. Load the csv data in HEC-DSSVue, and
+convert its datum from MLLW to NGVD by NGVD = MLLW - 2.64 feet</p>
+<p><strong>-</strong>          Yolo Bypass Flow</p>
+<p>Yolo Bypass is a wide-open area, so it is hard to investigate the actual
+flows in this region. There is no flow station at the DSM2 boundary
+location. As a boundary flow in DSM2, Yolo Bypass flow has been assumed
+to equal the aggregation of the flows collected from those stations near
+Yolo Bypass, like the Yolo Bypass flow (QYOLO) from <a
+href="https://www.water.ca.gov/-/media/DWR-Website/Web-Pages/Programs/Environmental-Services/Compliance-Monitoring--Assessment/Dayflow/Files/Publications/Current-Dayflow-Documentation.pdf"
+rel="nofollow">DAYFLOW</a> as</p>
+<p>QYOLO = Yolo Bypass flow at Woodland +
+Sacramento Weir Spill + South Fork Putah Creek flow</p>
+<p>These three flows can be retrieved from CDEC station YBY, USGS station
+11426000(SACRAMENTO WEIR SPILL TO YOLO BYPASS NR SAC CA), and CDEC
+station PUT.  The last two stations have been inactive for recent years,
+so YBY is the unique effective station collecting the Yolo Bypass flow.</p>
+<p>However, DSM2 v6.0 historical simulation update tool took the flow at
+CDEC station RUM (Cache Creek at Rumsey Bridge) as the Yolo Bypass flow.
+It is not appropriate, especially the inflow to the Sacramento River
+during summers. Generally, during summers and falls Yolo Bypass has toe
+drain instead of inflow to the Sacramento River, and during winters and
+springs it functions as a diversion to reduce the Sacramento River
+floods.</p>
+<p>DSM2 input data version is based on the timeseries ending time. Starting
+from the version December 2017 (12/2017), the RUM flow from 2006 through
+current has been replaced by the available observed flows at YBY and
+LIS. The old input data versions keep the RUM flow.</p>
+<p>Furthermore, from the version 12/2017, CDEC station LIS flow is taken as
+the Yolo Bypass flow from June to November every year, while CDEC
+station YBY flow is taken as the Yolo Bypass flow from December to next
+May. If the Sacramento River floods diverted into Yolo Bypass come
+earlier than December or after May, YBY flow might be accounted as the
+Yolo Bypass flow of the DSM2 inputs in those months.</p>
+<p>The combination of YBY and LIS flows in the file <u>update201712.dss</u>
+under the folder /DSM2_flow_stage_EC_input is conducted in HEC-DSSVue.
+Open update201712.dss in HEC-DSSVue, set the time window December
+1<sup>st</sup> -May 31<sup>st</sup>, select the daily YBY flow,
+duplicate the daily YBY flow and rename it as
+/CDEC/LIS/FLOW//1DAY/20_E/. It overwrites the daily LIS flow from
+December through May. After that, the daily LIS flow represents Yolo
+Bypass flow and will be merged with the previous version of DSM2
+inputs. </p>
+<p><strong>-</strong>          Mokelumne River flow</p>
+<p>Contact the staff in East Bay Municipal Utility District (EBMUD)
+directly. Their website only presents the flow at Mokelumne River below
+WID for the last seven days:</p>
+<p><a
+href="http://www.ebmud.com/water-and-drought/about-your-water/water-supply/water-supply-reports/daily-water-supply-report/"
+rel="nofollow">http://www.ebmud.com/water-and-drought/about-your-water/water-supply/water-supply-reports/daily-water-supply-report/</a></p>
+<p>Kevin Fung <a href="mailto:kevin.fung@ebmud.com"
+rel="nofollow">kevin.fung@ebmud.com</a> has been contacted for the past
+several years and provided the raw data of the current year.</p>
+<p>The QA/QC’d Mokelumne River flow of the previous years, which EBMUD sent
+to USGS, can be downloaded from USGS website.</p>
+<p>Once Mokelumne River flow is received, use HEC-DSSVue to load and save
+it in the DSS file /DSM2_flow_stage_EC_input/updateYYYYMM.dss. Here MM
+and YY/YYYY are the month and year of the updated version, and set the
+pathname of this time series as</p>
+<p>/FILL+CHAN/RMIL070/FLOW//1DAY/DWR-DMS-YYYYMM/</p>
+<h2 id="step-3-martinez-boundaries-update"><strong>Step 3: Martinez boundaries Update</strong></h2>
+<p><strong>1.     </strong> <strong>Martinez Stage (DATUM: NAVD88; under the folder
+/MTZ_stage_EC/fill_stage)</strong></p>
+<p><strong>-</strong>          Remove stage data errors. Copy Martinez CDEC stage
+from /DSM2_flow_stage_EC_inputs/update201712.dss to a new DSS file, for
+example MTZ_201712.dss, under the folder /MTZ_stage_EC/fill_stage. Check
+the data in the file MTZ_201712.dss, remove errors in the stage
+timeseries, record the time window of each data gap at the end of the
+text file input.txt, and delete the out-of-date time windows in the file
+input.txt.</p>
+<p><strong>-</strong>          One hour shift of Daylight saving time. Compare the
+astronomical tide and CDEC retrieved stage at Martinez, select the time
+window of one hour shift due to Daylight saving time, and shift one hour
+to match the phases of astronomical tides. The time shift can be
+conducted in HEC-DSSVue under the menu Tools -> Math Functions ->Time
+Functions -> Operator: Shift in Time. Record the data gaps in March and
+November at the end of input.txt because of the time shift.</p>
+<p><strong>-</strong>          Prepare the input file. Prepare the input text file
+(input.txt) for the python script (fillgaps.py) to fill the stage gaps.
+Below is an example of the file input.txt. It includes the data
+version(tmark), names of input and output DSS files, the pathnames of
+timeseries used in this gap filing, and the time windows of the stage
+data gaps found. The time windows are suggested to be longer than one
+day or two days to fill the gaps smoothly.      </p>
+<p><img src="attachments/87228633/87228635.png"
+data-image-src="attachments/87228633/87228635.png"
+data-unresolved-comment-count="0" data-linked-resource-id="87228635"
+data-linked-resource-version="1" data-linked-resource-type="attachment"
+data-linked-resource-default-alias="sample_file_1.png"
+data-base-url="http://msb-confluence"
+data-linked-resource-content-type="image/png"
+data-linked-resource-container-id="87228633"
+data-linked-resource-container-version="1" height="400" />                                          </p>
+<p><strong>-</strong>          Run the python script:</p>
+<p>Python fillgaps.py input.txt</p>
+<p><strong>2.     </strong> <strong>Martinez EC (under the folder /MTZ_stage_EC /fill_EC)</strong></p>
+<p><strong>-</strong>          Remove the errors in the observed 15-minute EC data. Copy
+Martinez 15-minute EC data from
+/DSM2_flow_stage_EC_inputs/update201712.dss to a new DSS file, for
+example MTZ_201712.dss, under the folder /MTZ_stage_EC/fill_EC. Open
+MTZ_201712.dss, find and remove the errors in the Martinez 15-minute EC
+data, and record the data gaps in the text files
+.\timewindows_ec_ave.txt.</p>
+<p><strong>-</strong>          Average the filtered 15min MRZ EC to hourly MRZ EC and
+save part F of the pathname as /100_E_AVE/. Then the hourly MRZ EC has
+the pathname as</p>
+<p>/CDEC/MRZ/EC//1HOUR/100_E_AVE/</p>
+<p><strong>-</strong>          Copy Mallard hourly and daily EC data from
+/DSM2_flow_stage_EC_inputs/ ancillary201712.dss to the same DSS file
+/MTZ_stage_EC/fill_EC/MTZ_201712.dss.</p>
+<p><strong>-</strong>          Calculate NDOI by combining 6 inflows, 6 exports and
+Delta consumptive use.</p>
+<p>1)      In the file /DSM2_flow_stage_EC_input/updateYYYYMM.dss, use
+HEC-DSSVue to sum up the six inflows into one total inflow with the
+pathname</p>
+<p>Path1: /CDEC/TOTAL/FLOW//1DAY/20_H/.</p>
+<p>The pathnames of the inflows are listed below,</p>
+<p>Sacramento inflow:   /CDEC/FPT/FLOW//1DAY/20_H/</p>
+<p>San Joaquin inflow:   /CDEC/VNS/FLOW//1DAY/20_E/</p>
+<p>Yolo Bypass inflow:   /CDEC/LIS/FLOW//1DAY/20_E/</p>
+<p>Calaveras inflow:       /CDEC/NHG/FLOW//1DAY/23_H/</p>
+<p>Cosumnes inflow:      /CDEC/MHB/FLOW//1DAY/20_H/</p>
+<p>Mokelumne inflow:   /FILL+CHAN/RMIL070/FLOW//1DAY/DWR-DMS-YYYYMM/</p>
+<p>2)      Also sum up the six exports into one total export with the
+pathname</p>
+<p>Path2: /CDEC/TOTAL/FLOW_EXPORT//1DAY/70_D/.</p>
+<p>The pathnames of the six exports are listed below,</p>
+<p>SWP:                                        /CDEC/HRO/FLOW_EXPORT//1DAY/70_D/</p>
+<p>CVP:                                        
+/CDEC/TRP/FLOW_EXPORT//1DAY/70_D/</p>
+<p>North Bay aqueduct:               /CDEC/BKS/EXPORT//1DAY/70_D/</p>
+<p>Old River near Brentwood:     /CDEC/INB/FLOW_EXPORT//1DAY/70_D/</p>
+<p>Old River near discovery bay: /CDEC/IDB/FLOW_EXPORT//1DAY/70_D/</p>
+<p>Middle River:                          /CDEC/CCW/FLOW_EXPORT//1DAY/70_D/</p>
+<p>3)      Calculate the total inflow Path1 minus the total export Path2,
+and save it as the timeseries with the pathname</p>
+<p>Path3: /CDEC/TOTAL/FLOW //1DAY/INFLOWS-EXPORTS/</p>
+<p>4)      Copy the timeseries with Path3 to the DSS file
+/MTZ_stage_EC/fill_EC/MTZ_201712.dss</p>
+<p>5)      Copy the latest version of dicu_YYYYMM.dss from the folder
+/DICU/NODCU/NODCU12/1922-2017 to the folder /MTZ_stage_EC/fill_EC.</p>
+<p>6)      Use HEC-DSSVue to open file /MTZ_stage_EC/fill_EC
+/dicu_YYYYMM.dss, and sum up all the timeseries with part C DIV-FLOW to
+one timeseries with</p>
+<p>Path 4: /DICU-HIST+NODE/TOTAL/DIV-FLOW//1MON/DWR-BDO/</p>
+<p>7)      Sum up all the timeseries with part C DRAIN-FLOW to one
+timeseries with</p>
+<p>Path 5: /DICU-HIST+NODE/TOTAL/DRAIN-FLOW//1MON/DWR-BDO/</p>
+<p>8)      Sum up all the timeseries with part C SEEP-FLOW to one
+timeseries with</p>
+<p>Path 6: /DICU-HIST+NODE/TOTAL/SEEP-FLOW//1MON/DWR-BDO/</p>
+<p>9)      Calculate Delta consumptive use by Path 4+Path6-Path5, and save
+it as one timeseries with the pathname</p>
+<p>Path 7: /DICU-HIST+NODE/TOTAL/FLOW//1MON/DWR-BDO/</p>
+<p>10)  Convert the timeseries with path 7 into daily data,</p>
+<p>Path 8: /DICU-HIST+NODE/TOTAL/FLOW//1DAY/DWR-BDO/</p>
+<p>and copy the daily one to the DSS file
+MTZ_stage_EC/fill_EC/MTZ_201712.dss</p>
+<p>11)  Open file MTZ_201712.dss, and calculate NDOI by subtracting the
+timeseries with Path8 from that with Path 3. The NDOI data has the
+pathname</p>
+<p>Path 9: "/FILL+CHAN/NDOI/FLOW//1DAY/ DWR-DMS-YYYYMM/</p>
+<p>Here YYYY and MM are the year and month of the updated version.</p>
+<p><strong>-</strong>          Prepare the input file. Prepare the input text file, such
+as timewindows_ec_ave.txt, for the python script (fillgaps_ec.py) to
+fill the EC gaps. Below is an example of the file
+timewindows_ec_ave.txt. It includes the data version(tmark), names of
+input and output DSS files, and the time windows of the data gaps
+found.   </p>
+<p><img src="attachments/87228633/87228634.png"
+data-image-src="attachments/87228633/87228634.png"
+data-unresolved-comment-count="0" data-linked-resource-id="87228634"
+data-linked-resource-version="1" data-linked-resource-type="attachment"
+data-linked-resource-default-alias="MRZ_EC_input.png"
+data-base-url="http://msb-confluence"
+data-linked-resource-content-type="image/png"
+data-linked-resource-container-id="87228633"
+data-linked-resource-container-version="1" width="200" />               </p>
+<p><strong>-</strong>          Run the Python script, and obtain the output file
+filled.dss.</p>
+<p>Python fillgaps_ec.py timewindows_ec_ave.txt</p>
+<p><strong>3.     </strong> <strong>Merge the updated data and the previous version of DSM2
+input data</strong></p>
+<p><strong>-</strong>          After the data gaps have been filled, copy QA/QC’d
+Martinez 15-minute stage and 1-hour EC from the folders
+/MTZ_stage_EC/fill_EC and /MTZ_stage_EC/fill_stage into the file
+\DSM2_flow_stage_EC_inputs\updateYYYYMM.dss.</p>
+<p><strong>-</strong>          When all the input timeseries have been QA/QC’d, the
+previous version of DSM2 input data must be extended with the updated
+data.  in the file \DSM2_flow_stage_EC_inputs\updateYYYYMM.dss. Copy the
+previous version of DSM2 input data, histMMYY.dss, into the folder
+\merge_data, update the names of merged files, the name of output file,
+and the versions in the file pathnames.txt, and run the Python script:</p>
+<p>Python merge_data.py pathnames.txt</p>
+<p><strong>-</strong>          Check all the pathnames in the latest version match those
+in DSM2 inp files.</p>
+<h2 id="step-4-gate-operations-update-under-the-folder-gateoperations"><strong>Step 4: Gate operations update (under the folder \gateoperations)</strong></h2>
+<p><strong>1.      Delta Cross Channel</strong></p>
+<p>Download the gate operations from
+<a href="https://www.usbr.gov/mp/cvo/vungvari/Ccgates.pdf"
+rel="nofollow">https://www.usbr.gov/mp/cvo/vungvari/Ccgates.pdf</a></p>
+<p><strong>2.      Clifton Court gate</strong></p>
+<p>Ask Liu, Siqing (Siqing.Liu@water.ca.gov) from O&amp;M. O&amp;M collects the
+inputs without QA/QC and updates DSM2 monthly, so their inputs can be
+taken as the preliminary inputs.</p>
+<p><strong>3.      South Delta temporary barriers and Montezuma Slough gate</strong></p>
+<p>Go to
+<a href="http://baydeltaoffice.water.ca.gov/sdb/tbp/web_pg/tempbsch.cfm"
+rel="nofollow">http://baydeltaoffice.water.ca.gov/sdb/tbp/web_pg/tempbsch.cfm</a>,
+or ask Michal Burn, South Delta Section to get the temporary barriers
+gate operations, or ask O&amp;M. The available values of the gate parameters
+are listed in the file \gateoperations\barriers_values_03082012.xlsx.
+The Vertical Datum in the Excel file is NGVD29, while that in the gate
+operation DSS file is NAVD88. When the DSS file is updated, the Datum
+difference must be counted.</p>
+<p><strong>4.     </strong> <strong>Tune the gate operation times</strong></p>
+<p>All the information of gate operations collected above are added in
+\gateoperations\gate-v8-YYYYMM.dss. The collected gate operation
+schedules are normally not the actual gate operations. After all the
+inputs of DSM2 historical simulation are prepared, pre-run DSM2 HYDRO
+and check if the simulated upstream and downstream stages/flows of each
+gate match the observed stages/flows. If not, tune the gate operation
+times until the simulated stage variations in time reflect the gate
+operation schedules accurately. Table 2 is the list of CDEC stations to
+check the gate operation schedules. CDEC stages or flows in the table
+have been downloaded and saved in the file ancillary201712.dss in Step
+2.  </p>
+<p>Table 2 The CDEC stations to check gate operations</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Barriers</td>
+<td></td>
+<td>RKI or Channel No</td>
+<td>CDEC station</td>
+</tr>
+<tr>
+<td>Old River @ Head</td>
+<td>Upstream</td>
+<td>Mossdale</td>
+<td>MSD</td>
+</tr>
+<tr>
+<td></td>
+<td>Downstream</td>
+<td>Channel 55, ROLD074</td>
+<td> OH1</td>
+</tr>
+<tr>
+<td>Old River at Tracy</td>
+<td>Upstream</td>
+<td>ROLD047</td>
+<td>OAD</td>
+</tr>
+<tr>
+<td></td>
+<td>Downstream</td>
+<td>ROLD046</td>
+<td>OBD</td>
+</tr>
+<tr>
+<td>Grant Line Canal</td>
+<td>Upstream</td>
+<td>Channel 205</td>
+<td>DGL</td>
+</tr>
+<tr>
+<td></td>
+<td>Downstream</td>
+<td>CHGRL009</td>
+<td>GLC</td>
+</tr>
+<tr>
+<td>Middle River</td>
+<td>Upstream</td>
+<td>RMID027</td>
+<td>MTB</td>
+</tr>
+<tr>
+<td></td>
+<td>Downstream</td>
+<td>Channel 135</td>
+<td>No station</td>
+</tr>
+<tr>
+<td>Delta Cross Channel</td>
+<td>Downstream</td>
+<td>Channel 365</td>
+<td>DLC</td>
+</tr>
+<tr>
+<td>Montezuma Slough</td>
+<td>Upstream</td>
+<td>Collinsville at Sac. River</td>
+<td>CSE</td>
+</tr>
+<tr>
+<td></td>
+<td>Downstream</td>
+<td>Roaring River</td>
+<td>MSL</td>
+</tr>
+</tbody>
+</table>
+<h2 id="attachments">Attachments:</h2>
+<p><img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228633/87228632.png">plots_for_chapters.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228633/87228634.png">MRZ_EC_input.png</a> (image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228633/87228635.png">sample_file_1.png</a> (image/png)  </p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

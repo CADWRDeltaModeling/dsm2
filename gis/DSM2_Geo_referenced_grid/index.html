@@ -1,0 +1,716 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>DSM2 Geo referenced grid - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsm2-geo-referenced-grid" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DSM2 Geo referenced grid
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    Background
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sacramento-san-joaquin-delta-grid" class="md-nav__link">
+    Sacramento - San Joaquin Delta grid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2009-grid" class="md-nav__link">
+    2009 Grid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dsm2-v81-and-v82-grid" class="md-nav__link">
+    DSM2 v8.1 and v8.2 grid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dsm2-v83-grid" class="md-nav__link">
+    DSM2 v8.3 grid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-directions" class="md-nav__link">
+    Future Directions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachments" class="md-nav__link">
+    Attachments:
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="dsm2-geo-referenced-grid">DSM2 Geo referenced grid</h1>
+<h2 id="background">Background</h2>
+<p>DSM2 input specifies geographically based information such as channel
+lengths and cross section distances from the upstream node. However the
+geographically referenced node locations or channel outlines are not
+directly needed for hydrodynamic calculations. </p>
+<p>In addition to this the cross sections in DSM2 are based on bathymetry
+data that is used to generate elevation to cross-sectional property
+information. </p>
+<p>Even though this information is not needed directly it is very important
+to keep the geographically referenced information in sync with the input
+parameters such as channel length and cross section locations in DSM2
+input</p>
+<p>There have been different areas for which the grid was developed over
+time, the Sacramento-San Joaquin Delta, the San Joaquin River Extension
+and the Aqueduct grid. The one that is most commonly referred to as DSM2
+grid is the Sacramento-San Joaquin Delta</p>
+<h2 id="sacramento-san-joaquin-delta-grid">Sacramento - San Joaquin Delta grid</h2>
+<p>The original DSM2 grid was based on hand calculated distances based on
+USGS Quad maps of the Delta (circa 1990). These were done on paper maps
+and the original information has been lost though.</p>
+<p>A <a href="attachments/87228652/87228654.pdf"
+data-linked-resource-id="87228654" data-linked-resource-version="1"
+data-linked-resource-type="attachment"
+data-linked-resource-default-alias="DSM2_Grid2.0.pdf"
+data-nice-type="PDF Document"
+data-linked-resource-content-type="application/pdf"
+data-linked-resource-container-id="87228652"
+data-linked-resource-container-version="1">pdf version of this grid</a>
+based on presumably this information is often found in circulation. The
+grid map contained in this pdf was originally created using AutoCAD.
+However the node locations in this pdf version are clearly not in the
+stream at many times and certainly not geo-referenced to any projection
+system. Nodes and channels were not always placed very carefully,
+presumably because the map was primarily used to identify approximate
+locations of nodes, channels, and stations, and channel connectivity.</p>
+<p>In the late 1990s or early 2000s, a paper copy of the grid was placed on
+a digitizing tablet, and nodes were digitized by clicking on each one
+(Amy Little might have done this). The result was a file containing
+approximate UTM coordinates of each node. This file was used by the DSM2
+Cross-Section Development Program (CSDP) to create representations of
+DSM2 channels and cross-sections. </p>
+<p><a href="http://msb-confluence/pages/viewpage.action?pageId=15368194"
+rel="nofollow">CSDP</a> was developed by Brad Tom and Nicky Sandhu based
+upon specifications written by Ralph Finch in 1998 to derive the cross
+sections from bathymetry data, which at the time were mostly single beam
+soundings of depth that were available over many decades in the Delta.
+This tool is the basis of the current grid in 2000 and the recalibrated
+grid in 2009. As a by product of this effort the node locations and
+channel outlines were stored in UTM coordinates. Originally, these were
+not used directly to derive channel lengths, but they were used
+indirectly in determining the distance of a cross-section from the
+upstream node of a channel. The DSM2 GIS Reference project, which began
+in 2018, will used CSDP centerlines to determine channel lengths.</p>
+<p><a href="http://msb-confluence/pages/viewpage.action?pageId=15368194"
+rel="nofollow">CSDP</a> was developed pre ArcGIS and with ArcGIS now
+being fairly standards in DWR there is a need to provide this
+geographical information in ArcGIS format. In recent years, Jane
+Schafer-Kramer created an <a
+href="http://msb-confluence/download/attachments/12648674/Delta_Stations_with_DSM2_Grid.mpk?version=1&amp;modificationDate=1506539043973&amp;api=v2"
+style="letter-spacing: 0.0px;" rel="nofollow">ArcGIS version of this
+grid</a>. Jane developed, under Ralph Finch's guidance, an ArcGIS
+referenced grid by manually putting nodes at the closest location based
+on the pdf version of the grid. Again the channel lengths from these
+would not match either CSDP or the original grid as it is an independent
+manual effort. Furthermore there would be a mismatch to the location of
+the cross-section positions. </p>
+<p>In 2012, Tom Heinzer was contracted to develop an ArcGIS based extension
+to allow a user to develop cross-sections from DEM which in turn is
+based on interpolations of depth sounding data. This again is a work in
+progress and cannot import the current cross-sectional profiles
+available in CSDP.</p>
+<p>In 2017, <a href="Cross-Section_Development_Program_CSDP_">CSDP grid data for the 2009 calibration was imported into
+ArcGIS</a> and along with it the
+channel outlines and node locations. The channel outlines in ArcGIS were
+used to calculate lengths for the channels and these were then compared
+to the current grid.  There were many mismatches discovered and these
+should be addressed in future efforts</p>
+<h2 id="2009-grid">2009 Grid</h2>
+<p>The 2009 Grid is used for DSM2 v8.2. It is similar to the pdf gridmap,
+but it includes some upper sacramento river changes. </p>
+<p>The node locations and the associated channel network lengths do have a
+match with the 2000 calibration files (spot checked). However, the 2009
+CH2MHill <a href="Mini_Calibration_2009_">mini calibration</a> adjusted node
+positions, channel lengths, and cross-sections for channels 412-418. 
+The changes made in these channels were incorporated into DSM2, and are
+included in DSM2 versions as recent as v8.2.0, which is the current
+release as of 10/2019. However, we did not get any CSDP or GIS data from
+CH2MHill.  Node locations were reverse engineered using the mini
+calibration lengths, starting with the common node position from channel
+412. The overall sum of the length (reach 412-418) was unchanged and
+this assumption allows for a reasonable reverse engineering effort. </p>
+<p>This reverse engineered effort is available on the shared drive as
+shapefiles \cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Channels_Adjusted_MiniCalib.shp
+(channels)
+and \cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Nodes_Adjusted_MiniCalib.shp. The
+Nodes shapefile is missing some files, and cannot be loaded into ArcGIS.
+It was loaded into OpenJUMP, and exported
+to \cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Nodes_Adjusted_MiniCalib_Recovered.shp.
+These files are also available
+in \nasbdo\Modeling_Data\DSM2_GIS_CSDP_gridmaps\GISGridmapV8.2.</p>
+<p>These layers are the closest approximation to the grid used for DSM2
+v8.2. </p>
+<p>There is a large discrepancy in the channel length for channel 422
+between cross channel and northern head of Georgiana slough. CSDP and
+ArcGIS calculations put it at 3300 feet while in DSM2 input files it is
+5300 feet. This is not an isolated incidence, there are many others as
+documented in this <a href="attachments/87228641/87228640.xlsx"
+data-linked-resource-id="87228640" data-linked-resource-version="1"
+data-linked-resource-type="attachment"
+data-linked-resource-default-alias="CSDP_vs_Channels_inp_Lengths.xlsx"
+data-nice-type="Excel Spreadsheet"
+data-linked-resource-content-type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+data-linked-resource-container-id="87228641"
+data-linked-resource-container-version="1">CSDP_vs_Channels_inp_Lengths.xlsx</a></p>
+<h2 id="dsm2-v81-and-v82-grid">DSM2 v8.1 and v8.2 grid</h2>
+<p>For version 8.1 and 8.2, use this grid for referencing DSM2 elements
+approximately. The channels and nodes layers are incomplete, not very
+accurate, and contain errors.</p>
+<p>Shapefiles are available in
+\nasbdo\Modeling_Data\DSM2_GIS_CSDP_gridmaps\GISGridmapV8.2\</p>
+<h2 id="dsm2-v83-grid">DSM2 v8.3 grid</h2>
+<p>The 2019 grid is used for DSM2 v8.3, which is under development, and
+will be the result of the DSM2 GIS Reference Project.</p>
+<p>Three shapefiles (located here:
+\nasbdo\Modeling_Data\DSM2_GIS_CSDP_gridmaps\GISGridmapV8.3) each have
+been created from the CSDP network (channel centerlines) and landmark
+(nodes) data for both the 2009 calibration (DSM2 V8.2) and the 2019
+calibration (DSM2 V8.3). The shapefiles were created by exporting
+network and landmark data from the CSDP to WKT files and importing the
+results into QGIS, then saving to shapefiles. This is intended to be a
+first step toward creating a
+<a href="http://msb-confluence/display/DM/GIS+Reference"
+rel="nofollow">georeferenced grid map</a>. Shapefiles are available in
+\nasbdo\Modeling_Data\DSM2_GIS_CSDP_gridmaps\GISGridmapV8.3\</p>
+<ol>
+<li><strong>dsm2_channels_centerlines</strong> contains the channel centerlines as
+    created in the CSDP. Many channels have endpoints that are<br />
+    not located at the node; this was done to improve the accuracy of
+    the DSM2 channel volume. Also, many centerlines do not follow the
+    actual channel centerline perfectly.</li>
+<li><strong>dsm2_channels_straightlines</strong> contains straight lines connecting
+    the two endpoints of each CSDP centerline.</li>
+<li><strong>dsm2_nodes</strong> contains the CSDP landmark data. The node locations
+    were previously not very accurate; they have now been corrected.</li>
+<li><strong>dsm2_boundary_flow_nodes</strong> contains points placed at the locations
+    of nodes where boundary flows are applied.</li>
+<li><strong>dsm2_boundary_stage_node</strong> contains a point placed at the location
+    of the node where the boundary stage is applied</li>
+<li><strong>dsm2_gates</strong> contains points placed at the approximate location of
+    the channel centerline near each gate. In DSM2, gates are located at
+    the ends of channels. The points in this layer is intended to
+    represent the approximate location in DSM2, and not necessarily the
+    physical location of the gate.</li>
+</ol>
+<h2 id="future-directions">Future Directions</h2>
+<p>We need a georeferenced gridmap. It should have the following features:</p>
+<ol>
+<li>Display nodes as circles with numbers inside.</li>
+<li>Display straightline channels with numbers, and an arrow indicating
+    positive flow direction.</li>
+<li>Display channels derived from CSDP centerlines, with numbers, and an
+    arrow indicating positive flow direction. </li>
+<li>straightline channels and CSDP centerline channels should be
+    different colors.</li>
+<li>Useful for printing on a plotter.</li>
+<li>Easy to modify when CSDP node locations or channels change. </li>
+<li>
+<p>Good contrast with background, so we can easily determine
+    connectivity and read all the numbers. </p>
+</li>
+<li>
+<p>Michael Mehrdadi is working on an ArcGIS gridmap using the
+    shapefiles for the 2019 grid. </p>
+</li>
+<li>Hans Kim is working on a Google Earth gridmap. This will likely be a
+    useful training tool, and may have other uses. <ul>
+<li>The current version (as of 10/31/2019) of the gridmap is found
+    here: <a href="attachments/87228639/87228638.kml"
+    data-linked-resource-id="87228638" data-linked-resource-version="1"
+    data-linked-resource-type="attachment"
+    data-linked-resource-default-alias="DSM2_Grid_191029.kml"
+    data-linked-resource-content-type="application/octet-stream"
+    data-linked-resource-container-id="87228639"
+    data-linked-resource-container-version="1">DSM2_Grid_191029.kml</a>.
+    It can be opened with Google Earth or imported into Google Map.</li>
+<li>Updates will be made as new shapefiles become available.</li>
+</ul>
+</li>
+</ol>
+<h2 id="attachments">Attachments:</h2>
+<p><img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228639/87228638.kml">DSM2_Grid_191029.kml</a>
+(application/octet-stream)  </p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,773 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>DSM2 Bay-Delta Tutorial 4: Batch Preprocessing - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsm2-bay-delta-tutorial-4-batch-preprocessing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DSM2 Bay-Delta Tutorial 4: Batch Preprocessing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-this-tutorial-will-demonstrate-how-to-preprocess-a-number-of-calsim-output-files-each-of-which-represents-a-different-alternative-we-will-look-at-three-alternatives-but-the-techniques-apply-to-large-numbers-of-alternatives-just-as-well-in-the-process-of-this-tutorial-you-should-become-more-familiar-with-how-dsm2-and-calsim-label-their-simulations-and-scenarios-and-a-learn-a-little-bit-about-batch-files" class="md-nav__link">
+    Purpose: This tutorial will demonstrate how to preprocess a number of CalSim output files, each of which represents a different alternative – we will look at three alternatives, but the techniques apply to large numbers of alternatives just as well. In the process of this tutorial, you should become more familiar with how DSM2 and CalSim label their simulations and scenarios and a learn a little bit about batch files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calsim-files-a-typical-situation-with-planning-studies-is-that-the-input-scenarios-are-represented-by-different-calsim-output-files-sometimes-these-files-reside-in-a-directory-structure-that-follows-a-pattern-for-instance-the-first-two-alternatives-might-look-like-this" class="md-nav__link">
+    CalSim Files: A typical situation with planning studies is that the input scenarios are represented by different CalSim output files. Sometimes these files reside in a directory structure that follows a pattern, for instance the first two alternatives might look like this:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ccalsim" class="md-nav__link">
+    C:/calsim
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ccalsim_1" class="md-nav__link">
+    C:/calsim
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocessor-requirements" class="md-nav__link">
+    Preprocessor requirements:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-approaches-for-batch-jobs" class="md-nav__link">
+    Two approaches for batch jobs:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method-1-using-separate-configuration-files" class="md-nav__link">
+    Method 1: Using separate configuration files:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method-2-batch-file-that-loops" class="md-nav__link">
+    Method 2: Batch file that loops
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="dsm2-bay-delta-tutorial-4-batch-preprocessing">DSM2 Bay-Delta Tutorial 4: Batch Preprocessing</h1>
+<h2 id="purpose-this-tutorial-will-demonstrate-how-to-preprocess-a-number-of-calsim-output-files-each-of-which-represents-a-different-alternative-we-will-look-at-three-alternatives-but-the-techniques-apply-to-large-numbers-of-alternatives-just-as-well-in-the-process-of-this-tutorial-you-should-become-more-familiar-with-how-dsm2-and-calsim-label-their-simulations-and-scenarios-and-a-learn-a-little-bit-about-batch-files">Purpose: <strong><em>This tutorial will demonstrate how to</em></strong> <strong><em>preprocess a</em></strong> <strong><em>number of CalSim output files, each of which represents a different alternative – we will look at three alternatives, but the techniques apply to large numbers of alternatives just as well. In the process of this tutorial, you</em></strong> <strong><em>should become more familiar with how DSM2 and CalSim label their simulations and scenarios and a learn a little bit about batch files</em></strong></h2>
+<h2 id="calsim-files-a-typical-situation-with-planning-studies-is-that-the-input-scenarios-are-represented-by-different-calsim-output-files-sometimes-these-files-reside-in-a-directory-structure-that-follows-a-pattern-for-instance-the-first-two-alternatives-might-look-like-this">CalSim Files: <strong><em>A typical situation with planning studies is that the input scenarios are represented by different</em></strong> <strong><em>CalSim output files. Sometimes these files reside in a directory structure that follows a pattern, for instance the first two alternatives might look like this:</em></strong></h2>
+<h2 id="ccalsim"><strong><em>C:/calsim</em></strong></h2>
+<p>/altname1<br />
+/dss<br />
+/d1641<br />
+2020d09edvsa.dss<br />
+/altname2<br />
+/dss<br />
+/d1641<br />
+2020d09edvsa.dss<br />
+Note that this scheme CalSim uses directory structure to differentiate
+its output – the files and pathnames are identical.<br />
+Another system you may encounter is one where the CalSim files
+themselves are named after the scenario:</p>
+<h2 id="ccalsim_1"><strong><em>C:/calsim</em></strong></h2>
+<p>/altname1_2020d09edvsa.dss<br />
+/altname2_2020d09edvsa.dss</p>
+<h2 id="preprocessor-requirements">Preprocessor requirements:</h2>
+<p>The DSM2 preprocessing scheme requires three pieces of information for
+each scenario:</p>
+<ol>
+<li>The DSM2 name we want to give the scenario (will become
+    DSM2MODIFIER).</li>
+<li>The directory in which the CalSim output is found (will become
+    CALSIMDIR)</li>
+<li>The name of the CalSim file (minus the .dss part – will become
+    CALSIMNAME)</li>
+</ol>
+<p>So for the first example above<br />
+DSM2MODIFIER=altname1<br />
+CALSIMNAME=2020d09edvsa<br />
+CALSIMDIR= c:/calsim/altname1/dss/d1641<br />
+How you will get this information into the preprocessing system depends
+on approach. We will look at two, but if you are an experienced script
+writer you will immediately see lots of possibilities.</p>
+<h2 id="two-approaches-for-batch-jobs">Two approaches for batch jobs:</h2>
+<p>For larger studies, you have some choices as to how to set things up.
+We'll look at a few that may help you get started, while experienced
+script writers are likely to come up with numerous interesting
+variations. These exercises will guide you in setting up modest batch
+processing and familiarize you a bit more with the concept of
+environmental variables at the command line and in windows "batch"
+scripts (files with a *.bat extension that list commands for the
+command line).</p>
+<ol>
+<li>You can create configuration files for each alternative, e.g.
+    <em>config_alt1.inp</em>, <em>config_alt2.inp</em>. In each configuration file you
+    hard-wire the information that is required is hardwired for that
+    scenario. This method record of each scenario for people who inherit
+    your study. It is a good choice when the number of alternatives is
+    small. It is also a good choice when things other than CalSim vary
+    between alternatives.</li>
+<li>Alternatively, you can create a single configuration file that
+    points the three scenario-related variables to generic values. Then
+    you use a batch_prepro.bat script to loop through the scenarios.
+    When the number of simulations is very large (say 100 climate change
+    scenarios) and the only difference in the inputs is CalSim, this
+    method is efficient.</li>
+</ol>
+<p>Now let's go through the exercises and check out the details.</p>
+<h2 id="method-1-using-separate-configuration-files">Method 1: Using separate configuration files:</h2>
+<ol>
+<li><strong>Create the configuration files:</strong><ol>
+<li>In windows, navigate to <em>\{DSM2_home}\tutorial\ocap_sdip</em>. The
+    alternatives we are using have generic sounding names, but they
+    are compatible with OCAP assumptions.</li>
+<li>Copy the configuration file config_sdip_ocap_71.inp to
+    config_alt1.inp</li>
+<li>Make sure the study dates cover the full 1974-1991 period for
+    planning runs. It is usually a good idea to preprocess the whole
+    period, even if you are going to do run dsm2 on a subset of the
+    simulation period.</li>
+<li>Replace the three variables indicated below. The three lines may
+    not be next to one another.</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file config_alt1.inp><br />
+ENVVAR<br />
+NAME VALUE<br />
+[other definitions…] # <strong>NOTE: LINES SHOWN MAY NOT</strong></p>
+<ul>
+<li>
+<ol>
+<li>BE TOGETHER*<br />
+        CALSIMNAME 2005a01edv # File name, minus .dss<br />
+        DSM2MODIFIER alt1 # DSM2 name for alternative<br />
+        CALSIMDIR ..data/calsim/alt1 # CalSim output directory<br />
+        END</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Copy the file config_alt1.inp to config_alt2.inp. Repeat
+        step (d) using alt2 as the DSM2MODIFIER.</li>
+<li>Prepare <em>hydro.inp</em> and <em>qual.inp</em> to handle a generic
+    configuration file by making the name of the configuration file
+    at the top of each an ENVVAR. We will be providing this from the
+    command line or batch file – as an operating system
+    environmental variable.</li>
+</ol>
+</li>
+</ul>
+<p>\&lt;file hydro.inp><br />
+CONFIGURATION<br />
+${CONFIGFILE} # Changed<br />
+END<br />
+… [other data]  </p>
+<ol>
+<li>
+<ol>
+<li>Prepare a batch file for preprocessing. It will have one line
+        per alternative. Notice the "call" statement – this is the best
+        way to call a succession of other batch files (prepro is itself
+        a batch file called prepro.bat).</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file study_prepro.bat><br />
+call prepro config_alt1.inp<br />
+call prepro config_alt2.inp  </p>
+<ol>
+<li>
+<ol>
+<li>At the command prompt, launch the preprocessing by typing:</li>
+</ol>
+</li>
+</ol>
+<p>> study_prepro.bat</p>
+<ol>
+<li>
+<ol>
+<li>Now create a batch file that launches QUAL and HYDRO for every
+        alternative in the study. For each alternative, you must set the
+        environment variable CONFIGFILE, then launch the models.</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file study.bat><br />
+SET CONFIGFILE=config_alt1.inp<br />
+hydro hydro.inp<br />
+qual qual_ec.inp<br />
+SET CONFIGFILE=config_alt2.inp<br />
+hydro hydro.inp<br />
+qual qual_ec.inp</p>
+<ol>
+<li>
+<ol>
+<li>Launch the study batch file by typing at the command prompt:</li>
+</ol>
+</li>
+</ol>
+<p>> study.bat</p>
+<h2 id="method-2-batch-file-that-loops">Method 2: Batch file that loops</h2>
+<ol>
+<li>*Create a generic configuration file:*<ol>
+<li>In the looping method, we are going to describe the alternatives
+    in a text file and loop through the text file. First we need a
+    configuration file that is generic. Let's begin by copying
+    <em>config_sdip_ocap_71.inp</em> one more time to a file called
+    <em>config_study.inp</em>. Change the 3 variables (DSM2MODIFIER,
+    CALSIMNAME and CALSIMDIR) as follows.</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file config_study.inp><br />
+ENVVAR<br />
+NAME VALUE<br />
+[other definitions…]<br />
+CALSIMNAME ${BATCH_CALSIMNAME} # File name, minus .<br />
+DSM2MODIFIER ${BATCH_DSM2MODIFIER}<br />
+CALSIMDIR ${BATCH_CALSIMDIR} # CalSim output directory<br />
+dss</p>
+<ol>
+<li>
+<p>DSM2 name for alternative<br />
+[other definitions…]<br />
+END</p>
+</li>
+<li>
+<p><strong>Create the scenarios.txt file</strong></p>
+<ol>
+<li>In the study folder, create a file called scenarios.txt</li>
+<li>On each line of the file, put the scenario name (DSM2MODIFIER),
+    directory (CALSIMDIR) and file name (CALSIMNAME) minus the
+    ".dss" extension.</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file scenarios.txt><br />
+alt1,../data/calsim/alt1,2005a01edv<br />
+alt2,../data/calsim/alt2,2005a01edv</p>
+<ol>
+<li><strong>Launch batch_prepro.bat</strong><ol>
+<li>In the study directory, obtain a command prompt and type:</li>
+</ol>
+</li>
+</ol>
+<p>> batch_prepro config_study.inp scenarios.txt</p>
+<ol>
+<li>
+<ol>
+<li>Note: if the batch_prepro script fails for a particular scenario
+        after running others successfully, first fix the problem and
+        eliminate the failed (half-processed) scenario. Then avoid
+        re-running the successful scenarios by adding the "resume" tag,
+        for example:</li>
+</ol>
+</li>
+</ol>
+<p>> batch_prepro config_study.inp scenarios.txt resume<br />
+If you type this command now, batch_prepro.bat will harmlessly do
+nothing.</p>
+<ol>
+<li><strong>Examine and use the preprocessing products</strong><ol>
+<li>The preprocessing product is a HEC-DSS file for each scenario in
+    the local time series directory. You should have one file per
+    scenario.</li>
+<li>If you are doing this tutorial on your own, you may choose to
+    launch dsm2 on each alternative. To do this, change the
+    configuration file in <em>hydro.inp</em> and <em>qual_ec.inp</em> to the
+    generic one:</li>
+</ol>
+</li>
+</ol>
+<p>\&lt;file hydro.inp><br />
+CONFIGURATION<br />
+config_study.inp<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Use batch_run.bat with the same syntax as you did for
+        batch_prepro::</li>
+</ol>
+</li>
+</ol>
+<p>> batch_run config_study.inp<br />
+Note that you may need to modify this script if you use it for something
+other than qual_ec. We may not be able to run the simulations in class
+because of the time required – but if you have extra time, change the
+dates to a one year (1991) and try it out.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

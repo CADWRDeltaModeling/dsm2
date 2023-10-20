@@ -1,0 +1,1203 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Tutorial 3: Layering - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-3-layering" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial 3: Layering
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="tutorial-3-layering">Tutorial 3: Layering</h1>
+<p><strong>Task</strong></p>
+<ul>
+<li>Separate DSM2 input data into multiple input files</li>
+<li>Use layers in DSM2 to group related items</li>
+</ul>
+<p><strong>Skills Gained</strong> <br />
+Learn how to use layering in DSM2 to add, change and delete features in
+a DSM2 simulation, for example including a new reservoir in a simulation</p>
+<p>The purpose of this tutorial is to demonstrate the use of layering to
+structure your project. Layers are part of the DSM2 data management
+system. They allow input items to be grouped in logical bundles, and
+allow changes to be brought into an old simulation without erasing or
+altering archived items. At the same time we will neaten up our input by
+dividing it into several files that are "included" from a fairly sparse
+primary file. The layering concept will be demonstrated by adding a
+"dummy" reservoir connected to nodes 5 and 6 (Figure 1) that will be
+"turned on" or "turned off" in a simulation. We will also use
+DSM2MODIFIER to differentiate between alternative simulations.  </p>
+<p><img alt="Alt text" src="../../images/fig_res_conn_w_trans.png" />
+<strong>Figure 1:</strong> <strong>Simple channel with a reservoir, gate, flow transfer and
+dummy reservoir.</strong></p>
+<ol>
+<li><strong>Convert the previous hydro.inp GRID items to external files</strong></li>
+</ol>
+<p>In order to use layers, the input tables have to be gathered into
+individual input files. <br />
+<img src="../../images/icon_warning.png" width=29 height=29/> Key points about layering:</p>
+<ul>
+<li>Each file represents a layer</li>
+<li>Information in the launch file (<em>hydro.inp</em> or <em>qual.inp</em>)
+    supercedes all other input information.</li>
+<li><strong><em>For include blocks, files that are read later replace files that
+    are read earlier</em></strong>, in other words, if the same type of input
+    information exists in more than one file, the last information read
+    will overwrite the previously read values.</li>
+<li>Overriding values is based on an identifier (e.g.NAME or NAME and
+    VARIABLE—identifiers are listed in table reference documentation)</li>
+<li>Parent and child tables (e.g. channel and xsect) must be grouped in
+    the same file.</li>
+<li>If a parent item is overridden, all of the child items associated
+    with the overridden parent item are ignored.<ol>
+<li>Move the channel and reservoir data:<ol>
+<li>Navigate to the t3_layering directory.</li>
+<li>Create a new file in Notepad++
+    called <em>grid_tutorial_base.inp</em></li>
+<li>Open <em>hydro.inp</em>.</li>
+<li>Locate the CHANNEL and XSECT_LAYER tables
+    in <em>hydro.inp</em>. <strong>Cut</strong> them and paste them
+    into <em>grid_tutorial_base.inp.</em></li>
+<li>Locate the RESERVOIR and RESERVOIR_CONNECTION tables
+    in <em>hydro.inp</em>. <strong>Cut</strong> them and paste them
+    into <em>grid_tutorial_base.inp</em> and save the file. Note: leave
+    the RESERVOIR_IC in the <em>hydro.inp</em> file.</li>
+<li>Similarly move the TRANSFER and GATE information
+    from <em>hydro.inp</em> to <em>grid_tutorial_base.inp</em>. <img src="../../images/icon_warning.png" width=29 height=29/> Be sure to
+    move the GATE child tables too. Leave the
+    INPUT_TRANSFER_FLOW table in the <em>hydro.inp</em> file.</li>
+<li>Make sure the data tables listed above have been removed
+    from <em>hydro.inp</em>.</li>
+<li>Now add these lines to <em>hydro.inp</em> that will tell DSM2 you
+    want to include data from other files and that these files
+    will contain GRID (channel, reservoir, transfer and gate)
+    tables and their child tables. Add the GRID table after the
+    IO_FILE block and before any of the initial condition
+    blocks.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<p>GRID<br />
+grid_tutorial_base.inp<br />
+END<br />
+<img src="../../images/icon_warning.png" width=29 height=29/> Be sure that there is a carriage return at the end of each *.inp
+file. </p>
+<ol>
+<li><strong>Running HYDRO and QUAL with grid information in separate files</strong></li>
+</ol>
+<p>This simulation will serve as the base case for comparison for the other
+simulations run in this tutorial. We will use the DSM2MODIFIER to
+differentiate between the various simulations. DSM2MODIFIER is a special
+ENVVAR definition that is automatically used by DSM2 to mark output (the
+F Part of the DSS Path).</p>
+<ol>
+<li>
+<ol>
+<li>
+<p>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>, change
+        DSM2MODIFIER to layers_base and save the files.</p>
+</li>
+<li>
+<p>In Windows Explorer, navigate to the directory: _<br />
+    Unknown macro: {DSM2_home}tutorialsimple{_}</p>
+<p>.</p>
+<ol>
+<li>
+<ol>
+<li>Right-click on the directory, <em>t3_layering</em>, and
+        select <em>Open Command Window Here</em>. Note: for computers
+        running Vista, use a shift+right click on the directory
+        name to get the Open Command Window.</li>
+<li>In the command window, type: <em>hydro hydro.inp</em>.</li>
+<li>In the command window, type: <em>qual qual.inp</em>.</li>
+<li>Note that many of output files all use the DSM2MODIFIER
+    in their name, e.g. <em>layers_base.out</em>.
+    The <em>output.dss</em> file distinguishes between scenarios by
+    using the DSM2MODIFIER in the F-Part. Open
+    the <em>output.dss</em> file in the <em>t3_layering</em> directory,
+    and examine the results.</li>
+</ol>
+</li>
+<li>
+<p><strong>Creating a new reservoir:</strong></p>
+</li>
+</ol>
+<p>In this section, we will learn how to add a feature by adding a
+new reservoir. We don't want to mess too much with what we have
+already, so we are going to add a dummy reservoir in our
+grid_tutorial_base layer. Later in this tutorial, we will learn
+how to use layers to disable this feature as well. <br />
+<img src="../../images/icon_warning.png" width=29 height=29/> The ability to mask and delete features such as reservoirs and
+gates in DSM2 is often used in planning runs to "turn on" and
+"turn off" features when studying planning alternatives. </p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Create a new Reservoir in <em>grid_tutorial_base</em>
+            1.  In tutorial_grid_base.inp, enter data for the
+                new reservoir below the data for res_1
+            2.  Name: <em>dummy_res</em>
+            3.  Area (million sq ft): <em>60</em>
+            4.  Bottom elev (ft): -30</li>
+</ol>
+</li>
+<li>
+<p>In the <em>Reservoir Connection</em> table:</p>
+<ol>
+<li>Enter the following values into the appropriate
+    fields:<ol>
+<li>Reservoir name: dummy_res</li>
+<li>Node: <em>5</em></li>
+<li>Res Coef (in): <em>220</em></li>
+<li>Res Coef (out): <em>220</em></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>Again, in the <em>Reservoir Connection</em> table:</p>
+<ol>
+<li>Enter the following values into the appropriate
+    fields:<ol>
+<li>Reservoir name: dummy_res</li>
+<li>Node: <em>6</em></li>
+<li>Res Coef (in): <em>220</em></li>
+<li>Res Coef (out): <em>220</em></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>Save the current settings.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL with the new reservoir</strong></p>
+</li>
+</ol>
+<p>This simulation is our first alternative which adds a reservoir.
+We will use the DSM2MODIFIER to differentiate this simulation
+from the base simulation.</p>
+<ol>
+<li>
+<ol>
+<li>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>,
+        change DSM2MODIFIER to layers_dummyres and save the
+        files.</li>
+<li>In Windows Explorer, navigate to the directory: _</li>
+</ol>
+</li>
+</ol>
+<p>.</p>
+</li>
+<li>
+<p>Right-click on the directory, <em>t3_layering</em>, and select <em>Open
+    Command Window Here</em>. For Vista shift+right click on directory
+    to get the Open Command Window.</p>
+</li>
+<li>
+<p>In the command window, type: <em>hydro hydro.inp</em>.</p>
+</li>
+<li>
+<p>In the command window, type: <em>qual qual.inp</em>.</p>
+</li>
+<li>
+<p>Note that many of output files all use the DSM2MODIFIER in their
+    name, e.g. <em>layers_dummyres.out</em>. Compare
+    the <em>layer_base.out</em> and the <em>layer_dummyres.out</em>echoed input
+    files to make sure that the dummy reservoir was included in the
+    simulation. The <em>output.dss</em> file distinguishes between
+    scenarios by using the DSM2MODIFIER in the F-Part. Open
+    the <em>output.dss</em> file in the <em>t3_layering</em> directory, and look
+    for results from the base run and from the new dummyres
+    simulation.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Disabling a reservoir using a revision layer</strong></p>
+</li>
+</ol>
+<p>In this step of the tutorial, we will disable (remove) the dummy
+reservoir from the simulation using a revision layer. Revision layers
+allow the user to add or remove features for alternatives without
+altering the base input files.</p>
+<ol>
+<li>
+<ol>
+<li>Create a Reservoir Revision Layer:
+        1.  Create a file called <em>grid_tutorial_revision.inp.</em> Add this
+            file to your GRID include-file section in <em>hydro.inp</em>, which
+            will now look like this:</li>
+</ol>
+</li>
+</ol>
+<p>GRID<br />
+grid_tutor<em>ial_base.inp</em><br />
+grid_tutor<em>ial_revision.inp</em><br />
+<em>END</em><br />
+<img src="../../images/icon_warning.png" width=29 height=29/> The include files will be prioritized in the order they are read, later
+files replacing earlier ones. In this example, the information
+in <em>grid_tutorial_revision.inp</em> has priority
+over <em>grid_tutorial_base.inp</em>, thus any duplicate information
+in <em>grid_tutorial_revision.inp</em> will override the information
+in <em>grid_tutorial_base.inp</em>. When a parent table identifier (usually a
+channel/node number or a "name") is overridden by a later file, its
+original data (including child tables) will be ignored. Everything will
+come from the higher priority layer.</p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Copy the reservoir table header and dummy reservoir data
+            from <em>grid_tutorial_base.inp</em> to <em>grid_tutorial_revision.inp</em>.
+            It is important to copy both the parent (RESERVOIR) and the
+            child (RESERVOIR_CONNECTION) tables into the revision layer.
+        2.  Add a carat (^ shift and 6 key) before the reservoir name in
+            the parent table. Your entry should look like this:</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>RESERVOIR<br />
+NAME AREA BOT_ELEV<br />
+^dummy_res 60.0 -30.0<br />
+END <br />
+RESERVOIR_CONNECTION<br />
+RES_NAME NODE COEF_IN COEF_OUT<br />
+dummy_res 5 220.0 220.0<br />
+dummy_res 6 220.0 220.0<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>By overriding the name "dummy_res" and also marking it unused,
+        you have now effectively removed dummy_res from the
+        calculations. The child table is automatically ignored as well
+        (so in a sense the entries there are unnecessary). <img src="../../images/icon_question.png" width=29 height=29/> What is the
+        difference between commenting out "dummy_res" in the revision
+        layer and using a carat (^) in the revision layer?<br />
+<strong>Answer:</strong> Commenting out the reservoir in the revision layer
+        will be like the revision never existed and the information from
+        the original grid layer will be used in the simulation.<br />
+        Using the carat (^) will "turn off" that reservoir for the
+        simulation. Neither the information in the original grid layer
+        or in the revision layer will be used in that simulation. Thus
+        using the carat is a way to "turn on or off" alternative
+        components.</li>
+<li>Save the current settings.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL disabling the new reservoir</strong></p>
+<ol>
+<li>
+<p>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>, change
+    DSM2MODIFIER to layers_nodummyres and save the files.</p>
+</li>
+<li>
+<p>In Windows Explorer, navigate to the directory: _<br />
+    Unknown macro: {DSM2_home}tutorialsimple{_}</p>
+<p>.</p>
+<ol>
+<li>
+<ol>
+<li>Right-click on the directory, <em>t3_layering</em>, and
+        select <em>Open Command Window Here</em>. For Vista shift+right
+        click on directory to get the Open Command Window.</li>
+<li>In the command window, type: <em>hydro hydro.inp</em>.</li>
+<li>In the command window, type: <em>qual qual.inp</em>.</li>
+<li>Compare the <em>layer_base.out</em>, <em>layer_dummyres.out, and
+    layer_nodummyres.out</em> echoed input files and
+    the <em>output.dss</em> file. Are the results the same for the
+    base simulation and the no dummy reservoir simulation?</li>
+</ol>
+</li>
+<li>
+<p><strong>Changing the properties of a reservoir</strong></p>
+</li>
+</ol>
+<p>This part of the tutorial demonstrates how a revision layer can
+be used to change the properties of a simulation. In this case
+the area of reservoir 1 is increased.</p>
+<ol>
+<li>
+<ol>
+<li>Altering the Properties of the Original Reservoir res_1:
+        1.  In the <em>Reservoirs</em> table of
+            grid_tutorial_revision.inp, change the <em>Area
+            (million sq ft)</em> field of res_1 from <em>40</em> to <em>50</em>.
+        2.  Copy the RESERVOIR_CONNECTION entries for res_1 from
+            grid_tutorial_base to grid_tutorial_revision. The
+            revision layer should look similar to the one below.</li>
+</ol>
+</li>
+</ol>
+<p>RESERVOIR<br />
+NAME AREA BOT_ELEV <br />
+res_1 50.0 -24.0 <br />
+^dummy_res 60.0 -30.0<br />
+END <br />
+RESERVOIR_CONNECTION<br />
+RES_NAME NODE COEF_IN COEF_OUT<br />
+res_1 3 200.0 200.0 <br />
+res_1 4 200.0 200.0<br />
+dummy_res 5 220.0 220.0 <br />
+dummy_res 6 220.0 220.0 <br />
+END  </p>
+<p><img src="../../images/icon_question.png" width=29 height=29/>Why is it necessary to copy the reservoir connection
+entries to the revision file?<br />
+<strong>Answer:</strong> When you override a layer (file) with another entry
+in a parent table that has the same identifier, you COMPLETELY
+replace that item in the new layer including child items. In
+other words, if the child table-RESERVOIR_CONNECTIONS in this
+case-is not included in the revision layer, the reservoir will
+have no connections. The values in the original grid layer will
+not be read.</p>
+<ol>
+<li>
+<ol>
+<li>Save the current settings.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL</strong> <strong>with increased area for
+    reservoir 1</strong></p>
+<ol>
+<li>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>,
+    change DSM2MODIFIER to layers_larger_res1 and save the
+    file.</li>
+<li>In Windows Explorer, navigate to the directory: _</li>
+</ol>
+</li>
+</ol>
+<p>.</p>
+</li>
+<li>
+<p>Right-click on the directory, <em>t3_layering</em>, and select <em>Open
+    Command Window Here</em>. For Vista shift+right click on directory
+    to get the Open Command Window.</p>
+</li>
+<li>
+<p>In the command window, type: <em>hydro hydro.inp</em>.</p>
+</li>
+<li>
+<p>In the command window, type: <em>qual qual.inp</em>.</p>
+</li>
+<li>
+<p>Compare the output to the earlier simulations.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Changing the name of Channel 2004:</strong></p>
+</li>
+</ol>
+<p>In this step, we will replace the channel number of Channel 2004. In
+this case, what we are changing is the identifier itself, rather than
+the parameters and data. So what we will do is delete Channel 2004 and
+put in a Channel 4 that is identical. In the process, we will ignore
+this change in other parts of the input and see what happens to initial
+conditions and output requests that reference a non-existent channel.</p>
+<ol>
+<li>
+<ol>
+<li>Keep the <em>grid_tutorial_revision</em> file open.</li>
+<li>Copy the channel and xsect data from <em>grid_tutorial_base.inp</em> to
+    the beginning of <em>grid_tutorial_revision.inp</em>. Keep only channel
+    2004.</li>
+<li>In <em>grid_tutorial_revision.inp</em> in the CHANNEL and XSECT tables,
+    copy the data for Channel 2004 and paste another copy into those
+    tables.</li>
+<li>In one of your two copies of channel 2004, change the channel
+    number in both tables to 4.</li>
+<li>Eliminate channel 2004 by prepending a carat in the CHANNEL
+    table. Your revision should look like this:</li>
+</ol>
+</li>
+</ol>
+<p>CHANNEL<br />
+CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE<br />
+4 15000 0.035 0.3 4 5 <br />
+^2004 15000 0.035 0.3 4 5 <br />
+END   </p>
+<p>XSECT_LAYER<br />
+CHAN_NO DIST ELEV AREA WIDTH WET_PERIM<br />
+4 0.5 -24.0 0.0 40.0 40.0 <br />
+4 0.5 0.0 960.0 80.0 91.22 <br />
+4 0.5 20.0 2640.0 160.0 133.6 <br />
+2004 0.5 -24.0 0.0 40.0 40.0 <br />
+2004 0.5 0.0 960.0 80.0 91.22 <br />
+2004 0.5 20.0 2640.0 160.0 133.6 <br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>Save your work. Note that the entries in XSECT_LAYER for channel
+        2004 in the <em>grid_tutorial_revision.inp</em> are redundant since the
+        channel was disabled. However it is good practice to always
+        include full parent/child table groups in the revision layer so
+        that choices can be turned "on" or "off."</li>
+</ol>
+</li>
+<li>
+<p><strong>Add Initial Conditions for the New <em>Channel 4</em>:</strong></p>
+</li>
+</ol>
+<p>Since there is no default initial condition for channel 4, we will have
+to add one. Similar to the other channels, we will use a zero flow
+initial condition.</p>
+<ol>
+<li>
+<ol>
+<li>Create a file called <em>channel_ic_revision.inp</em>.</li>
+<li>Copy the CHANNEL_IC table headers from <em>hydro.inp</em> to the new
+    file.</li>
+<li>Create two rows of data for channel 4:</li>
+</ol>
+</li>
+</ol>
+<p>CHANNEL_IC<br />
+CHAN_NO DISTANCE STAGE FLOW<br />
+4 0 0.0 0.0<br />
+4 length 0.0 0.0<br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>In the <em>hydro.inp</em> file create an INITIAL_CONDITION include
+        block underneath the GRID include block:</li>
+</ol>
+</li>
+</ol>
+<p>INITIAL_CONDITION<br />
+channel_ic_revision<em>.inp</em><br />
+<em>END</em></p>
+<ol>
+<li>
+<ol>
+<li>Now every channel has an initial condition. Do you need to do
+        something about the "extra" initial condition for Channel 2004?
+        Try and see.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL</strong></p>
+<ol>
+<li>
+<p>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>, change
+    DSM2MODIFIER to layers_ch2004_to_ch4 and save the files.</p>
+</li>
+<li>
+<p>In Windows Explorer, navigate to the directory: _<br />
+    Unknown macro: {DSM2_home}tutorialsimple{_}</p>
+<p>.</p>
+<ol>
+<li>
+<ol>
+<li>Right-click on the directory, <em>t3_layering</em>, and
+        select <em>Open Command Window Here</em>.</li>
+<li>In the command window, type: <em>hydro hydro.inp</em>.</li>
+<li>In the command window, type: <em>qual qual.inp</em>.</li>
+<li>Open the <em>output.dss</em> file in
+    the <em>t3_layering</em> directory, and examine the results.</li>
+<li>Open <em>layers_ch2004_to_ch4_hydro_echo.inp</em>. This is an
+    "echoed input" that replicates your input verbatim,
+    except ENVVAR replacements have been made and all the
+    channel xsects are in the one-file format. You should be
+    able to run the model using this file as easily as with
+    the original hydro.inp. Take a look and see:<ol>
+<li>Did channel 4 get in the input?</li>
+<li>Did channel 2004? What does this mean?</li>
+</ol>
+</li>
+<li>Look at the output.dss file. Did the output for channel
+    4 get included in the output file? If not, what would
+    you change to get output for channel 4?</li>
+</ol>
+</li>
+</ol>
+<p><img src="../../images/icon_warning.png" width=29 height=29/> Only output specified in the input files is written to the
+output.dss file. However, output for all locations is recorded
+in the hdf5 *.h5 output file. </p>
+<ol>
+<li><strong>Converting hydro.inp to input blocks</strong></li>
+</ol>
+<p>Now let's convert hydro.inp completely to include files except
+for the SCALAR and IO_FILE sections. In future tutorials, hydro
+and qual simulations will be organized this way. The file
+hydro.inp or qual.inp is usually reserved for scalar or
+input/output file designations.</p>
+<ol>
+<li>
+<ol>
+<li>In the previous section of this tutorial, an
+        INITIAL_CONDITION include block was created underneath
+        the GRID include block. We will create an initial
+        condition input file for the original initial conditions
+        and include that file here. Add the file ic_tutorial.inp
+        as the first line of the INITIAL_CONDITION include
+        block. The <em>channel_ic_revision.inp</em> file was already
+        included in this block in the previous section of this
+        tutorial.</li>
+</ol>
+</li>
+</ol>
+<p>INITIAL_CONDITION<br />
+ic_tutor<em>ial.inp</em><br />
+channel_ic_revision<em>.inp</em><br />
+<em>END</em></p>
+<ol>
+<li>
+<ol>
+<li>Create a file called ic_tutorial.inp</li>
+<li>Cut (not copy) the CHANNEL_IC and RESERVOIR_IC data
+    from <em>hydro.inp</em> and paste it into this file.</li>
+<li>Create an include block called HYDRO_TIME_SERIES as
+    follows, in <em>hydro.inp</em>.</li>
+</ol>
+</li>
+</ol>
+<p>HYDRO_TIME_SERIES<br />
+input_boundary_hydro_tutorial.inp<br />
+input_transfer_flow_tutorial.inp<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Create a file
+        called <em>input_boundary_hydro_tutorial.inp</em>. Cut (not
+        copy) the BOUNDARY_STAGE and BOUNDARY_FLOW input
+        from <em>hydro.inp</em> to <em>input_boundary_hydro_tutorial.inp</em>.</li>
+<li>Similarly, create a file called
+    input_transfer_flow_tutorial.inp. Cut and paste the
+    INPUT_TRANSFER_FLOW data into this file.</li>
+<li>Create an include block called OUTPUT_TIME_SERIES.</li>
+</ol>
+</li>
+</ol>
+<p>OUTPUT_TIME_SERIES<br />
+output_hydro_tutorial.inp<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Similarly, create the file called
+        output_hydro_tutorial.inp. Cut and paste the
+        OUTPUT_CHANNEL data into this file.</li>
+<li>The remaining tutorials will use include blocks
+    extensively for both hydro and qual.</li>
+<li>Save all of the files.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL with all include files</strong></p>
+<ol>
+<li>In the ENVVAR section of <em>hydro.inp</em> and <em>qual.inp</em>,
+    change DSM2MODIFIER to layers_include_block</li>
+<li>In Windows Explorer, navigate to the directory: _</li>
+</ol>
+</li>
+</ol>
+<p>.</p>
+</li>
+<li>
+<p>Right-click on the directory, <em>t3_layering</em>, and select <em>Open
+    Command Window Here</em>.</p>
+</li>
+<li>
+<p>In the command window, type: <em>hydro hydro.inp</em>.</p>
+</li>
+<li>
+<p>In the command window, type: <em>qual qual.inp</em>.</p>
+</li>
+<li>
+<p>Open the <em>output.dss</em> file in the <em>t3_layering</em> directory, and
+    examine the results, comparing it to the last run. Did putting
+    things in input blocks change anything?</p>
+</li>
+<li><strong>Learning more</strong></li>
+</ol>
+</li>
+</ol>
+<p>Overriding is easy to understand. The main things you will need to keep
+in mind are</p>
+<ol>
+<li>Understanding how child table replacement works:<ol>
+<li>You can't replace the child element without replacing the
+    parent.</li>
+<li>The children of an overridden parent element are never used.</li>
+</ol>
+</li>
+<li>What is the unique identifier for each row in a table? In most cases
+    this is the first field and it is usually a name or a map number (it
+    is a label rather than a piece of hard data). In some cases (e.g.
+    output), the unique identifier may be two fields such as NAME and
+    VARIABLE for output. Overriding only occurs when the identifier for
+    the row is duplicated. This information is available in the table
+    reference documentation in the "documentation" folder.</li>
+<li>Which data can be included in which blocks. For instance, GRID can
+    contain CHANNEL, GATE, RESERVOIR and TRANSFER data. This information
+    is given in Table 1 on the next page.</li>
+</ol>
+<!-- -->
+<p><img src="../../images/fig_einstein_idea.png" width=100 height=100/></p>
+<ol>
+<li><strong>Brain Teaser</strong><ol>
+<li>For the same change in elevation between the reservoir and
+    connecting node, which reservoir would have a higher flow, res_1
+    or dummy_res?</li>
+</ol>
+</li>
+</ol>
+<p><strong>Table 1: Include Blocks for DSM2 Input Files</strong></p>
+<table class="confluenceTable">
+<tbody>
+<tr class="odd">
+<td class="confluenceTd" style="text-align: left;"><p>Include
+Block</p></td>
+<td class="confluenceTd" style="text-align: left;"><p>Sections</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"
+style="text-align: left;"><p>CONFIGURATION </p></td>
+<td class="confluenceTd" style="text-align: left;"><p>ENVVAR <br />
+SCALAR</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd" style="text-align: left;"><p>GRID</p></td>
+<td class="confluenceTd" style="text-align: left;"><p>CHANNEL <br />
+XSECT (child) <br />
+XSECT_LAYER (child) <br />
+RESERVOIR <br />
+RESERVOIR_CONNECTION (child) <br />
+GATE <br />
+GATE_WEIR_DEVICE (child) <br />
+GATE_PIPE_DEVICE (child) <br />
+TRANSFER</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd" style="text-align: left;"><p>GROUPS</p></td>
+<td class="confluenceTd" style="text-align: left;"><p>GROUP <br />
+GROUP_MEMBER (child)</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"
+style="text-align: left;"><p>HYDRO_TIME_SERIES</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>INPUT_TRANSFER_FLOW <br />
+INPUT_GATE <br />
+BOUNDARY_STAGE <br />
+BOUNDARY_FLOW <br />
+SOURCE_FLOW <br />
+SOURCE_FLOW_RESERVOIR</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"
+style="text-align: left;"><p>INITIAL_CONDITION</p></td>
+<td class="confluenceTd" style="text-align: left;"><p>CHANNEL_IC <br />
+RESERVOIR_IC </p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd" style="text-align: left;"><p>OPERATION</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>OPERATING_RULE <br />
+<br />
+OPRULE_EXPRESSION <br />
+OPRULE_TIME_SERIES</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"
+style="text-align: left;"><p>OUTPUT_TIME_SERIES</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>OUTPUT_CHANNEL <br />
+OUTPUT_RESERVOIR <br />
+OUTPUT_CHANNEL_SOURCE_TRACK <br />
+OUTPUT_RESERVOIR_SOURCE_TRACK <br />
+OUTPUT_GATE</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd" style="text-align: left;"><p>PARTICLE</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>PARTICLE_INSERTION <br />
+PARTICLE_FLUX_OUTPUT <br />
+PARTICLE_GROUP_OUTPUT</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"
+style="text-align: left;"><p>QUAL_SPATIAL</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>RATE_COEFFICIENT</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"
+style="text-align: left;"><p>QUAL_TIME_SERIES</p></td>
+<td class="confluenceTd"
+style="text-align: left;"><p>INPUT_CLIMATE <br />
+NODE_CONCENTRATION <br />
+RESERVOIR_CONCENTRATION</p></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
