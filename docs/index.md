@@ -22,9 +22,9 @@ and non-conservative water quality constituents given a flow field
 simulated by HYDRO. PTM simulates pseudo 3-D transport of neutrally
 buoyant particles based on the flow field simulated by HYDRO. PTM has
 multiple applications ranging from visualization of flow patterns to
-simulation of discrete organisms such as fish eggs and larvae.<BR><BR>
+simulation of discrete organisms such as fish eggs and larvae.<BR>
 
-DSM2 release packages are available on the [CNRA Open Data web site](https://data.cnra.ca.gov/dataset/dsm2)<BR><BR>
+DSM2 release packages are available on the [CNRA Open Data web site](https://data.cnra.ca.gov/dataset/dsm2)<BR>
 
 Please send comments to Min Yu
 <a href="mailto:minyu@water.ca.gov"
