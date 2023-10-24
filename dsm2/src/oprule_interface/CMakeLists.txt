@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.17)
-project(oprule_interface LANGUAGES CXX Fortran)
+cmake_minimum_required(VERSION 3.21)
+enable_language(CXX Fortran)
 
-set(LIB_FORT ${PROJECT_NAME})
+set(LIB_FORT oprule_interface)
 add_library(${LIB_FORT})
 file(GLOB FORTRAN_SOURCES *.f *.f90 *.fi)
 target_sources(${LIB_FORT} PRIVATE ${FORTRAN_SOURCES})
 target_include_directories(${LIB_FORT} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
 
 add_dependencies(${LIB_FORT} hydrolib)
-set(LIB_CXX ${PROJECT_NAME}_cpp)
+set(LIB_CXX oprule_interface_cpp)
 add_library(${LIB_CXX})
 file(GLOB SOURCES *.cpp)
 target_sources(${LIB_CXX} PRIVATE ${SOURCES})

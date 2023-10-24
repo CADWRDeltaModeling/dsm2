@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.21)
 
-project(DSM2 LANGUAGES Fortran C CXX)
-set(CMAKE_DEBUG_POSTFIX d)
+enable_language(Fortran C CXX)
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 
 # Options for MSVC
@@ -23,7 +22,7 @@ if(MSVC)
       CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # Find libraries
@@ -54,49 +53,49 @@ else(MSVC)
 endif(MSVC)
 
 # Oprule/Input storage. This will be consolidated later.
-find_library(
-  OPRULE_DEBUG
-  NAMES
-    ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  PATH_SUFFIXES "Debug"
-  NO_DEFAULT_PATH)
-find_library(
-  OPRULE_PARSER_DEBUG
-  NAMES
-    ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  PATH_SUFFIXES "Debug"
-  NO_DEFAULT_PATH)
-find_library(
-  OPRULE_RELEASE
-  NAMES
-    ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  PATH_SUFFIXES "Release"
-  NO_DEFAULT_PATH)
-find_library(
-  OPRULE_PARSER_RELEASE
-  NAMES
-    ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  PATH_SUFFIXES "Release"
-  NO_DEFAULT_PATH)
-
-find_library(
-  INPUT_STORAGE_DEBUG
-  NAMES
-    ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
-  PATH_SUFFIXES "Debug"
-  NO_DEFAULT_PATH)
-find_library(
-  INPUT_STORAGE_RELEASE
-  NAMES
-    ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
-  PATH_SUFFIXES "Release"
-  NO_DEFAULT_PATH)
+# find_library(
+  # OPRULE_DEBUG
+  # NAMES
+    # ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  # PATH_SUFFIXES "Debug"
+  # NO_DEFAULT_PATH)
+# find_library(
+  # OPRULE_PARSER_DEBUG
+  # NAMES
+    # ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  # PATH_SUFFIXES "Debug"
+  # NO_DEFAULT_PATH)
+# find_library(
+  # OPRULE_RELEASE
+  # NAMES
+    # ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  # PATH_SUFFIXES "Release"
+  # NO_DEFAULT_PATH)
+# find_library(
+  # OPRULE_PARSER_RELEASE
+  # NAMES
+    # ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
+  # PATH_SUFFIXES "Release"
+  # NO_DEFAULT_PATH)
+# 
+# find_library(
+  # INPUT_STORAGE_DEBUG
+  # NAMES
+    # ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  # PATH_SUFFIXES "Debug"
+  # NO_DEFAULT_PATH)
+# find_library(
+  # INPUT_STORAGE_RELEASE
+  # NAMES
+    # ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
+  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
+  # PATH_SUFFIXES "Release"
+  # NO_DEFAULT_PATH)
 
 # set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
 set(DSM2_COMMONS_DIR common)
@@ -114,25 +113,25 @@ set(DSM2_SPARSE sparse)
 set(DSM2_TIMEVAR timevar)
 set(DSM2_PYTHON python)
 
-add_subdirectory(${DSM2_COMMONS_DIR})
-add_subdirectory(${DSM2_INPUT_STORAGE})
-add_subdirectory(${DSM2_FIXED_DIR})
-add_subdirectory(${DSM2_HDF_TIDEFILE})
-add_subdirectory(${DSM2_HYDRO})
-add_subdirectory(${DSM2_HYDROLIB})
-add_subdirectory(${DSM2_KLU_FORTRAN})
-add_subdirectory(${DSM2_OPRULE_INTERFACE})
-add_subdirectory(${DSM2_SPARSE})
-add_subdirectory(${DSM2_PATTERN_MATCH})
+add_subdirectory(src/${DSM2_COMMONS_DIR})
+add_subdirectory(src/${DSM2_INPUT_STORAGE})
+add_subdirectory(src/${DSM2_FIXED_DIR})
+add_subdirectory(src/${DSM2_HDF_TIDEFILE})
+add_subdirectory(src/${DSM2_HYDRO})
+add_subdirectory(src/${DSM2_HYDROLIB})
+add_subdirectory(src/${DSM2_KLU_FORTRAN})
+add_subdirectory(src/${DSM2_OPRULE_INTERFACE})
+add_subdirectory(src/${DSM2_SPARSE})
+add_subdirectory(src/${DSM2_PATTERN_MATCH})
 # add_subdirectory(${DSM2_TIMEVAR})
 
 # GTM
 set(GTM_CORE gtm_core)
-add_subdirectory(${GTM_CORE})
+add_subdirectory(src/${GTM_CORE})
 
 # Build HYDRO
 set(HYDRO_BIN hydro_exe)
-add_executable(${HYDRO_BIN} hydro/hydro_driver.f90)
+add_executable(${HYDRO_BIN} src/hydro/hydro_driver.f90)
 set_target_properties(${HYDRO_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
 add_dependencies(${HYDRO_BIN} fourpt)
 target_link_libraries(
@@ -145,24 +144,15 @@ target_link_libraries(
           hdf_tidefile_cpp
           oprule_interface_cpp
           oprule_interface
-          input_storage
-          input_storage_cpp
+          dsm2_input_storage
+          dsm2_input_storage_cpp
           klu_fortran
           common
           pattern_match
           sparse
-          debug
-          ${INPUT_STORAGE_DEBUG}
-          optimized
-          ${INPUT_STORAGE_RELEASE}
-          debug
-          ${OPRULE_PARSER_DEBUG}
-          optimized
-          ${OPRULE_PARSER_RELEASE}
-          debug
-          ${OPRULE_DEBUG}
-          optimized
-          ${OPRULE_RELEASE}
+          input_storage
+          oprule_parser
+          oprule
           ${Boost_LIBRARIES}
           ${HDF5_HL_LIBRARIES}
           ${HDF5_LIBRARIES}
@@ -176,7 +166,7 @@ target_link_libraries(${HYDRO_BIN} PRIVATE "$<LINK_ONLY:MKL::MKL>")
 set(QUAL_BIN qual)
 add_executable(${QUAL_BIN})
 set_target_properties(${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
-file(GLOB QUAL_SOURCES qual/*.f90)
+file(GLOB QUAL_SOURCES src/qual/*.f90)
 target_sources(${QUAL_BIN} PRIVATE ${QUAL_SOURCES})
 target_link_libraries(
   ${QUAL_BIN}
@@ -185,15 +175,12 @@ target_link_libraries(
           hdf_tidefile
           hdf_tidefile_cpp
           gtm_core
-          input_storage
-          input_storage_cpp
+          dsm2_input_storage
+          dsm2_input_storage_cpp
           common
           pattern_match
           sparse
-          debug
-          ${INPUT_STORAGE_DEBUG}
-          optimized
-          ${INPUT_STORAGE_RELEASE}
+          input_storage
           ${Boost_LIBRARIES}
           ${HDF5_HL_LIBRARIES}
           ${HDF5_LIBRARIES}
@@ -203,13 +190,13 @@ target_link_libraries(
 # Build PTM dynamic library (.dll or .so). Better to move to a subdirectory.
 set(PTM_FORTRAN ptm_fortran)
 # Better to move this into the subdirectroy later.
-file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f90)
+file(GLOB PTM_FORTRAN_SOURCES src/ptm/native/*.f90)
 add_library(${PTM_FORTRAN} STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(${PTM_FORTRAN} hydrolib hdf_tidefile common)
 target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
 
 set(PTM_DYNLIB ptm)
-file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
+file(GLOB PTM_JAVA_CPP_SOURCES src/ptm/native/*.cpp)
 add_library(${PTM_DYNLIB} SHARED ${PTM_JAVA_CPP_SOURCES})
 target_link_libraries(
   ${PTM_DYNLIB}
@@ -221,14 +208,11 @@ target_link_libraries(
           gtm_core
           oprule_interface_cpp
           oprule_interface
-          input_storage
-          input_storage_cpp
+          dsm2_input_storage
+          dsm2_input_storage_cpp
           common
           pattern_match
-          debug
-          ${INPUT_STORAGE_DEBUG}
-          optimized
-          ${INPUT_STORAGE_RELEASE}
+          input_storage
           ${Boost_LIBRARIES}
           ${HDF5_HL_LIBRARIES}
           ${HDF5_LIBRARIES}
@@ -244,8 +228,8 @@ include(UseJava)
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
 # file(TO_CMAKE_PATH ${JAVA_HOME}/jre JAVA_JRE_HOME)
 set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
-file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
-file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
+file(GLOB PTM_JAVA_SOURCES src/ptm/DWR/DMS/PTM/*.java src/ptm/DWR/DMS/PTM/behave/*.java)
+file(GLOB PTM_JAVA_DEP_JARS src/ptm/lib/*.jar)
 add_jar(
   ptm_jar
   SOURCES ${PTM_JAVA_SOURCES}
@@ -264,17 +248,17 @@ set(GTM_SEDIMENT sediment)
 set(GTM_MERCURY mercury)
 set(GTM_TRANSPORT transport)
 
-add_subdirectory(gtm)
-add_subdirectory(${GTM_PROCESS_IO})
-add_subdirectory(${GTM_SEDIMENT})
-add_subdirectory(${GTM_SEDIMENT_BED_CORE})
-add_subdirectory(${GTM_SEDIMENT_BED})
-add_subdirectory(${GTM_MERCURY})
-add_subdirectory(${GTM_TRANSPORT})
+add_subdirectory(src/gtm)
+add_subdirectory(src/${GTM_PROCESS_IO})
+add_subdirectory(src/${GTM_SEDIMENT})
+add_subdirectory(src/${GTM_SEDIMENT_BED_CORE})
+add_subdirectory(src/${GTM_SEDIMENT_BED})
+add_subdirectory(src/${GTM_MERCURY})
+add_subdirectory(src/${GTM_TRANSPORT})
 # add_subdirectory(${GTM_SEDIMENT_BED}) add_subdirectory(${GTM_DO_MODULE})
 # add_subdirectory(${GTM_MERCURY}) add_subdirectory(${GTM_TOOLS})
 
-add_executable(${GTM_BIN} gtm/gtm_driver.f90)
+add_executable(${GTM_BIN} src/gtm/gtm_driver.f90)
 add_dependencies(${GTM_BIN} ${GTM_MAIN})
 set_target_properties(${GTM_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
 if(WIN32)
@@ -290,20 +274,17 @@ target_link_libraries(
           ${GTM_TRANSPORT}
           ${GTM_CORE}
           ${GTM_PROCESS_IO}
-          input_storage
-          input_storage_cpp
+          dsm2_input_storage
+          dsm2_input_storage_cpp
           common
-          debug
-          ${INPUT_STORAGE_DEBUG}
-          optimized
-          ${INPUT_STORAGE_RELEASE}
+          input_storage
           ${Boost_LIBRARIES}
           ${HDF5_HL_LIBRARIES}
           ${HDF5_LIBRARIES}
           ${HEClib_LIBRARIES})
 
 set(GTM_SEDIMENT_BED_SETUP sediment_bed_setup)
-add_subdirectory(${GTM_SEDIMENT_BED_SETUP})
+add_subdirectory(src/${GTM_SEDIMENT_BED_SETUP})
 
 # INSTALL Section
 install(
@@ -317,11 +298,11 @@ install(
   DESTINATION bin
   USE_SOURCE_PERMISSIONS)
 if(WIN32)
-  install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
+  install(PROGRAMS src/ptm/bin/ptm.bat DESTINATION bin)
   message(
     "Windows exes are static so Intel redistribution files are not needed.")
 else(WIN32)
-  install(PROGRAMS ptm/bin/ptm DESTINATION bin)
+  install(PROGRAMS src/ptm/bin/ptm DESTINATION bin)
 endif(WIN32)
 
 # CPack
@@ -334,7 +315,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "2")
 set(CPACK_PACKAGE_VERSION
     "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
 )
-set(LICENSE_FILE ../../LICENSE.txt)
+set(LICENSE_FILE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
 cmake_path(ABSOLUTE_PATH LICENSE_FILE)
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")

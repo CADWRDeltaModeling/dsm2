@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.21)
+project(dsm2 LANGUAGES C CXX Fortran)
+
+set(CMAKE_DEBUG_POSTFIX "d")
+find_package(Boost REQUIRED)
+set(HDF5_USE_STATIC_LIBRARIES TRUE)
+find_package(HDF5 REQUIRED COMPONENTS HL C Fortran)
+
+add_subdirectory(oprule)
+add_subdirectory(input_storage)
+add_subdirectory(dsm2)

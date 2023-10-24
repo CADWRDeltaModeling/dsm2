@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.21)
 enable_language(Fortran)
 # add pre build command add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND
 # python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

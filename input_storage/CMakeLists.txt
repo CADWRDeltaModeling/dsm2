@@ -1,17 +1,8 @@
-cmake_minimum_required(VERSION 3.17)
-project(input_storage LANGUAGES C CXX)
-
-set(CMAKE_DEBUG_POSTFIX "d")
-
-string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
-
-find_package(Boost REQUIRED)
-find_package(HDF5 REQUIRED)
-
-
+cmake_minimum_required(VERSION 3.21)
+enable_language(C CXX)
 
 file(GLOB SOURCES src/*.cpp)
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/ItemInputState.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/ItemInputState.cpp")
 add_library(input_storage ${SOURCES})
 target_include_directories(input_storage PUBLIC ${Boost_INCLUDE_DIRS}
                                                 ${HDF5_INCLUDE_DIRS})

@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.17)
-project(pattern_match LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.21)
+enable_language(CXX)
 
-add_library(${PROJECT_NAME})
+add_library(pattern_match)
 file(GLOB SOURCES *.cpp)
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
+target_sources(pattern_match PRIVATE ${SOURCES})
+target_include_directories(pattern_match PRIVATE ${Boost_INCLUDE_DIRS})

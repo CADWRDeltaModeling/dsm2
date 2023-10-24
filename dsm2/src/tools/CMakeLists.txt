@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.17)
+cmake_minimum_required (VERSION 3.21)
 enable_language(CXX Fortran)
 # search by file pattern and include in library
 #set (CMAKE_Fortran_FLAGS "/extend-source:132")

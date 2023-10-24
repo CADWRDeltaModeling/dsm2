@@ -19,9 +19,12 @@ set(CMAKE_Fortran_COMPILER
 set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")
+set(CMAKE_Fortran_FLAGS_INIT
+    "/Dhydro_1000"
+    CACHE STRING "Fortran flags to use a large array for the dense dx")
 
 set(THIRD_PARTY_DIR
-    "C:/Users/foobar/third_party"
+    "${CMAKE_SOURCE_DIR}/deps"
     CACHE PATH "Third party directory")
 set(BOOST_ROOT
     "${THIRD_PARTY_DIR}/boost-1.83.0"

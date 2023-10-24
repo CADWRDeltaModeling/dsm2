@@ -1,11 +1,7 @@
-cmake_minimum_required(VERSION 3.17)
-project(OpRuleAll LANGUAGES C CXX Fortran)
+cmake_minimum_required(VERSION 3.21)
+enable_language(C CXX Fortran)
 
-set(CMAKE_DEBUG_POSTFIX d)
 string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
-
-find_package(Boost REQUIRED)
-find_package(HDF5 REQUIRED COMPONENTS C HL Fortran)
 
 # OPRULE LIB
 file(GLOB TEST_OPRULE_CXX_SOURCES lib/rule/*.cpp)

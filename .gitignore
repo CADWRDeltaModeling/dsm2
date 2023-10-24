@@ -9,6 +9,7 @@ build*/
 lib/**
 third_party/**
 *.pyc
+deps/
 **/src/input_storage/*.f*
 **/src/input_storage/*.h
 **/src/input_storage/*.cpp

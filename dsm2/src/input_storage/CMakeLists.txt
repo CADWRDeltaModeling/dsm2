@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.17)
-project(input_storage LANGUAGES Fortran CXX)
+cmake_minimum_required(VERSION 3.21)
+enable_language(Fortran CXX)
 
-set(${PROJECT_NAME}_cpp_sources
+set(dsm2_input_storage_cpp_sources
   buffer_actions.cpp
   input_state_map.cpp
   input_storage_boundary_flow.cpp
@@ -51,11 +51,11 @@ set(${PROJECT_NAME}_cpp_sources
   input_storage_xsect_layer.cpp
   input_storage_xsect.cpp
   text_parser.cpp)
-set(${PROJECT_NAME}_sources input_storage_fortran.f90)
+set(dsm2_input_storage_sources input_storage_fortran.f90)
 
 add_custom_command(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
-  OUTPUT ${${PROJECT_NAME}_cpp_sources} ${${PROJECT_NAME}_sources}
+  OUTPUT ${dsm2_input_storage_cpp_sources} ${dsm2_input_storage_sources}
   DEPENDS
   generate.py
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/template/fortran_binding_template.f90
@@ -63,13 +63,14 @@ add_custom_command(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/generate_input_storage.py
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(${PROJECT_NAME}_cpp ${${PROJECT_NAME}_cpp_sources})
+add_library(dsm2_input_storage_cpp ${dsm2_input_storage_cpp_sources})
+add_dependencies(dsm2_input_storage_cpp input_storage)
 target_include_directories(
-  ${PROJECT_NAME}_cpp
+  dsm2_input_storage_cpp
   PUBLIC ${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../input_storage/src/
   ${HDF5_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
-target_include_directories(${PROJECT_NAME} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_cpp)
+add_library(dsm2_input_storage ${dsm2_input_storage_sources})
+target_include_directories(dsm2_input_storage PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
+add_dependencies(dsm2_input_storage dsm2_input_storage_cpp)
