@@ -55,7 +55,7 @@ _INFO.name=#_NAME; \
 _INFO.type=NamedValueLookup::_TYPE; \
 _VEC_ASSG2(_NAME,info.params,std::string,#_ARG1,#_ARG2); \
 _INFO.factory=_FACTORY; \
-add(#_NAME,_INFO); 
+add(#_NAME,_INFO);
 
 /*name,type,params,factory*/
 #define ADD_EXPRESS_3ARG(_INFO,_NAME,_TYPE,_FACTORY,_ARG1,_ARG2,_ARG3) \
@@ -63,7 +63,7 @@ _INFO.name=#_NAME; \
 _INFO.type=NamedValueLookup::_TYPE; \
 _VEC_ASSG3(_NAME,_INFO.params,std::string,#_ARG1,#_ARG2,#_ARG3); \
 _INFO.factory=_FACTORY; \
-add(#_NAME,_INFO); 
+add(#_NAME,_INFO);
 
 
 using namespace oprule::parser;

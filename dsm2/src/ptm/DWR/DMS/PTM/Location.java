@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -13,7 +13,7 @@ public class Location {
 	int _distance = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public Location() {
 		// TODO Auto-generated constructor stub

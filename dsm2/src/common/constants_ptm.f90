@@ -102,5 +102,5 @@ module constants_ptm
     parameter ( &
         unit_binary=3 &
         )
-     
+
 end module

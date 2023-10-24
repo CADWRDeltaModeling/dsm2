@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
 /**
  * This class contains Physical Behavior Properties.
  * It can read and write this information to/from XML. <br>
- * 
+ *
  * @author Aaron Miller
  * @version $Id:
  */
@@ -95,7 +95,7 @@ public class PhysicalElement extends Behavior {
   }
 
   /**
-    * gets the real value of fall velocity 
+    * gets the real value of fall velocity
     */
    public float getFallVelReal() {
     return _fallvelReal;
@@ -103,7 +103,7 @@ public class PhysicalElement extends Behavior {
 
   /**
     * sets the Development Time, units and the real value.
-    * the Development Time amount of time for which a particle 
+    * the Development Time amount of time for which a particle
     * has these properties.
     */
   public void setDevelopTime(String time, String units) {
@@ -135,7 +135,7 @@ public class PhysicalElement extends Behavior {
   }
 
   /**
-    * gets the real value of Development Time 
+    * gets the real value of Development Time
     */
   public float getDevelopTimeReal() {
     return _developTimeReal;
@@ -174,7 +174,7 @@ public class PhysicalElement extends Behavior {
   }
 
   /**
-    * gets the real value of Mortality 
+    * gets the real value of Mortality
     */
   public float getMortalityReal() {
     return _mortalityReal;
@@ -224,7 +224,7 @@ public class PhysicalElement extends Behavior {
   }
 
   /**
-    * Tests the condition of the String. Returns true if String contains 
+    * Tests the condition of the String. Returns true if String contains
     * information.
     */
   public boolean testCondition(String subject){
@@ -237,7 +237,7 @@ public class PhysicalElement extends Behavior {
   }
 
   /**
-    * 
+    *
     */
   boolean DEBUG = false;
 
@@ -275,7 +275,7 @@ public class PhysicalElement extends Behavior {
     * String representation of development time units.
     */
   String _developTimeUnits;
-    
+
   /**
     * Real value of the fall velocity and default value.
     */

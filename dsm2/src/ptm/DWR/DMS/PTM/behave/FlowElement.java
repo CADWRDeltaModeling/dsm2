@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -54,7 +54,7 @@ import java.util.*;
 /**
  * This class contains Flow Behavior Properties.
  * It can read and write this information to/from XML. <br>
- * 
+ *
  * @author Aaron Miller
  * @version $Id: FlowElement.java,v 1.2 2000/08/07 17:05:05 miller Exp $
  */
@@ -118,16 +118,16 @@ public class FlowElement extends Behavior {
   public void dumpArray(){
 //         System.out.println("zlen = "+PosData.length+" ylen = "+yPosData.length);
 //         System.out.println("zlen = "+PosData[0].length+" ylen = "+yPosData[0].length);
-//         System.out.println("zlen = "+PosData[0][0].length+" ylen = "+yPosData[0][0].length);    
-    System.out.println("ll = "+PosData[0][0][0]+" ul = "+PosData[0][0][1]);    
-    System.out.println("st = "+PosData[0][0][2]+" et = "+PosData[0][0][3]);    
+//         System.out.println("zlen = "+PosData[0][0].length+" ylen = "+yPosData[0][0].length);
+    System.out.println("ll = "+PosData[0][0][0]+" ul = "+PosData[0][0][1]);
+    System.out.println("st = "+PosData[0][0][2]+" et = "+PosData[0][0][3]);
 
     int test [][][] = new int[1][][];
 
     System.arraycopy(PosData, 0, test, 0, PosData.length);
 
-    System.out.println("ll = "+test[0][0][0]+" ul = "+test[0][0][1]);    
-    System.out.println("st = "+test[0][0][2]+" et = "+test[0][0][3]);    
+    System.out.println("ll = "+test[0][0][0]+" ul = "+test[0][0][1]);
+    System.out.println("st = "+test[0][0][2]+" et = "+test[0][0][3]);
 //     System.out.println("tlen = "+test.length);
 //     System.out.println("tlen = "+test[0].length);
 //     System.out.println("tlen = "+test[0][0].length);
@@ -166,7 +166,7 @@ public class FlowElement extends Behavior {
 	  if(testCondition(stmp)){
 	    element.setAttribute(headerData[j], stmp);
 	  }
-      
+
 	}
 	parent.appendChild(element);
       }

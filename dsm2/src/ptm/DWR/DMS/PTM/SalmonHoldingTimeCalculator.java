@@ -39,7 +39,7 @@ public class SalmonHoldingTimeCalculator {
 					+"  daytime holding:" + pidDaytimeHoldings.get(p.Id) + "  not swim pct:" + daytimeNotSwimPercent);
 		if (pidDaytimeHoldings.get(p.Id) == null){
 			boolean pDaytimeHolding = PTMUtil.getRandomNumber() < daytimeNotSwimPercent;
-			pidDaytimeHoldings.put(p.Id, pDaytimeHolding); 
+			pidDaytimeHoldings.put(p.Id, pDaytimeHolding);
 			p.setToHold(pDaytimeHolding);
 		}
 		if (DEBUG && p.Id == 1)
@@ -50,7 +50,7 @@ public class SalmonHoldingTimeCalculator {
 	boolean daytimeHolding(Particle p, int chanId){
     	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime, Globals.TIME_ZONE);
     	//TODO will use LocaTime when switch to Java 1.8
-    	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > _sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < _sunset_hour) 
+    	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > _sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < _sunset_hour)
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunrise_hour && curr.get(Calendar.MINUTE)>_sunrise_min)
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunset_hour && curr.get(Calendar.MINUTE)<_sunset_min);
     	//change to a new daytime holding algorithm, please see notes
@@ -58,7 +58,7 @@ public class SalmonHoldingTimeCalculator {
     	return (isDaytime && getDaytimeHolding(p, chanId));
 	}
 	// Rearing holding time is the time when a particle to swimming again, i.e., current model time + holding time
-	//TODO cast float to int e.g., 900.6 = 900, good enough?   
+	//TODO cast float to int e.g., 900.6 = 900, good enough?
 	void setSwimTime(Particle p, int chanId){
 		String groupName = getGroupName(chanId);
 		// pidSwimTimes is set in SwimInputs, impossible to be null
@@ -87,12 +87,12 @@ public class SalmonHoldingTimeCalculator {
 			PTMUtil.systemExit("swimming time is not properly set, check the code! system exit.");
 		return pidSwimTimes.get(pId);
 	}
-	
+
 	private String getGroupName(int chanId){
 		String groupName = _channelGroups.get(chanId);
 		return ((groupName == null)? "ALL":groupName);
-	}	
-	
+	}
+
 	//TODO be very careful, the class variables are visible to all particles!!!
 	//private float _daytimeNotSwimPercent = 0.0f; //used to be only one value, now one per channel group.  the values is in _swimParameters
 	private Pair<Integer, Integer> _sunrise = null;

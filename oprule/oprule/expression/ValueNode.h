@@ -30,11 +30,11 @@ public:
     }
 
     virtual ~ValueNode(){};
-    virtual T eval(){ 
+    virtual T eval(){
         return _val;
     };
-    virtual bool isTimeDependent() const{ 
-        return false; 
+    virtual bool isTimeDependent() const{
+        return false;
     }
 
 private:
@@ -43,7 +43,7 @@ private:
 };
 
 /** Shorthand for value node returning a double*/
-typedef ValueNode<double> DoubleScalarNode; 
+typedef ValueNode<double> DoubleScalarNode;
 
 /** Shorthand for value node returning a bool*/
 typedef ValueNode<bool> BoolScalarNode;

@@ -1,5 +1,5 @@
 #ifdef _WIN32 // Microsoft C++ version
-#define STDCALL 
+#define STDCALL
 #define STRLEN_TYPE int
 #define readMultTide READ_MULT_TIDE
 #define setTideFileTime SET_TIDE_FILE_TIME

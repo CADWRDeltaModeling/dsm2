@@ -22,7 +22,7 @@ using boost::unit_test_framework::test_suite;
 
 #include "ModelStateTestFixture.h"
 
-#define EVEN_RAMP_DURATION 45  
+#define EVEN_RAMP_DURATION 45
 #define INEXACT_RAMP_DURATION 46
 #define TARGET_STATE (INIT_STATE +3)
 #define INTERMEDIATE_STATE (INIT_STATE +1)
@@ -33,12 +33,12 @@ using namespace oprule::rule;
 
 /**
 *@todo make a test action that has duration of zero
-*@todo chains and sets 
+*@todo chains and sets
 */
 
 class ModelActionTest {
 public:
-    ModelActionTest() : 
+    ModelActionTest() :
         _staticModelState(new StaticModelState()),
         _staticModelState2(new AnotherStaticModelState()),
         _dynModelState(new DynamicModelState()){
@@ -66,10 +66,10 @@ public:
                 _dynModelState,
                 expression2,
                 trans1
-                ));		
+                ));
     }
 
-    ~ModelActionTest(){ 
+    ~ModelActionTest(){
         //delete _actionEven;
         //delete _actionInexact;
         //delete _actionDynamic;
@@ -77,7 +77,7 @@ public:
 
 
     void testConstruction()
-    { 
+    {
         test_model::model_init();
         BOOST_CHECK_EQUAL(_staticModelState->eval(),INIT_STATE);
         BOOST_CHECK(!(_actionEven->isActive()));
@@ -102,8 +102,8 @@ public:
             (StaticModelState::StateType)INTERMEDIATE_STATE,1e-8);
         _actionInexact->advance(DT);
         BOOST_CHECK(_actionEven->isActive());
- 
-        // This test assumes INEXACT_RAMP_DURATION is 
+
+        // This test assumes INEXACT_RAMP_DURATION is
         // a small but not infinitessimal amount greater than
         // EVEN_RAMP_DURATION.
         BOOST_CHECK_CLOSE(
@@ -137,7 +137,7 @@ public:
         BOOST_CHECK( !_actionInexact->isActive());
     }
 
-    void testAdvanceDynamic(){        
+    void testAdvanceDynamic(){
         test_model::model_init();
         _actionDynamic->setActive(true);
         BOOST_CHECK(_actionDynamic->isActive());
@@ -154,11 +154,11 @@ public:
             1e-8);
 
         // First of 3 steps in duration
-        _actionDynamic->advance(DT);  
+        _actionDynamic->advance(DT);
         BOOST_CHECK_CLOSE(
             _dynModelState->eval(),
             (DynamicModelState::StateType) 7.3333333333,
-            // @todo: below may be the intended behavior. The difference is 
+            // @todo: below may be the intended behavior. The difference is
             // whether the "from" part of the ramping changes with time
             // so that you are ramping from one time series to another) or
             // whether the "from" value is a snapshot at activation (the below)
@@ -166,7 +166,7 @@ public:
             // (TARGET_DYNAMIC_STATE - origin)/3.),
             1e-8);
 
-        test_model::model_goto_step(2); // current value is origin + 2 
+        test_model::model_goto_step(2); // current value is origin + 2
                                         // the previous action is replaced by this step
         // before action:
         BOOST_CHECK_CLOSE(
@@ -193,12 +193,12 @@ public:
         BOOST_CHECK_CLOSE(
             _dynModelState->eval(),
             (DynamicModelState::StateType)EXPRESSION_SET+4,
-            1e-8);      
+            1e-8);
         BOOST_CHECK(! _actionDynamic->isActive());
     }
 
 
-    void testAdvanceLaggedDynamic(){        
+    void testAdvanceLaggedDynamic(){
         /* todo:urgent		test_model::model_init();
         DynamicModelState::NodePtr dns=DynamicModelState::create();
         DynamicModelState::StateType origin=dns->eval();
@@ -245,25 +245,25 @@ public:
     }
 
 
-    void testActionChain(){ 
+    void testActionChain(){
         test_model::model_init();
         BOOST_CHECK_EQUAL(
             _staticModelState->eval(),
             (StaticModelState::StateType)INIT_STATE);
         DynamicModelState::StateType origin=_dynModelState->eval();
 
-        
+
         boost::shared_ptr<ActionChain> chainPtr(new ActionChain);
         ActionChain& chain = *chainPtr;
         _actionEven->registerParent(chainPtr);
         chain.pushBackAction(_actionEven);
-        
+
         _actionDynamic->registerParent(chainPtr);
         chain.pushBackAction(_actionDynamic);
 
         chain.setActive(true);
         test_model::model_goto_step(3);
-        chain.advance(HUGE_VAL);  
+        chain.advance(HUGE_VAL);
         BOOST_CHECK(! _actionEven->isActive());
         BOOST_CHECK( _actionDynamic->isActive());
         BOOST_CHECK( chain.isActive());
@@ -297,7 +297,7 @@ public:
         BOOST_CHECK_CLOSE(
             _dynModelState->eval(),
             (DynamicModelState::StateType)EXPRESSION_SET+7,
-            1e-8);      
+            1e-8);
         BOOST_CHECK(! chain.isActive());
 
 
@@ -307,7 +307,7 @@ private:
     boost::shared_ptr<DynamicModelState> _dynModelState;
     boost::shared_ptr<StaticModelState> _staticModelState;
     boost::shared_ptr<AnotherStaticModelState> _staticModelState2;
-    // Action with a ramping duration that is an exact 
+    // Action with a ramping duration that is an exact
     // multiple of the model time step
     OperationActionPtr _actionEven;
     // Action with a ramping duration that is an inexact multiple
@@ -347,15 +347,15 @@ public:
             _dynModelState,
             expression2,
             trans1
-            ));		
+            ));
     }
-    ~ActionSetTest(){ 
+    ~ActionSetTest(){
     }
 private:
     boost::shared_ptr<DynamicModelState> _dynModelState;
     boost::shared_ptr<StaticModelState> _staticModelState;
     boost::shared_ptr<AnotherStaticModelState> _staticModelState2;
-    // Action with a ramping duration that is an exact 
+    // Action with a ramping duration that is an exact
     // multiple of the model time step
     OperationActionPtr _actionEven;
     //ModelAction<double>* _actionEven;

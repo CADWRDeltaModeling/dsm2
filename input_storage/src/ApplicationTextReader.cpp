@@ -8,7 +8,7 @@ using namespace std;
 ///////////////////////
 void ApplicationTextReader::setInputStateMap(const ApplicationTextReader::InputStateMap & a_inputMap)
 {
-  m_inputMap = a_inputMap;       
+  m_inputMap = a_inputMap;
   for(InputState::InputStateMap::iterator it = m_inputMap.begin();
       it != m_inputMap.end() ; ++it)
     {
@@ -33,7 +33,7 @@ EnvSubstitution & ApplicationTextReader::getTextSubstitution()
 {
     return m_sub;
 }
-    
+
 
 ///////////////////
 void ApplicationTextReader::setTextSubstitution(const EnvSubstitution & a_sub)
@@ -48,25 +48,25 @@ void ApplicationTextReader::setTextSubstitution(const EnvSubstitution & a_sub)
 
 ///////////////////
 void ApplicationTextReader::setActiveItems(const vector<string> & a_activeItems)
-{ 
+{
   m_activeItems = a_activeItems;
 }
 
 ////////////////////
 vector<string> & ApplicationTextReader::getActiveItems()
-{ 
+{
   return m_activeItems;
 }
 
 /////////////////////
 void ApplicationTextReader::setInitialContextItems(const vector<string> & a_contextItems)
-{  
+{
   m_initialContextItems = a_contextItems;
 }
 
 ////////////////////
 vector<string> & ApplicationTextReader::getInitialContextItems()
-{ 
+{
   return m_initialContextItems;
 }
 
@@ -83,21 +83,21 @@ bool ApplicationTextReader::verifyItemsInMap(std::vector<std::string> items)
 }
 
 bool ApplicationTextReader::isKeyword(const std::string & name) const
-{   
+{
 	 return m_inputMap.find(name) != m_inputMap.end();
 }
 
 /////////////////////
 /* Read text starting from the given file */
 void ApplicationTextReader::processInput(const string & filename)
-{ 
+{
   boost::filesystem::path p(filename);
   if (!boost::filesystem::exists(p))
-    { 
+    {
       //todo
       cerr << "File does not exist" << endl;
     }
-  
+
   assert(! this->m_inputMap.empty());
   if (!verifyItemsInMap(m_initialContextItems))
   {
@@ -118,7 +118,7 @@ void ApplicationTextReader::processInput(const string & filename)
 
   // to do: assumes all active items are valid in initial file context
   InputStatePtr startState(new FileInputState(m_initialContextItems,filename));
-  startState->setActiveItems(m_activeItems);  
+  startState->setActiveItems(m_activeItems);
   InputStatePtr currentState(startState);
   std::ifstream input(filename.c_str());
 
@@ -127,6 +127,6 @@ void ApplicationTextReader::processInput(const string & filename)
       currentState = currentState->process(input);
     }
   input.close();
-   
+
 }
 

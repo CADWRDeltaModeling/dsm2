@@ -13,7 +13,7 @@ class DSM2BaseTestCase(unittest.TestCase):
     def location(self):
         print self
         raise NotImplementedError("location() must be implemented by subclass")
-    
+
     def tolerance(self):
         """
         the tolerance in comparision of expected & actual values. override this
@@ -43,10 +43,10 @@ class DSM2BaseTestCase(unittest.TestCase):
         the given number of days from the start
         """
         window = (rts.start+datetime.timedelta(ignore_start_days), rts.end)
-        return window        
+        return window
     def get_rts_for(self, file, b_part, c_part):
         """
-        Retrieves the time series for the given B & C part 
+        Retrieves the time series for the given B & C part
         """
         path="/*/%s/%s//*/*/"%(b_part,c_part)
         rts = self.get_rts(file, path)

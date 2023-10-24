@@ -349,7 +349,7 @@ module gtm_network
     subroutine hydro_info(flow,         &
                           flow_lo,      &
                           flow_hi,      &
-                          area,         &                          
+                          area,         &
                           area_lo,      &
                           area_hi,      &
                           width,        &
@@ -366,8 +366,8 @@ module gtm_network
         real(gtm_real), intent(in) :: dx(ncell)            !< Spatial step
         real(gtm_real), intent(out) :: flow(ncell)         !< Cell and time centered flow
         real(gtm_real), intent(out) :: flow_lo(ncell)      !< Low face flow, time centered
-        real(gtm_real), intent(out) :: flow_hi(ncell)      !< High face flow, time centered 
-        real(gtm_real), intent(out) :: area(ncell)         !< Cell averaged area, time centered       
+        real(gtm_real), intent(out) :: flow_hi(ncell)      !< High face flow, time centered
+        real(gtm_real), intent(out) :: area(ncell)         !< Cell averaged area, time centered
         real(gtm_real), intent(out) :: area_lo(ncell)      !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered
         real(gtm_real), intent(out) :: width(ncell)        !< With, time centered
@@ -527,7 +527,7 @@ module gtm_network
         area_lo = area_mesh_lo(time_in_mesh,:)
         area_hi = area_mesh_hi(time_in_mesh,:)
         area = area_mesh(time_in_mesh,:)
-        !area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))        
+        !area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
         !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
     end subroutine

@@ -34,8 +34,8 @@ class TestSimulationCompare(dsm2test.DSM2BaseTestCase):
             window = self.get_timewindow_ignoring_start_days(rts1, 10)
             print b_part
             self.assert_equals_rts(rts1, rts2, time_window=window)
-        
+
 if __name__ == '__main__':
     unittest.main()
 
-    
+

@@ -25,7 +25,7 @@ package DWR.DMS.PTM;
  * @author Nicky Sandhu
  * @version $Id: Channel.java,v 1.4.6.1 2006/04/04 18:16:24 eli2 Exp $
  */
-public class Channel extends Waterbody{	
+public class Channel extends Waterbody{
   /**
    *  a constant for vertical velocity profiling.
    */
@@ -54,7 +54,7 @@ public class Channel extends Waterbody{
    *  use transverse profile
    */
   public static boolean useTransProfile;
-  
+
   /**
    *  Number of cross sections
    */
@@ -77,7 +77,7 @@ public class Channel extends Waterbody{
   private float[] areaAt;
   private float[] depthAt;
   private float[] stageAt;
-  
+
   /**
    *  sets fixed information for Channel
    */
@@ -87,12 +87,12 @@ public class Channel extends Waterbody{
 
     super(Waterbody.CHANNEL, nId, nodeIds);
     length = len;
-    
+
     widthAt = new float[getNumberOfNodes()];
     areaAt = new float[getNumberOfNodes()];
     depthAt = new float[getNumberOfNodes()];
     stageAt = new float[getNumberOfNodes()];
-    
+
   }
 
   public boolean equals(Channel chan){
@@ -100,14 +100,14 @@ public class Channel extends Waterbody{
 		  return true;
 	  return false;
   }
-  
+
   /**
    *  Gets the length of Channel
    */
   public final float getLength(){
     return (length);
   }
-  
+
   /**
    *  Gets the width of the Channel at that particular x position
    */
@@ -115,29 +115,29 @@ public class Channel extends Waterbody{
     float alfx = xPos/length;
     return (alfx*widthAt[1] + (1-alfx)*widthAt[0]);
   }
-  
+
   /**
    *  Gets the depth of the Channel at that particular x position
    */
   public final float getDepth(float xPos){
     float depth = 0.0f;
     float alfx = xPos/length;
-    
+
     depth=alfx*depthAt[DOWNNODE] + (1-alfx)*depthAt[UPNODE];
     return depth;
   }
-  
+
   /**
    *  Gets the depth of the Channel at that particular x position
    */
   public final float getStage(float xPos){
     float stage = 0.0f;
     float alfx = xPos/length;
-    
+
     stage = alfx*stageAt[DOWNNODE] + (1-alfx)*stageAt[UPNODE];
     return stage;
   }
-  
+
   /**
    *  A more efficient calculation of velocity if average velocity, width and
    *  depth has been pre-calculated.
@@ -156,11 +156,11 @@ public class Channel extends Waterbody{
   public final float getFlow(float xPos){
     float flow = 0.0f;
     float alfx = xPos/length;
-    
+
     flow = alfx*flowAt[DOWNNODE] + (1-alfx)*flowAt[UPNODE];
     return flow;
   }
-  
+
   /**
    *  Gets the type from particle's point of view
    */
@@ -168,14 +168,14 @@ public class Channel extends Waterbody{
   public int getPTMType(){
     return Waterbody.CHANNEL;
   }
-  
+
   /**
    *  Returns the hydrodynamic type of Channel
    */
   public int getHydroType(){
     return FlowTypes.channell;
   }
-  
+
   /**
    *  Gets the EnvIndex of the upstream node
    */
@@ -200,40 +200,40 @@ public class Channel extends Waterbody{
    public float getTransverseACoef(){
      return Globals.Environment.pInfo.getTransverseACoef();
    }
-   
+
   /**
    *  Gets the Transverse velocity B coefficient
    */
    public float getTransverseBCoef(){
      return Globals.Environment.pInfo.getTransverseBCoef();
    }
-   
+
   /**
    *  Gets the Transverse velocity A coefficient
    */
    public float getTransverseCCoef(){
      return Globals.Environment.pInfo.getTransverseCCoef();
    }
-   
+
   /**
    *  Return flow direction sign
    *  INFLOW (flow into water body) = 1 if node is upstream node
    *  OUTFLoW (flow out water body) = -1 if downstream node
-   *  in tidal situation, if flow reverses (flow from downstream), 
+   *  in tidal situation, if flow reverses (flow from downstream),
    *  flow at down node will be multiplied by -1 to be positive
    *  flow at down node will stay negative
    */
   public int flowType( int nodeId ){
-    if (nodeId == UPNODE) 
+    if (nodeId == UPNODE)
       return INFLOW;
-    else if (nodeId == DOWNNODE) 
+    else if (nodeId == DOWNNODE)
       return OUTFLOW;
     else{
       throw new IllegalArgumentException();
     }
   }
-  
-  // this channel doesn't know the exact value of the swimming velocity.  
+
+  // this channel doesn't know the exact value of the swimming velocity.
   // SV has to be passed from a particle
   public float getInflowWSV(int nodeEnvId, float sv){
 	int nodeId = getNodeLocalIndex(nodeEnvId);
@@ -254,7 +254,7 @@ public class Channel extends Waterbody{
     float zfrac = z/depth*(MAX_PROFILE-1);
     return Math.max(0.0f, vertProfile[(int)zfrac]);
   }
-  
+
   /**
    *  transverse profile multiplier
    */
@@ -266,14 +266,14 @@ public class Channel extends Waterbody{
     float c = getTransverseCCoef();
     return a+b*yfrac2+c*yfrac2*yfrac2; // quartic profile across Channel width
   }
-  
+
   /**
    *  returns the number of cross sections
    */
   public final int getNumberOfXSections(){
     return(nXsects);
   }
-  
+
   /**
    *  Gets the EnvIndex of cross sections given the local index of the
    *  cross section
@@ -281,7 +281,7 @@ public class Channel extends Waterbody{
   public final int getXSectionEnvIndex(int localIndex){
     return(xSectionIds[localIndex]);
   }
-  
+
 
   /**
    *  Set depth information
@@ -295,7 +295,7 @@ public class Channel extends Waterbody{
       depthAt[DOWNNODE] = depthAt[DOWNNODE]/0.6f;
     }
   }
-  
+
   /**
    *  Set depth information
    */
@@ -307,7 +307,7 @@ public class Channel extends Waterbody{
       stageAt[DOWNNODE] = stageAt[DOWNNODE]/0.6f;
     }
   }
-  
+
   /**
    *  Set area information
    */
@@ -321,42 +321,42 @@ public class Channel extends Waterbody{
     widthAt[UPNODE] = areaAt[UPNODE]/depthAt[UPNODE];
     widthAt[DOWNNODE] = areaAt[DOWNNODE]/depthAt[DOWNNODE];
   }
-  
+
   /**
    *  Get the flow area
    */
   public final float getFlowArea(float xpos){
     return getDepth(xpos)*getWidth(xpos);
   }
-  
+
   /**
    *  An efficient way of calculating all Channel parameters i.e.
    *  length, width, depth, average velocity and area all at once.
    */
-  public final void updateChannelParameters(float xPos, 
+  public final void updateChannelParameters(float xPos,
                                             float [] channelLength,
                                             float [] channelWidth,
                                             float [] channelDepth,
                                             float [] channelVave,
                                             float [] channelArea){
     channelLength[0] = this.length;
-    
+
     float alfx = xPos/this.length;
     float nalfx = 1.0f - alfx;
-    
+
     channelDepth[0] = alfx*depthAt[DOWNNODE] + nalfx*depthAt[UPNODE];
     channelWidth[0] = alfx*widthAt[DOWNNODE] + nalfx*widthAt[UPNODE];
     channelArea[0] = channelDepth[0]*channelWidth[0];
-    
-    float Vave = (alfx*flowAt[DOWNNODE] + nalfx*flowAt[UPNODE])/channelArea[0];    
+
+    float Vave = (alfx*flowAt[DOWNNODE] + nalfx*flowAt[UPNODE])/channelArea[0];
     if ((Vave > 0 && Vave < 0.001f) || Vave == 0)
     		Vave = 0.001f;
     if (Vave < 0 && Vave > -0.001f)
     		Vave = -0.001f;
     channelVave[0] = Vave;
   }
-  
-  
+
+
   /**
    *  calculate profile
    */

@@ -9,8 +9,8 @@ namespace oprule{
 namespace expression{
 
 /** ValueNode based on the result of a unary operation on a ValueNode. */
-template<class UnaryFunc> 
-struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >  
+template<class UnaryFunc>
+struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >
 {
    typedef UnaryOpNode<UnaryFunc> NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
@@ -28,11 +28,11 @@ struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >
    /** Create the unary op node
     * @param pArg node holding the argument to the function evaluated by this node.
     */
-	UnaryOpNode( ArgNodePtr pArg) 
+	UnaryOpNode( ArgNodePtr pArg)
       : _pArg (pArg) {}
 
 
-   static NodePtr create(ArgNodePtr arg){ 
+   static NodePtr create(ArgNodePtr arg){
      return NodePtr(new NodeType(arg));
   }
 
@@ -48,7 +48,7 @@ struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >
     }
 
 	virtual ~UnaryOpNode(){
-       OE_NODE_DELETE(_pArg); 
+       OE_NODE_DELETE(_pArg);
     }
     virtual void init(){
         _pArg->init();
@@ -58,7 +58,7 @@ struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >
         _pArg->step(dt);
     }
 
-private: 
+private:
    ArgNodePtr _pArg;
 	UnaryFunc func;
 };
@@ -66,9 +66,9 @@ private:
 
 /** functor for absolute value*/
 struct abs_func : public std::unary_function<double,double>
-{  
-   /**evaluate function 
-    @param arg argument to function 
+{
+   /**evaluate function
+    @param arg argument to function
     @return result of function
    */
    double operator()(double arg)
@@ -82,9 +82,9 @@ struct abs_func : public std::unary_function<double,double>
 
 /** functor for square roots*/
 struct sqrt_func : public std::unary_function<double,double>
-{  
-   /**evaluate function 
-    @param arg argument to function 
+{
+   /**evaluate function
+    @param arg argument to function
     @return result of function
    */
    double operator()(double arg)
@@ -96,8 +96,8 @@ struct sqrt_func : public std::unary_function<double,double>
 /** functor for natural log */
 struct ln_func : public std::unary_function<double,double>
 {
-   /**evaluate function 
-    @param arg argument to function 
+   /**evaluate function
+    @param arg argument to function
     @return result of function
    */
    double operator()(double arg)
@@ -109,10 +109,10 @@ struct ln_func : public std::unary_function<double,double>
 /** functor for exponential function */
 struct exp_func : public std::unary_function<double,double>
 {
-   /**evaluate function 
-    @param arg argument to function 
+   /**evaluate function
+    @param arg argument to function
     @return result of function
-   */   
+   */
    double operator()(double arg)
    {
       return exp(arg);
@@ -121,11 +121,11 @@ struct exp_func : public std::unary_function<double,double>
 
 /** functor for log10 */
 struct log10_func : public std::unary_function<double,double>
-{  
-   /**evaluate function 
-    @param arg argument to function 
+{
+   /**evaluate function
+    @param arg argument to function
     @return result of function
-   */   
+   */
    double operator()(double arg)
    {
       return log10(arg);

@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -58,13 +58,13 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  Constructor for ascii or binary
    */
-  public PTMTraceOutput(String filename, int type, 
-                        int startTime, int endTime, int PTMTimeStep, 
+  public PTMTraceOutput(String filename, int type,
+                        int startTime, int endTime, int PTMTimeStep,
                         int nParticles) throws IOException{
     super(filename, type);
-    if (getOutputType() == Globals.ASCII) 
+    if (getOutputType() == Globals.ASCII)
       writeHeaderAscii(startTime, endTime, PTMTimeStep, nParticles);
-    else if (getOutputType() == Globals.BINARY) 
+    else if (getOutputType() == Globals.BINARY)
       writeHeaderBinary(startTime, endTime, PTMTimeStep, nParticles);
   }
 
@@ -72,25 +72,25 @@ public class PTMTraceOutput extends PTMOutput{
    *  output function
    */
   public void output(long tmStamp, int particleNum, int nodeNum, int wbNum){
-    if (getOutputType() == Globals.ASCII) 
+    if (getOutputType() == Globals.ASCII)
       writeOutputAscii(tmStamp, particleNum, nodeNum, wbNum);
-    else if (getOutputType() == Globals.BINARY) 
+    else if (getOutputType() == Globals.BINARY)
       writeOutputBinary(tmStamp, particleNum, nodeNum, wbNum);
   }
 
   /**
    *  write output in ascii format
    */
-  protected final void writeOutputAscii(long tmStamp, 
-                                        int particleNum, 
-                                        int nodeNum, 
+  protected final void writeOutputAscii(long tmStamp,
+                                        int particleNum,
+                                        int nodeNum,
                                         int wbNum){
     try{
-      String line = tmStamp 
-                  + " " +  particleNum 
+      String line = tmStamp
+                  + " " +  particleNum
                   + " " +  nodeNum
                   + " " +  wbNum;
-      
+
       outputWriter.write(line,0,line.length());
       outputWriter.newLine();
       outputWriter.flush();
@@ -104,13 +104,13 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  write output in binary format
    */
-  protected final void writeOutputBinary(long tmStamp, 
-                                         int particleNum, 
-                                         int nodeNum, 
+  protected final void writeOutputBinary(long tmStamp,
+                                         int particleNum,
+                                         int nodeNum,
                                          int wbNum){
     try{
     	//TODO temporary to cast to int, this code need to be rewritten
-      outputStream.writeInt((int)tmStamp); 
+      outputStream.writeInt((int)tmStamp);
       outputStream.writeInt(particleNum);
       outputStream.writeShort(nodeNum);
       outputStream.writeShort(wbNum);
@@ -125,14 +125,14 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  write header in ascii format
    */
-  protected final void writeHeaderAscii(int startTime, int endTime, int PTMTimeStep, 
+  protected final void writeHeaderAscii(int startTime, int endTime, int PTMTimeStep,
                                         int nParticles){
     try{
-      String line = startTime 
-                  + " " +  endTime  
-                  + " " +  PTMTimeStep  
+      String line = startTime
+                  + " " +  endTime
+                  + " " +  PTMTimeStep
                   + " " +  nParticles;
-  
+
       outputWriter.write(line, 0, line.length());
       outputWriter.newLine();
       outputWriter.flush();
@@ -145,9 +145,9 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  write header in binary format
    */
-  protected final void writeHeaderBinary(int startTime, int endTime, int PTMTimeStep, 
+  protected final void writeHeaderBinary(int startTime, int endTime, int PTMTimeStep,
                                          int nParticles){
-    try { 
+    try {
       outputStream.writeInt(startTime);
       outputStream.writeInt(endTime);
       outputStream.writeInt(PTMTimeStep);

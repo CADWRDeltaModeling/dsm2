@@ -42,16 +42,16 @@ public:
            duration2
 		);
 
-        
+
 		_actionDynamic = new ModelAction<TestTimer,DynamicModelState>(
 			*_timer,
 			*_dynModelState,
 			expression2,
 			duration1
-		);		
+		);
 	}
 
-	~ModelActionTest(){ 
+	~ModelActionTest(){
 		delete _actionEven;
       delete _actionInexact;
       delete _actionDynamic;
@@ -59,7 +59,7 @@ public:
 
 
     void testConstruction()
-    {   
+    {
         BOOST_CHECK_EQUAL(_staticModelState->get(),INIT_STATE);
 		BOOST_CHECK(!(_actionEven->isActive()));
 	}
@@ -85,7 +85,7 @@ public:
 		_actionInexact->doAction();
 
 		BOOST_CHECK(_actionEven->isActive());
-		// This test assumes INEXACT_RAMP_DURATION is 
+		// This test assumes INEXACT_RAMP_DURATION is
 		// a small but not infinitessimal amount greater than
 		// EVEN_RAMP_DURATION.
 		BOOST_CHECK_CLOSE(
@@ -96,19 +96,19 @@ public:
 		// quite finished
 		_timer->advanceStep();   //2
 		_timer->advanceStep();   //3
-		
-		_actionEven->advance();  
+
+		_actionEven->advance();
 	   _actionEven->doAction();
 
 		BOOST_CHECK(! _actionEven->isActive());
 		BOOST_CHECK( _actionInexact->isActive());
-      
+
 		BOOST_CHECK_EQUAL(
 			_staticModelState->get(),
 			(StaticModelState::StateType)TARGET_STATE);
 
 		BOOST_CHECK(_staticModelState2->get() < TARGET_STATE);
-        
+
 		// final advance, inexact should be finished now
 		_timer->advanceStep();
 		_actionInexact->advance(); //4
@@ -118,9 +118,9 @@ public:
 	}
 
     void testAdvanceDynamic(){
-        
+
 		TestTimer::resetTimer();
-		
+
 		// first time step
 		_actionDynamic->setActive(true);
 		BOOST_CHECK(_actionDynamic->isActive());
@@ -183,7 +183,7 @@ public:
 			 (DynamicModelState::StateType)
 			    TARGET_DYNAMIC_STATE,
 		     1e-8);
-      
+
       BOOST_CHECK(! _actionDynamic->isActive());
     }
 
@@ -193,7 +193,7 @@ private:
 	 std::auto_ptr<DynamicModelState> _dynModelState;
 	 std::auto_ptr<StaticModelState> _staticModelState;
 	 std::auto_ptr<AnotherStaticModelState> _staticModelState2;
-	 // Action with a ramping duration that is an exact 
+	 // Action with a ramping duration that is an exact
 	 // multiple of the model time step
 	 ModelAction<TestTimer,StaticModelState>* _actionEven;
 	 // Action with a ramping duration that is an inexact multiple
@@ -206,7 +206,7 @@ private:
 class ActionSetTest : public test_suite {
 
 public:
-   ActionSetTest()    
+   ActionSetTest()
             : _staticModelState(new StaticModelState()),
 		        _staticModelState2(new AnotherStaticModelState()),
               _dynModelState(new DynamicModelState()),
@@ -233,9 +233,9 @@ public:
 			*_dynModelState,
 			expression2,
 			duration1
-		);		
+		);
 	}
-	~ActionSetTest(){ 
+	~ActionSetTest(){
 		delete _actionEven;
       delete _actionInexact;
       delete _actionDynamic;
@@ -245,7 +245,7 @@ private:
 	 std::auto_ptr<DynamicModelState> _dynModelState;
 	 std::auto_ptr<StaticModelState> _staticModelState;
 	 std::auto_ptr<AnotherStaticModelState> _staticModelState2;
-	 // Action with a ramping duration that is an exact 
+	 // Action with a ramping duration that is an exact
 	 // multiple of the model time step
 	 ModelAction<TestTimer,StaticModelState>* _actionEven;
 	 // Action with a ramping duration that is an inexact multiple
@@ -267,7 +267,7 @@ struct ModelActionTestSuite : public test_suite {
         add( BOOST_CLASS_TEST_CASE( &ModelActionTest::testAdvanceDynamic, instance ));
     }
 };
- 
+
 test_suite*
 init_unit_test_suite( int argc, char * argv[] ) {
     std::auto_ptr<test_suite> test( BOOST_TEST_SUITE( "Test for model state action" ) );

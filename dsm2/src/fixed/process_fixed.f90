@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -60,7 +60,7 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
           ,name_to_objno &       ! function converting an object name to object number
           ,gateno,devno
 
-      
+
       character &
           cstring*392 &           ! string field
           ,ctmp*392             ! temporary char variable
@@ -148,7 +148,7 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
             pathoutput(noutpaths).obj_type=obj_reservoir
             if (cstring .ne. 'none') then
                read(cstring,'(i5)',err=810) pathoutput(noutpaths).res_node_no
-               pathoutput(noutpaths).res_node_no=ext2intnode(pathoutput(noutpaths).res_node_no) 
+               pathoutput(noutpaths).res_node_no=ext2intnode(pathoutput(noutpaths).res_node_no)
             else
                pathoutput(noutpaths).res_node_no=0
             endif
@@ -167,7 +167,7 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
             pathoutput(noutpaths).obj_type=obj_gate
             if (trim(cstring) .ne. 'none') then
                pathoutput(noutpaths).gate_device  &
-                      = deviceIndex(gateArray(gateno),cstring)   
+                      = deviceIndex(gateArray(gateno),cstring)
             else
                pathoutput(noutpaths).gate_device = miss_val_i
             endif
@@ -191,7 +191,7 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
             else if (cstring .eq. 'install') then
                pathoutput(noutpaths).units='boolean'
             else if (cstring .eq. 'width') then
-               pathoutput(noutpaths).units='ft'               
+               pathoutput(noutpaths).units='ft'
             else if (cstring .eq. 'tds') then
                pathoutput(noutpaths).units='ppm'
             else if (cstring .eq. 'ec') then
@@ -596,13 +596,13 @@ subroutine input_scalar(field_names, mxflds, nfields, nflds, ifld, &
 
       use PhysicalConstants
       use IO_Units
-      use logging      
+      use logging
       use constants
       use runtime_data
       use iopath_data
       use common_qual
       use common_ptm
-      use envvar   
+      use envvar
       use grid_data
       use netcntrl_common
       use chconnec
@@ -626,7 +626,7 @@ subroutine input_scalar(field_names, mxflds, nfields, nflds, ifld, &
           ,ibegf(mxflds) &       ! beginning position of each field in line (input)
           ,ilenf(mxflds) &       ! length of each field in line (input)
           ,istat               ! conversion status of this line (output)
-      
+
       integer                  :: itmp   !kc
 
       character line*(*)        ! line from file (input)
@@ -645,12 +645,12 @@ subroutine input_scalar(field_names, mxflds, nfields, nflds, ifld, &
 	if (nfields .ne. 2) return  ! must have two fields
       Param=line(ibegf(1):ibegf(1)+ilenf(1)-1)
       Value=line(ibegf(2):ibegf(2)+ilenf(2)-1)
-      
+
       !todo disabled
       !call process_scalar(Param, Value, istat)
 
 
-      
+
 end subroutine
 
 subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
@@ -772,7 +772,7 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
 !-----------are separated with commas, while different objects are
 !-----------separated with spaces--the delimiter type array tells us which
          else if (rifld(kfldndx) .eq. ptm_from_wb) then
-	      
+
             objtmp=' '
 	      objtmp=cstring(1:(index(cstring,":")-1))
 
@@ -783,7 +783,7 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
             if(trim(objtmp) .eq. 'all' .and.  &
              pathoutput(noutpaths).flux_from_type .ne. obj_group) then
 	         pathoutput(noutpaths).flux_from_ndx=GROUP_ANY_INDEX
-            else    
+            else
 		     pathoutput(noutpaths).flux_from_ndx=name_to_objno( &
                    pathoutput(noutpaths).flux_from_type,objtmp)
 	      end if
@@ -804,7 +804,7 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
              pathoutput(noutpaths).flux_to_type .ne. obj_group) then
 	         pathoutput(noutpaths).flux_to_ndx=GROUP_ANY_INDEX
 
-            else    
+            else
 
 	         pathoutput(noutpaths).flux_to_ndx=name_to_objno( &
                    pathoutput(noutpaths).flux_to_type,objtmp)
@@ -881,25 +881,25 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
           ,loc &                 ! array location number
           ,loccarr &             ! function to return array location of string
           ,itmp                ! index
- 
+
       integer,external :: name_to_objno
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
- 
+
       character &
           cstring*32 &           ! string field
           ,ctmp*392            ! temporary char variable
- 
+
       character &
           input_line*250       ! raw input line
       common /input_lines/ input_line
- 
+
  610  format(/a)
- 
+
  620  format(/a &
           /'Input string is: ',a)
  630  format(/a,i5)
- 
+
       if (ldefault) then
          noutpaths=0
       else
@@ -908,11 +908,11 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
 
       i=1
       ptm_igroup=.true.  ! fixme: what does this do?
- 
+
       do while (i .le. nfields)
          cstring=' '
          cstring=line(ibegf(i):ibegf(i)+ilenf(i)-1)
- 
+
          if (rifld(i) .eq. ptm_interval) then
             call split_epart(cstring,itmp,ctmp)
             if (itmp .ne. miss_val_i) then ! valid interval, parse it
@@ -927,7 +927,7 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
          else if (rifld(i) .eq. ptm_filename) then
             pathoutput(noutpaths).filename= &
                 input_line(ibegf(i):ibegf(i)+ilenf(i)-1) ! use raw input to preserve case
-            if (index(pathoutput(noutpaths).filename, '.dss') .gt. 0) then 
+            if (index(pathoutput(noutpaths).filename, '.dss') .gt. 0) then
 !--------------accumulate unique dss output filenames
                itmp=loccarr(pathoutput(noutpaths).filename,outfilenames &
                    ,max_dssoutfiles, EXACT_MATCH)
@@ -971,15 +971,15 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
       endif
 
       return
- 
+
  810  continue
       write(unit_error, 620) 'Conversion error on field ' // &
           field_names(rifld(i)), cstring
- 
+
       istat=-2
- 
+
  900  continue
- 
+
       return
 end
 
@@ -1020,7 +1020,7 @@ subroutine input_partno(field_names, mxflds, nfields, nflds, ifld, &
       character &
           cstring*392           ! string field
 
- 
+
  610  format(/a)
  620  format(/a &
           /'Input string is: ',a)
@@ -1092,10 +1092,10 @@ subroutine input_groups(field_names, mxflds, nfields, nflds, ifld, &
       use groups
       use constants
       use constants_ptm
-	
+
       implicit none
 
-      
+
 
       logical &
           ldefault             ! true if values are for defaults
@@ -1112,7 +1112,7 @@ subroutine input_groups(field_names, mxflds, nfields, nflds, ifld, &
           ,ibegf(mxflds) &       ! beginning position of each field in line (input)
           ,ilenf(mxflds) &       ! length of each field in line (input)
           ,istat               ! conversion status of this line (output)
-	
+
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -1123,7 +1123,7 @@ subroutine input_groups(field_names, mxflds, nfields, nflds, ifld, &
           ,alloc_stat &
           ,groupno &
           ,objtype &
-          ,npattern  
+          ,npattern
 
       integer, external :: name_to_objno,obj_type_code
 

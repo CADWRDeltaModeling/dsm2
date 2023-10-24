@@ -17,7 +17,7 @@ namespace oprule{
 namespace parser{
 
 struct ModelNameInfo{
-   typedef oprule::expression::DoubleNodePtr DoubleNodePtr;   
+   typedef oprule::expression::DoubleNodePtr DoubleNodePtr;
    std::string name;
    NamedValueLookup::NameReadWriteType type;
    NamedValueLookup::ArgList params;
@@ -32,9 +32,9 @@ class NamedValueLookupImpl : public NamedValueLookup{
   typedef NameMapType::iterator NameMapIterator;
 
 public:
-   void add(const std:: string& name, 
+   void add(const std:: string& name,
             const ModelNameInfo & info){
-     if (namemap.find(name) != namemap.end()) 
+     if (namemap.find(name) != namemap.end())
         throw std::domain_error("Model name entered twice");
      else namemap[name] = info;
   }
@@ -64,7 +64,7 @@ public:
   oprule::expression::DoubleNode::NodePtr getModelExpression(
      const std::string & name, const ArgMap & param){
 	bool found=isModelName(name);  // Don't remove -- needed for prefetch
-	if (!found) 
+	if (!found)
 		throw oprule::parser::ModelNameNotFound(name+" not found in registry of model names");
     ModelNameInfo& info=getModelNameInfo(name);
     return (*info.factory)(param);
@@ -89,5 +89,5 @@ private:
 };
 
 
-}} //namespace   
+}} //namespace
 #endif // include guard

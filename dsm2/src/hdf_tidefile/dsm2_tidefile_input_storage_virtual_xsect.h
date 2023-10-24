@@ -1,11 +1,11 @@
 #ifndef virtual_xsect_STORAGE_H__
 #define virtual_xsect_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class virtual_xsect
 {
 public:
 
-  /** Data type virtual_xsect, default constructor */  
+  /** Data type virtual_xsect, default constructor */
   typedef const boost::tuple<const int&>  identifier_type;
 
   virtual_xsect() :
@@ -50,7 +50,7 @@ public:
     used(true),
     layer(0)
   {
-    
+
   };
 
   /** Construct a virtual_xsect with actual data values */
@@ -67,10 +67,10 @@ public:
     used(a_used),
     layer(a_layer)
   {
-      
+
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   virtual_xsect (const virtual_xsect & other) :
     chan_no(other.chan_no),
@@ -85,20 +85,20 @@ public:
     used(other.used),
     layer(other.layer)
   {
-      
+
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( chan_no );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      chan_no=identifier.get<0>();
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -109,7 +109,7 @@ public:
      return virtual_xsect::identifier_type( chan_no );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<virtual_xsect>& pbuf = HDFTableManager<virtual_xsect>::instance().buffer();
@@ -119,7 +119,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<virtual_xsect>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -130,10 +130,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const virtual_xsect & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -145,12 +145,12 @@ public:
 
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const virtual_xsect & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   virtual_xsect& operator=(const virtual_xsect& rhs)
   {
@@ -170,11 +170,11 @@ public:
 
   /** Return the class name of this object (virtual_xsect) */
   string objectName() const
-  { 
-    return "virtual_xsect"; 
+  {
+    return "virtual_xsect";
   }
 
-  
+
   int chan_no;
   int num_virt_sec;
   int vsecno;
@@ -185,7 +185,7 @@ public:
   double wet_p;
   double width;
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -207,7 +207,7 @@ ostream& operator<<(ostream & stream, const virtual_xsect & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void virtual_xsect_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -216,7 +216,7 @@ FCALL int virtual_xsect_buffer_size_f();
 
 /** append to buffer, compatible with fortran, returns new size*/
 FCALL void virtual_xsect_append_to_buffer_f(const int * a_chan_no,const int * a_num_virt_sec,const int * a_vsecno,const int * a_num_elev,const double * a_min_elev,const double * a_elevation,const double * a_area,const double * a_wet_p,const double * a_width, int * ierror);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void virtual_xsect_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -229,7 +229,7 @@ FCALL void virtual_xsect_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nreco
 
 
 /** get one row worth of information from the buffer */
-FCALL void virtual_xsect_query_from_buffer_f(int32_t* row, 
+FCALL void virtual_xsect_query_from_buffer_f(int32_t* row,
                         int * a_chan_no,int * a_num_virt_sec,int * a_vsecno,int * a_num_elev,double * a_min_elev,double * a_elevation,double * a_area,double * a_wet_p,double * a_width, int * ierror);
 /**
   prioritize buffer by layers, delete unused items and sort

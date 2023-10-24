@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -18,12 +18,12 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine buffer_input_common()      
+subroutine buffer_input_common()
       use input_storage_fortran
       use constants
       use io_units
       use groups, only:convertgrouppatternstomembers
-      
+
       implicit none
       integer :: nitem
       character*(128) filename
@@ -35,7 +35,7 @@ subroutine buffer_input_common()
       integer :: ierror = 0
       ! input_node
 
-      character*32 :: rolename 
+      character*32 :: rolename
 
 
       ! output_channel
@@ -45,7 +45,7 @@ subroutine buffer_input_common()
       character*16 variable, &
                    perop
       character*32 :: sourcegroup
-      
+
       character*32 :: group_name
       character*16 :: constituent
       real*8  :: value
@@ -55,16 +55,16 @@ subroutine buffer_input_common()
       character*8 cdist
       real*8 stage
       real*8 flow
-      
-      
+
+
       ! output_reservoir
       character*32 reservoir
       character*392 inpath
       character*8  fillin
       character*8  node_str
       integer      sign
-      integer node      
-      
+      integer node
+
        ! output_gate
       character*32 gate, device
       character*(16) :: sdate,edate
@@ -101,7 +101,7 @@ subroutine buffer_input_common()
       print *,"Number of group members processed: ", nitem
 !---- convert group members from patterns to actual objects&indexes
 !     This must come after tidefile is loaded
-	
+
       call ConvertGroupPatternsToMembers
 
 
@@ -127,9 +127,9 @@ subroutine buffer_input_common()
                                                filename,ierror)
          sourcegroup = ""
          call locase(distance)
-         if (distance(:6) .eq. "length") then 
+         if (distance(:6) .eq. "length") then
             idistance = chan_length
-         else 
+         else
             read(distance,*,err=120) idistance
          end if
          call process_output_channel(name, &
@@ -155,7 +155,7 @@ subroutine buffer_input_common()
                                                  interval, &
                                                  perOp, &
                                                  filename, &
-                                                 ierror) 
+                                                 ierror)
          sourcegroup = ""
          if (node_str .eq. "none") then
              node=miss_val_i
@@ -170,7 +170,7 @@ subroutine buffer_input_common()
                                        interval, &
                                        perOp, &
                                        sourceGroup, &
-                                       filename) 
+                                       filename)
       end do
       print *,"Number of reservoir output requests: ", nitem
 
@@ -198,7 +198,7 @@ subroutine buffer_input_common()
       print *,"Number of gate output requests: ", nitem
 
       return  ! normal return
-      
+
 118   write(unit_error,'(a,//,a)')"Failed to convert reservoir node from text to integer", &
           "Valid entries are an integer or 'none' (case sensitive)"
       call exit(-3)

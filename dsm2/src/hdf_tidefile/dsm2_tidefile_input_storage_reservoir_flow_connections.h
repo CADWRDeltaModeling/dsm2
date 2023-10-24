@@ -1,11 +1,11 @@
 #ifndef reservoir_flow_connections_STORAGE_H__
 #define reservoir_flow_connections_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class reservoir_flow_connections
 {
 public:
 
-  /** Data type reservoir_flow_connections, default constructor */  
+  /** Data type reservoir_flow_connections, default constructor */
   typedef const boost::tuple<const int&>  identifier_type;
 
   reservoir_flow_connections() :
@@ -61,10 +61,10 @@ public:
   {
     memcpy(res_name,a_res_name,32);
     memcpy(flow_name,a_flow_name,32);
-    memcpy(flow_type,a_flow_type,8);  
+    memcpy(flow_type,a_flow_type,8);
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   reservoir_flow_connections (const reservoir_flow_connections & other) :
     connection_index(other.connection_index),
@@ -76,20 +76,20 @@ public:
   {
     memcpy(res_name,other.res_name,32);
     memcpy(flow_name,other.flow_name,32);
-    memcpy(flow_type,other.flow_type,8);  
+    memcpy(flow_type,other.flow_type,8);
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( res_flow_index );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      res_flow_index=identifier.get<0>();
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -100,7 +100,7 @@ public:
      return reservoir_flow_connections::identifier_type( res_flow_index );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<reservoir_flow_connections>& pbuf = HDFTableManager<reservoir_flow_connections>::instance().buffer();
@@ -110,7 +110,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<reservoir_flow_connections>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -121,10 +121,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const reservoir_flow_connections & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -136,12 +136,12 @@ public:
 
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const reservoir_flow_connections & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   reservoir_flow_connections& operator=(const reservoir_flow_connections& rhs)
   {
@@ -159,11 +159,11 @@ public:
 
   /** Return the class name of this object (reservoir_flow_connections) */
   string objectName() const
-  { 
-    return "reservoir_flow_connections"; 
+  {
+    return "reservoir_flow_connections";
   }
 
-  
+
   int connection_index;
   char res_name[32];
   int res_index;
@@ -172,7 +172,7 @@ public:
   char flow_name[32];
   char flow_type[8];
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -194,7 +194,7 @@ ostream& operator<<(ostream & stream, const reservoir_flow_connections & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void reservoir_flow_connections_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -202,9 +202,9 @@ FCALL int reservoir_flow_connections_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void reservoir_flow_connections_append_to_buffer_f(const int * a_connection_index,const  char a_res_name[32],const int * a_res_index,const int * a_res_flow_index,const int * a_flow_index,const  char a_flow_name[32],const  char a_flow_type[8], int * ierror, 
+FCALL void reservoir_flow_connections_append_to_buffer_f(const int * a_connection_index,const  char a_res_name[32],const int * a_res_index,const int * a_res_flow_index,const int * a_flow_index,const  char a_flow_name[32],const  char a_flow_type[8], int * ierror,
               const int res_name_len,const int flow_name_len,const int flow_type_len);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void reservoir_flow_connections_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -217,8 +217,8 @@ FCALL void reservoir_flow_connections_number_rows_hdf5_f(const hid_t* file_id, h
 
 
 /** get one row worth of information from the buffer */
-FCALL void reservoir_flow_connections_query_from_buffer_f(int32_t* row, 
-                        int * a_connection_index, char a_res_name[32],int * a_res_index,int * a_res_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror, 
+FCALL void reservoir_flow_connections_query_from_buffer_f(int32_t* row,
+                        int * a_connection_index, char a_res_name[32],int * a_res_index,int * a_res_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror,
               int res_name_len,int flow_name_len,int flow_type_len);
 /**
   prioritize buffer by layers, delete unused items and sort

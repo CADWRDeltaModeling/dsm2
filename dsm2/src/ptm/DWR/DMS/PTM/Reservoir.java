@@ -30,7 +30,7 @@ public class Reservoir extends Waterbody{
    *  Set fixed information for Reservoir
    */
   public Reservoir(int nId, int hId, String wbName,
-                   float resArea, float botelv, 
+                   float resArea, float botelv,
                    int[] nodeArray){
     super(Waterbody.RESERVOIR, nId, nodeArray);
     name = wbName;

@@ -13,10 +13,10 @@ namespace oprule {
 namespace rule {
 
 /** Action that manipuates model variable(s).
-*  
+*
 */
 template<typename T >
-class ModelAction : public OperationAction  
+class ModelAction : public OperationAction
 {
 public:
 
@@ -31,8 +31,8 @@ public:
         typename ExpressionNode<T>::NodePtr  expression,
         const TransitionPtr                  transition
         ) :
-        _interface(model), 
-        _expression(expression), 
+        _interface(model),
+        _expression(expression),
         _transDuration(transition->getDuration()) ,
         _elapsed(0.),
         _transition(transition->copy())
@@ -47,7 +47,7 @@ public:
     };
 
     /** Inform this action of a time step.
-    *  Advances the expression. 
+    *  Advances the expression.
     */
     virtual void step(double dt){
         _expression->step(dt);
@@ -76,8 +76,8 @@ public:
     }
 
 
-    virtual bool isActive() { 
-        return _active; 
+    virtual bool isActive() {
+        return _active;
     }
     virtual void onCompletion();
 
@@ -87,7 +87,7 @@ public:
     */
     typename ModelInterface<T>::NodePtr getModelInterface(){
         return _interface;
-    }   
+    }
 
 private:
 
@@ -111,9 +111,9 @@ void ModelAction<T >::setActive(bool active){
         _elapsed=0.0;
         if (! _interface->isTimeDependent()){
             //snapshot of state at beginning of transition
-            _initState=_interface->eval(); 
+            _initState=_interface->eval();
         }
-        _active=true;   
+        _active=true;
     }else{
         _active=false;
     }
@@ -122,7 +122,7 @@ void ModelAction<T >::setActive(bool active){
 
 template<class T >
 void ModelAction<T>::onCompletion(){
-    if (_interface->isTimeDependent()){ 
+    if (_interface->isTimeDependent()){
         // permanently fix expression as data source
         _interface->setDataExpression(_expression);
     }
@@ -148,8 +148,8 @@ void ModelAction<T >::advance(double dt){
         _transFraction = 1.0;
         remainTime = _elapsed - _transDuration;
     }
-    
-    _currentState=_baseState*(1.0 - _transFraction) + 
+
+    _currentState=_baseState*(1.0 - _transFraction) +
         _expression->eval()*_transFraction;
     _interface->set(_currentState);
     if(_transFraction == 1.0){

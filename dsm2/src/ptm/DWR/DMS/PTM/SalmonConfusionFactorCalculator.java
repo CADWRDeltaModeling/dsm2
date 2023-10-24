@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;;
 public class SalmonConfusionFactorCalculator {
 
 	/**
-	 * 
+	 *
 	 */
 	public SalmonConfusionFactorCalculator(SwimInputs si) {
 		_confusionConsts = new ConcurrentHashMap<Integer, Double> ();
@@ -40,13 +40,13 @@ public class SalmonConfusionFactorCalculator {
 	}
 	private void calcConfusionParameters(int channelNumber, float upFlow, float downFlow){
 		// calculate swimming related info: channel direction and confusion factor
-		float curFlow = (upFlow + downFlow)/2;    		
+		float curFlow = (upFlow + downFlow)/2;
 		ArrayList<Float> flows = _flowsInTidalCycles.get(channelNumber);
 		if (flows == null){
 			flows = new ArrayList<Float>();
 			_flowsInTidalCycles.put(channelNumber, flows);
 		}
-		// For Java, Lists are passed by reference.  changing flows will also change _flowsInTidalCycles.get(channelNumber). 
+		// For Java, Lists are passed by reference.  changing flows will also change _flowsInTidalCycles.get(channelNumber).
 		flows.add(curFlow);
 		Float preAdjFlow = _preAdjFlow.get(channelNumber);
 		// Careful! Java passes a Float by value.  changing preAdjFlow will not change _preAdjFlow.get(channelNumber).
@@ -80,28 +80,28 @@ public class SalmonConfusionFactorCalculator {
 			}
 			double s_n = Math.log(Math.max(1E-10, Math.abs(meanFlow/sd)));
 			double term = Math.exp(_constConfProb + _confProbSlope*s_n);
-			_confusionConsts.put(channelNumber, _maxConfProb*term/(1+term));  			
+			_confusionConsts.put(channelNumber, _maxConfProb*term/(1+term));
 			_tideCount = 0;
 			flows.clear();
 		}
 		else{
 			//initialize the maps
-			//getconfusionFactor will be called at very beginning of the model run 
+			//getconfusionFactor will be called at very beginning of the model run
 			if(_confusionConsts.get(channelNumber) == null)
 				_confusionConsts.put(channelNumber, 0.0);
 			if(_chanDirs.get(channelNumber) == null)
 				_chanDirs.put(channelNumber, 1);
 		}
 		_preAdjFlow.put(channelNumber, curAdjFlow);
-		_preChange.put(channelNumber, change);    		
+		_preChange.put(channelNumber, change);
 	}
 	// confusion factor returned include the channel direction
 	int getConfusionFactor(int chanId){
-		// to be consistent with NMFS' implementation, ChannDir is always used when fish gets confused. 
+		// to be consistent with NMFS' implementation, ChannDir is always used when fish gets confused.
 		// i.e., when confusion factor = 1 (fish is not confused) channel direction always = 1
 		// but when confusion occurs, channel direction can be -1 or 1
 		return ((_randomAccess && (PTMUtil.getRandomNumber() < _accessProb)
-		&& (PTMUtil.getRandomNumber() < getConfusionConst(chanId)))? (-1*getChanDir(chanId)):1);		
+		&& (PTMUtil.getRandomNumber() < getConfusionConst(chanId)))? (-1*getChanDir(chanId)):1);
 	}
 	private double getConfusionConst(int chanId){
 		Double cc = _confusionConsts.get(chanId);

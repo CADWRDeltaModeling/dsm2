@@ -23,29 +23,29 @@ import java.util.Map;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 /**
- *  Records particles critical events, e.g. insertion, change of waterbody, 
+ *  Records particles critical events, e.g. insertion, change of waterbody,
  *  change of node, time interval change, death
  *  ??only the first 2 & the last 1 are implemented
- *  
+ *
  */
 class ParticleObserver{
 
-  public final static int INSERT=5, WATERBODY_CHANGE=1, NODE_CHANGE=2, TIME_INTERVAL=3, DEATH=4; 
-  
+  public final static int INSERT=5, WATERBODY_CHANGE=1, NODE_CHANGE=2, TIME_INTERVAL=3, DEATH=4;
+
   /**
    *  Constructor
    */
   public ParticleObserver(String traceFileName, int outputType,
-                          int startTime, int endTime, int PTMTimeStep, 
+                          int startTime, int endTime, int PTMTimeStep,
                           int nParticles){
-	
+
 	if(Particle.ADD_TRACE||Globals.CalculateWritePTMFlux)
 		traceOn = true;
 	else
 		traceOn = false;
     try{
       if (traceOn) output = new PTMTraceOutput(traceFileName, outputType,
-                                               startTime, endTime, PTMTimeStep, 
+                                               startTime, endTime, PTMTimeStep,
                                                nParticles);
     }catch(IOException ioe){
       System.out.println("Exception " + ioe + " occurred");
@@ -75,11 +75,11 @@ class ParticleObserver{
     switch(change) {
     case INSERT:
       observeInsert(observed);
-      break;	
-    case WATERBODY_CHANGE: 
+      break;
+    case WATERBODY_CHANGE:
       observeWaterbodyChange(observed);
       break;
-    case NODE_CHANGE: 
+    case NODE_CHANGE:
       observeNodeChange(observed);
       break;
     case TIME_INTERVAL:
@@ -90,7 +90,7 @@ class ParticleObserver{
       break;
     default:
       return;
-    }				  
+    }
   }
 
   /**
@@ -121,13 +121,13 @@ class ParticleObserver{
       int pId = observed.getId();
       int nodeId = -1;
       int wbId = -1;
-      if (observed.getRecentNode() != null) 
+      if (observed.getRecentNode() != null)
         nodeId =  observed.getRecentNode().getEnvIndex();
       if (observed.getCurrentWaterbody() != null)
         wbId =  observed.getCurrentWaterbody().getEnvIndex();
       long time = observed.getCurrentParticleTime();
       output.output(time,pId,nodeId,wbId);
-      
+
       long timeExact = observed.getCurrentParticleTimeExact();
       observed.addParticleTrace(timeExact, wbId, nodeId);
     }
@@ -165,10 +165,10 @@ class ParticleObserver{
    */
   public final void showChange(int change, Particle observed){
     switch(change) {
-      case WATERBODY_CHANGE: 
+      case WATERBODY_CHANGE:
         showWaterbodyChange(observed);
         break;
-      case NODE_CHANGE: 
+      case NODE_CHANGE:
         showNodeChange(observed);
         break;
       case TIME_INTERVAL:
@@ -176,7 +176,7 @@ class ParticleObserver{
         break;
       default:
         return;
-      }		
+      }
   }
 
   /**
@@ -201,16 +201,16 @@ class ParticleObserver{
   public void showNodeChange(Particle observed){
     Waterbody wb;
     float[] px = new float[1], py = new float[1], pz = new float[1];
-  
+
     System.out.println("Particle " + "  " +observed.getId()+
                        " at Node " + "  " +observed.getRecentNode().getEnvIndex());
-  
+
     wb = observed.getLocation(px, py, pz);
-  
+
     System.out.println("Particle " + "  " +observed.getId()
-                     + " in waterbody " + "  " +wb.getEnvIndex() 
+                     + " in waterbody " + "  " +wb.getEnvIndex()
                      + " which is a " + "  " +wb.getPTMType());
-  
+
     System.out.flush();
   }
 

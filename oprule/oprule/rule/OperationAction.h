@@ -18,7 +18,7 @@ typedef boost::shared_ptr<OperationAction> OperationActionPtr;
  * Interface for all actions. This base class contains mostly pure
  * virtual methods.
  */
-class OperationAction 
+class OperationAction
 {
 public:
     enum CollectionType { NO_COLLECTION, CHAIN_COLLECTION, SET_COLLECTION };
@@ -26,9 +26,9 @@ public:
    /** Advance the action in time */
 	virtual void advance(double dt) = 0;
 
-   /** Assess whether the action is applicable 
-     * (physically sensible) 
-     * in current model context. 
+   /** Assess whether the action is applicable
+     * (physically sensible)
+     * in current model context.
      * todo: do we need this?
    */
     virtual bool isApplicable(){return true;}
@@ -47,22 +47,22 @@ public:
    /** Perform actions on completion on completion of action
    * Context dependent. Performs any wrapup activity.
    */
-   virtual void onCompletion(){ 
+   virtual void onCompletion(){
        if (hasParent()){
           parent()->childComplete();
-      } 
+      }
    };
 
 
    /**Test if this action is a compound collection of sub actions.
     * @return true if the action has subactions
     */
-   virtual bool hasSubActions(){ 
-      return false; 
+   virtual bool hasSubActions(){
+      return false;
    }
 
 
-   /** Test if this action directly manipulates the model 
+   /** Test if this action directly manipulates the model
     * @return true if the action directly manipulates the model.
     */
    virtual bool isModelStateAction(){
@@ -78,7 +78,7 @@ public:
       _parent=parent;
       _hasParent = true;
    }
-   
+
    /** Query if object has a parent registered */
    bool hasParent(){ return _hasParent; }
 
@@ -94,11 +94,11 @@ public:
 
    /** Compare with another action
      * Test true if this actions has an effect that overlaps
-     * with that of the other. 
+     * with that of the other.
    */
-   virtual bool overlaps( const OperationAction& otherAction ){ 
+   virtual bool overlaps( const OperationAction& otherAction ){
       std::cout << "Base overlaps" << std::endl;
-      return false; //this default will work when the action 
+      return false; //this default will work when the action
                     //is not a model action (e.g. it is a collection)
                     //or when two different state types are involved
    }
@@ -108,7 +108,7 @@ public:
 
    /** Create an exhaustive (but not carefully ordered)
     * list of all actions in an operating rule. The current action will
-    * either append itself to the list or (if it is a compound action) 
+    * either append itself to the list or (if it is a compound action)
     * request its subactions to do so
     * @todo: is this not done?
     */
@@ -123,16 +123,16 @@ public:
 
    CollectionType getCollectionType(){return m_collectionType;}
 
-protected: 
+protected:
    OperationAction(): m_collectionType(NO_COLLECTION), _hasParent(false){}
 
-   /** 
+   /**
     * Get the parent of this action assuming the action is in a collection.
     *@return The parent (collection) holding this action.
     *@todo: what if not member of a collection?
    */
    OperationActionPtr parent()
-    {  
+    {
        OperationActionPtr parentRef(_parent);
        return parentRef;
    }

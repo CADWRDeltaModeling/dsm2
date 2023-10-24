@@ -10,9 +10,9 @@ import java.util.concurrent.Future;
 
 public class ParticleLoop {
 	public static boolean DEBUG = false;
-	
+
 	// Get the number of available processors
-	public static int NUM_THREADS = Runtime.getRuntime().availableProcessors(); 
+	public static int NUM_THREADS = Runtime.getRuntime().availableProcessors();
 
 	// Create a thread pool executor with a fixed number of threads
 	public static ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
@@ -60,7 +60,7 @@ public class ParticleLoop {
 		}
 
 	}
-	
+
 	public static void shutdown(){
 		executor.shutdown();
 	}

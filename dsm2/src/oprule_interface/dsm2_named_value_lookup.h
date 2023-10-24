@@ -13,7 +13,7 @@
 #include "dsm2_interface_fortran.h"
 
 
-class DSM2HydroNamedValueLookup : public oprule::parser::NamedValueLookupImpl  
+class DSM2HydroNamedValueLookup : public oprule::parser::NamedValueLookupImpl
 {
 public:
 

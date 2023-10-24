@@ -24,21 +24,21 @@ public class SalmonSwimmingVelocityCalculator {
 	//TODO change to calling random numbers from Particle
 	//public float getSwimmingVelocity(int pId, int chanId){
 	public float getSwimmingVelocity(Particle p, int chanId){
-		float [] paras = getSwimParameters(chanId);	 
+		float [] paras = getSwimParameters(chanId);
 		//return getMeanSwimmingVelocity(pId, chanId) + paras[2]*((float)PTMUtil.getNextGaussian());
 		return getMeanSwimmingVelocity(p.Id, chanId) + paras[2]*((float) p.getGaussian());
 	}
 	void setMeanSwimmingVelocity(int pId, int chanId){
-		float [] paras = getSwimParameters(chanId); 		
+		float [] paras = getSwimParameters(chanId);
 		Map<Integer, Float> pidMeanSwimVel =  _meanSwimVels.get(getGroupName(chanId));
 		//one mean swimming velocity per channel group per particle
 		if (pidMeanSwimVel.get(pId) == null){
-			
+
 			Float z = _pZValues.get(pId);
 			if (z == null)
 				_pZValues.put(pId, ((float)PTMUtil.getNextGaussian()));
 			pidMeanSwimVel.put(pId, paras[0] + paras[1]*_pZValues.get(pId));
-			
+
 			//pidMeanSwimVel.put(pId, paras[0] + paras[1]*((float)PTMUtil.getNextGaussian()));
 		}
 	}
@@ -47,7 +47,7 @@ public class SalmonSwimmingVelocityCalculator {
 		if (pidMeanSwimVel == null || pidMeanSwimVel.get(pId) == null)
 			PTMUtil.systemExit("Mean swimming velocity never been set for channel: "
 					+PTMHydroInput.getExtFromIntChan(chanId)
-					+" in the group: "+getGroupName(chanId)+", check the code! system exit."); 
+					+" in the group: "+getGroupName(chanId)+", check the code! system exit.");
 		return pidMeanSwimVel.get(pId);
 	}
 	private float[] getSwimParameters(int chanId){

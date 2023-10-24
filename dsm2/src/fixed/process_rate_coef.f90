@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -21,18 +21,18 @@
 subroutine process_rate_coef(group_name, &
                                    constituent, &
                                    rate_variable, &
-                                   rate_value)            
+                                   rate_value)
 	use Groups, only: groupContains,IsAllChannelReservoir,groupArray
 	use rate_coeff_assignment
 	use common_qual
 	use constants
 	use io_units
-	use logging      
+	use logging
       implicit none
       character*16 rate_variable,constituent
-      
+
       character*32 group_name
-      character errm*128 !todo: this is not good style      
+      character errm*128 !todo: this is not good style
       integer :: rate_var_id
       integer :: ncc_id
 
@@ -44,7 +44,7 @@ subroutine process_rate_coef(group_name, &
       integer,external :: ncc_code
       integer :: ichan,ires
 
-      call locase(group_name)      
+      call locase(group_name)
       call locase(rate_variable)
       call locase(constituent)
       rate_var_id = rate_variable_code(rate_variable)
@@ -72,9 +72,9 @@ subroutine process_rate_coef(group_name, &
          call exit(-3)
       end if
       rate_value=rate_value/24. ! convert per day to per hour
-	do 200 ichan=1,nchans 
+	do 200 ichan=1,nchans
 	  if (groupContains(groupno,obj_channel,ichan)) then
-          if ( rcoef_chan(ncc_id,rate_var_id,ichan) .eq. miss_val_r) then 
+          if ( rcoef_chan(ncc_id,rate_var_id,ichan) .eq. miss_val_r) then
 		      rcoef_chan(ncc_id,rate_var_id,ichan)=rate_value
           else
               call ncc_code_to_name(ncc_id, constituent)
@@ -87,7 +87,7 @@ subroutine process_rate_coef(group_name, &
           end if
 	  end if
 200   end do
-            
+
 	do 300 ires = 1, nreser
         if(GroupContains(groupno,obj_reservoir,ires)) then
           rcoef_res(ncc_id,rate_var_id,ires)=rate_value
@@ -96,4 +96,4 @@ subroutine process_rate_coef(group_name, &
       rate_var_require_flag(ncc_id,rate_var_id)=.true.
       return
 end subroutine
-      
+

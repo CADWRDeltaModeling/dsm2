@@ -11,7 +11,7 @@
 namespace oprule{
    namespace parser{
 
-/** Class to facilitate having a single type of named symbols. Basically this is 
+/** Class to facilitate having a single type of named symbols. Basically this is
     just a union, and it isn't very safe.
    @todo change this to something safer.*/
 class symbol {
@@ -69,7 +69,7 @@ public:
    TransitionPtr transition;
    TriggerPtr trigger;
 
-   void erase(){ 
+   void erase(){
       OE_NODE_DELETE(boolval);
       OE_NODE_DELETE(dblval);
       OE_NODE_DELETE(rule);
@@ -78,8 +78,8 @@ public:
 
    /** Copy a symbol */
    symbol(const symbol& s) : _t(s._t),
-                             stringval(s.stringval), 
-                             boolval(s.boolval), 
+                             stringval(s.stringval),
+                             boolval(s.boolval),
                              dblval(s.dblval),
                              rule(s.rule),
                              action(s.action),

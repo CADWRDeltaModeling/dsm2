@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -21,7 +21,7 @@ public class SmeltBasicSwimBehavior extends BasicSwimBehavior implements
 	public void updatePosition(Particle p, float delT){
 		if(p.wb.getPTMType() == Waterbody.CHANNEL)
 			((SmeltHydroCalculator) super.getHydroCalculator()).updateStageInfo(p, delT);
-		super.updatePosition(p, delT);		
+		super.updatePosition(p, delT);
 	}
-	
+
 }

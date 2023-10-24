@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.nio.IntBuffer;
 public class FishReleaseGroup {
 
 	/**
-	 * 
+	 *
 	 */
 	public FishReleaseGroup() {
 		// TODO Auto-generated constructor stub

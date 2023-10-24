@@ -13,8 +13,8 @@ CHANNEL  #
 CHAN_NO     MANNING   UPNODE  DOWNNODE
 1           0.03      1       2
 1           0.03      1       2
-2           0.03      2       3 
-3           0.03      3       4 
+2           0.03      2       3
+3           0.03      3       4
 END
 
 XSECT

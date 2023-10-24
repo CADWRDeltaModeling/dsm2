@@ -472,7 +472,7 @@ module advection
         do ivar=1,nvar
             mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
         end do
-    
+
         ! compute the source at the new time from the predictor
         call cons2prim(conc,    &
                        mass,    &

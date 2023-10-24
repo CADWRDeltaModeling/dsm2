@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -139,7 +139,7 @@ subroutine objno_to_name(objtype, index, name)
       else if (ObjType .eq. obj_qext .or. ObjType .eq. obj_boundary_flow) then
 	   name=qext(index).name
 !------Jon add this line to account for sink/source object
-      else if (ObjType .eq. obj_source_sink) then 
+      else if (ObjType .eq. obj_source_sink) then
 	   name=qext(index).name
       else if (ObjType .eq. obj_stage) then
 	   name=stgbnd(index).name
@@ -214,14 +214,14 @@ integer*4 function obj_type_code(objtype)
 	   obj_type_code=miss_val_i
 	   cstring=trim(objtype)
 	   call locase(cstring)
-	   if (index(cstring,"chan") .eq. 1) then 
+	   if (index(cstring,"chan") .eq. 1) then
 	     obj_type_code=obj_channel
 	   else if (index(cstring,"gate") .eq. 1) then
 	     obj_type_code=obj_gate
 	   else if (index(cstring,"res") .eq. 1) then
 	     obj_type_code=obj_reservoir
 	   else if (index(cstring,"node") .eq. 1) then
-	     obj_type_code=obj_node	  
+	     obj_type_code=obj_node
 	   else if (index(cstring,"transfer") .eq. 1) then
 	     obj_type_code=obj_obj2obj
 	   else if (index(cstring,"group") .eq. 1) then

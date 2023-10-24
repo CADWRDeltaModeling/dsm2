@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -34,7 +34,7 @@ subroutine input_text(filename)
 
 
 !-----Do a first pass reading the input, activating only ENVVARS for use in later text substitution
-      call set_user_substitution_enabled(.false.,ierror)   ! don't try to substitute now      
+      call set_user_substitution_enabled(.false.,ierror)   ! don't try to substitute now
       call set_substitution_not_found_is_error(.false.,ierror)
       call set_active_profile("envvar",ierror)        ! read only ENVVAR blocks
       call verify_error(ierror,"Error setting active profile")
@@ -46,7 +46,7 @@ subroutine input_text(filename)
       call process_text_substitution(ierror)
       call set_user_substitution_enabled(.true.,ierror)    ! substitute now
       call set_substitution_not_found_is_error(.true.,ierror)
-      ! clear the buffer so that envvars are not loaded redundantly 
+      ! clear the buffer so that envvars are not loaded redundantly
 
       call clear_all_buffers(ierror)          ! Clear the envvar buffer
       print*,"Read and processed text substitution (ENVVARS), reading all data from text"
@@ -97,7 +97,7 @@ subroutine write_input_buffers_hdf5(loc_id)
       use envvar
       implicit none
       character(len=5) :: group_name = "input"
-      integer(HID_T) :: loc_id 
+      integer(HID_T) :: loc_id
       integer(HID_T) :: group_id
 
       integer :: ierror = 0
@@ -116,7 +116,7 @@ end subroutine
 
 !====================================================================
 subroutine process_initial_text
-      
+
       use hdf5
       use input_storage_fortran
       use envvar
@@ -141,7 +141,7 @@ subroutine process_initial_text
            call process_scalar(name,value)
       end do
       print *,"Number of scalars: ", nitem
-       
+
       return
 end subroutine
 

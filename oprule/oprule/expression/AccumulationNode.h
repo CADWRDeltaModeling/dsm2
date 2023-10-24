@@ -7,7 +7,7 @@
 namespace oprule{
 namespace expression{
 
-/** 
+/**
  * Expression node representing accumulation over time.
  * It can be used to accumulate counts or integrate
 */
@@ -24,7 +24,7 @@ public:
     * @param init_value: the initial value for the parameter
     * @param reset_condition: resets the expression to init_value
     */
-    AccumulationNode(ExpressionNodePtr expression, 
+    AccumulationNode(ExpressionNodePtr expression,
         ExpressionNodePtr init_value,
         BoolNodePtr reset_condition)
         : _express(expression),
@@ -34,20 +34,20 @@ public:
     }
 
     virtual ~AccumulationNode(){
-        OE_NODE_DELETE(_resetter); 
+        OE_NODE_DELETE(_resetter);
         OE_NODE_DELETE(_initializer);
         OE_NODE_DELETE(_express);
     }
 
-    static NodePtr create(ExpressionNodePtr expr, 
-        ExpressionNodePtr init_value, 
-        BoolNodePtr reset){ 
+    static NodePtr create(ExpressionNodePtr expr,
+        ExpressionNodePtr init_value,
+        BoolNodePtr reset){
             return NodePtr(new AccumulationNode<T>(expr,init_value,reset));
     }
 
     virtual ExpressionNodePtr copy(){
         return NodePtr(new AccumulationNode<T>(_express->copy(),
-            _initializer->copy(), 
+            _initializer->copy(),
             _resetter->copy())
             );
     }
@@ -57,7 +57,7 @@ public:
     }
 
     /**Inform this node that a step has been taken.
-    * 
+    *
     */
     virtual void step(double dt){
         _resetter->step(dt);
@@ -67,7 +67,7 @@ public:
             _accum=_initializer->eval();
         }
         _accum+=_express->eval(); //todo: urgent decide this
-		
+
     }
 
     /** Get lagged value (maximum lag)*/

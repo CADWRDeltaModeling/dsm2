@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -39,7 +39,7 @@ public class PTMUtil {
 	private static boolean _useNewRandomSeed = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public PTMUtil() {
 		// TODO Auto-generated constructor stub
@@ -80,14 +80,14 @@ public class PTMUtil {
              e.printStackTrace();
         }
     }
-	public static ArrayList<String> getInputBlock(BufferedReader inputBuffer, String start, String end){	
+	public static ArrayList<String> getInputBlock(BufferedReader inputBuffer, String start, String end){
         ArrayList<String> blockList = new ArrayList<String>();
         try{
             String line;
             do{
                 line = inputBuffer.readLine();
             } while(line != null && !line.trim().toUpperCase().startsWith(start));
-            
+
             while((line=inputBuffer.readLine()) != null && !(line.trim().toUpperCase()).startsWith(end)){//(line = line.trim().toUpperCase()).startsWith(end)){
             	if (!line.startsWith("#"))
             		blockList.add(line.trim());
@@ -100,7 +100,7 @@ public class PTMUtil {
         		return null;
         return blockList;
     }
-	public static ArrayList<String> getInputs(BufferedReader inputBuffer){	
+	public static ArrayList<String> getInputs(BufferedReader inputBuffer){
         ArrayList<String> blockList = new ArrayList<String>();
         try{
             String line;
@@ -126,9 +126,9 @@ public class PTMUtil {
             	return null;
             String line = null;
             do{
-                line = it.next();   
+                line = it.next();
             } while(it.hasNext() && line != null && !line.trim().toUpperCase().startsWith(start));
-            
+
             block = new ArrayList<String>();
             while(it.hasNext() && ((line= it.next()) != null) && !(line.trim()).toUpperCase().startsWith(end)){
                 block.add(line);
@@ -152,7 +152,7 @@ public class PTMUtil {
 		hecTime0.clear();
 		hecTime0.set(1899,11,30,23,0);;
 		return hecTime0;
-		
+
 	}
 	// convert model time (in minutes!!!) to calendar time
 	public static Calendar modelTimeToCalendar(long currentTime, TimeZone timeZone){//convertHecTime(long currentTime){
@@ -190,11 +190,11 @@ public class PTMUtil {
 			number = Integer.parseInt(intStr);
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");	
+			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");
 		}
 		return number;
 	}
-	
+
 	// only work with format name: number
 	public static int getInt(String numberLine){
 		int number = -999999;
@@ -203,7 +203,7 @@ public class PTMUtil {
 			number = Integer.parseInt(items[1]);
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");	
+			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");
 		}
 		return number;
 	}
@@ -257,7 +257,7 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
-	
+
 	private static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
 		String[] items = line.split(":");
 		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
@@ -270,7 +270,7 @@ public class PTMUtil {
 			pairs.add(strPair);
 		}
 		if (pairs.size()<1)
-			PTMUtil.systemExit("the look up line is empty, exit.");	
+			PTMUtil.systemExit("the look up line is empty, exit.");
 		return pairs;
 	}
 	public static Map<Integer,String> getIntStrPairsFromLine(String line, String lineName) throws NumberFormatException{
@@ -315,10 +315,10 @@ public class PTMUtil {
 				int[] intPair = {Integer.parseInt(pair[0].trim()), Integer.parseInt(pair[1].trim())};
 				pairs.add(intPair);
 			}
-			
+
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the input file! Should be integers. The line input:" + line);	
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers. The line input:" + line);
 		}
 		return pairs;
 	}
@@ -338,7 +338,7 @@ public class PTMUtil {
 				throw new NumberFormatException("no integer pairs found, check the input file!");
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");
 		}
 		return pairs;
 	}
@@ -370,21 +370,21 @@ public class PTMUtil {
 				g2Ints.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(s.trim())));
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");
 		}
 		return new Pair<ArrayList<Integer>, ArrayList<Integer>>(name, g1Ints, g2Ints);
 	}
 	// get a boolean from a line with format name: double
 	public static boolean getBooleanFromLine(String line, String lineName){
 		String[] items = line.split("[,:\\s\\t]+");
-		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)) 
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName))
 				|| (!items[1].equalsIgnoreCase("TRUE") && !items[1].equalsIgnoreCase("FALSE")))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		if (items[1].equalsIgnoreCase("FALSE"))
 			return false;
 		return true;
 	}
-	
+
 	public static ArrayList<Integer> getInts(String numberLine){
 		ArrayList<Integer> ints = new ArrayList<Integer>();
 		try{
@@ -393,7 +393,7 @@ public class PTMUtil {
 				ints.add(Integer.parseInt(item));
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("expect integers but get:"+numberLine);	
+			PTMUtil.systemExit("expect integers but get:"+numberLine);
 		}
 		return ints;
 	}
@@ -405,7 +405,7 @@ public class PTMUtil {
 				dbls.add(Double.parseDouble(item));
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("expect Doubles but get:"+numberLine);	
+			PTMUtil.systemExit("expect Doubles but get:"+numberLine);
 		}
 		return dbls;
 	}
@@ -461,14 +461,14 @@ public class PTMUtil {
 		return Math.random();
 	}
 	public static double getNextGaussian(){
-		return rand.nextGaussian(); 
+		return rand.nextGaussian();
 	}
 	*/
 	public static void setRandomNumber(){
 		randomNumberGenerator = new Ranecu(System.currentTimeMillis());
 		//TODO changed the way the random numbers are called
 		_useNewRandomSeed = true;
-	} 
+	}
 	public static boolean getUseNewRandomSeed(){return _useNewRandomSeed;}
 	public static int[] getEnvNodeChanIds(String[] items){
 		if (items.length<2)

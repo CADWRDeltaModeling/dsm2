@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -40,8 +40,8 @@ subroutine read_mult_tide
       integer &
           i                    ! loop indices
 
-     
-      integer, save :: prev_read_tidetime = miss_val_i     
+
+      integer, save :: prev_read_tidetime = miss_val_i
       integer, save :: first_used_tidefile = miss_val_i
       integer, save :: prev_tidefile = miss_val_i
 
@@ -56,7 +56,7 @@ subroutine read_mult_tide
       external jmin2cdt
 
       foundtime = .false.
-      do i=max(current_tidefile,1),nintides     
+      do i=max(current_tidefile,1),nintides
          if (julmin .ge. tide_files(i).start_julmin .and. &
              julmin .le. tide_files(i).end_julmin) then
               new_tidefile=current_tidefile .ne. i
@@ -79,8 +79,8 @@ subroutine read_mult_tide
 
       filenm=tide_files(current_tidefile).filename
       if (new_tidefile) then
-	   !@todo: why do we read_tide_head? We want some specific dated info, 
-	   !       but mostly this is just dangerous. 
+	   !@todo: why do we read_tide_head? We want some specific dated info,
+	   !       but mostly this is just dangerous.
 	   !       It would be better to have a smaller read of any
 	   !       info that actually changes between tidefiles.
          call read_tide_head(filenm, .true.)
@@ -94,11 +94,11 @@ subroutine read_mult_tide
 	   ! time step that reads t0. Here, we are about to read/calculate
 	   ! t1. Need to reload the data from t0 as if it came from the new
 	   ! tidefile, and then reconcile any differences in ProcessTide.
-         call ReadDataFromHDF5(tide_files(current_tidefile).start_julmin) 
+         call ReadDataFromHDF5(tide_files(current_tidefile).start_julmin)
          call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
          prev_read_tidetime = getCurrentTideTime() ! forces a second read based on julmin
-         
-      endif 
+
+      endif
       new_tidefile = .false.
 !-----read tide flows
 	if (julmin .gt. prev_read_tidetime ) then
@@ -113,7 +113,7 @@ subroutine read_mult_tide
 end subroutine
 
 
-      
+
 
 
 

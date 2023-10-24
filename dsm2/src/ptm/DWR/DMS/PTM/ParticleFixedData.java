@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -53,24 +53,24 @@ package DWR.DMS.PTM;
  *  <p>
  */
 class ParticleFixedData{
-  
+
 
   /**
    *  constructor
    */
 public  ParticleFixedData(){
 }
-  
+
 public String toString(){
   String rep =  "Particle Fixed Data";
-  rep += "Logical Variables " 
-    + "  useVerticalProfile "+ useVerticalProfile 
+  rep += "Logical Variables "
+    + "  useVerticalProfile "+ useVerticalProfile
     + "  useTransverseProfile " + useTransverseProfile
-    + "  useTransverseMixing  "     + useTransverseMixing 
+    + "  useTransverseMixing  "     + useTransverseMixing
     + "  useVerticalMixing  "   + useVerticalMixing
     ;
   return rep;
-}  
+}
   /**
    *  sets the logical variable values
    */
@@ -109,12 +109,12 @@ public final void setVariables(int random_seed,
   /**
    *  sets the insertion variable values
    */
-public final void setVariables(int nInjections, 
-                               int[] nNode, 
-                               int[] nInjected, 
-                               int[] startJulmin, 
+public final void setVariables(int nInjections,
+                               int[] nNode,
+                               int[] nInjected,
+                               int[] startJulmin,
                                int[] lengthJulmin){
-  
+
   numberOfInjections = nInjections;
   particleInjectionNode = nNode;
   numberOfParticlesInjected = nInjected;
@@ -132,7 +132,7 @@ public final void setVariables(int nInjections,
     qualityNames = qNames;
   }
   /**
-   *  sets the particle type 
+   *  sets the particle type
    */
   public final void setVariables(String particleType){
 	  _particleType = particleType;
@@ -163,7 +163,7 @@ public final float getVerticalConstant(){
    */
 public final float getTransverseConstant(){
   return Ct;
-}    
+}
 
 
   /**
@@ -171,7 +171,7 @@ public final float getTransverseConstant(){
    */
 public final float getTransverseACoef(){
   return Aq;
-}    
+}
 
 
   /**
@@ -179,7 +179,7 @@ public final float getTransverseACoef(){
    */
 public final float getTransverseBCoef(){
   return Bq;
-}    
+}
 
 
   /**
@@ -187,7 +187,7 @@ public final float getTransverseBCoef(){
    */
 public final float getTransverseCCoef(){
   return Cq;
-}    
+}
 
 
   /**

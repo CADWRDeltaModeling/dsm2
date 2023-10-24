@@ -38,12 +38,12 @@ binary_output    FALSE
 dss_direct        TRUE
 END
 
-IO_FILE 
+IO_FILE
 MODEL    TYPE    IO   INTERVAL    FILE
 hydro    hdf5    out  1hour    ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5       # Flow data to be passed to qual and ptm
 hydro    restart out  1mon     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf      # Initial condition a restart is required
 hydro    output  out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.out      # Echoed input and run status
-hydro    echo    out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp  #Echoed input  
+hydro    echo    out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp  #Echoed input
 END
 
 
@@ -58,7 +58,7 @@ CHAN_NO    LENGTH    MANNING    DISPERSION    UPNODE    DOWNNODE
 END
 
 XSECT_LAYER
-CHAN_NO  DIST  ELEV  AREA  WIDTH  WET_PERIM  
+CHAN_NO  DIST  ELEV  AREA  WIDTH  WET_PERIM
 1        0.500   -24       0           40          40
 1        0.500   0         960         80          102.5
 1        0.500   20        2640        160         192
@@ -82,19 +82,19 @@ END
 
 
 CHANNEL_IC
-CHAN_NO  DISTANCE  STAGE  FLOW  
-1        0       0.00    0.0         
-1        length  0.00    0.0         
-2        0       0.00    0.0         
-2        length  0.00    0.0         
-3        0       0.00    0.0         
-3        length  0.00    0.0         
-4        0       0.00    0.0         
-4        length  0.00    0.0         
-5        0       0.00    0.0         
-5        length  0.00    0.0         
-6        0       0.00    0.0         
-6        length  0.00    0.0         
+CHAN_NO  DISTANCE  STAGE  FLOW
+1        0       0.00    0.0
+1        length  0.00    0.0
+2        0       0.00    0.0
+2        length  0.00    0.0
+3        0       0.00    0.0
+3        length  0.00    0.0
+4        0       0.00    0.0
+4        length  0.00    0.0
+5        0       0.00    0.0
+5        length  0.00    0.0
+6        0       0.00    0.0
+6        length  0.00    0.0
 END
 
 BOUNDARY_STAGE
@@ -119,6 +119,6 @@ chan3    3    length    stage    15min    inst    ${HYDROOUTDSSFILE}
 chan4    4    0         flow    15min    inst    ${HYDROOUTDSSFILE}
 chan4    4    0         stage    15min    inst    ${HYDROOUTDSSFILE}
 END
-  
+
 
 

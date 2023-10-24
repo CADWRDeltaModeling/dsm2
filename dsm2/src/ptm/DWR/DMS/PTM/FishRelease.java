@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.Calendar;
@@ -12,7 +12,7 @@ public class FishRelease {
 	public static final int CENTER = 1;
 	public static final int RANDOM = 0;
 	/**
-	 * 
+	 *
 	 */
 	public FishRelease(Calendar releaseTime, int fishNumber, int releaseStyle) {
 		_releaseTime = releaseTime;

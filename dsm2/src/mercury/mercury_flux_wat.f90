@@ -124,7 +124,7 @@ subroutine hg_flux_wat(area,        &
     !else
        ! r%oxidation = zero
     !end if
-    !r%oxidation = r%photoreduction * dgm_ratio       
+    !r%oxidation = r%photoreduction * dgm_ratio
     !>evasion/volotilization
     MTC_Hg0  =  1.0/ ((1.0/MTC_Hg0Wat) + (1.0/(MTC_Hg0Air*Henry_Hg0)))  !/day_to_sec
 	MTC_MeHg =  1.0/ ((1.0/MTC_MeHgWat) + (1.0/(MTC_MeHgAir*Henry_MeHg)))  !/day_to_sec
@@ -204,7 +204,7 @@ subroutine sum_fluxes(r)
     !local
     integer :: ii
     !todo:: order fluxes to minimize round off error
-    
+
     r%MeHg = r%MeHg + r%methyl + r%methyl_int - r%photodemethyl - r%biodemethyl - r%biodemethyl_int + r%drydep_Mehg + r%wetdep_MeHg -r%volatil_MeHg
     r%HgII = r%HgII + r%oxidation - r%photoreduction + r%wetdep_HgII + r%drydep_HgII + r%RGMdep_HgII &
              + r%photodemethyl + r%biodemethyl + r%biodemethyl_int - r%methyl - r%methyl_int !&
@@ -220,9 +220,9 @@ subroutine sum_fluxes(r)
 
     !todo: add interface turnover to Hg_inert flux
     !r%Hg_inert = r%adsorption
-     
+
     r%Hg0  = r%Hg0 + r%photoreduction - r%oxidation - r%evasion_Hg0
-   
+
 end subroutine sum_fluxes
 
 subroutine fluxes_to_hdfarray(time_index,           &

@@ -52,7 +52,7 @@ void app_init_expression(){
 
 class ParserTest {
 
-public:   
+public:
    ParserTest()
        : testLookup(new TestNamedValueLookup),
          timeFactory(new TrivialModelTimeNodeFactory(2001,4,15,7,1))
@@ -90,7 +90,7 @@ public:
       BOOST_CHECK_CLOSE( expression_result( \
       INPUT,getDoubleExpression()->eval()), RESULT, DOUBLETOL); \
 
-   
+
     void testParseNumeric(){
       int parseok=88; //init to failure
       std::string instr;
@@ -140,7 +140,7 @@ public:
       int parseok=88; //init to failure
       std::string instr;
 
-      DTEST("LookupName*5*test_state(first_arg=4;second_arg='quoted string');",20.0); 
+      DTEST("LookupName*5*test_state(first_arg=4;second_arg='quoted string');",20.0);
 	}
 
 
@@ -156,7 +156,7 @@ public:
 		 BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
          BOOST_CHECK(parseok != 0);
       }catch(std::logic_error e){
-         BOOST_FAIL("Parser should handle error, no exception here.");         
+         BOOST_FAIL("Parser should handle error, no exception here.");
       }
     }
 
@@ -194,8 +194,8 @@ public:
       BTEST("(20. / 10.) > 1. AND (1. < 3.);", true);
       BTEST("NOT((20. / 10.) < 3. AND (1. > 3.));", true);
       BTEST(" NOT(false OR false);", true);
-      BTEST("true AND true AND true OR false;",true); 
-      BTEST("true AND true AND true;",true); 
+      BTEST("true AND true AND true OR false;",true);
+      BTEST("true AND true AND true;",true);
       BTEST("false OR (true AND true AND true) ;",true);
       BTEST("DATE == 01JAN2004 00:00;", true);
       BTEST("DATE == 01JAN2004;", true);
@@ -246,10 +246,10 @@ public:
           "B:= A+1.;",getDoubleExpression("B")->eval()), 12.0, 1.e-08);
 
       //D_ASSIGN_TEST("B:= A+1.;",12.,"B")
-      B_ASSIGN_TEST("ABool:= (3.*A== 33.);",true,"ABool")      
-      B_ASSIGN_TEST("BBool:= ABool AND (B+B + 2*B)==48.;",true,"BBool")  
-      B_ASSIGN_TEST("DBool:= NOT ABool AND (B+B + 2*B)==48.;",false,"DBool")  
-      B_ASSIGN_TEST("1.==1.;",true,"BBool")  
+      B_ASSIGN_TEST("ABool:= (3.*A== 33.);",true,"ABool")
+      B_ASSIGN_TEST("BBool:= ABool AND (B+B + 2*B)==48.;",true,"BBool")
+      B_ASSIGN_TEST("DBool:= NOT ABool AND (B+B + 2*B)==48.;",false,"DBool")
+      B_ASSIGN_TEST("1.==1.;",true,"BBool")
       B_ASSIGN_TEST("CBool:= BBool;",true,"CBool")
       clear_temp_expr();
       init_expression();
@@ -306,7 +306,7 @@ public:
       BOOST_CHECK_CLOSE( doutnode->eval(), 4.,DOUBLETOL);
       doutnode->step(1.);
       BOOST_CHECK_CLOSE( doutnode->eval(), 7.,DOUBLETOL);
-      
+
       instr="ACCUMULATE(3.,1.,FALSE);";
       set_input_string(instr);
 	   parseok=op_ruleparse();
@@ -343,27 +343,27 @@ public:
 
       instr="lookup(60.,[10.,30.],[1.,4.]);";
       set_input_string(instr);
-      
+
       try{
 		 //BOOST_TEST_MESSAGE("****  Parsing error messages below are expected");
-	     parseok=op_ruleparse(); 
+	     parseok=op_ruleparse();
 		 //BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
          BOOST_CHECK(parseok != 0);
       }catch(std::domain_error e){
 		  BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
-         // BOOST_FAIL("Parser handled error, no exception here.");         
+         // BOOST_FAIL("Parser handled error, no exception here.");
       }
 
       instr="lookup(60.,[10.,30.,55.],[1.,4.]);";
       set_input_string(instr);
 	  try{
 		 BOOST_TEST_MESSAGE("****  Parsing error messages below are expected");
-	     parseok=op_ruleparse(); 
+	     parseok=op_ruleparse();
 		 BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
          BOOST_CHECK(parseok != 0);
       }catch(std::domain_error e){
          BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
-		  //BOOST_FAIL("Parser handled error, no exception here.");         
+		  //BOOST_FAIL("Parser handled error, no exception here.");
       }
       init_expression();
       clear_temp_expr();
@@ -387,7 +387,7 @@ public:
       BOOST_CHECK_CLOSE( doutnode->eval(), 3.,DOUBLETOL);
 
       //delete doutnode;
-      
+
       resetInterfaces();
       TestModelInterface::val=4.;
       instr="PREDICT(interface, QUAD, 30MIN);";
@@ -397,10 +397,10 @@ public:
       doutnode=getDoubleExpression();
       doutnode->init();
       BOOST_CHECK_CLOSE( doutnode->eval(), 4.,DOUBLETOL);
-      TestModelInterface::val=5.;      
+      TestModelInterface::val=5.;
       doutnode->step(0.);
       BOOST_CHECK_CLOSE( doutnode->eval(), 10.,DOUBLETOL);
-      TestModelInterface::val=8.;      
+      TestModelInterface::val=8.;
       doutnode->step(0.);
       BOOST_CHECK_CLOSE( doutnode->eval(), 20.,DOUBLETOL);
       clear_temp_expr();
@@ -424,7 +424,7 @@ public:
         clear_temp_expr();
     }
 
-    void testParseRuleWithActionSet(){ 
+    void testParseRuleWithActionSet(){
        string testRule=
            "myrule1 := (SET test_interface(first_arg='quoted string with spaces' ,"
            "second_arg=0, third_arg=unquoted ) TO 3. WHILE "
@@ -502,20 +502,20 @@ struct ParserTestSuite : public test_suite {
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseAccumulate, instance ));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseDate, instance ));
 
-        add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseAssign, instance )); 
+        add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseAssign, instance ));
         //add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseLagged, instance ));
 
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseLookup, instance ));
-        
-        
+
+
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseModelTime, instance ));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRule, instance));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRuleWithActionSet, instance));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRuleWithActionChain, instance));
-        
+
     }
 };
- 
+
 test_suite*
 getParserTestSuite() {
 

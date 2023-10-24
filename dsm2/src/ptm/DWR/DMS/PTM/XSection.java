@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -52,16 +52,16 @@ import java.lang.*;
 
 /**
  *  XSection
- * 
+ *
  *  This class encapsulates the data for cross Section information
  *  The actual manipulation to calculate depth, width information in
  *  a waterbody relies on this data.
- * 
+ *
  *  Currently all width, depth information is being calculated from the
  *  tide file input
  */
 class XSection{
-  
+
   /**
    *  Constructor
    */

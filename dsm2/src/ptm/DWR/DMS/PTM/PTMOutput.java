@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -79,14 +79,14 @@ public class PTMOutput{
     else if (type == Globals.BINARY)
       outputStream = new DataOutputStream((new FileOutputStream(outputFilename)));
   }
-  
+
   /**
    * returns type of output
    */
   public int getOutputType(){
-    if(outputWriter == null) 
+    if(outputWriter == null)
       return Globals.BINARY;
-    else 
+    else
       return Globals.ASCII;
   }
 

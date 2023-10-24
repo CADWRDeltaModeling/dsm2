@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -67,7 +67,7 @@ public class ParticleBehavior {
   float _age;
   String file;
   Phase thisPhase;
-  static Units unitData; 
+  static Units unitData;
   float [] ageId;
   float _baseAge;
   boolean DEBUG = false;
@@ -226,7 +226,7 @@ public class ParticleBehavior {
     if (dataArray[_currentAgeId] != null)
       for (int i = 0; i < dataArray[_currentAgeId].length; i++){
 	if (dataArray[_currentAgeId][i][ST] < dataArray[_currentAgeId][i][ET] &&
-	    dataArray[_currentAgeId][i][ST] <= time && 
+	    dataArray[_currentAgeId][i][ST] <= time &&
 	    dataArray[_currentAgeId][i][ET] > time){
 	  answer = dataArray[_currentAgeId][i][index];
 	  //	System.out.println("regular index "+ answer);
@@ -247,7 +247,7 @@ public class ParticleBehavior {
 		setCurrentAgeId(age);
 		return extractStageData(zStagePosData,this.LL,tidalPhase,0);
 	}
-	
+
 	public int getStageZUpperLimit(double age, int tidalPhase){
 		setCurrentAgeId(age);
 		return extractStageData(zStagePosData,this.UL,tidalPhase,100);
@@ -257,11 +257,11 @@ public class ParticleBehavior {
 		int answer = defaultVal;
 		if (dataArray[_currentAgeId] != null)
 			answer = dataArray[_currentAgeId][tidalPhase][index];
-		
+
 //  		System.out.println("index="+index+" tidalPhase="+tidalPhase+" ans="+answer);
 //  		dump3DArray(dataArray);
 		return answer;
-		
+
 	}
 
 	public static void dump3DArray(int [][][] dataArray){
@@ -296,9 +296,9 @@ public class ParticleBehavior {
       phaseName = phaseElement.getAttribute("name");
       if ( phaseElement == null ) //break;
 	System.out.println("Error in fromXml");
-      
+
       newPhase = new Phase(phaseName);
-      // create vector name lookup 
+      // create vector name lookup
       phaseId.insertElementAt(phaseName,i);
       // fill new Phase will values
       newPhase.fromXml(phaseElement);

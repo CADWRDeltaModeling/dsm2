@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -77,7 +77,7 @@ subroutine check_fixed_ptm(istat)
 
  642  format(/a,i4,' does not have a name or channel number.')
 
- 643  format(/'Invalid insertion at node ',i3,': node does not exist.') 
+ 643  format(/'Invalid insertion at node ',i3,': node does not exist.')
 
  644  format(/'Path name ',a,' does not have a translation.')
 
@@ -86,7 +86,7 @@ subroutine check_fixed_ptm(istat)
  646  format(/a,a)
 
  661  format(/'Invalide filter: ',a,': node or waterbody does not exist, or not connected.')
- 
+
  647  format(/'Qaul binary starts on ',a,' it does not contain the date :',a)
 ! 647  format(/'Warning - Value for ',a,' not supplied - set to ',a)
 ! 648  format(/'Warning - Value for ',a,' not supplied - set to ',a)
@@ -308,7 +308,7 @@ subroutine check_fixed_ptm(istat)
                write (unit_error, 661) part_filter(m).name
                goto 900
             endif
-            
+
          ! on stage boundary
          else if (part_filter(m).at_wb_type .eq. obj_stage) then
             if (part_filter(m).at_wb_ndx .le. nstgbnd) then
@@ -325,12 +325,12 @@ subroutine check_fixed_ptm(istat)
                write (unit_error, 661) part_filter(m).name
                goto 900
             endif
-            
+
          ! on obj2obj
          else if (part_filter(m).at_wb_type .eq. obj_obj2obj) then
             if (part_filter(m).at_wb_ndx .le. nobj2obj) then
                obj2objindex = part_filter(m).at_wb_ndx
-               
+
                if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_node) .and. &
                    (obj2obj(obj2objindex).from_obj.obj_no .eq. part_filter(m).node)) .or. &
                   ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_node) .and. &
@@ -350,7 +350,7 @@ subroutine check_fixed_ptm(istat)
                endif
 
             endif
-            
+
             if (.not. filterexist) then
                write (unit_error, 661) part_filter(m).name
                goto 900
@@ -362,7 +362,7 @@ subroutine check_fixed_ptm(istat)
             print *,'wrong obj for filter setting'
             goto 900
          end if
-         
+
       enddo
 
 !-----check that quality tide file includes full runtime
@@ -378,7 +378,7 @@ subroutine check_fixed_ptm(istat)
             goto 900
          endif
       endif
-      
+
       !open(unit=911,file='group_member.out',status='unknown',err=890)
       !call WriteGroupMembers2File(911)
       !close(unit=911)

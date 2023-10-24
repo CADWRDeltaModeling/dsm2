@@ -6,7 +6,7 @@ mkdir BUILD
 cd BUILD
 ```
 
-First setup path 
+First setup path
 ```
 "c:\Program Files (x86)\Intel\Composer XE 2013\bin\compilervars.bat" ia32 vs2008
 ```

@@ -16,19 +16,19 @@ namespace parser{
  *  use the op rule parsing package in a new model, perhaps using the default
  *  implementation NamedValueLookupImpl. A "model name" is a vague term, and
  *  this is deliberate. You can throw in anything that your model understands and
- *  name it anything you want. Examples 
+ *  name it anything you want. Examples
  *   (name=DT, no parameters, evaluates a (fixed or variable) time step)
  *   (name=chan_flow, parameters (chan=128, dist=1223), evaluates a read-only model state
  *   (name=mtz, no parameters, evaluates to a time series managed by the model
  *   (name=external_flow, parameters(name="sjr") evaluates to a read-write model interface
  */
-class NamedValueLookup  
+class NamedValueLookup
 {
 public:
    typedef oprule::expression::DoubleNode DoubleNode;    //@todo get rid of hardwired double
    typedef oprule::expression::DoubleNodePtr DoubleNodePtr;
 
-   
+
 
    /** type used for argument lists */
    typedef std::vector<std::string> ArgList;
@@ -60,10 +60,10 @@ public:
 
 
     /** Discover whether the node produced by the name is READWRITE or READONLY
-     */ 
+     */
     virtual NameReadWriteType readWriteType(const std::string& name)=0;
-     
-   
+
+
    /**
     * Create a (read only ExpressionNode) which evaluates the current or
     * constant value of the model variable specified by name. Name is assumed
@@ -72,8 +72,8 @@ public:
     * @param identifiers An argument map giving identifier labels and values.
     * @return an ExpressionNode representing the given name that can evaluate the model variable refered to by identifiers
     */
-    virtual oprule::expression::DoubleNodePtr 
-       getModelExpression(const std::string & name, 
+    virtual oprule::expression::DoubleNodePtr
+       getModelExpression(const std::string & name,
        const ArgMap& identifiers )=0;
 
    /**
@@ -85,10 +85,10 @@ public:
     * @param identifiers An argument map giving identifier labels and values.
     * @return an ExpressionNode representing the given name that can evaluate the model variable refered to by identifiers
     */
-    virtual oprule::rule::ModelInterface<double>::NodePtr 
+    virtual oprule::rule::ModelInterface<double>::NodePtr
       getModelInterface(const std::string & name, const ArgMap& identifiers) = 0;
-   
+
 };
 
-}} //namespace   
+}} //namespace
 #endif // include guard

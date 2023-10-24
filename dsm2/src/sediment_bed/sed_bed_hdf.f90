@@ -192,11 +192,11 @@ module sed_bed_hdf
             allocate(chan_chunk_dims(3))
             chan_file_dims = 0
             chan_chunk_dims = 0
-            chan_rank = 3          
+            chan_rank = 3
             chan_file_dims(1) = nchan
 	        chan_file_dims(2) = nconc
 	        chan_file_dims(3) = ntime
-      
+
 	        chan_chunk_dims(1) = nchan
 	        chan_chunk_dims(2) = nconc
 	        chan_chunk_dims(3) = min(TIME_CHUNK,ntime)
@@ -367,7 +367,7 @@ module sed_bed_hdf
                 arr(8) = "mehg diffusion - out (ug/d)"
                 arr(9) = "methyl (ug/d)"
                 arr(10) = "demethyl (ug/d)"
-                arr(11) = "wet area (m2)"              
+                arr(11) = "wet area (m2)"
 
             case (wat_hg)
                 strlen = 32
@@ -601,11 +601,11 @@ module sed_bed_hdf
                                              /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,2)
                         chan_flux(1,izone,ichan,4) = (((burial(imid,izone,1,1,1) + burial(imid,izone,1,2,1) + burial(imid,izone,1,3,1) + burial(imid,izone,1,1,2) + burial(imid,izone,1,2, 2) + burial(imid,izone,1,3,2))/two) &
                                              /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,4)
-                    
+
                         chan_flux(:,izone,ichan,3) = (((decomposition(imid,izone,:,1,1) + decomposition(imid,izone,:,2,1) + decomposition(imid,izone,:,3,1) + decomposition(imid,izone,:,1, 2) + decomposition(imid,izone,:,2, 2) + decomposition(imid,izone,:,3,2))/two) &
                                              /(bed(imid,izone,:).area_wet )) * day_to_sec  ! + chan_flux(:,izone,ichan,3)
                         chan_flux(:,izone,ichan,5) = (((carbonturnover(imid,izone,:,1,1) + carbonturnover(imid,izone,:,2,1) + carbonturnover(imid,izone,:,3,1) + carbonturnover(imid,izone,:,1,2) + carbonturnover(imid,izone,:,2,2) + carbonturnover(imid,izone,:,3,2))/two) &
-                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  !chan_flux(:,izone,ichan,5)                                     
+                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  !chan_flux(:,izone,ichan,5)
                     end if
                 end do
                 chan_flux(2,:,ichan,1) = chan_flux(1,:,ichan,4)   ! settling into layer 2 = burial from layer 1

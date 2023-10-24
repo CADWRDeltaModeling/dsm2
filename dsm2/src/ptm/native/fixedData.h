@@ -298,43 +298,43 @@ extern "C" {
   int STDCALL getChannelLength(int* channelNumber);
   int STDCALL getChannelNumberOfNodes(int* channelNumber);
   void STDCALL getChannelNodeArray(int* channelNumber, int * nodeArray);
-  int STDCALL getChannelNumberOfXsections(int* channelNumber); 
-  
+  int STDCALL getChannelNumberOfXsections(int* channelNumber);
+
   float STDCALL getReservoirArea(int* reservoirNumber);
   float STDCALL getReservoirBottomElevation(int* reservoirNumber);
   void STDCALL getReservoirName(int* reservoirNumber, char * name, STRLEN_TYPE nameLength);
   int STDCALL getReservoirNumberOfNodes(int* reservoirNumber);
   void STDCALL getReservoirNodeArray(int* reservoirNumber, int *nodeArray);
-  
+
   int STDCALL getDiversionNumberOfNodes(int* number);
   int STDCALL getPumpNumberOfNodes(int* number);
   int STDCALL getBoundaryWaterbodyNumberOfNodes(int* number);
   int STDCALL getConveyorNumberOfNodes(int* number);
-  void STDCALL getConveyorName(int* conveyorNumber, char * obj2objName, STRLEN_TYPE nameLength);  
+  void STDCALL getConveyorName(int* conveyorNumber, char * obj2objName, STRLEN_TYPE nameLength);
   void STDCALL getDiversionNodeArray(int* diversionNumber, int *nodeArray);
   void STDCALL getPumpNodeArray(int* pumpNumber, int * nodeArray);
   void STDCALL getBoundaryWaterbodyNodeArray(int* boundaryNumber, int * nodeArray);
   void STDCALL getConveyorNodeArray(int* number, int * nodeArray);
-  
+
   int STDCALL getNumberOfWaterbodiesForNode(int* nodeNumber);
   void STDCALL getBoundaryTypeForNode(int* nodeNumber, char * name, STRLEN_TYPE nameLength);
   void STDCALL getWaterbodyIdArrayForNode(int* nodeNumber, int *waterbodyIdArray);
-  
+
   int STDCALL getXsectionNumberOfElevations();
   void STDCALL getXsectionWidths(int* number, float *array);
   void STDCALL getXsectionElevations(int* number, float *array);
   void STDCALL getXsectionAreas(int* number, float *array);
   float STDCALL getXsectionMinimumElevation(int* number);
-  
+
   void STDCALL getParticleBooleanInputs(int *array);
   void STDCALL getParticleFloatInputs(float *array);
-  
+
   int STDCALL getParticleNumberOfInjections();
   void STDCALL getParticleInjectionNodes(int *array);
   void STDCALL getParticleNumberOfParticlesInjected(int *array);
   void STDCALL getParticleInjectionStartJulmin(int *array);
   void STDCALL getParticleInjectionLengthJulmin(int *array);
-  
+
   int STDCALL getNumberOfFluxes();
   int STDCALL getNumberIncoming(int* index);
   int STDCALL getNumberOutgoing(int* index);
@@ -342,14 +342,14 @@ extern "C" {
   void STDCALL getFluxOutgoing(int* index,int *array, int* nmember);
   void STDCALL getFluxIncomingType(int* index,int *array, int* nmember);
   void STDCALL getFluxOutgoingType(int* index,int *array, int* nmember);
-  
+
   int STDCALL getNumberOfFilters();
   void STDCALL getIndicesOfFilters(int* array);
   void STDCALL getNameOfFilter(int *index,char* array,STRLEN_TYPE arrayLength);
   void STDCALL getNodesOfFilters(int *array);
   void STDCALL getWaterbodiesOfFilters(int *array);
   void STDCALL getWaterbodyTypesOfFilters(int *array);
-  
+
   int STDCALL getNumberOfGroupOutputs();
   int STDCALL getNumberOfGroupMembers(int* index);
   void STDCALL getGroupMemberType(int* index,int *array, int* nmember);
@@ -360,7 +360,7 @@ extern "C" {
   int STDCALL getModelEndTime();
   int STDCALL getModelPtmTimeStep();
   int STDCALL getDisplayInterval();
-  
+
   void STDCALL getAnimationFilename(char *array, STRLEN_TYPE arrayLength);
   int STDCALL getModelAnimationOutputInterval();
   void STDCALL getBehaviorFilename(char *array, STRLEN_TYPE arrayLength);
@@ -370,17 +370,17 @@ extern "C" {
   void STDCALL getRestartOutputFilename(char *array, STRLEN_TYPE arrayLength);
   int STDCALL getRestartOutputInterval();
   void STDCALL getRestartInputFilename(char *array, STRLEN_TYPE arrayLength);
-  
+
   void STDCALL getModelDate(int * jmin, char *date, STRLEN_TYPE dateLength);
   void STDCALL getModelTime(int * jmin, char *time, STRLEN_TYPE timeLength);
   int STDCALL cdt2jmin(char *dateTime, STRLEN_TYPE dateTimeLength);
-  
+
   void STDCALL initFluxOutput();
   void STDCALL writeFluxOutput();
   void STDCALL closeFluxOutput();
   void STDCALL setFlux(int * fluxId, float * fluxValue);
   void STDCALL setGroup(int * groupId, float * groupValue);
-  
+
   int STDCALL getWaterbodyAccountingType( int *  id);
   int STDCALL getWaterbodyObjectType( int *  id);
   int STDCALL doesQualBinaryExist();

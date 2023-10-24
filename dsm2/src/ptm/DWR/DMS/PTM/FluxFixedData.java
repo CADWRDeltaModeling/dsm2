@@ -55,11 +55,11 @@ class FluxFixedData {
     this.inGroup = inGroup;
     this.outGroup = outGroup;
   }
-  
+
   public Group getInGroup(){return inGroup;}
   public Group getOutGroup(){return outGroup;}
   public int getNodeId(){return nodeId;}
-  
+
   /**
    * String representation
    */
@@ -70,9 +70,9 @@ class FluxFixedData {
     buf.append(" Out Group: "+outGroup.toString()+" Node Id: " + nodeId);
     return buf.toString();
   }
-  
+
   public int nodeId;
   private Group inGroup;
   private Group outGroup;
-  
+
 }

@@ -24,10 +24,10 @@ string lowerCase(const string& s) {
 }
 
 void convert_channel_identifiers(
-            const NamedValueLookup::ArgMap & argmap, 
-            int &intchan, 
+            const NamedValueLookup::ArgMap & argmap,
+            int &intchan,
             double &dist){
-   
+
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("channel");
 
@@ -46,11 +46,11 @@ void convert_channel_identifiers(
         const std::string adist("dist");
         // here we mean "length" as a surrogate for length of channel,
         // ie., argmap["dist"]="length"
-        if (lowerCase(iter->second)=="length"){  
-           dist = chanlen;  //@todo: test this 
+        if (lowerCase(iter->second)=="length"){
+           dist = chanlen;  //@todo: test this
         }else{
            dist=atof(iter->second.c_str());
-		   if (dist > chanlen || dist <0.) 
+		   if (dist > chanlen || dist <0.)
 			   throw oprule::parser::InvalidIdentifier("Channel dist argument greater than length or negative");
         }
      }
@@ -58,43 +58,43 @@ void convert_channel_identifiers(
 }
 
 
-oprule::expression::DoubleNode::NodePtr 
+oprule::expression::DoubleNode::NodePtr
 chan_flow_factory(const NamedValueLookup::ArgMap& argmap){
-  int chan=-901; 
+  int chan=-901;
   double dist=-901.;
   convert_channel_identifiers(argmap, chan, dist);
-  if (chan != -901 && dist != -901.) return 
+  if (chan != -901 && dist != -901.) return
      ChannelFlowNode::create(chan,dist);
   else return oprule::expression::DoubleNode::NodePtr();
 }
 
-oprule::expression::DoubleNode::NodePtr 
+oprule::expression::DoubleNode::NodePtr
 chan_surf_factory(const NamedValueLookup::ArgMap& argmap){
-  int chan=-901; 
+  int chan=-901;
   double dist=-901.;
   convert_channel_identifiers(argmap, chan,dist);
-  if (chan != -901 && dist != -901.) return 
+  if (chan != -901 && dist != -901.) return
      ChannelWSNode::create(chan,dist);
   else return oprule::expression::DoubleNode::NodePtr();
 }
 
-oprule::expression::DoubleNode::NodePtr 
+oprule::expression::DoubleNode::NodePtr
 chan_vel_factory(const NamedValueLookup::ArgMap& argmap){
-  int chan=-901; 
+  int chan=-901;
   double dist=-901.;
   convert_channel_identifiers(argmap, chan,dist);
-  if (chan != -901 && dist != -901.) return 
+  if (chan != -901 && dist != -901.) return
      ChannelVelocityNode::create(chan,dist);
   else return oprule::expression::DoubleNode::NodePtr();
 }
 
 
 void convert_reservoir_identifiers(
-            const NamedValueLookup::ArgMap & argmap, 
-            int &resno, 
+            const NamedValueLookup::ArgMap & argmap,
+            int &resno,
             int &connect,
 			bool conn_requested){
-   
+
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("res");
 
@@ -112,7 +112,7 @@ void convert_reservoir_identifiers(
 	   }else{
 	     connect=-901;
 	   }
-   }else{ 
+   }else{
 	   std::string resarg=iter->second;
        int node=atoi(resarg.c_str());
 	   node=ext2intnode(node);
@@ -123,22 +123,22 @@ void convert_reservoir_identifiers(
 }
 
 
-oprule::expression::DoubleNode::NodePtr 
+oprule::expression::DoubleNode::NodePtr
 reservoir_surf_factory(const NamedValueLookup::ArgMap& argmap){
-  int reservoir=-901; 
+  int reservoir=-901;
   int connect=-901;
   convert_reservoir_identifiers(argmap, reservoir, connect, false);
-  if (reservoir != -901) return 
+  if (reservoir != -901) return
      ReservoirWSNode::create(reservoir);
   else return oprule::expression::DoubleNode::NodePtr();
 }
 
-oprule::expression::DoubleNode::NodePtr 
+oprule::expression::DoubleNode::NodePtr
 reservoir_flow_factory(const NamedValueLookup::ArgMap& argmap){
-  int reservoir=-901; 
+  int reservoir=-901;
   int connect=-901;
   convert_reservoir_identifiers(argmap, reservoir, connect, true);
-  if (reservoir != -901 && connect != -901) return 
+  if (reservoir != -901 && connect != -901) return
      ReservoirFlowNode::create(reservoir,connect);
   else return oprule::expression::DoubleNode::NodePtr();
 }
@@ -150,10 +150,10 @@ reservoir_flow_factory(const NamedValueLookup::ArgMap& argmap){
 
 
 void convert_gate_identifiers(
-            const NamedValueLookup::ArgMap & argmap, 
-            int &gatendx, 
+            const NamedValueLookup::ArgMap & argmap,
+            int &gatendx,
             int &devndx){
-   
+
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("gate");
    if(iter == argmap.end()){
@@ -181,7 +181,7 @@ void convert_gate_identifiers(
 
 oprule::expression::ExpressionNode<double>::NodePtr
 gate_install_factory(const NamedValueLookup::ArgMap& argmap){
-  int gatendx=-901; 
+  int gatendx=-901;
   int devndx=-901;
   convert_gate_identifiers(argmap, gatendx, devndx);
   return GateInstallInterface::create(gatendx);
@@ -207,7 +207,7 @@ GATE_DEV_FACTORY(device_height_factory, DeviceHeightInterface);
 
 oprule::expression::ExpressionNode<double>::NodePtr
 device_coef_factory(const NamedValueLookup::ArgMap& argmap){
-  int gatendx=-901; 
+  int gatendx=-901;
   int devndx=-901;
   int direct=0;
   convert_gate_identifiers(argmap, gatendx, devndx);
@@ -215,7 +215,7 @@ device_coef_factory(const NamedValueLookup::ArgMap& argmap){
        = argmap.find("direction");
   if(iter == argmap.end()){
      throw oprule::parser::MissingIdentifier("Flow direction not specified");
-  }else{ 
+  }else{
      string dstr=iter->second;
      if (dstr == "to_node") direct=direct_to_node();
      else if (dstr == "from_node") direct=direct_from_node();
@@ -223,7 +223,7 @@ device_coef_factory(const NamedValueLookup::ArgMap& argmap){
      else throw oprule::parser::InvalidIdentifier("Illegal op direction: " + dstr);
   }
 
-  if (gatendx != -901 && devndx != -901 && direct!= -901) return 
+  if (gatendx != -901 && devndx != -901 && direct!= -901) return
     DeviceFlowCoefInterface::create(gatendx,devndx,direct);
   else return oprule::expression::DoubleNode::NodePtr();
 }
@@ -233,7 +233,7 @@ device_coef_factory(const NamedValueLookup::ArgMap& argmap){
 ////////
 oprule::expression::ExpressionNode<double>::NodePtr
 device_op_factory(const NamedValueLookup::ArgMap& argmap){
-  int gatendx=-901; 
+  int gatendx=-901;
   int devndx=-901;
   int direct=0;
   convert_gate_identifiers(argmap, gatendx, devndx);
@@ -241,9 +241,9 @@ device_op_factory(const NamedValueLookup::ArgMap& argmap){
        = argmap.find("direction");
   if(iter == argmap.end()){
      throw oprule::parser::MissingIdentifier("Flow direction not specified");
-  }else{ 
+  }else{
      string dstr=iter->second;
-     if (dstr == "to_node"){ 
+     if (dstr == "to_node"){
 		 direct=direct_to_node();
 	 }else if (dstr == "from_node") {
 		 direct=direct_from_node();
@@ -252,7 +252,7 @@ device_op_factory(const NamedValueLookup::ArgMap& argmap){
 	 }else throw oprule::parser::InvalidIdentifier("Illegal op direction: " + dstr);
   }
 
-  if (gatendx != -901 && devndx != -901 && direct!= -901) return 
+  if (gatendx != -901 && devndx != -901 && direct!= -901) return
      DeviceOpInterface::create(gatendx,devndx,direct);
   else throw oprule::parser::InvalidIdentifier("Unknown gate and device");
 }
@@ -260,37 +260,37 @@ device_op_factory(const NamedValueLookup::ArgMap& argmap){
 
 
 ///////////////////////////////////////
-oprule::expression::ExpressionNode<double>::NodePtr 
+oprule::expression::ExpressionNode<double>::NodePtr
 external_flow_factory(const NamedValueLookup::ArgMap& argmap){
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("name");
   if(iter == argmap.end()){
      cerr << "name missing" << endl;
      throw oprule::parser::MissingIdentifier("external flow name not specified");
-  }else{ 
+  }else{
      string name=iter->second;
      int ndx=qext_index(name.c_str(),name.length());
-     if (ndx > 0) return 
+     if (ndx > 0) return
        ExternalFlowInterface::create(ndx);
      else throw oprule::parser::InvalidIdentifier("Unknown external flow: "+name);
   }
 }
 
-oprule::expression::ExpressionNode<double>::NodePtr 
+oprule::expression::ExpressionNode<double>::NodePtr
 transfer_flow_factory(const NamedValueLookup::ArgMap& argmap){
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("transfer");
   if(iter == argmap.end()){
 	 throw oprule::parser::MissingIdentifier("transfer argument not supplied in transfer_flow(..)");   //@todo better error
-  }else{ 
+  }else{
      string name=iter->second;
      int ndx=transfer_index(name.c_str(),name.length());
      if (ndx > 0) return TransferFlowInterface::create(ndx);
-     throw oprule::parser::InvalidIdentifier("transfer argument not matched in transfer_flow(..) "+name); 
+     throw oprule::parser::InvalidIdentifier("transfer argument not matched in transfer_flow(..) "+name);
   }
 }
 
-oprule::expression::ExpressionNode<double>::NodePtr 
+oprule::expression::ExpressionNode<double>::NodePtr
 ts_factory(const NamedValueLookup::ArgMap& argmap){
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("name");
@@ -299,20 +299,20 @@ ts_factory(const NamedValueLookup::ArgMap& argmap){
   }else{
 	 string name=iter->second;
      int pathindex=ts_index(name.c_str(),name.length());
-     if (pathindex > -1){ 
+     if (pathindex > -1){
          return DSM2TimeSeriesNode::create(name,pathindex);
       }
-     throw oprule::parser::InvalidIdentifier("Time series unknown "+name); 
+     throw oprule::parser::InvalidIdentifier("Time series unknown "+name);
 
    }
 }
 
-oprule::expression::ExpressionNode<double>::NodePtr 
+oprule::expression::ExpressionNode<double>::NodePtr
 constant0_factory(const NamedValueLookup::ArgMap& argmap){
 	return oprule::expression::DoubleScalarNode::create(0.);
 }
 
-oprule::expression::ExpressionNode<double>::NodePtr 
+oprule::expression::ExpressionNode<double>::NodePtr
 constant1_factory(const NamedValueLookup::ArgMap& argmap){
 	return oprule::expression::DoubleScalarNode::create(1.);
 }

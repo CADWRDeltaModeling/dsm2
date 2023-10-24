@@ -25,7 +25,7 @@ void setup_envvar()
   sub.add("_@EXPR%ESS1","one");
   sub.add("NESTED_1","nested ${_@EXPR%ESS1}");
   sub.add("TESTEXPR","newanswer");
-  sub.add("TESTEXPR","redefine");  
+  sub.add("TESTEXPR","redefine");
 }
 
 
@@ -37,9 +37,9 @@ void write_hdf()
 {
     cout << "Testing hdf" <<endl;
     int ierr=0;
-    hid_t file_id = H5Fcreate( "cpp_example.h5", 
-		                        H5F_ACC_TRUNC, 
-								H5P_DEFAULT, 
+    hid_t file_id = H5Fcreate( "cpp_example.h5",
+		                        H5F_ACC_TRUNC,
+								H5P_DEFAULT,
 								H5P_DEFAULT );
     channel_write_buffer_to_hdf5_f(&file_id,&ierr);
     xsect_write_buffer_to_hdf5_f(&file_id,&ierr);
@@ -53,13 +53,13 @@ void write_hdf()
     int use_it=0;
     //cout << channel_query_from_buffer(2,&channo_in,&layer_in,&manning_in,&upnode_in) <<endl;
     //cout<< channo_in << " " << layer_in << " " << manning_in << " " << upnode_in << " " << endl;
-    //Close the file. 
+    //Close the file.
     H5Fclose( file_id );
 }
 
 
 void test_input_reader()
-{ 
+{
 
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
@@ -121,7 +121,7 @@ void test_input_reader()
   reader.setActiveItems(active);
   reader.processInput(filename);
 
-  
+
 
   HDFTableManager<channel>::instance().prioritize_buffer();
   HDFTableManager<xsect>::instance().prioritize_buffer();

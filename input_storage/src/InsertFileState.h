@@ -2,7 +2,7 @@
 #define INSERTFILESTATE_H__
 #include "InputState.h"
 
-/** InputState for handling include files by opening the files 
+/** InputState for handling include files by opening the files
     and passing them to FileInputStates.
     \ingroup inputstates
 */
@@ -18,7 +18,7 @@ InsertFileState(const vector<string> & a_contextItems)
 
 
 InsertFileState(InputStatePtr state,
-				string & filename, 
+				string & filename,
 				const int & lineNo = 0) :
   InputState(*state)
   {

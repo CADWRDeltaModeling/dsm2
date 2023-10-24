@@ -99,7 +99,7 @@ implicit none
                 volume_pw(ii,jj,2) = volume_pw(ii,jj,2)*length(ii)
             end do
         end do
-       
+
         sed_hg0(:,:,:,3) = sed_Hg0_ic(:,:,:)*volume_pw(:,:,:)
         sed_hgii(:,:,:,3) = sed_hgii_ic(:,:,:)*mass_total(:,:,:)
         sed_s1_hgii(:,:,:,3) = sed_s1_hgii_ic(:,:,:)*sedsolids(:,:,:,1,3)
@@ -109,7 +109,7 @@ implicit none
         hg_conc_sed(:,:,:,3)%HgII_inert(1) = sed_s1_hgii_ic(:,:,:)*sedsolids(:,:,:,1,3)
         hg_conc_sed(:,:,:,3)%HgII_inert(2) = sed_s2_hgii_ic(:,:,:)*sedsolids(:,:,:,2,3)
         hg_conc_sed(:,:,:,3)%HgII_inert(3) = sed_s3_hgii_ic(:,:,:)*sedsolids(:,:,:,3,3)
-        
+
         sed_hg0(:,:,:,1) = sed_hg0(:,:,:,3)
         sed_hgii(:,:,:,1) = sed_hgii(:,:,:,3)
         sed_s1_hgii(:,:,:,1) = sed_s1_hgii(:,:,:,3)

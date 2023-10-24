@@ -11,7 +11,7 @@ namespace rule {
 
 
 /** Complete operating rule (action with trigger/applicability info)
- *  Operating rule 
+ *  Operating rule
  */
 class OperatingRule
 {
@@ -40,9 +40,9 @@ public:
 
    /**
     * Set this rule active or inactive according to the argument
-    */ 
-   void setActive(bool active){ 
-	   _action->setActive(active); 
+    */
+   void setActive(bool active){
+	   _action->setActive(active);
 
    }
 
@@ -79,11 +79,11 @@ public:
    * time testNewlyTriggered was called. This function should
    * not be called more than once per time step, because it
    * has the side effect of replacing the record of the previous
-   * trigger value. 
+   * trigger value.
    */
    bool testNewlyTriggered();
 
-   /** Prevents activation of the rule. 
+   /** Prevents activation of the rule.
    * This method stops activation of the rule, but also leaves the rule
    * in a state that is ready for activation (namely, the trigger is
    * tricked into thinking that it returns false). This method is
@@ -97,8 +97,8 @@ public:
    * of all ModelActions contained in this operating rule (which may be
    * more than one action because of compound actions).
    */
-   virtual OperationAction::ActionListType& getActionList();   
-	
+   virtual OperationAction::ActionListType& getActionList();
+
    /** Virtual destructor */
    virtual ~OperatingRule();
 

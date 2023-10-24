@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -51,7 +51,7 @@
  *  given instant of time the Particle Id and the normalized x,y and z location
  *  of the Particle.<br>
  *  <p>
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.io.*;
@@ -62,7 +62,7 @@ public class PTMRestartInput extends PTMInput{
   /**
    * Constructor
    */
-  public PTMRestartInput(String filename, 
+  public PTMRestartInput(String filename,
                          int type, Particle [] particles) throws IOException{
     super(filename, type);
     this.particles = particles;
@@ -74,7 +74,7 @@ public class PTMRestartInput extends PTMInput{
   public void input() throws IOException{
     if(getInputType() == Globals.BINARY)
       inputBinary();
-    else if (getInputType() == Globals.ASCII) 
+    else if (getInputType() == Globals.ASCII)
       inputAscii();
   }
 
@@ -88,15 +88,15 @@ public class PTMRestartInput extends PTMInput{
     StringTokenizer sToken = new StringTokenizer(line);
     String modelDate = sToken.nextToken();
     String modelTime = sToken.nextToken();
-    
+
     int julianTime = Globals.getTimeInJulianMins(modelDate, modelTime);
     if(julianTime != Globals.currentModelTime)
       insertUninserted = true;
-    
+
     line = inputReader.readLine();
     int numberOfParticles = (new Integer(line)).intValue();
     particles = new Particle[numberOfParticles];
-    
+
     for(int pNum = 0; pNum < particles.length; pNum++){
       //? This should really be fixed. This information should be in the restart file.
       particles[pNum] = new Particle(Globals.Environment.getParticleFixedInfo());

@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -53,7 +53,7 @@ package DWR.DMS.PTM;
 public class BehavedParticle extends Particle{
 
   /**
-   * 
+   *
    *  value of ratio of internal to external velocity
    */
 	public BehavedParticle(ParticleFixedInfo pFI){
@@ -159,7 +159,7 @@ public class BehavedParticle extends Particle{
 	protected float calcZDisplacementExtRandom(float timeStep){
 		// get the random mixing component
 //  		behaviorData.setCurrentAgeId(age);
-		
+
 		float dz = 0.0f;
 		if (getZRangeMagnitude() != 1f){  // if there is positioning information available
 			if (z < getZLowerBound()*channelDepth || z > getZUpperBound()*channelDepth){  // if the Particle is outside the allowable range
@@ -174,7 +174,7 @@ public class BehavedParticle extends Particle{
 		if (DEBUG) System.out.println(" Id = "+Id+" dz = "+dz+" channelDepth = "+channelDepth+" z = "+z+" mag = "+getZRangeMagnitude());
 		if (vertMove) return(dz);
 		else return 0.0f;
- 
+
 		return 0;
 	}
 */
@@ -186,7 +186,7 @@ public class BehavedParticle extends Particle{
   protected  float calcZDisplacementExtDeterministic(float timeStep){
     return(-getFallVel()*timeStep);
   }
- 
+
 */
   /**
     *  Check to see if this Particle dies
@@ -196,7 +196,7 @@ public class BehavedParticle extends Particle{
   protected void checkHealth(){
     float mortRate;
     mortRate = behaviorData.getMortality(age);
-    if (mortRate != _prevMortRate) { 
+    if (mortRate != _prevMortRate) {
       _rand = getRandomNumber(); // assign a random number to this Particle (Health of Particle)
       _prevMortRate = mortRate;
       _baseAge = behaviorData.getPhaseAge();
@@ -222,7 +222,7 @@ public class BehavedParticle extends Particle{
   /**
     *  returns a particles terminal velocity
     */
-   /* 
+   /*
   private float getTerminalVelocity(){
     return Math.max(getFallVel(),1.0e-10f);
   }
@@ -230,7 +230,7 @@ public class BehavedParticle extends Particle{
   /**
     *  returns the 24 hour model time
     */
- /*   
+ /*
   private int getModelTime(){
     return (Globals.currentMilitaryTime);
   }
@@ -263,9 +263,9 @@ public class BehavedParticle extends Particle{
     */
 	/*
   protected float _baseAge;
-	
+
 	protected float _lastStageValue;
-	
+
 	protected int _stagePhase;
 
 	protected int _ageId = -901; // set to non ageId number

@@ -1,11 +1,11 @@
 #ifndef node_flow_connections_STORAGE_H__
 #define node_flow_connections_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class node_flow_connections
 {
 public:
 
-  /** Data type node_flow_connections, default constructor */  
+  /** Data type node_flow_connections, default constructor */
   typedef const boost::tuple<const int&>  identifier_type;
 
   node_flow_connections() :
@@ -61,10 +61,10 @@ public:
     layer(a_layer)
   {
     memcpy(flow_name,a_flow_name,32);
-    memcpy(flow_type,a_flow_type,8);  
+    memcpy(flow_type,a_flow_type,8);
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   node_flow_connections (const node_flow_connections & other) :
     connection_index(other.connection_index),
@@ -76,20 +76,20 @@ public:
     layer(other.layer)
   {
     memcpy(flow_name,other.flow_name,32);
-    memcpy(flow_type,other.flow_type,8);  
+    memcpy(flow_type,other.flow_type,8);
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( node_flow_index );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      node_flow_index=identifier.get<0>();
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -100,7 +100,7 @@ public:
      return node_flow_connections::identifier_type( node_flow_index );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<node_flow_connections>& pbuf = HDFTableManager<node_flow_connections>::instance().buffer();
@@ -110,7 +110,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<node_flow_connections>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -121,10 +121,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const node_flow_connections & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -137,12 +137,12 @@ public:
      return (this->identifier() < other.identifier()) || (this->identifier() == other.identifier() && this->layer > other.layer);
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const node_flow_connections & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   node_flow_connections& operator=(const node_flow_connections& rhs)
   {
@@ -160,11 +160,11 @@ public:
 
   /** Return the class name of this object (node_flow_connections) */
   string objectName() const
-  { 
-    return "node_flow_connections"; 
+  {
+    return "node_flow_connections";
   }
 
-  
+
   int connection_index;
   int int_node_no;
   int ext_node_no;
@@ -173,7 +173,7 @@ public:
   char flow_name[32];
   char flow_type[8];
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -195,7 +195,7 @@ ostream& operator<<(ostream & stream, const node_flow_connections & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void node_flow_connections_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -203,9 +203,9 @@ FCALL int node_flow_connections_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void node_flow_connections_append_to_buffer_f(const int * a_connection_index,const int * a_int_node_no,const int * a_ext_node_no,const int * a_node_flow_index,const int * a_flow_index,const  char a_flow_name[32],const  char a_flow_type[8], int * ierror, 
+FCALL void node_flow_connections_append_to_buffer_f(const int * a_connection_index,const int * a_int_node_no,const int * a_ext_node_no,const int * a_node_flow_index,const int * a_flow_index,const  char a_flow_name[32],const  char a_flow_type[8], int * ierror,
               const int flow_name_len,const int flow_type_len);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void node_flow_connections_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -218,8 +218,8 @@ FCALL void node_flow_connections_number_rows_hdf5_f(const hid_t* file_id, hsize_
 
 
 /** get one row worth of information from the buffer */
-FCALL void node_flow_connections_query_from_buffer_f(int32_t* row, 
-                        int * a_connection_index,int * a_int_node_no,int * a_ext_node_no,int * a_node_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror, 
+FCALL void node_flow_connections_query_from_buffer_f(int32_t* row,
+                        int * a_connection_index,int * a_int_node_no,int * a_ext_node_no,int * a_node_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror,
               int flow_name_len,int flow_type_len);
 /**
   prioritize buffer by layers, delete unused items and sort

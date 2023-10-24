@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -46,14 +46,14 @@ subroutine process_irreg
          irreg_geom(j).dist_actual = irreg_geom(j).dist_ratio*dble( &
              chan_geom(channo).length)
       enddo
-      
+
 
 !--------subtract minimum elevation to convert elevation from datum
 !--------to height above channel bottom
 !-----fixme: this is very strange. Why do it?
 
 !--  major change to use-elevation-instead-of-height, so skip the following conversion
-!      do h=1,nirg  
+!      do h=1,nirg
 !         do m=1,irreg_geom(h).num_elev
 !            irreg_geom(h).elevation(m)=
 !     &           irreg_geom(h).elevation(m)-
@@ -61,7 +61,7 @@ subroutine process_irreg
 !            irreg_geom(h).z_centroid(m)=
 !     &           irreg_geom(h).z_centroid(m)
 !     &           -irreg_geom(h).min_elev
-!         enddo  
+!         enddo
 !
 !         irreg_geom(h).z_centroid(1)=0.0
 !      enddo
@@ -72,12 +72,12 @@ subroutine process_irreg
              '-------------------------------------------------------------------', &
              'The following irregular cross-section files have only one or zero  ', &
              'layer. Please verify these cross-sections. ', &
-             '-------------------------------------------------------------------' 
+             '-------------------------------------------------------------------'
          do h=1,nirg
             if (irreg_geom(h).num_elev .lt. 2) then
                write(unit_screen,*)  &
                    "Channel: ",chan_geom(irreg_geom(h).chan_no).chan_no,"Distance (fraction):", irreg_geom(h).dist_ratio
-            endif               
+            endif
          enddo
 
 
@@ -87,7 +87,7 @@ subroutine process_irreg
              'The maximum and minimum elevations in the following irregular ', &
              'cross-sections are more than 100 ft apart.  Please verify ', &
              'that these cross-sections should have layers > 100 ft apart.', &
-             '-------------------------------------------------------------------' 
+             '-------------------------------------------------------------------'
          do h=1,nirg
             if ((irreg_geom(h).elevation(irreg_geom(h).num_elev) &
                 -irreg_geom(h).min_elev) .gt. 100.0) then
@@ -104,7 +104,7 @@ subroutine process_irreg
 end
 
 subroutine assign_sections
-   
+
 !-----This subroutine assigns the irregular cross-sections to the channels.
 !-----Cross-sections that are within a specified distance from the end of a channel
 !-----are moved to the end.  Cross-sections are also copied to the ends of channels
@@ -229,7 +229,7 @@ subroutine move_xsects
           ,downstr_adj_near_end &
           ,nupstream &
           ,ndownstream
-      
+
       do channo=1,nchans
 !--------if distance of first and last sec is with specified percentage of channel
 !--------length from node, move cross-section to the end of the channel by
@@ -238,13 +238,13 @@ subroutine move_xsects
          if ( chan_geom(channo).length .gt. 0 .and.  &
              xsect_assg(channo).num_sec_orig .gt. 0 ) then
             call xsect_numbers(channo)
-            
+
             upstream_sec=1
             downstream_sec=xsect_assg(channo).num_sec_orig
             upstream_index=xsect_assg(channo).sec_index(upstream_sec)
             downstream_index=xsect_assg(channo).sec_index(downstream_sec)
             channel_length=float(chan_geom(channo).length)
-            
+
             if (irreg_geom(upstream_index).dist_ratio .le. &
                 max_dist_ratio) then
                irreg_geom(upstream_index).dist_actual = 0.0
@@ -305,22 +305,22 @@ subroutine copy_xsects
           ,downstr_adj_near_end &
           ,nupstream &
           ,ndownstream
-      
+
 
       do channo=1,nchans
          if ( chan_geom(channo).length .gt. 0 .and. &
              xsect_assg(channo).num_sec_assg .ge. 1 ) then
             call xsect_numbers(channo)
-            
+
             upstream_sec=1
             downstream_sec=xsect_assg(channo).num_sec_orig
             upstream_index=xsect_assg(channo).sec_index(upstream_sec)
             downstream_index=xsect_assg(channo).sec_index(downstream_sec)
             channel_length=float(chan_geom(channo).length)
-!-----------if 
+!-----------if
 !-----------1.  current channel has irregular xsect(s)
 !-----------2.  nearest cross-section in chan is out of specified range for moving &
-!-----------3.  there is <> one adj. channel or there are no irregular xsects 
+!-----------3.  there is <> one adj. channel or there are no irregular xsects
 !-----------    in adj chan
 !-----------then COPY cross-section to end.
 
@@ -330,7 +330,7 @@ subroutine copy_xsects
                 (xsect_assg(upstream_chan).num_sec_assg .eq. 0) ) ) then
                xsect_assg(channo).num_sec_assg = &
                    xsect_assg(channo).num_sec_assg+1
-               
+
                do i=xsect_assg(channo).num_sec_assg,2,-1
                   xsect_assg(channo).sec_index(i)= &
                       xsect_assg(channo).sec_index(i-1)
@@ -347,10 +347,10 @@ subroutine copy_xsects
                 (1.0-max_dist_ratio)) .and.  &
                 ( (ndownstream .ne. 2) .or.  &
                 (xsect_assg(downstream_chan).num_sec_assg .eq. 0) ) ) then
-               
+
                xsect_assg(channo).num_sec_assg = &
                    xsect_assg(channo).num_sec_assg+1
-               
+
                xsect_assg(channo).sec_index( &
                    xsect_assg(channo).num_sec_assg) = &
                    xsect_assg(channo).sec_index( &
@@ -688,9 +688,9 @@ subroutine xsect_numbers(channo)
       use constants
       implicit none
 
-      
+
 !-----local variables
-      
+
       integer &
           channo &               ! current channel number
           ,upstream_node &       ! the upstream node in the current channel
@@ -702,7 +702,7 @@ subroutine xsect_numbers(channo)
           ,downstr_adj_near_end &! same for downstream
           ,nupstream &           ! # of channels connected the upstream node
           ,ndownstream           ! # of channels connected to downstream node
-      
+
       common /com_xsect_numbers/ &
           upstream_node &
           ,downstream_node &
@@ -712,10 +712,10 @@ subroutine xsect_numbers(channo)
           ,downstr_adj_near_end &
           ,nupstream &
           ,ndownstream
-      
+
       upstream_node = chan_geom(channo).upnode
       downstream_node = chan_geom(channo).downnode
-      
+
 !-----If there are more than 2 channels connected to the upstream or downstream
 !-----node, then the channel numbers are not needed because no copying will occur
 !-----if the upstream channel points toward the node
@@ -736,7 +736,7 @@ subroutine xsect_numbers(channo)
       else
          upstream_chan=0
       endif
-      
+
 !-----if the downstream channel points away from the node
       if (node_geom(downstream_node).upstream(1) .ne. 0) then
          if (node_geom(downstream_node).upstream(1) .ne. channo) then
@@ -755,7 +755,7 @@ subroutine xsect_numbers(channo)
       else
          downstream_chan=0
       endif
-      
+
 !-----determine upstream and downstream adjacent ends of adjacent
 !-----channels.
       if ( chan_geom(upstream_chan).downnode .eq. &
@@ -766,7 +766,7 @@ subroutine xsect_numbers(channo)
          upstr_adj_near_end = chan_up
       else
       endif
-      
+
       if ( chan_geom(downstream_chan).upnode .eq. &
           chan_geom(channo).downnode ) then
          downstr_adj_near_end = chan_up
@@ -775,14 +775,14 @@ subroutine xsect_numbers(channo)
          downstr_adj_near_end = chan_down
       else
       endif
-      
+
 !-----find number of channels adjacent to each end of the
 !-----current channel.
       nupstream=node_geom(upstream_node).nup+ &
           node_geom(upstream_node).ndown
       ndownstream=node_geom(downstream_node).nup+ &
           node_geom(downstream_node).ndown
-      
+
       return
 end
-      
+

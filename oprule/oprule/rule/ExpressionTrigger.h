@@ -10,11 +10,11 @@ namespace rule {
 
 
 /** Trigger that is based on the evaluation of a boolean expression. */
-class ExpressionTrigger : public Trigger  
+class ExpressionTrigger : public Trigger
 {
 public:
-   ExpressionTrigger(oprule::expression::BoolNodePtr expression) 
-         : _expression(expression){} 
+   ExpressionTrigger(oprule::expression::BoolNodePtr expression)
+         : _expression(expression){}
 
    virtual ~ExpressionTrigger(){
       OE_NODE_DELETE( _expression );

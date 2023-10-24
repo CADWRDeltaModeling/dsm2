@@ -54,7 +54,7 @@ contains
         use grid_data
         use klu
         use network
-      
+
         use chconnec
         use channel_schematic, only: TotalStreamLocations
         implicit none
@@ -362,7 +362,7 @@ contains
 
 
                 !     These lines are very common as diagnostics
-            
+
                 !     if (UpConstraintRow .le. 1349 .and. DownConstraintRow .ge. 1347) then
                 !     write(unit_screen,110)chan_geom(m)%chan_no,M,
                 !     &    UpConstraintRow,DownConstraintRow,CodeUp,CodeDown
@@ -498,7 +498,7 @@ contains
                         !-----------------Flow at Constraint
                         K=K+1
                         UpConstraintIndex(M)=K
-                  
+
                         ConstraintPointers(K)= set_position_in_matrix( &
                             UpConstraintRow,DF*ConstraintNode-1)
                         !-----------------Stage at Constraint
@@ -808,7 +808,7 @@ contains
         !     of flows from devices; the summation equation and the individual gate
         !     device equations each has its own row.
         nreseq=k ! number of reservoir equations
-      
+
         devRow=TotalChanResRows ! starting row for device equations minus 1
         K=0
         if(NGate>0) then
@@ -952,7 +952,7 @@ contains
           !exit(1022);
         endif
 
-      
+
         val = (row-1)*equations+(column-1) ! unique value encoded for each i,j
         call add_nonzero_to_coo(row, column, val)
         if (use_klu) then
@@ -960,7 +960,7 @@ contains
         else
             set_position_in_matrix=sfGetElement(matrix,row,column)
         end if
-      
+
     end function
 
 !==== EOF solvefpt.f =========================================

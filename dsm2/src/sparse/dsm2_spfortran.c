@@ -1,7 +1,7 @@
 /*
  *  SPARSE DSM2 FORTRAN MODULE
  *
- *  Author: 
+ *  Author:
  *     Eli Ateljevich
  *     California Department of Water resources
  *  Copyright (c) 2007 California Department of Water Resources.
@@ -20,7 +20,7 @@
  */
 
 #ifdef _WIN32
-#define STDCALL 
+#define STDCALL
 #define sfAdd5Reservoir		STDCALL SFADD5RESERVOIR
 #define sfAdd4Equation		STDCALL SFADD4EQUATION
 #else

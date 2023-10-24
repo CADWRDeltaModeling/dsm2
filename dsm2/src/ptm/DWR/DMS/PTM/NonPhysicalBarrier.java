@@ -8,27 +8,27 @@ public class NonPhysicalBarrier {
 	public NonPhysicalBarrier(int nodeId, int waterbodyId, Map<PTMPeriod, Integer> barrierOpTs){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
-		_barrierOpTs = barrierOpTs;	
-	} 
+		_barrierOpTs = barrierOpTs;
+	}
 	public NonPhysicalBarrier(){
 		this(-1, -1, null);
 	}
 	public NonPhysicalBarrier(int nodeId, int waterbodyId){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
-		_barrierOpTs = null;	
+		_barrierOpTs = null;
 	}
 	public void setBarrier(int nodeId, int waterbodyId, Map<PTMPeriod, Integer> barrierOpTs){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
-		_barrierOpTs = barrierOpTs;	
+		_barrierOpTs = barrierOpTs;
 	}
 	public void setLocations(int nodeId, int waterbodyId){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
 	}
 	public void setBarrierOpTs(Map<PTMPeriod, Integer> barrierOpTs){
-		_barrierOpTs = barrierOpTs;	
+		_barrierOpTs = barrierOpTs;
 	}
 	public int getNodeId(){
 		return _nodeId;

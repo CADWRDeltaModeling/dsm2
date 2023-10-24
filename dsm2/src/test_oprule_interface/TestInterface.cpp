@@ -35,7 +35,7 @@ public:
        test_setup_f();
 	}
 
-	~ModelInterfaceTest(){ 
+	~ModelInterfaceTest(){
 	}
 
     void testDate(){
@@ -115,7 +115,7 @@ public:
 	   identifiers["device"]="Weir 22";
       oprule::expression::DoubleNodePtr dn;
       try {
-		   dn 
+		   dn
 		     = DSM2lookup.getModelExpression("gate_op",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( oprule::parser::InvalidIdentifier const& ){
@@ -123,7 +123,7 @@ public:
 	   }
 	   identifiers["device"]="Weir 2";
       try {
-		   dn 
+		   dn
 		     = DSM2lookup.getModelExpression("gate_op",identifiers);
            BOOST_ERROR("Exception MissingIdentifier is expected");
 	   }catch( oprule::parser::MissingIdentifier const& ){
@@ -154,7 +154,7 @@ public:
 	   identifiers["xxxxgate"]="Gate 111";
       oprule::expression::DoubleNodePtr dn;
       try {
-		   dn 
+		   dn
 		     = DSM2lookup.getModelExpression("gate_install",identifiers);
            BOOST_ERROR("Exception MissingIdentifier is expected");
 	   }catch( oprule::parser::MissingIdentifier const& ){
@@ -162,7 +162,7 @@ public:
 	   }
 	   identifiers["gate"]="Weir xxxxx";
       try {
-		   dn 
+		   dn
 		     = DSM2lookup.getModelExpression("gate_install",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( oprule::parser::InvalidIdentifier const& ){
@@ -170,7 +170,7 @@ public:
 	   }
     }
 
-    
+
 
     void testFlowNode(){
        map<string,string> identifiers;
@@ -181,13 +181,13 @@ public:
        // Channel length is 15000, up and down flows are 1000,2000
        //identifiers.push_back(string("3000"));
        //identifiers.push_back(string("0"));
-       oprule::expression::DoubleNodePtr dn = 
+       oprule::expression::DoubleNodePtr dn =
 		   DSM2lookup.getModelExpression("chan_flow",identifiers);
        BOOST_CHECK_CLOSE( dn->eval(), 1400., TOLER );
        identifiers["channel"]="4";
        identifiers["dist"]="5000";
        // Channel length is 5000, 8 is the last comp. point
-       oprule::expression::DoubleNodePtr dn2 
+       oprule::expression::DoubleNodePtr dn2
 		   = DSM2lookup.getModelExpression("chan_flow",identifiers);
        BOOST_CHECK_CLOSE( dn2->eval(), 128000., TOLER);
     }
@@ -198,18 +198,18 @@ public:
        identifiers["channel"]="1";
        identifiers["dist"]="3000";
        // Channel length is 15000, up and down stage is 1.0,2.0
-       oprule::expression::DoubleNodePtr dn 
+       oprule::expression::DoubleNodePtr dn
 		   = DSM2lookup.getModelExpression("chan_stage",identifiers);
        BOOST_CHECK_CLOSE( dn->eval(), 1.4, TOLER );
        // Channel length is 5000, 8 is the last comp. point
        identifiers["channel"]="4";
        identifiers["dist"]="5000";
-       oprule::expression::DoubleNodePtr dn2 
+       oprule::expression::DoubleNodePtr dn2
 		   = DSM2lookup.getModelExpression("chan_stage",identifiers);
        BOOST_CHECK_CLOSE( dn2->eval(), 8., TOLER);
        identifiers["channel"]="4";
        identifiers["dist"]="length";
-       oprule::expression::DoubleNodePtr dn3 
+       oprule::expression::DoubleNodePtr dn3
 		   = DSM2lookup.getModelExpression("chan_stage",identifiers);
        BOOST_CHECK_CLOSE( dn3->eval(), 8., TOLER);
     }
@@ -221,7 +221,7 @@ public:
        identifiers["dist"]="3000";
        // Channel length is 15000, up and down stage is 1.0,2.0
        try {
-		   oprule::expression::DoubleNodePtr dn 
+		   oprule::expression::DoubleNodePtr dn
 		     = DSM2lookup.getModelExpression("chan_stage",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( InvalidIdentifier const& ){
@@ -231,7 +231,7 @@ public:
        identifiers["channel"]="1";
        identifiers["dist"]="99999";
        try {
-		   oprule::expression::DoubleNodePtr dn 
+		   oprule::expression::DoubleNodePtr dn
 		     = DSM2lookup.getModelExpression("chan_stage",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( InvalidIdentifier const& ){
@@ -241,7 +241,7 @@ public:
        identifiers["channel"]="-1";
        identifiers["dist"]="99999";
        try {
-		   oprule::expression::DoubleNodePtr dn 
+		   oprule::expression::DoubleNodePtr dn
 		     = DSM2lookup.getModelExpression("chan_stage",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( InvalidIdentifier const& ){
@@ -251,7 +251,7 @@ public:
        identifiers["channel"]="-1";
        identifiers["dist"]="-99";
        try {
-		   oprule::expression::DoubleNodePtr dn 
+		   oprule::expression::DoubleNodePtr dn
 		     = DSM2lookup.getModelExpression("chan_stage",identifiers);
            BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( InvalidIdentifier const& ){
@@ -276,7 +276,7 @@ public:
 	   identifiers["modelname"]="transfer_flow";
 	   identifiers["transfer"]="TXXXansfer 1";
        try {
-  	      oprule::expression::DoubleNodePtr dn 
+  	      oprule::expression::DoubleNodePtr dn
 		     = DSM2lookup.getModelExpression("transfer_flow",identifiers);
           BOOST_ERROR("Exception InvalidIdentifier is expected");
 	   }catch( InvalidIdentifier const& ){
@@ -313,7 +313,7 @@ struct ModelInterfaceTestSuite : public test_suite {
         add( BOOST_CLASS_TEST_CASE( &ModelInterfaceTest::testGateDeviceInterfaceBadInput, instance ));
         add( BOOST_CLASS_TEST_CASE( &ModelInterfaceTest::testGateInstallInterface, instance ));
         add( BOOST_CLASS_TEST_CASE( &ModelInterfaceTest::testGateInstallInterfaceBadInput, instance ));
- 
+
         add( BOOST_CLASS_TEST_CASE( &ModelInterfaceTest::testFlowNode, instance ));
         add( BOOST_CLASS_TEST_CASE( &ModelInterfaceTest::testChannelBadInput, instance ));
 
@@ -325,7 +325,7 @@ struct ModelInterfaceTestSuite : public test_suite {
 
     }
 };
- 
+
 test_suite*
 init_unit_test_suite( int argc, char * argv[] ) {
     std::auto_ptr<test_suite> test( BOOST_TEST_SUITE( "Test for model state interface" ) );

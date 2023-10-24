@@ -49,7 +49,7 @@ package DWR.DMS.PTM;
  * Encapsulates node creation and initialization information
  */
 public class NodeFixedData{
-  
+
   /**
    * constructor
    */

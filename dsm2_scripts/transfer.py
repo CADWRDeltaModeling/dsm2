@@ -12,13 +12,13 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
     select=select.upper()
     if not outfile:
         raise "Output file name is None"
-    
+
     if not g or len(g) == 0:
         raise "No matches for selection [%s] found in file %s" % (select,infile)
 
     if (unique and len(g) > 1):
         raise "Selection not unique and the unique flag is set true for selection [%s] in file %s" % (select,infile)
-    
+
     for ref in g:
         if window:
             r = DataReference.create(ref,window)
@@ -27,7 +27,7 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
                 continue
         else:
             r=DataReference.create(ref)
-        
+
         d = r.getData()
 
         if not d or len(d)==0:
@@ -46,7 +46,7 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
                 d=godin(d)
             else:
                 raise "Transform %s not recognized" %transform
-        
+
         p=Pathname.createPathname(d.getName())
         if transform:
             old_c=p.getPart(Pathname.C_PART)
@@ -83,9 +83,9 @@ def usage():
 
     Example 1:
     A batch script might have a line:
-    
+
     >call vscript transfer.py --out=out.dss --transform=period_min --interval=1DAY --window='01JAN2000 0000 - 31JAN2000 0000' --selection=///STAGE//1HOUR// in.dss
-    
+
     Note: this example selects a subset in time and then applies a period_min operation. The call vscript part is what you would write in a batch script (vscript itself is a batch file and is most
 
    >call vscript transfer.py --out=out.dss  --selection=//RSAC.*/EC//1HOUR// --transform=period_min --interval=1DAY --unique in.dss
@@ -94,8 +94,8 @@ def usage():
 
     """
 
-             
-    
+
+
 
 def main():
     import getopt,sys

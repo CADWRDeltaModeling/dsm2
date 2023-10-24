@@ -9,10 +9,10 @@ namespace rule {
 
 /** Group of actions executed together
  * A collection of OperationActions executed in parallel. Actions
- * contained in the collection may themselves be compound actions 
+ * contained in the collection may themselves be compound actions
  * (collections) or may directly manipulate the model.
  */
-class ActionSet : public OperationAction 
+class ActionSet : public OperationAction
 {
 public:
     ActionSet();

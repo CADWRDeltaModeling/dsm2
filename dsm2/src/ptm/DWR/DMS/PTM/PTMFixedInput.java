@@ -200,10 +200,10 @@ public class PTMFixedInput{
         wb.setObjectType( _fixedData.getWaterbodyObjectType(i) );
       }
     }
-  
+
     return wbArray;
   }
-  
+
   /**
    *  Create a Channel Waterbody
    */
@@ -223,7 +223,7 @@ public class PTMFixedInput{
     }
     return wb;
   }
-  
+
   /**
    *  Create a Reservoir Waterbody
    */
@@ -236,12 +236,12 @@ public class PTMFixedInput{
       float botelv=_fixedData.getReservoirBottomElevation(lId);
       int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
       wb = new Reservoir(nId, lId,
-                         name, area, botelv, 
+                         name, area, botelv,
                          nodeArray);
     }
     return wb;
   }
-  
+
   /**
    *  create a rim Waterbody
    */
@@ -257,7 +257,7 @@ public class PTMFixedInput{
       wb = new Boundary(nId, nodeArray, _fixedData.getWaterBodyName(nId));
     return wb;
   }
-  
+
   /**
    *  create a Conveyor Waterbody
    */
@@ -274,12 +274,12 @@ public class PTMFixedInput{
   /**
    *  Creates the Node array with fixed information from common
    *  block.
-   * 
+   *
    *  Note however that Reservoir Node info, ag. drain and pump
    *  Node info is not directly available from the common block
    *  This Node info is present in the common block for the Reservoir
    *  and for ag. drains is the Node number itself...
-   * 
+   *
    *  It is the responsibility of the PTMEnv class to calculate and
    *  update the Node object with this information.
    */
@@ -292,32 +292,32 @@ public class PTMFixedInput{
       if (waterbodyIdArray.length == 0) continue;
        //TODO this used to cause an error (below) for high Node numbers. never figured out
       // howe the code would ever work right.
-      // Xiao added: the reason is because a node for very high node number may not exist and there is no 
-      // check here for a null or anything.  The code needs to be rewritten. 
+      // Xiao added: the reason is because a node for very high node number may not exist and there is no
+      // check here for a null or anything.  The code needs to be rewritten.
       String type = _fixedData.getBoundaryTypeForNode(nodeId);
       nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
       if (DEBUG) System.out.println("Created node: "+ nodeArray[i]);
     }
     return nodeArray;
   }
-  
+
   /**
    *  Creates the cross secton array with fixed information from
    *  common block
    */
   public final XSection [] createXSectionFixedInfo(){
-  
+
     XSection[] xSArray = new XSection[getMaximumNumberOfXSections()+1];
-    // rigged to meet only regular cross section stuff  
+    // rigged to meet only regular cross section stuff
     //  int numElvs = com_s_irr_geom_.irreg_geom[nId].num_elev ;
     int numElvs = 2;
     float [] width = new float[numElvs];
     float [] elevation = new float[numElvs];
     float [] area = new float[numElvs];
-  
+
     // float dist = com_s_irr_geom_.irreg_geom[nId].dist;
     //int i,j;
-  
+
     for (int i=1; i<= PTMFixedData.getMaximumNumberOfXSections(); i++) {
       xSArray[i] = null;
       width = _fixedData.getXSectionWidths(i); // xFD[i-1].width[0];
@@ -331,10 +331,10 @@ public class PTMFixedInput{
         //
         float minElv = _fixedData.getXSectionMinimumElevation(i);
         xSArray[i] = new XSection(i, numElvs, dist,
-  				width, area, elevation, 
+  				width, area, elevation,
   				minElv, false);
       }
-    } 
+    }
     return xSArray;
   }
   /**
@@ -353,7 +353,7 @@ public class PTMFixedInput{
     boolean groupPercent = pFD.doGroupPercentage();
     boolean fluxCumulative = pFD.doFluxCumulative();
     info.setVariables(ivert,itrans,iey,iez,iprof,igroup,fluxPercent,groupPercent,fluxCumulative);
-  
+
     // floats
     int random_seed = pFD.getRandomSeed();
     float trans_constant = pFD.getTransverseConstant();
@@ -362,11 +362,11 @@ public class PTMFixedInput{
     float trans_b_coef = pFD.getTransverseBCoef();
     float trans_c_coef = pFD.getTransverseCCoef();
     int animated_particles = pFD.getAnimatedParticles();
-  
-    info.setVariables(random_seed, trans_constant, vert_constant, 
+
+    info.setVariables(random_seed, trans_constant, vert_constant,
   		    trans_a_coef, trans_b_coef, trans_c_coef,
   		    animated_particles);
-  
+
     // particle injection
     int nInjections = pFD.getNumberOfInjections();
     int [] nNode = pFD.getLocationOfParticlesInjectedArray();
@@ -375,51 +375,51 @@ public class PTMFixedInput{
     int [] lengthJulmin = pFD.getInjectionLengthJulminArray();
     //TODO check if nInjections == 0 use data from behavior inputs
     info.setVariables(nInjections, nNode, nInjected, startJulmin, lengthJulmin);
-  
+
     boolean qBinary = pFD.getBinaryExistance();
     int ngroups = pFD.getNumberOfGroups();
     String[] qNames = pFD.getQualityNames();
-  
+
     info.setVariables(ngroups,qBinary,qNames);
     info.setVariables(pFD.getParticleType());
-  
+
   }
-  
+
   /**
    *  Gets the start run time in julian minutes
    */
   public final int getStartTime(){
     return _fixedData.getModelStartTime();
   }
-  
+
   /**
    *  Gets the end run time in julian minutes
    */
   public final int getEndTime(){
     return _fixedData.getModelEndTime();
   }
-  
+
   /**
    *  Gets the run length in julian minutes
    */
   public final int getRunLength(){
     return getEndTime()-getStartTime();
   }
-  
+
   /**
    *  Gets the time step in minutes
    */
   public final int getPTMTimeStep(){
     return _fixedData.getPTMTimeStep();
   }
-  
+
   /**
    *  Gets the output display interval in minutes
    */
   public final int getDisplayInterval(){
     return _fixedData.getDisplayInterval();
   }
-  
+
   /**
    *  Creates FluxInfo
    */
@@ -449,7 +449,7 @@ public class PTMFixedInput{
     return _fixedData.getAnimationOutputInterval();
   }
   /**
-   *  Gets behavior file name 
+   *  Gets behavior file name
    */
   //TODO need to be removed uses getBehaviorInfileName instead
   public final String getBehaviorFileName(){

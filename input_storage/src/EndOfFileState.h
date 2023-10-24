@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 /** InputState representing the reaching of the end of a file. This state
-    does no text processing. 
+    does no text processing.
     \ingroup inputstates
 */
 class EndOfFileState : public InputState

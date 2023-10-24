@@ -1,9 +1,9 @@
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 
 /**
   READ case:
@@ -11,7 +11,7 @@ IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRES
   2. Append items to the buffer one at a time from fortran.
   3. Write the buffer to file.
   4. Clear the buffer.
-  
+
   WRITE case:
   1. Clear the buffer.
   2. Read table from file.
@@ -39,27 +39,27 @@ using namespace boost;
 
 /** Write the table item to an output stream */
 ostream& operator<<(ostream & stream, const qext & obj)
-{  
+{
   quote_if_spaces quote_spaces;
   stream.setf(ios_base::fixed,ios_base::floatfield);
-  return stream <<  
+  return stream <<
             setw(max(4+32,(int)(4+strlen(obj.name))))
             << setfill(' ')
             << left
-            << quote_spaces(obj.name, 32)  
-        << 
+            << quote_spaces(obj.name, 32)
+        <<
             setw(max(4+32,(int)(4+strlen(obj.attach_obj_name))))
             << setfill(' ')
             << left
-            << quote_spaces(obj.attach_obj_name, 32)  
+            << quote_spaces(obj.attach_obj_name, 32)
         << setw(19)
             << setfill(' ')
             << left
-            << obj.attached_obj_type  
+            << obj.attached_obj_type
         << setw(17)
             << setfill(' ')
             << left
-            << obj.attached_obj_no  
+            << obj.attached_obj_no
         ;
 }
 
@@ -80,12 +80,12 @@ istream& operator>> (istream& stream, qext & obj)
   FilterIter end(predicate, xtok.end());
   istringstream tokenstrm;
   string tempstr;
-   
-  
+
+
    if (beg == end)
    {
      throw runtime_error("Fewer input fields received than expected");
-   }        
+   }
    if(beg->size()<= 32)
    {
         strcpy(obj.name, (beg++)->c_str());
@@ -95,12 +95,12 @@ istream& operator>> (istream& stream, qext & obj)
       cout << "fatal error" <<endl;
          throw logic_error("String too long (max width 32):" + (*beg));
    }
-   
+
 
    if (beg == end)
    {
      throw runtime_error("Fewer input fields received than expected");
-   }        
+   }
    if(beg->size()<= 32)
    {
         strcpy(obj.attach_obj_name, (beg++)->c_str());
@@ -110,12 +110,12 @@ istream& operator>> (istream& stream, qext & obj)
       cout << "fatal error" <<endl;
          throw logic_error("String too long (max width 32):" + (*beg));
    }
-   
+
 
         if (beg == end)
         {
             throw runtime_error("Fewer input fields received than expected");
-        }        
+        }
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);
@@ -124,12 +124,12 @@ istream& operator>> (istream& stream, qext & obj)
         {
           throw invalid_argument("Could not convert attached_obj_type to correct data type:"+tempstr);
         }
-        
+
 
         if (beg == end)
         {
             throw runtime_error("Fewer input fields received than expected");
-        }        
+        }
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);
@@ -144,7 +144,7 @@ istream& operator>> (istream& stream, qext & obj)
 
 template<>
 HDFTableManager<qext>::HDFTableManager() :
-    description(qext_table_description()),  
+    description(qext_table_description()),
     m_default_fill(qext("","",-901,-901)){}
 
 template<>
@@ -156,19 +156,19 @@ void HDFTableManager<qext>::prioritize_buffer()
     std::sort(buffer().begin(),buffer().end());
     vector<qext>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
-    {   
+    {
         string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
         throw runtime_error(messagestrm.str());
     }
-    // Eliminate duplicates. Because of prior ordering, 
+    // Eliminate duplicates. Because of prior ordering,
     // this will eliminate lower layers
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<qext>()),buffer().end());
     // Eliminate items that are not used. This must be done after lower layers have been removed
     buffer().erase(remove_if(buffer().begin(), buffer().end(),not1(entry_used<qext>())), buffer().end());
-    
+
 }
 
 TableDescription qext_table_description(){
@@ -203,14 +203,14 @@ TableDescription qext_table_description(){
 
 /**
   Clear the storage buffer for objects of type qext
-*/  
+*/
 void qext_clear_buffer_f(){
   //qext_table::instance().buffer().destroy();
   qext_table::instance().buffer().clear();
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror, 
+void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror,
               const int name_len,const int attach_obj_name_len)
 {
  _TRAP_EXCEPT(*ierror,
@@ -220,23 +220,23 @@ void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_nam
                                       ));
  ) // end of exception trap
 }
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 void qext_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
   qext_table & table = qext_table::instance();
-    *ierror = static_cast<int>( H5TBmake_table( qext_table::instance().description.title.c_str(), 
-                                              *file_id, 
-		                                      table.description.title.c_str(), 
-                                              table.description.nfields, 
-                                              table.buffer().size(), 
-                                              table.description.struct_size, 
-                                              table.description.field_names, 
-                                              table.description.field_offsets, 
-                                              table.description.field_types, 
-                                              table.description.chunk_size, 
-		                                     &table.default_fill(), //fill data 
-		                                       1,                     //qext_table::instance().description.compress, 
+    *ierror = static_cast<int>( H5TBmake_table( qext_table::instance().description.title.c_str(),
+                                              *file_id,
+		                                      table.description.title.c_str(),
+                                              table.description.nfields,
+                                              table.buffer().size(),
+                                              table.description.struct_size,
+                                              table.description.field_names,
+                                              table.description.field_offsets,
+                                              table.description.field_types,
+                                              table.description.chunk_size,
+		                                     &table.default_fill(), //fill data
+		                                       1,                     //qext_table::instance().description.compress,
 		                                      table.buffer().size() > 0 ? &table.buffer()[0] : NULL));
   ) // end of exception trap
 }
@@ -247,44 +247,44 @@ void qext_read_buffer_from_hdf5_f(const hid_t* file_id, int* ierror){
     hsize_t nfields;
     hsize_t nrecords;
     qext_table & table = qext_table::instance();
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-                               table.description.title.c_str(), 
-                               &nfields, 
-			                   &nrecords )); 
-    if ( *ierror < 0) return; 
- 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+                               table.description.title.c_str(),
+                               &nfields,
+			                   &nrecords ));
+    if ( *ierror < 0) return;
+
     if (nfields != table.description.nfields){ *ierror = LOGIC_ERROR; return;}
 
-    table.buffer().resize(static_cast<int>(nrecords)); 
+    table.buffer().resize(static_cast<int>(nrecords));
 
-	if (nrecords > 0) 
+	if (nrecords > 0)
 	{
-		*ierror = static_cast<int>( H5TBread_table(*file_id, 
-			                        table.description.title.c_str(), 
-			                        table.description.struct_size, 
-			                        table.description.field_offsets, 
+		*ierror = static_cast<int>( H5TBread_table(*file_id,
+			                        table.description.title.c_str(),
+			                        table.description.struct_size,
+			                        table.description.field_offsets,
 			                        table.description.field_sizes,
 			                        &(table.buffer()[0])));
 	}
- ) // end of exception trap                                   
+ ) // end of exception trap
 }
 
 /** query size information about the table */
 void qext_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, int* ierror){
  _TRAP_EXCEPT(*ierror,
     hsize_t nfields = 0;
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-				     qext_table::instance().description.title.c_str(), 
-				     &nfields, 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+				     qext_table::instance().description.title.c_str(),
+				     &nfields,
 				     nrecords));
  ) // end of exception trap
 }
 
 
-    
+
 /** get one row worth of information from the buffer */
-void qext_query_from_buffer_f(int32_t* row, 
-                         char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror, 
+void qext_query_from_buffer_f(int32_t* row,
+                         char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror,
               int name_len,int attach_obj_name_len
                         )
 {
@@ -305,7 +305,7 @@ void qext_query_from_buffer_f(int32_t* row,
 
 /** Prioritize buffer by layers, delete unused items and sort */
 void qext_prioritize_buffer_f(int* ierror)
-{  
+{
  _TRAP_EXCEPT(*ierror,
   qext_table::instance().prioritize_buffer();
    ) // end of exception trap
@@ -313,7 +313,7 @@ void qext_prioritize_buffer_f(int* ierror)
 
 /** Query the size of the storage buffer for objects of type qext */
 int qext_buffer_size_f()
-{ 
+{
   return (int) qext_table::instance().buffer().size();
 }
 
@@ -324,7 +324,7 @@ void qext_write_buffer_to_stream(ostream & out, const bool& append)
    out << keyword <<endl;
    vector<qext> & obs = qext_table::instance().buffer();
    qext_table& table = qext_table::instance();
-   for (size_t icount = 0; icount < table.description.nfields; ++ icount) 
+   for (size_t icount = 0; icount < table.description.nfields; ++ icount)
    {
      string name = table.description.field_names[icount];
      boost::to_upper(name);
@@ -333,16 +333,16 @@ void qext_write_buffer_to_stream(ostream & out, const bool& append)
    out << endl;
    for (vector<qext>::const_iterator it = obs.begin();
         it != obs.end(); ++it)
-        {  
+        {
            const qext & outitem = *it;
            out << outitem << endl;
         }
    out << "END\n" << endl;
 }
 
-void qext_write_buffer_to_text_f(const char* file, 
-                                      const bool* append, 
-                                      int* ierror, 
+void qext_write_buffer_to_text_f(const char* file,
+                                      const bool* append,
+                                      int* ierror,
                                       int filelen)
 {
  _TRAP_EXCEPT(*ierror,
@@ -350,9 +350,9 @@ void qext_write_buffer_to_text_f(const char* file,
   boost::filesystem::path p(filename);
   ios_base::openmode mode = *append ? (ios::out | ios::ate | ios::app) : (ios::out | ios::trunc );
   ofstream out(filename.c_str(),mode);
-  
-  qext_write_buffer_to_stream(out,*append); 
-  ) // end of exception trap  
+
+  qext_write_buffer_to_stream(out,*append);
+  ) // end of exception trap
 }
 
 

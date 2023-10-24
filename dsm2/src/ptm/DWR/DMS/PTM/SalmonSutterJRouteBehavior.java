@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -88,8 +88,8 @@ public class SalmonSutterJRouteBehavior extends SalmonUpSacRouteBehavior {
 		if ((Math.abs(qStmCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && stm.isFishScreenInstalled()))
 			stmGate = 0;
 		double piSut = pi(calcB(new float[]{qSut, pSut}), calcA(new float[]{qStm, deltaQSut, pStm}), sutGate, stmGate);
-		rIn.putEntrainmentRate(nodeId, 
+		rIn.putEntrainmentRate(nodeId,
 				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1], ratios[2],qSutCFS, qStmCFS, deltaQSut, piSut)));
 		selectChannel(p, new Channel[]{channels[0], channels[1], channels[2]}, nodeId, piSut,  0);
 	}
-} 
+}

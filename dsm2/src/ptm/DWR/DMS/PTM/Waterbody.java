@@ -134,7 +134,7 @@ public abstract class Waterbody{
   public abstract float getInflowWSV(int nodeEnvId, float sv);
   /**
    *  Get flow direction sign
-   *  OUTFLOW & INFLOW do not represent their physical meanings 
+   *  OUTFLOW & INFLOW do not represent their physical meanings
    *  i.e. intermediate var for particle decision making at junction node
    */
   protected abstract int flowType(int nodeId);
@@ -149,26 +149,26 @@ public abstract class Waterbody{
   public int getPTMType(){
     return getType();
   }
-  
+
   /**
    *  Return actual type of Waterbody
    */
   public int getType(){
     return type;
   }
-  
+
   /**
    * The type of Waterbody from a hydrodynamic point of view
    */
   public abstract int getHydroType();
-  
+
   /**
    * Get this Waterbody's unique id
    */
   public final int getEnvIndex(){
     return(EnvIndex);
   }
-  
+
   /**
    *  Set pointer information in Node pointer array
    */
@@ -176,10 +176,10 @@ public abstract class Waterbody{
     for(int i=0; i<nNodes; i++)
       nodeArray[i] = nodePtrArray[i];
   }
-  
+
   /**
    * Get the local index of a Node (ie. within the
-   * indexing system of this Waterbody, from 0 to nNodes-1) 
+   * indexing system of this Waterbody, from 0 to nNodes-1)
    * from the its global index
    */
   public final int getNodeLocalIndex(int nodeIdGlobal){
@@ -195,7 +195,7 @@ public abstract class Waterbody{
   public final int getNodeEnvIndex(int localIndex){
     return(_nodeIdArray.get(localIndex));
   }
-  
+
   /**
    *  Generates a random number on subsequent calls
    *  which are gaussian distributed.
@@ -203,21 +203,21 @@ public abstract class Waterbody{
     public final float getGRandomNumber(){
       return((float)randomNumberGenerator.gaussian());
     }//no use
-    
+
   /**
    *  Generate a uniform random real number in (0,1)
    */
   public final float getRandomNumber(){
     return((float) randomNumberGenerator.uniform(0,1));
   }
-  
+
   /**
    * Get the number of nodes connecting to this Waterbody
    */
   public final int getNumberOfNodes(){
     return(nNodes);
   }
-  
+
   /**
    * Get a Node, given its local index within this Waterbody.
    * To get a nodes local index use getNodeLocalIndex(int i)
@@ -245,13 +245,13 @@ public abstract class Waterbody{
   }
   /**
    * sets the accounting name
-   
+
   public void setAccountingType(int type){
     _aType = type;
   }
   /**
    * Returns the accounting name
-   
+
   public int getAccountingType(){
     return _aType;
   }*/
@@ -310,13 +310,13 @@ public abstract class Waterbody{
       if(this.type == RESERVOIR) typeRep = "RESERVOIR";
       if(this.type == BOUNDARY_WATERBODY) typeRep = "BOUNDARY_WATERBODY";
       if(this.type == CONVEYOR) typeRep = "CONVEYOR";
-      rep = " Waterbody # " + this.EnvIndex + "\n" 
+      rep = " Waterbody # " + this.EnvIndex + "\n"
           + " Number of Nodes = " + this.nNodes + "\n"
           + " Waterbody Type is " + typeRep + "\n";
       for(int i=0; i<nNodes; i++){
-        if(nodeArray[i] != null) 
+        if(nodeArray[i] != null)
           rep += "Node["+i+"] = " +nodeArray[i].getEnvIndex();
-        else 
+        else
           rep += "Node["+i+"] = null";
       }
     }
@@ -364,7 +364,7 @@ public abstract class Waterbody{
    *  Node array connecting to this Waterbody
    */
   private Node[] nodeArray;
-  
+
   /**
    *  Flow, depth, velocity, width and area information read from tide file
    */
@@ -393,7 +393,7 @@ public abstract class Waterbody{
   private HashMap<Integer, Integer> _barrierOpMap = null;
   private boolean _fishScreenInstalled = false;
   private boolean [] _firstTimeSetFlows;
-  
+
 }
 
 //TODO clean up no longer used, moved to TravelTimeOutput

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.Map;
@@ -30,7 +30,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 	final static float qGsCfsMean = 3044f, qGsCfsSD = 1143f;
 	final static float qSacDownGsCfsMean = 6254f, qSacDownGsCfsSD = 4918f;
 	final static float GATECLOSEDFLOW = Float.MIN_VALUE;
-	
+
 	/**
 	 * @param in
 	 */
@@ -74,22 +74,22 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		return ratios;
 	}
 	Channel[] getChannels(Particle p, String[] channelNames, String upDown){
-		Node curNode = p.nd;		
+		Node curNode = p.nd;
 		if ((curNode == null)&& (channelNames.length != 5))
 			PTMUtil.systemExit("p.nd is null or number of channels is not 5, exit");
 		if (curNode.getEnvIndex()!=_nodeId)
 			PTMUtil.systemExit("Node id in input file is different from node id the particle encountered, exit.");
-		
+
 		Channel sacUp = null;
 		Channel sacDown = null;
-		Channel tri1 = null;		 
+		Channel tri1 = null;
 		Channel tri2 = null;
 		Channel sacDownDown = null;
-		
+
 		//ex. channelNames[]:{"SACUPDCC", "SACUPGS", "DCC", "GS", "SACDOWNGS"}
 		//"up" means current node is at the first junction; "down" means current node is at the second junction
 		if(upDown.equalsIgnoreCase("UP")){
-			sacUp = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[0])); 
+			sacUp = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[0]));
 			sacDown = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[1]));
 			tri1 = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[2]));
 			Node sacDownNd = sacDown.getDownNode();
@@ -100,7 +100,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 			sacDown = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[1]));
 			Node sacUpNd = sacDown.getUpNode();
 			tri1 = (Channel)sacUpNd.getChannel(_rIn.getChannelId(channelNames[2]));
-			sacUp = (Channel)sacUpNd.getChannel(_rIn.getChannelId(channelNames[0])); 
+			sacUp = (Channel)sacUpNd.getChannel(_rIn.getChannelId(channelNames[0]));
 			tri2 = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[3]));
 			sacDownDown = (Channel) curNode.getChannel(_rIn.getChannelId(channelNames[4]));
 		}
@@ -120,7 +120,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		//Russ Perry suggested if a particle have visited once and not entered the branch, the particle cannot enter the branch anymore when coming back
 		if(vis > 0)
 			pctPass = 0;
-		
+
 		//next code for experiment purpose
 		/*
 		if(vis > 0){
@@ -130,14 +130,14 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 				pctPass = 0;
 		}
 		*/
-		
+
 			//decided not to use
 			//pctPass = Math.pow(0.6, vis);
-		
+
 		//TODO decided not to use anymore
 		/*
 		int selectedChanId = _rIn.getUpSacJChan(jId, p.Id);
-		
+
 		if( selectedChanId > 0){
 			//System.err.println(p.Id+"  "+p.wb.getEnvIndex()+"  "+selectedChanId);
 			for (Channel chan: chans){
@@ -146,13 +146,13 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 					break;
 				}
 			}
-			setChannelStartingCondition(p, ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, selectedChanId), 
+			setChannelStartingCondition(p, ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, selectedChanId),
 			((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(selectedChanId));
 			return;
 		}
 		*/
 		int sacUpId = chans[0].getEnvIndex(), sacDownId = chans[1].getEnvIndex(), bId = chans[2].getEnvIndex();
-		
+
 		float sacup_flow = Math.max(0.0f, chans[0].flowAt[1]);
 		float sacdown_flow = Math.max(0.0f, chans[1].flowAt[0]);
 		float branch_flow = Math.max(0.0f, chans[2].flowAt[0]);
@@ -161,7 +161,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 			p.particleWait = true;
 		    return;
 		}
-		
+
 		//mean swimming velocity set once per particle per channel group.
 		//Here is the only place to set a mean swimming velocity.
 		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, sacUpId);
@@ -180,29 +180,29 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		double ram = p.nd.getRandomNumber();
 		float totalSac = wbFlowSacUp + wbFlowSacDown;
 		float total = totalSac + wbFlowBranch;
-		
-		if (total < Float.MIN_VALUE || flow_3 < Float.MIN_VALUE){ 
+
+		if (total < Float.MIN_VALUE || flow_3 < Float.MIN_VALUE){
 		//if (total < Float.MIN_VALUE){
 			p.particleWait = true;
 		    return;
 		}
-		
+
 		//original code
 		//users can input a modify amount to increase or decrease the chance.
 		//double probModified = Math.min(prob*pctPass*((double)getRouteInputs().getPercentToModify(nodeId))/100.0d, 1.0d);
-		
+
 		/*according to Russ and Aaron, the entrainment increase to STM should be added (not multiplied)to the calculated
-		 *because at a low flow condition, entrainment to STM is very small.  if using multiply, it won't very effective 
+		 *because at a low flow condition, entrainment to STM is very small.  if using multiply, it won't very effective
 		 */
 		//TODO should have Math.max(calculated, modAmount) instead?
-		
+
 		double probModified = 0.0d;
 		double modAmount = ((double)getRouteInputs().getPercentToModify(nodeId))/100.0d;
 		//jId: SUT = 0, STM = 1, DCC = 2, GEO = 3
 		// at the junction SUT or STM if a user input increase/reduce entrainment > 1, add modAmount - 1, otherwise multiply
 		if((modAmount > 1) && (jId == 1 || jId == 0))
 			probModified = Math.min((prob+(modAmount-1))*pctPass, 1.0d);
-		
+
 		//TODO original algorithm, not used anymore clean up
 		//At the junction SUT or STM, if user input increase/reduce entrainment < 1, add, otherwise multiply
 		/*
@@ -210,43 +210,43 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 			//add pct (user input) to the calculated route probability
 			probModified = Math.min((prob+modAmount)*pctPass, 1.0d);
 		*/
-		
+
 		else
 			//multiply pct to the calculated route probability
 			probModified = Math.min(prob*modAmount*pctPass, 1.0d);
-		
-		// if branch flow = 0 Russ's model won't work because the model doesn't include a swimming velocity & 
-		// could ask particles to go down the branch but because of the negative swimming velocity 
-		// the particles cannot causing problems 
+
+		// if branch flow = 0 Russ's model won't work because the model doesn't include a swimming velocity &
+		// could ask particles to go down the branch but because of the negative swimming velocity
+		// the particles cannot causing problems
 		//TODO call super not working because branch still is consider if super is called, need to refactoring the method in the super
 		/*
 		if((wbFlowBranch < Float.MIN_VALUE) || (probModified < ram)){
-			//System.err.println("nd:"+p.nd.getEnvIndex()+"  wb:"+p.wb.getEnvIndex()+"  confFacBranch:" + confFacBranch + "  swVelBranch:"+swVelBranch + "  wbFlowBranch:" +wbFlowBranch);		
+			//System.err.println("nd:"+p.nd.getEnvIndex()+"  wb:"+p.wb.getEnvIndex()+"  confFacBranch:" + confFacBranch + "  swVelBranch:"+swVelBranch + "  wbFlowBranch:" +wbFlowBranch);
 			super.makeRouteDecision(p);
 			//System.err.println("nd:"+p.nd.getEnvIndex()+"  wb:"+p.wb.getEnvIndex());
 			return;
 		}
 		*/
-		
-		if((wbFlowBranch < Float.MIN_VALUE) || branch_flow < Float.MIN_VALUE || (probModified < ram)){ 
+
+		if((wbFlowBranch < Float.MIN_VALUE) || branch_flow < Float.MIN_VALUE || (probModified < ram)){
 		//if((wbFlowBranch < Float.MIN_VALUE) || (probModified < ram)){
 			/*
 			System.err.println(PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 							+"  "+PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-							+"  confFacBranch:" + confFacBranch 
-							+ "  swVelBranch:"+swVelBranch 
+							+"  confFacBranch:" + confFacBranch
+							+ "  swVelBranch:"+swVelBranch
 							+ "  wbFlowBranch:" +wbFlowBranch
 							+ "  swVelSacUp:"+swVelSacUp
 							+ "  wbFlowSacUp:" +wbFlowSacUp
 							+ "  swVelSacDown:"+swVelSacDown
-							+ "  wbFlowSacDown:" +wbFlowSacDown);	
+							+ "  wbFlowSacDown:" +wbFlowSacDown);
 			*/
-			
+
 			//only allow to go downstream to be consistent with the statistical model
-			//p.wb = chans[1];	
+			//p.wb = chans[1];
 			//setChannelStartingCondition(p, swVelSacDown, confFacSacDown);
-			
-			//if total flow in Sac River is equal to 0, the particle has 50% chance going up or down			
+
+			//if total flow in Sac River is equal to 0, the particle has 50% chance going up or down
 			double chanceUp = 0;
 			if (totalSac < Float.MIN_VALUE)
 				chanceUp = 0.5;
@@ -260,18 +260,18 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 				p.wb = chans[0];
 				setChannelStartingCondition(p, swVelSacUp, confFacSacUp);
 			}
-					
+
 			//_rIn.setUpSacJChan(jId, p.Id, -1);
 			//System.err.println(PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 					//+"  "+PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex()));
 		}
-		
+
 	    else{
 	    	p.wb = chans[2];
 	    	setChannelStartingCondition(p, swVelBranch, confFacBranch);
 	    	//_rIn.setUpSacJChan(jId, p.Id, p.wb.getEnvIndex());
 	    }
-		if (p.observer != null) 
+		if (p.observer != null)
 	    	p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 		/* for debug
 		if(nodeId == 308)

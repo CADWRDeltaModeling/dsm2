@@ -10,7 +10,7 @@ program sed_setup
 implicit none
     integer :: ierror
     real(gtm_real) :: start, finish
-    call cpu_time(start)    
+    call cpu_time(start)
     call h5open_f(ierror)
     call get_command_args_sb(hydro_hdf5)
     call hdf5_init(hydro_hdf5)

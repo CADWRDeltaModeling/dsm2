@@ -12,7 +12,7 @@ public:
    {
         return lhs.ndx == rhs.ndx;
    }
-   bool Fire(const ExternalFlowInterface & lhs, 
+   bool Fire(const ExternalFlowInterface & lhs,
              const oprule::rule::ModelInterface<double> & rhs)
    {
         return false;
@@ -20,7 +20,7 @@ public:
    bool Fire(const TransferFlowInterface & lhs, const TransferFlowInterface & rhs){
         return lhs.ndx == rhs.ndx;
    }
-   bool Fire(const TransferFlowInterface & lhs, 
+   bool Fire(const TransferFlowInterface & lhs,
              const oprule::rule::ModelInterface<double> & rhs){
         return false;
    }
@@ -30,23 +30,23 @@ public:
    bool Fire(const GateInstallInterface & lhs, const DeviceInterface &rhs){
       return lhs.ndx == rhs.ndx;
    }
-   bool Fire(const GateInstallInterface & lhs, 
+   bool Fire(const GateInstallInterface & lhs,
              const oprule::rule::ModelInterface<double> &rhs){
       return false;
    }
    bool Fire(const DeviceInterface & lhs, const DeviceInterface &rhs){
       return lhs.ndx == rhs.ndx && lhs.devndx == rhs.devndx;
    }
-   bool Fire(const DeviceInterface & lhs, 
+   bool Fire(const DeviceInterface & lhs,
              const oprule::rule::ModelInterface<double> &rhs){
       return false;
    }
-   bool OnError(const oprule::rule::ModelInterface<double>& lhs, 
+   bool OnError(const oprule::rule::ModelInterface<double>& lhs,
                 const oprule::rule::ModelInterface<double>& rhs){
         std::cerr<< "Default: assume no conflict between actions"<< std::endl;
       return false;
    }
-                
+
 };
 
 typedef ::Loki::StaticDispatcher<

@@ -1,6 +1,6 @@
-"""Script to prepare San Joaquin flow and EC, SWP pumping and CVP 
+"""Script to prepare San Joaquin flow and EC, SWP pumping and CVP
     pumping given a CALSIM output file.
-    
+
 """
 from calendar import monthrange,month_abbr
 import sys,string
@@ -27,13 +27,13 @@ NA_VAL=-901,0
     # if g==None or len(g) != 1:
         # raise ValueError("Path %s in file s% does not exist or is not unique" % (path,file))
     # return g[0].getData()
-    
+
 def dss_retrieve_ts(file, path, *arg):
     f=opendss(file)
     g=findpath(f,path)
     if g==None or len(g) != 1:
         raise ValueError("Path %s in file s% does not exist or is not unique" % (path,file))
-    
+
     if len(arg)>1:
         raise ValueError("usage: file, dss_path, time window")
     elif len(arg)==1:
@@ -43,8 +43,8 @@ def dss_retrieve_ts(file, path, *arg):
 
 def dss_store_ts(file,path,ts):
     writedss(file,path,ts)
-    
-    
+
+
 def replace_vamp(non_pulse,pulse,include_shoulder=0):
     """Creates a new series based on non_pulse values, replacing them
         with pulse values during the VAMP season (April 15-May 15 inclusive)
@@ -53,14 +53,14 @@ def replace_vamp(non_pulse,pulse,include_shoulder=0):
       Arguments:
       non_pulse: monthly or daily series of values to use for non-pulse
       pulse: pulse values, must have same start, length, interval as non-pulse
-      
+
       Output: New series with non-pulse values replaced by pulse during vamp
     """
     if not isinstance(non_pulse,RegularTimeSeries):
         raise TypeError("Non-Pulse flow must be regular time series")
     if not isinstance(pulse,RegularTimeSeries):
         raise TypeError("Pulse flow must be regular time series")
-        
+
     if include_shoulder:
         first_april_day=1
         last_may_day=31
@@ -80,9 +80,9 @@ def replace_vamp(non_pulse,pulse,include_shoulder=0):
         values[i]=np.getY()
         xstr=np.getXString()
         day,month=int(xstr[0:2]),xstr[2:5]
-        if month=="APR" and day >= first_april_day: 
+        if month=="APR" and day >= first_april_day:
             values[i]=p.getY()
-        elif month=="MAY" and day <= last_may_day: 
+        elif month=="MAY" and day <= last_may_day:
              values[i]=p.getY()
 
     out=RegularTimeSeries("/vamp//////", non_pulse.getStartTime().toString(),
@@ -91,10 +91,10 @@ def replace_vamp(non_pulse,pulse,include_shoulder=0):
     out.getAttributes().setYUnits("CFS")
     out.getAttributes().setYType("PER-AVER")
     return out
-   
+
 def prep_vamp_vernalis(calsimfile,outfile,fpart,fpart_mod):
-    """Driver routine for construct Vernalis SJR flow and EC. 
-        This routine extracts flow and ec from the calsim file, 
+    """Driver routine for construct Vernalis SJR flow and EC.
+        This routine extracts flow and ec from the calsim file,
         calls replace_vamp(non_pulse,pulse) and writes
         output.
     """
@@ -110,7 +110,7 @@ def prep_vamp_vernalis(calsimfile,outfile,fpart,fpart_mod):
     non_pulse_path="/CALSIM/VERNWQNONPULSEDV/SALINITY-EC//1MON/fpart/".replace("fpart",fpart)
     pulse_path="/CALSIM/VERNWQPULSEDV/SALINITY-EC//1MON/fpart/".replace("fpart",fpart)
     outpath="/CALSIM-VAMP/VERNWQ/EC//1DAY/fpart/".replace("fpart",fpart_mod)
-   
+
     non_pulse_ec=dss_retrieve_ts(calsimfile, non_pulse_path)
     pulse_ec=dss_retrieve_ts(calsimfile, pulse_path)
     vernalis_ec=replace_vamp(non_pulse_ec,pulse_ec)
@@ -120,12 +120,12 @@ def prep_vamp_vernalis(calsimfile,outfile,fpart,fpart_mod):
 def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
     """Refine export limits to include EI ratio and allocate
     limits to CVP and SWP.
-   
+
       Arguments:
       pulse_limit: the raw combined export limit from CALSIM
       ei_ratio:     the maximum E/I ratio calculated by CALSIM
       delta_inflow: total inflow to the delta calculated by CALSIM
-      
+
       Output:
       swp_limit,cvp_limit: Maximum pumping allowed during VAMP for
                            each of the individual projects. This routine
@@ -136,24 +136,24 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
 
     # Limit pulse according to EI ratio
     eilimit=ei_ratio*delta_inflow
-    
+
     # Now apply export limit. in the CALSIM file the limit probably
-    # will have values only for APR and MAY, whereas the ei limit 
+    # will have values only for APR and MAY, whereas the ei limit
     # exists every month
     tsmonth=month_numbers(pulse_limit)
     is_april_may=(tsmonth==4)+(tsmonth==5)
     limit=ts_where(is_april_may *(pulse_limit < eilimit) > 0.,
                               pulse_limit,
                               eilimit)
-    
-    if DEBUG:
-        writedss("out","/CALC/LIM/////",limit) 
 
-    # Try to allocate to cvp and swp equally. CVP has a 
+    if DEBUG:
+        writedss("out","/CALC/LIM/////",limit)
+
+    # Try to allocate to cvp and swp equally. CVP has a
     # mimimum pumping level of 800cfs in which case SWP takes the rest
     even_allocation=limit/2.
     # trick that converts scalar cvp min to time series with same start, interval
-    cvp_min_pump=even_allocation*0. + CVP_MIN_PUMP 
+    cvp_min_pump=even_allocation*0. + CVP_MIN_PUMP
     # forget about cavitation limit in the (fix CALSIM!!) case where
     # the cavitation minimum is less than total pumping limit for both
     # projects combined -- instead use the total pumping limit
@@ -163,7 +163,7 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
                                    cvp_min_pump)
     swp_limit=limit-cvp_limit
     if DEBUG:
-        writedss("out","/CALC/EVENALLOC/////",even_allocation)   
+        writedss("out","/CALC/EVENALLOC/////",even_allocation)
         writedss("out","/CALC/CVPLIM/////",cvp_limit)
         writedss("out","/CALC/SWPLIM/////",swp_limit)
         writedss("out","/CALC/PULSELIM/////",pulse_limit)
@@ -183,7 +183,7 @@ def month_numbers(series):
     out.getAttributes().setYType(series.getAttributes().getYType())
     return out
 
-    
+
 def days_in_month(series):
     n=len(series)
     values=zeros(n,'d')
@@ -198,13 +198,13 @@ def days_in_month(series):
                                           values)
     out.getAttributes().setYType(series.getAttributes().getYType())
     return out
-   
-   
+
+
 def calculate_vamp_times(series):
     """Calculate vamp pulse period lengths for each month in series
     Arguments:
     series: series that provides the months
-    
+
     Output: (total, pulse, nonpulse)
     total: total days in month
     pulse: days in month in pulse period
@@ -213,16 +213,16 @@ def calculate_vamp_times(series):
     total=days_in_month(series)
     n=len(series)
     first_month=monthlist.index(series.getStartTime().toString()[2:5])
-    
+
     # Now switch to entirely zero-based arrays for remainder of routine
     first_month_ndx_yr1=first_month - 1   #zero based index of first month
-    
-    # This array has the number of pulse days per month for a single 
+
+    # This array has the number of pulse days per month for a single
     # year starting in January. We are going to repeat it over and over
     # with a subarray at the beginning and end because the input doesn't
     # necessarily start in January and end in December.
     single_year_pulse_days=[0,0,0,16,15,0,0,0,0,0,0,0]
-    
+
     if first_month_ndx_yr1 + n > 12:
        months_year1=12-first_month_ndx_yr1
        last_month_ndx_yr1=11
@@ -230,14 +230,14 @@ def calculate_vamp_times(series):
        extra_months=(n-months_year1)%12
     else:
        months_year1=n
-       
+
        last_month_ndx_yr1=first_month_ndx_yr1+n-1
-       
+
        repeat_months=0
        extra_months=0
-    
+
     pulse_days=array(
-               single_year_pulse_days[first_month_ndx_yr1:(last_month_ndx_yr1+1)] + 
+               single_year_pulse_days[first_month_ndx_yr1:(last_month_ndx_yr1+1)] +
                repeat_months*single_year_pulse_days +
                single_year_pulse_days[0:extra_months], 'd')
     pulse=RegularTimeSeries("/pulse//////",series.getStartTime().toString(),
@@ -273,45 +273,45 @@ def get_calsim_path(sjr_process, fpart):
         return "/CALSIM/PULSEVAMPEXP/EXPORT//1MON/fpart/".replace("fpart",fpart)
     else:
         return "/CALSIM/PULSEEXPCTRL/EXPORT-CTRL-PULSE//1MON/fpart/".replace("fpart",fpart)
-   
+
 def calculate_exports(limit,average_value):
     """Determines pulse and non-pulse export flows
       for cvp or swp given the refined limits on the
       export and the average for one of the projects.
       This routine assures that the limit is
-      only used if it will reduce pumping 
-      and that the pulse and non-pulse flows combine to 
+      only used if it will reduce pumping
+      and that the pulse and non-pulse flows combine to
       give the correct total monthly average pumping.
-      
+
       Arguments:
-      limit: time series of (refined) limits 
+      limit: time series of (refined) limits
                      on exports for the project
                      (cvp or swp) being analyzed.
-      average_value: time series of monthly average pumping 
+      average_value: time series of monthly average pumping
                      for the project
-      
+
       Output:
       export_value:  Time series of actual exports.
-      
+
     """
     total_time_in_month,pulse_time_in_month,non_pulse_time_in_month = \
       calculate_vamp_times(limit)
 
-    # Calculate a volumetrically correct non-pulse flow given that average_value gives 
+    # Calculate a volumetrically correct non-pulse flow given that average_value gives
     # the total volume of pumping for the month and that pulse pumping is at the limit
     limit_volume=limit*pulse_time_in_month
     total_volume = average_value*total_time_in_month
     non_pulse_volume = total_volume - limit_volume
     non_pulse_flow=non_pulse_volume/non_pulse_time_in_month
     volume_corrected_limit = replace_vamp(limit, # replace shoulder first
-                                                     non_pulse_flow,  
-                                                     include_shoulder=1)  
+                                                     non_pulse_flow,
+                                                     include_shoulder=1)
     volume_corrected_limit=replace_vamp(volume_corrected_limit, #now correct pulse period
                                                               limit,
                                                               include_shoulder=0)
-    
-   
-    # Create an indicator time series to show months where the  pulse pumping 
+
+
+    # Create an indicator time series to show months where the  pulse pumping
     # limit is greater than average (the  pulse pumping limit should be a curtailment).
     # Note that this is converted to daily by "spreading it out" over the days, but it
     # is an indicator of a monthly condition and every day has the same value.
@@ -322,27 +322,27 @@ def calculate_exports(limit,average_value):
     # and the volume-corrected pulse/non-pulse combination otherwise.
     export_value = ts_where(limit_exceeds_average,average_value, volume_corrected_limit)
     if (DEBUG):
-        writedss("out.dss","/EXP/CVP/EXPORT////",export_value)        
+        writedss("out.dss","/EXP/CVP/EXPORT////",export_value)
         writedss("out.dss","/EXP/CVP/VCL////",volume_corrected_limit)
-        writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))    
+        writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))
         writedss("out.dss","/EXP/CVP/AVE////",average_value)
         writedss("out.dss","/EXP/CVP/LIM////",interpolate(limit,'1DAY'))
         writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE////",limit_exceeds_average)
-	
+
     export_value.getAttributes().setYUnits("CFS")
     export_value.getAttributes().setYType("PER-AVER")
-    
+
     return export_value
 
-   
-   
+
+
 def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
     """Driver routine to construct SWP and CVP export flows.
       This routine extracts required time series from the
       CALSIM file, calls a few high level routines to orchestrate
       the calculation, then writes the output
     """
-   
+
     # retrieve data
     path="/CALSIM/D419/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)
     swp_average_exports=dss_retrieve_ts(calsimfile,path)
@@ -354,38 +354,38 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
     delta_inflow=dss_retrieve_ts(calsimfile,path)
     path = get_calsim_path(sjr_process, fpart)
     total_export_limit=dss_retrieve_ts(calsimfile,path)
-   
+
     swp_limit,cvp_limit=project_export_limits(
                     total_export_limit,ei_ratio,delta_inflow)
     swp_limit_corrected_for_vol_avg=calculate_exports(swp_limit,swp_average_exports)
     #assert ts_max(swp) <= SWP_MAX_PUMP, "SWP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
     cvp_limit_corrected_for_vol_avg=calculate_exports(cvp_limit,cvp_average_exports)
     #assert ts_max(swp) <= CVP_MAX_PUMP, "CVP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
-    
-    swp = replace_vamp(swp_average_exports,swp_limit_corrected_for_vol_avg,include_shoulder=1)  
+
+    swp = replace_vamp(swp_average_exports,swp_limit_corrected_for_vol_avg,include_shoulder=1)
     swp_path="/CALSIM-VAMP/D419/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,swp_path,swp)
-    
+
     cvp = replace_vamp(cvp_average_exports,cvp_limit_corrected_for_vol_avg,include_shoulder=1)
     cvp_path="/CALSIM-VAMP/D418/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,cvp_path,cvp)
 
-    
+
 def prep_vamp_ndo(calsimfile,outdss,fpart):
 
     STEP=string.lower(config.getAttr('CALSIMSTEP'))
-    
+
     # CALSIM=opendss(calsimfile)
     SJR_PROCESS=config.getAttr("SJR_PROCESS")
-    
+
     startyr=int(config.getAttr('START_DATE')[5:])
     endyr=int(config.getAttr('END_DATE')[5:])
-    
+
     if (startyr < 1974 and endyr > 1991):
         twstr = "01NOV1921 0000 - 01OCT2003 0000"
-    else: 
+    else:
         twstr = "01OCT1974 0000 - 01OCT1991 0000"
-        
+
     path="/CALSIM/NDO/FLOW-NDO//"+STEP+"/"+fpart+"/"
     ndo=dss_retrieve_ts(calsimfile,path,twstr)
     print ndo
@@ -394,10 +394,10 @@ def prep_vamp_ndo(calsimfile,outdss,fpart):
         fpart_modified=calsim_study_fpart(modify=1)
         delta_ndo = calc_vamp_delta_ndo(calsimfile,outdss,fpart,fpart_modified,SJR_PROCESS)
         ndo15_vamp = ndo15 + interpolate(delta_ndo, "15MIN")
-	
+
     writedss(calsimfile,"/CALSIM/NDO/FLOW-NDO//15MIN/"
                               +fpart+"/",ndo15_vamp)
-                                  
+
 
 def calc_vamp_delta_ndo(calsimfile,vamp_dss,fpart,fpart_mod,sjr_process):
     # sjr flow
@@ -405,10 +405,10 @@ def calc_vamp_delta_ndo(calsimfile,vamp_dss,fpart,fpart_mod,sjr_process):
     sjr_average_flow = dss_retrieve_ts(calsimfile,path)
     path = "/CALSIM-VAMP/C639/FLOW//1DAY/fpart/".replace("fpart",fpart_mod)
     sjr_vamp_flow = dss_retrieve_ts(vamp_dss,path)
-    delta_sjr_flow = sjr_vamp_flow - interpolate(sjr_average_flow,"1DAY") 
-    
+    delta_sjr_flow = sjr_vamp_flow - interpolate(sjr_average_flow,"1DAY")
+
     #cvp swp export
-    path="/CALSIM/D419/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)   
+    path="/CALSIM/D419/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)
     swp_average_exports=dss_retrieve_ts(calsimfile,path)
     path="/CALSIM/D418/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)
     cvp_average_exports=dss_retrieve_ts(calsimfile,path)
@@ -427,7 +427,7 @@ vscript.bat prep_vamp.py calsimdss outdss
     configfile  the input file for configuration variables
     calsimdss   the CALSIM file to be processed
     outdss      the destination dss file for calculated flows
-    
+
 The command line version does not include a dss FPART in its search.
 It assumes that the CALSIM file does includes only one version (FPART)
 for each of the required inputs. .
@@ -439,7 +439,7 @@ def main():
         #config=0
         if len(sys.argv) == 4:
             fpart=sys.argv[3]
-        else:            
+        else:
             fpart=""   # will match anything, so duplicates will give unexpected behavior
         fpart_modified=fpart
         if not(calsimdss.endswith(".dss") and outdss.endswith("dss")):
@@ -454,12 +454,12 @@ def main():
         fpart_modified=calsim_study_fpart(modify=1)
     else:
 	    raise "wrong number of arguments in script prep_vamp"
-	
+
     print "prep VAMP"
-    prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified) 
+    prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified)
     prep_vamp_exports(calsimdss,outdss,fpart,fpart_modified,sjr_process)
     prep_vamp_ndo(calsimdss,outdss,fpart)
     sys.exit()
-        
+
 if __name__ == '__main__':
     main()

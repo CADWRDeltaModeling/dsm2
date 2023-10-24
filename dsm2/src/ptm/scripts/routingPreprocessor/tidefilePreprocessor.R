@@ -1,4 +1,4 @@
-# Alter grid topology (connectivity) in a DSM2 *.h5 tidefile so it can be used 
+# Alter grid topology (connectivity) in a DSM2 *.h5 tidefile so it can be used
 # with the ECO-PTM South Delta routing model
 # Doug Jackson
 # doug@QEDAconsulting.com
@@ -56,7 +56,7 @@ if(nrow(modifyChannel)>0) {
             modNodes[length(modNodes)+1] <- thisNode
         }
     }
-    
+
     # Modify connectivity, channel lengths, etc.
     for(i in 1:nrow(modifyChannel)) {
         thisMod <- modifyChannel[i, ]
@@ -89,16 +89,16 @@ if(nrow(modifyChannel)>0) {
     interpFac <- left_join(cutEnds, origChannel, by="chan_no", suffix=c("_new", "_orig"))
     interpFac$interpFac <- interpFac$length_new/interpFac$length_orig
     interpFac <- interpFac %>% select(chan_no, cutEnd, interpFac)
-    
+
     # Apply interpolation factor
     for (i in 1:nrow(interpFac)) {
         thisInterpFac <- interpFac[i, ]
         chanInd <- which(channel$chan_no==thisInterpFac$chan_no)
-        
+
         interpArea <- area[1, chanInd, ] + (area[2, chanInd, ] - area[1, chanInd, ])*thisInterpFac$interpFac
         interpStage <- stage[1, chanInd, ] + (stage[2, chanInd, ] - stage[1, chanInd, ])*thisInterpFac$interpFac
         interpChannelBottom <- channelBottom[chanInd, 1] + (channelBottom[chanInd, 2] - channelBottom[chanInd, 1])*thisInterpFac$interpFac
-        
+
         if(thisInterpFac$cutEnd=="upNode") {
             area[1, chanInd, ] <- interpArea
             stage[1, chanInd, ] <- interpStage
@@ -120,11 +120,11 @@ for(var in c("area", "stage")) {
     } else if(var=="stage") {
         thisData <- stage
     }
-    
+
     varPath <- paste0("hydro/data/channel ", var)
     h5delete(h5f, varPath)
-    h5createDataset(file=h5f, dataset=varPath, 
-                    dims = dim(thisData), storage.mode="double", 
+    h5createDataset(file=h5f, dataset=varPath,
+                    dims = dim(thisData), storage.mode="double",
                     chunk=c(2, dim(thisData)[2], 16), level=6)
     h5write(thisData, file=h5f, name=varPath)
 
@@ -134,7 +134,7 @@ for(var in c("area", "stage")) {
     for(thisAttr in names(thisAttrs)) {
         h5writeAttribute(attr=thisAttrs[[thisAttr]], h5obj=thisDataset, name=thisAttr)
     }
-    H5Dclose(thisDataset)    
+    H5Dclose(thisDataset)
 }
 
 h5delete(h5f, "hydro/geometry/channel_bottom")
@@ -163,7 +163,7 @@ flow <- h5f&"hydro/data/channel flow"
 flow <- flow[]
 
 if(nrow(modifyChannel)>0) {
-    
+
     # Apply interpolation factor
     for (i in 1:nrow(interpFac)) {
         thisInterpFac <- interpFac[i, ]
@@ -177,19 +177,19 @@ if(nrow(modifyChannel)>0) {
             cat("Incorrect cutEnd in modifyChannel.csv:", thisInterpFac$cutEnd, "\n")
         }
     }
-    
+
     # Set dicu flows at a node equal to the sum of all channel flows
     for (node in modNodes) {
         upChan <- channel %>% filter(upnode==node)
         downChan <- channel %>% filter(downnode==node)
         upInd <- which(channel$chan_no %in% upChan$chan_no)
         downInd <- which(channel$chan_no %in% downChan$chan_no)
-        
+
         upFlow <- -flow[1, upInd, , drop=F]
         downFlow <- flow[2, downInd, , drop=F]
         sumUpFlow <- apply(upFlow, 3, sum)
         sumDownFlow <- apply(downFlow, 3, sum)
-        
+
         # Obtain dicu_drain and dicu_div flows, if present
         divName <- paste0("dicu_div_", node)
         drainName <- paste0("dicu_drain_", node)
@@ -203,9 +203,9 @@ if(nrow(modifyChannel)>0) {
             drainFlow <- extFlow[drainFlowInd, ]
         }
         dicuFlow <- divFlow + drainFlow
-        
+
         sumFlow <- sumUpFlow + sumDownFlow + dicuFlow
-        
+
         # Set seep flow equal to the sum of the channel outflows
         seepName <- paste0("dicu_seep_", node)
         if(seepName %in% extFlowNames) {
@@ -232,9 +232,9 @@ for(thisNode in zeroFlowNodes) {
         drainFlow <- extFlow[drainFlowInd, ]
     }
     dicuFlow <- divFlow + drainFlow
-    
+
     sumFlow <- dicuFlow
-    
+
     # Set seep flow equal to the sum of the DICU flows
     seepName <- paste0("dicu_seep_", thisNode)
     if(seepName %in% extFlowNames) {
@@ -247,8 +247,8 @@ for(thisNode in zeroFlowNodes) {
 
 cat("Writing modified external flow data.\n")
 h5delete(h5f, "hydro/data/qext flow")
-h5createDataset(file=h5f, dataset="hydro/data/qext flow", 
-                dims = dim(extFlow), storage.mode="double", 
+h5createDataset(file=h5f, dataset="hydro/data/qext flow",
+                dims = dim(extFlow), storage.mode="double",
                 chunk=c(nrow(extFlow), 16), level=6)
 h5write(extFlow, file=h5f, name="hydro/data/qext flow")
 
@@ -273,16 +273,16 @@ for(adjChannel in unique(balanceChannels$adjust_chan_no)) {
     thisAdj <- balanceChannels %>% filter(adjust_chan_no==adjChannel)
     thisOutUpNode <- thisAdj %>% filter(balance_chan_connect=="upNode")
     thisOutDownNode <- thisAdj %>% filter(balance_chan_connect=="downNode")
-    
+
     # Sum flows at upNodes of outflow channels
     outUpNodeInd <- which(channel$chan_no %in% thisOutUpNode$balance_chan_no)
     outUpNodeFlow <- flow[1, outUpNodeInd, , drop=F]
     sumOutUpNodeFlow <- apply(outUpNodeFlow, 3, sum)
-    
+
     outDownNodeInd <- which(channel$chan_no %in% thisOutDownNode$balance_chan_no)
     outDownNodeFlow <- flow[2, outDownNodeInd, , drop=F]
     sumOutDownNodeFlow <- apply(outDownNodeFlow, 3, sum)
-    
+
     # Set flow at downnode of inflow channel equal to the sum of the outflow
     inInd <- which(channel$chan_no==adjChannel)
     flow[2, inInd, ] <- sumOutUpNodeFlow - sumOutDownNodeFlow
@@ -290,8 +290,8 @@ for(adjChannel in unique(balanceChannels$adjust_chan_no)) {
 
 cat("Writing modified channel flow data.\n")
 h5delete(h5f, "hydro/data/channel flow")
-h5createDataset(file=h5f, dataset="hydro/data/channel flow", 
-                dims = dim(flow), storage.mode="double", 
+h5createDataset(file=h5f, dataset="hydro/data/channel flow",
+                dims = dim(flow), storage.mode="double",
                 chunk=c(2, dim(flow)[2], 16), level=6)
 h5write(flow, file=h5f, name="hydro/data/channel flow")
 

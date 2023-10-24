@@ -2,7 +2,7 @@ import unittest
 import datetime
 import dsm2test
 class SimpleTestCase(dsm2test.DSM2BaseTestCase):
-       
+
     def location(self):
         return __file__
 

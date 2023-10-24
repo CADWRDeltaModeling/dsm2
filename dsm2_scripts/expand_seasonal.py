@@ -5,7 +5,7 @@ def expand_seasonal(seasonal, tw):
     create a larger monthly time series
     recycling the seasonal values over and over.
     Arguments:
-        seasonal: input time series with seasonal 
+        seasonal: input time series with seasonal
         tw: time window of output
     """
     from vtimeseries import time,timewindow,timeinterval
@@ -49,7 +49,7 @@ def expand_seasonal(seasonal, tw):
 def prep_dicu(infile,outfile,tw):
     from vdss import opendss,writedss,findpath
     if (not infile): raise TypeError("infile was None")
-    if (not outfile): raise TypeError("outfile was None")    
+    if (not outfile): raise TypeError("outfile was None")
     if (not infile.endswith("dss") and outfile.endswith("dss")):
         raise "infile and outfile arguments must be a dss file"
     g=opendss(infile)

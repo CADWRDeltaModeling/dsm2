@@ -48,7 +48,7 @@ package DWR.DMS.PTM.behave;
 
 public class Behavior {
   public Behavior (){
-    
+
   }
 
   public void setRelevant(boolean relevance){
@@ -58,12 +58,12 @@ public class Behavior {
   public boolean isRelevant() {
     return _relevance;
   }
-  
+
   public float timeConvert(float time, int units) {
     return time;
   }
 
   boolean _relevance;
 
-  //  public ElementNode 
+  //  public ElementNode
 }

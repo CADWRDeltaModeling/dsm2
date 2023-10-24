@@ -78,7 +78,7 @@ template<typename T>
 class entry_used : public unary_function<T, bool>{
 public:
     bool operator()(const T& entry) const
-    { 
+    {
         return entry.used;
     }
 };

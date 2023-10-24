@@ -25,15 +25,15 @@ class LaggedValueHolder{
   LaggedValueHolder(int lags) :
      nlag(lags),
      heldVals(lags+1){} //vector holding lagged values
-  
+
   virtual ~LaggedValueHolder(){}
-  
-  /** sets the value of the nth lag. intended for initialization 
+
+  /** sets the value of the nth lag. intended for initialization
    *@param lag to set. Current step is lag zero.
    *@param val value to be set at lag.
    */
-  void set(int lag, T val){ 
-    heldVals[lag]=val; 
+  void set(int lag, T val){
+    heldVals[lag]=val;
   }
 
   /** get the value at the given lag.
@@ -44,14 +44,14 @@ class LaggedValueHolder{
     assert(heldVals.size() == (nlag+1));
     return heldVals[nlag-lag];
   }
-  
+
   /**Return the number of lags this holder can store
    *@return number of stored lags
   */
   int maxLag(){
     return nlag;
   }
-   
+
   /**Implementation-dependent way of obtaining a new value.
    *@todo is this used?
    */
@@ -68,7 +68,7 @@ class LaggedValueHolder{
     newHeldVals.assign( heldVals.begin() +1, heldVals.end() );
     heldVals.swap(newHeldVals);
   }
- 
+
 
  protected:
   const int nlag;

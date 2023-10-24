@@ -17,7 +17,7 @@ void OperationManager::addRule(OperatingRulePtr rule){
 }
 
 
-ActionResolver::RulePriority 
+ActionResolver::RulePriority
 OperationManager::checkActionPriority(
 	  OperatingRule& oldRule, OperatingRule& newRule){
      if  (actionsOverlap(oldRule,newRule)){
@@ -31,15 +31,15 @@ OperationManager::checkActionPriority(
 
 
 
-bool OperationManager::isActive(OperatingRulePtr rule){ 
+bool OperationManager::isActive(OperatingRulePtr rule){
    return rule->isActive();
 }
 
 void OperationManager::manageActivation(){
  //test if rules were triggered
-   for( OpPool::iterator it=pool.begin() ; 
-        it != pool.end() ; 
-        it++){  	   
+   for( OpPool::iterator it=pool.begin() ;
+        it != pool.end() ;
+        it++){
 	   OperatingRulePtr rulePtr=(*it);
        if (rulePtr->isActive())continue;
        //cout << rulePtr->getName() << " start test trigger" <<endl;
@@ -48,9 +48,9 @@ void OperationManager::manageActivation(){
 		  // rule is triggered, test whether action is valid in context
 		   if ( rulePtr->isActionApplicable()){
             //cout << "Attempting to activate " << rulePtr->getName()<<endl;
-            // Check whether other rules will block it; 
+            // Check whether other rules will block it;
             // Nothing is changed during check, because if any rule blocks this
-            // one, we want to guarantee that nothing will happen except 
+            // one, we want to guarantee that nothing will happen except
             // deferring the rule.
 			bool useNewRule=true;
             bool isConflicting=false;
@@ -59,7 +59,7 @@ void OperationManager::manageActivation(){
                                  ++activeiter){
                 OperatingRulePtr activePtr = (*activeiter);
                 //cout << "testing against rule :" << activePtr->getName()<<endl;
-                
+
                 if ((!activePtr->isActive()) || rulePtr == activePtr)continue;
                 int response=this->checkActionPriority(*activePtr,*rulePtr);
                 if (response == ActionResolver::IGNORE_NEW_RULE){
@@ -74,7 +74,7 @@ void OperationManager::manageActivation(){
                     //cout << "deferred by rule :" << activePtr->getName()<<endl;
                     rulePtr->deferActivation();
 				}
-                if (response == ActionResolver::REPLACE_OLD_RULE){ 
+                if (response == ActionResolver::REPLACE_OLD_RULE){
 					useNewRule=true;
 					isConflicting=true;
                     //cout << "replacing rule :" << activePtr->getName()<<endl;
@@ -83,9 +83,9 @@ void OperationManager::manageActivation(){
 
             // Now bump the old rules and install new rule
             if (useNewRule){
-               if(isConflicting){    
+               if(isConflicting){
 				   for( OpPool::iterator activeiter = pool.begin() ;
-                           activeiter != pool.end() ; 
+                           activeiter != pool.end() ;
                            ++activeiter){
                      int response=this->checkActionPriority(**activeiter,**it);
 						   if (response == ActionResolver::REPLACE_OLD_RULE){
@@ -105,7 +105,7 @@ void OperationManager::manageActivation(){
 
 
 void OperationManager::advanceActions(double dt){
-    for (OpPool::iterator it=pool.begin() ; 
+    for (OpPool::iterator it=pool.begin() ;
         it != pool.end(); it++){
             if((*it)->isActive()){
                 (*it)->advanceAction(dt);
@@ -114,17 +114,17 @@ void OperationManager::advanceActions(double dt){
 }
 
 void OperationManager::stepExpressions(double dt){
-   for (OpPool::iterator it=pool.begin() ; 
+   for (OpPool::iterator it=pool.begin() ;
 	    it != pool.end(); it++){
       (*it)->step(dt);
    }
 }
 
-class overlapper 
+class overlapper
  : public std::binary_function<OperationActionPtr,OperationActionPtr,bool>{
 public:
     overlapper(ActionResolver& res) : m_resolver(res){}
-    bool operator()(OperationActionPtr oldAct, 
+    bool operator()(OperationActionPtr oldAct,
                    OperationActionPtr newAct)const
     {
         return m_resolver.overlap(*oldAct,*newAct);
@@ -142,8 +142,8 @@ public:
    list_overlapper(ActionResolver& res) : m_resolver(res){}
    bool operator()(OperationActionPtr act,
                    OperationAction::ActionListType* alist)const{
-      return find_if(alist->begin(),  
-                     alist->end(), 
+      return find_if(alist->begin(),
+                     alist->end(),
                      std::bind2nd(overlapper(m_resolver),act))
              != alist->end(); }
 private:
@@ -155,7 +155,7 @@ bool OperationManager::actionsOverlap(
 	   OperatingRule& oldRule,  OperatingRule& newRule){
    OperationAction::ActionListType oldActions(oldRule.getActionList());
    OperationAction::ActionListType newActions(newRule.getActionList());
-   
+
    return
       find_if(newActions.begin(),
            newActions.end(),

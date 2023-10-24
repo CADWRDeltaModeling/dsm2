@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -53,14 +53,14 @@ import java.io.*;
  *  given instant of time the Particle Id and the normalized x,y and z location
  *  of the Particle.<br>
  *  <p>
- * 
+ *
  */
 public class PTMRestartOutput extends PTMOutput{
 
   /**
    * constructor
    */
-  public PTMRestartOutput(String filename, int type, 
+  public PTMRestartOutput(String filename, int type,
                           int outInterval,
                           Particle [] particles) throws IOException{
     super(filename, type);
@@ -102,7 +102,7 @@ public class PTMRestartOutput extends PTMOutput{
     line = particles.length + " ";
     outputWriter.write(line, 0, line.length());
     outputWriter.newLine();
-    
+
     for (int i=0; i< particles.length; i++){
       if(particles[i] != null){
         line = particles[i] + " ";
@@ -126,7 +126,7 @@ public class PTMRestartOutput extends PTMOutput{
       }
     }
   }
-  
+
   protected int outputInterval, previousOutputTime;
   protected Particle [] particles;
 }

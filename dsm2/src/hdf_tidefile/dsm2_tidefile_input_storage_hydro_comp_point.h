@@ -1,11 +1,11 @@
 #ifndef hydro_comp_point_STORAGE_H__
 #define hydro_comp_point_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class hydro_comp_point
 {
 public:
 
-  /** Data type hydro_comp_point, default constructor */  
+  /** Data type hydro_comp_point, default constructor */
   typedef const boost::tuple<const int&>  identifier_type;
 
   hydro_comp_point() :
@@ -44,7 +44,7 @@ public:
     used(true),
     layer(0)
   {
-    
+
   };
 
   /** Construct a hydro_comp_point with actual data values */
@@ -55,10 +55,10 @@ public:
     used(a_used),
     layer(a_layer)
   {
-      
+
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   hydro_comp_point (const hydro_comp_point & other) :
     comp_index(other.comp_index),
@@ -67,20 +67,20 @@ public:
     used(other.used),
     layer(other.layer)
   {
-      
+
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( comp_index );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      comp_index=identifier.get<0>();
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -91,7 +91,7 @@ public:
      return hydro_comp_point::identifier_type( comp_index );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<hydro_comp_point>& pbuf = HDFTableManager<hydro_comp_point>::instance().buffer();
@@ -101,7 +101,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<hydro_comp_point>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -112,10 +112,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const hydro_comp_point & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -127,12 +127,12 @@ public:
 
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const hydro_comp_point & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   hydro_comp_point& operator=(const hydro_comp_point& rhs)
   {
@@ -146,16 +146,16 @@ public:
 
   /** Return the class name of this object (hydro_comp_point) */
   string objectName() const
-  { 
-    return "hydro_comp_point"; 
+  {
+    return "hydro_comp_point";
   }
 
-  
+
   int comp_index;
   int channel;
   double distance;
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -177,7 +177,7 @@ ostream& operator<<(ostream & stream, const hydro_comp_point & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void hydro_comp_point_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -186,7 +186,7 @@ FCALL int hydro_comp_point_buffer_size_f();
 
 /** append to buffer, compatible with fortran, returns new size*/
 FCALL void hydro_comp_point_append_to_buffer_f(const int * a_comp_index,const int * a_channel,const double * a_distance, int * ierror);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void hydro_comp_point_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -199,7 +199,7 @@ FCALL void hydro_comp_point_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nr
 
 
 /** get one row worth of information from the buffer */
-FCALL void hydro_comp_point_query_from_buffer_f(int32_t* row, 
+FCALL void hydro_comp_point_query_from_buffer_f(int32_t* row,
                         int * a_comp_index,int * a_channel,double * a_distance, int * ierror);
 /**
   prioritize buffer by layers, delete unused items and sort

@@ -25,13 +25,13 @@ OperationActionPtr ActionChain::getCurrentAction(){
 }
 
 
-void ActionChain::pushBackAction(OperationActionPtr opAction){	
+void ActionChain::pushBackAction(OperationActionPtr opAction){
    //opAction->registerParent(this); //was a good idea -- circular?
    this->actionSequence.push_back(opAction);
 }
 
 void ActionChain::pushFrontAction(OperationActionPtr opAction){
-   //opAction->registerParent(this);   
+   //opAction->registerParent(this);
    this->actionSequence.push_front(opAction);
 }
 

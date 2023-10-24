@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -49,20 +49,20 @@
 package DWR.DMS.PTM;
 /**
  *  ParticleFixedInfo
- * 
+ *
  *  This class encapsulates the fixed input information for the
  *  particle object.
  *  <p>
  */
 class ParticleFixedInfo{
-  
+
 
   /**
    *  constructor
    */
 public  ParticleFixedInfo(){
 }
-  
+
   /**
    *  sets the logical variable values
    */
@@ -111,12 +111,12 @@ public final void setVariables(int random_seed,
   /**
    *  sets the insertion variable values
    */
-public final void setVariables(int nInjections, 
-                               int[] nNode, 
-                               int[] nInjected, 
-                               int[] startJulmin, 
+public final void setVariables(int nInjections,
+                               int[] nNode,
+                               int[] nInjected,
+                               int[] startJulmin,
                                int[] lengthJulmin){
-  
+
   numberOfInjections = nInjections;
 
   particleInjectionNode = nNode;
@@ -183,7 +183,7 @@ public final float getVerticalConstant(){
    */
 public final float getTransverseConstant(){
   return Ct;
-}    
+}
 
 
   /**
@@ -191,7 +191,7 @@ public final float getTransverseConstant(){
    */
 public final float getTransverseACoef(){
   return Aq;
-}    
+}
 
 
   /**
@@ -199,7 +199,7 @@ public final float getTransverseACoef(){
    */
 public final float getTransverseBCoef(){
   return Bq;
-}    
+}
 
 
   /**
@@ -207,7 +207,7 @@ public final float getTransverseBCoef(){
    */
 public final float getTransverseCCoef(){
   return Cq;
-}    
+}
 
 
   /**
@@ -331,20 +331,20 @@ public final String getParticleType(){
 	return _particleType;
 }
 public String toString(){
-  String rep = "Particle Fixed Information "+ "\n" 
-    + "useVerticalProfile "+ useVerticalProfile+ "\n" 
-    + "useTransverseProfile "+ useTransverseProfile+ "\n" 
-    + "useTransverseMixing "+ useTransverseMixing+ "\n" 
-    + "useVerticalMixing "+ useVerticalMixing+ "\n" 
+  String rep = "Particle Fixed Information "+ "\n"
+    + "useVerticalProfile "+ useVerticalProfile+ "\n"
+    + "useTransverseProfile "+ useTransverseProfile+ "\n"
+    + "useTransverseMixing "+ useTransverseMixing+ "\n"
+    + "useVerticalMixing "+ useVerticalMixing+ "\n"
     + "randomSeed "+ randomSeed+ "\n"
     + "animatedParticles "+ animatedParticles+ "\n"
     + "Aq "+ Aq+ "\n"
     + "Bq "+ Bq+ "\n"
     + "Cq "+ Cq+ "\n"
-    + "numberOfInjections "+ numberOfInjections+ "\n" 
-    + "particleInjectionNode[0] "+ particleInjectionNode[0]+ "\n" 
-    + "numberOfParticlesInjected[0] "+ numberOfParticlesInjected[0]+ "\n" 
-    + "particleInjectionStartJulmin[0] "+ particleInjectionStartJulmin[0]+ "\n" 
+    + "numberOfInjections "+ numberOfInjections+ "\n"
+    + "particleInjectionNode[0] "+ particleInjectionNode[0]+ "\n"
+    + "numberOfParticlesInjected[0] "+ numberOfParticlesInjected[0]+ "\n"
+    + "particleInjectionStartJulmin[0] "+ particleInjectionStartJulmin[0]+ "\n"
     + "particleInjectionLengthJulmin[0] "+ particleInjectionLengthJulmin[0]+ "\n";
   return rep;
 }

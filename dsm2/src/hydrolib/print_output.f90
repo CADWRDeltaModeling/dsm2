@@ -47,7 +47,7 @@ subroutine print_output(istat)
         objtype*4, &            ! string representing object type (reservoir, channel) &
         from_obj_type*16,to_obj_type*16, &
         from_obj_identifier*32,to_obj_identifier*32
-      
+
     character(len=32) :: scratch1
 
     !-----copyright notices
@@ -162,7 +162,7 @@ subroutine print_output(istat)
             objtype='RES '
             objConnectedID_external_number = gateArray(i)%objConnectedID
         end if
-	    
+
         if (gateArray(i)%inUse) then
             write(unit_output,1160) &
                 gateArray(i)%name,objtype &

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.io.IOException;
 public class SwimInputs {
 
 	/**
-	 * 
+	 *
 	 */
 	public SwimInputs() {
 		// TODO Auto-generated constructor stub
@@ -25,7 +25,7 @@ public class SwimInputs {
 		if (inText != null){
 			if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
 				ArrayList<String> fileNames = PTMUtil.getInputBlock(inText, "Input_Position_Oriented_Particle_File_Name", "END_Input_Position_Oriented_Particle_File_Name");
-				if (fileNames==null || fileNames.size()==0) 
+				if (fileNames==null || fileNames.size()==0)
 					PTMUtil.systemExit("No position oriented particle input file name found, exit.");
 				String smeltInputFileName = fileNames.get(0).trim();
 				try{
@@ -52,17 +52,17 @@ public class SwimInputs {
 					THRESHOLD_STUCK = PTMUtil.getIntFromLine(inText.get(9), "Stuck_Threshold")*24*60*60;
 				}catch (NumberFormatException e){
 					e.printStackTrace();
-					PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
+					PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");
 				}
 				ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
 				setChannelGroups(sVelInText);
 			}
-			else 
+			else
 				PTMUtil.systemExit("No swimming input is expected, but get this:"+inText.get(0)+" system exit.");
 		}
 		else {
 			if (fishType.equalsIgnoreCase("SALMON_PARTICLE") || fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE"))
-					PTMUtil.systemExit("For SALMON_PARTICLE or POSITION_ORIENTED_PARTICLE, the swimming input section is needed, but not found.");	
+					PTMUtil.systemExit("For SALMON_PARTICLE or POSITION_ORIENTED_PARTICLE, the swimming input section is needed, but not found.");
 		}
 		_fishType = fishType;
 	}
@@ -95,7 +95,7 @@ public class SwimInputs {
         int sunset_hour = _sunset.getFirst();
         int sunset_min = _sunset.getSecond();
     	//TODO will use LocaTime when switch to Java 1.8
-    	return ((curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
+    	return ((curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour)
     			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
     			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min));
 	}
@@ -105,7 +105,7 @@ public class SwimInputs {
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
 	/*
 	 * check if a particle gets stuck in or comes back to the same channel after a threshold time
-	 * currently the threshold time is 30 days  
+	 * currently the threshold time is 30 days
 	 */
 	public boolean checkStuck(int pId, int chanId, double age){
 		if(_pStuck.get(pId) == null)
@@ -114,18 +114,18 @@ public class SwimInputs {
 			_pStuck.get(pId).put(chanId, age);
 		if ((age - _pStuck.get(pId).get(chanId))> THRESHOLD_STUCK)
 			return true;
-		return false;			
+		return false;
 	}
-	
+
 	public ParticleBehavior getSmeltBehavior(){return _smeltBehavior;}
-	
-	
+
+
 	private void setChannelGroups(ArrayList<String> chanGroups){
 		if (chanGroups == null){
 			System.err.println("WARNING: No channel groups for Swimming velocities defined in behavior input file!");
 			return;
 		}
-		// get swimming velocities 
+		// get swimming velocities
 		ArrayList<String> sVelStrs = PTMUtil.getInputBlock(chanGroups, "SWIMMING_VELOCITIES", "END_SWIMMING_VELOCITIES");
 		if (sVelStrs == null)
 			PTMUtil.systemExit("No swimming velocities found in the Channel_Groups block, system exit");
@@ -140,7 +140,7 @@ public class SwimInputs {
 		boolean includeAll = false;
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
-			
+
 			try{
 				if (items.length < 6)
 					throw new NumberFormatException();
@@ -163,7 +163,7 @@ public class SwimInputs {
 		}
 		if(!includeAll)
 			PTMUtil.systemExit("Swiming Velocities Input must include an \"ALL\" channel group, system exit");
-		//TODO clean up: groupName "ALL" already added in the loop above, no need to do again.  
+		//TODO clean up: groupName "ALL" already added in the loop above, no need to do again.
 		//_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
 		//_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Long>());
 		//_particleDaytimeHoldings.put("ALL", new HashMap<Integer, Boolean>());
@@ -194,7 +194,7 @@ public class SwimInputs {
 	}
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
-		
+
 		if (title.length < 5
 				||!title[0].equalsIgnoreCase("Group_Name")
 				|| !title[1].equalsIgnoreCase("Constant_Swimming_velocity")
@@ -219,13 +219,13 @@ public class SwimInputs {
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
 	}
- 
+
 	private void setSmeltParticleBehavior(String smeltInputFileName) throws IOException {
 		// initialize behavior file
 		if (smeltInputFileName.length() != 0 && smeltInputFileName != null){
 			if (checkFile(smeltInputFileName)) {
 				_smeltBehavior = new ParticleBehavior(smeltInputFileName);
-				if (_smeltBehavior == null) 
+				if (_smeltBehavior == null)
 					System.err.println("cannot add smelt behaviors from "+smeltInputFileName);
 			}
 			else {
@@ -234,7 +234,7 @@ public class SwimInputs {
 			}
 	    }
 	  }
-	  
+
 	private boolean checkFile(String filenm){
 		File tmpfile = new File(filenm);
 	    return tmpfile.isFile();
@@ -264,7 +264,7 @@ public class SwimInputs {
 	private Map<Integer, Map<Integer, Double>> _pStuck = new HashMap<Integer, Map<Integer, Double>>();
 	//threshold of a particle being stuck or back to the same channel
 	private int THRESHOLD_STUCK;
-	
+
 	private ParticleBehavior _smeltBehavior = null;
-	
+
 }

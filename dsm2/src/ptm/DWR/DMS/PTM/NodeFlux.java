@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -58,7 +58,7 @@ public class NodeFlux extends Flux{
    * Constructor
    */
   public NodeFlux(FluxFixedData info, boolean cumulative){
-    
+
     cumulativeFlux = cumulative;
     if (info.nodeId != -1){
       fluxType = NODE_FLUX;
@@ -72,20 +72,20 @@ public class NodeFlux extends Flux{
   /**
    *  Calculates total Flux and fills up array of Flux over time as well
    */
-  public void calculateFlux(ParticleTrace [] traceArray, 
+  public void calculateFlux(ParticleTrace [] traceArray,
                             int numberOfTraceParticles,
-                            int sTime, int eTime, int tStep, 
+                            int sTime, int eTime, int tStep,
                             int nParticles){
     if(initialized == false){
-      super.calculateFlux(traceArray, numberOfTraceParticles, 
+      super.calculateFlux(traceArray, numberOfTraceParticles,
                           sTime, eTime, tStep, nParticles);
       numberOfParticleCircleFlux=0;
       circleFlux = new int [numberOfTimeSteps];
       for(int i=0; i< numberOfTimeSteps; i++) circleFlux[i]=0;
     }
-  
+
     numberOfParticles = numberOfTraceParticles;
-  
+
     int particleFlux = 0;
     //int previousIndex;  @todo remove?
     boolean contributedToFlux = false;
@@ -102,15 +102,15 @@ public class NodeFlux extends Flux{
       try {
         for(index=0; index < numberOfTimeSteps; index++){
           if(! doFluxCumulative()) particleFlux = 0; // instantaneous values
-          
-          while (traceNum <= maxTraces && 
+
+          while (traceNum <= maxTraces &&
                  traceArray[pNum].getTime(traceNum) == index*timeStep + startTime){
             if (traceArray[pNum].getNodeId(traceNum) == info.getNodeId()){
               Waterbody wbIn =
                 Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum-1));
               Waterbody wbOut =
                 Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum));
-              
+
               if (isIncoming(wbIn) && isOutgoing(wbOut)){
                 particleFlux ++;
                 contributedToFlux = true;
@@ -124,7 +124,7 @@ public class NodeFlux extends Flux{
             }//end if (traceArray)
             traceNum++;
           }//end while
-          
+
           //if (traceArray[pNum].getTime(traceNum) == index*
           //  System.out.println("Flux["+index+"]= "+ Flux[index]);
           //  Flux[index] += particleFlux;
@@ -134,7 +134,7 @@ public class NodeFlux extends Flux{
           else if (particleFlux < 0) circleFlux[index] += particleFlux + 1;
           else if (particleFlux == 0) circleFlux[index]+=0;
         }//end for(index)
-        
+
       } catch(java.lang.ArrayIndexOutOfBoundsException e){
         // continue; //@todo Eli: why Do they really happen?
         System.out.println("Node flux out of bounds: " + traceArray[pNum]);
@@ -153,7 +153,7 @@ public class NodeFlux extends Flux{
 
   /**
    *  gets number of incoming waterbodies
-  
+
 public final int getNumberIncoming(){
   return info.inArray.length;
 } */
@@ -161,7 +161,7 @@ public final int getNumberIncoming(){
 
   /**
    *  gets number of outgoing waterbodies
-  
+
 public final int getNumberOutgoing(){
   return info.outArray.length;
 } */
@@ -169,7 +169,7 @@ public final int getNumberOutgoing(){
 
   /**
    *  returns the EnvIndex of locally indexed incoming Waterbody
-  
+
 public final int getIncoming(int index){
   return info.inArray[index];
 } */
@@ -177,7 +177,7 @@ public final int getIncoming(int index){
 
   /**
    *  returns the EnvIndex of locally indexed outgoing Waterbody
-  
+
 public final int getOutgoing(int index){
   return info.outArray[index];
 } */
@@ -190,7 +190,7 @@ public final int getOutgoing(int index){
     return cumulativeFlux;
   }
   /**
-   *  
+   *
    */
   protected boolean cumulativeFlux;
   /**
@@ -226,7 +226,7 @@ public final int getOutgoing(int index){
     System.out.println("Testing outgoing: "+wb);
     return info.getOutGroup().containsWaterbody(wb);
   }
-  
+
   /**
    * String representation
    */
@@ -236,7 +236,7 @@ public final int getOutgoing(int index){
     rep.append( "Start Time: " ).append( getStartTime() ).append( "\n");
     rep.append( "End Time: " ).append( getEndTime() ).append( "\n");
     rep.append( "Time Step: " ).append( getPTMTimeStep() ).append( "\n");
-  
+
     for(int cTime=getStartTime();
         cTime< getEndTime();
         cTime += 24*60){

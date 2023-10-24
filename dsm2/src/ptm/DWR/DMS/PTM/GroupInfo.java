@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -49,7 +49,7 @@ package DWR.DMS.PTM;
  *  This class contains the information necessary to initialize groupFlux
  *  objects. The initialization is handled by fluxMonitor class
  *  which then constructs the object.
- * 
+ *
  */
 class GroupInfo{
   /**
@@ -73,14 +73,14 @@ class GroupInfo{
   public int getNumberOfGroups() {
     return info.getNumberOfGroups();
   }
-  
+
   /**
-   * 
+   *
    */
   public Group[] getOutputGroups(){
   	return groups;
   }
-  
+
   /**
     *  returns true for Group output as a percentage
     */

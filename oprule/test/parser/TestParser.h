@@ -10,7 +10,7 @@ using namespace oprule::expression;
 class TestModelInterface : public oprule::rule::ModelInterface<double>
 {
 public:
-   TestModelInterface() { 
+   TestModelInterface() {
       //cout << "creating TestModelInterface" << endl;
    }
    static double val;
@@ -27,7 +27,7 @@ double TestModelInterface::val=-17;
 class TestModelInterface2 : public oprule::rule::ModelInterface<double>
 {
 public:
-   TestModelInterface2() { 
+   TestModelInterface2() {
       //cout << "creating TestModelInterface2" << endl;
    }
    static double val;
@@ -48,24 +48,24 @@ void resetInterfaces(){
 
 class TestNamedValueLookup : public oprule::parser::NamedValueLookup
 {
-public:   
+public:
    virtual oprule::expression::DoubleNodePtr getNamedValue(
-        const std::string& name){ 
+        const std::string& name){
       if (name=="Lookup") return new oprule::expression::ValueNode<double>(2.);
       else return 0;
    }
-   
+
    virtual bool isModelName(const std::string& name){
       return (name=="test_state");
    }
 
    virtual oprule::expression::DoubleNodePtr getModelVariableNode(
        const ArgListType& identifiers){
-      if (  identifiers[0]=="test_state" 
+      if (  identifiers[0]=="test_state"
          && identifiers[1]=="first_arg"
          && identifiers[2]=="4"
          && identifiers[3] == "second_arg"
-         && identifiers[4] == "quoted string"         
+         && identifiers[4] == "quoted string"
          ){
          return new oprule::expression::DoubleScalarNode(2.);
       }else{
@@ -76,13 +76,13 @@ public:
    }
 
    virtual ModelInterface<double> * getModelInterface(const ArgListType& identifiers){
-      if (  identifiers[0]=="test_interface" 
+      if (  identifiers[0]=="test_interface"
          && identifiers[1]=="first_arg"
          && identifiers[2]=="quoted string with spaces"
          && identifiers[3] == "second_arg"
          && identifiers[4] == "0"
          && identifiers[5] == "third_arg"
-         && identifiers[6] == "unquoted"         
+         && identifiers[6] == "unquoted"
          ){ return new TestModelInterface();}
       else{
          if (identifiers[0]=="second_interface"
@@ -148,7 +148,7 @@ public:
      TicksPerDay=TicksPerMinute*MinPerDay
    };
    TimeType ticks(){ return 10; }
-   TimeType ticksFromDuration(DurationType d){ return d;} 
+   TimeType ticksFromDuration(DurationType d){ return d;}
    DurationType minutes( int nmin ){
       return nmin*TicksPerMinute;
    }
@@ -162,7 +162,7 @@ public:
 
 
 
-class TestingActionFactory : public ModelActionFactory  
+class TestingActionFactory : public ModelActionFactory
 {
 public:
 
@@ -174,8 +174,8 @@ public:
    OperationAction* createModelAction(ModelInterface<double>& modelIF,
       DoubleNodePtr express, int rampingLength, int rampingUnit){
       return new ModelAction<TestingModelTimer, double >(
-         _timer, 
-         (TestModelInterface&)(modelIF), 
+         _timer,
+         (TestModelInterface&)(modelIF),
          express, _timer.minutes(rampingLength));
    }
 

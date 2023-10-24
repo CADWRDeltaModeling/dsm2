@@ -7,17 +7,17 @@ Routines:
                      and output to this routine are time series,
                      which allows the script to be called
                      from VPlotter or the driver routine dxcOp
-                     
+
    dxcOp             Driver routine takes input and output path and
                      file names as arguments, loads time series,
                      calls daysPerMonthToITS and writes output
                      to dss.
    test              testing routine
 """
-import string 
+import string
 
 
-def daysPerMonthToITS(dxc,value,allThirty): 
+def daysPerMonthToITS(dxc,value,allThirty):
   """
   Computational routine converts a monthly time series of
   days per month to an irregular time series of opening
@@ -28,7 +28,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
      value    the value the output time series should take when 'on'
      allThirty set true if all months are assumed 30 day length.
   """
-   
+
   from vutils import timewindow, timeinterval, time
   from vista.time import TimeWindow
   import vista.time.Time
@@ -42,7 +42,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
   x=[]
   y=[]
   lastopen=0                            # indicator that gate ended previous month open
-  first=1  
+  first=1
   i=0
   maxYVal=0
   ti=timeinterval("1MON")               # to subtract 1 month from CALSIM DSS time stamp
@@ -87,7 +87,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
         else:
           lastopen=1
       first=0
-  
+
   import jarray
   xarr=jarray.array(x,vista.time.Time)
   yarr=jarray.array(y,'d')
@@ -97,7 +97,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
   dxcITS=IrregularTimeSeries("/dxc/pos/",xarr,yarr)
   return dxcITS
 
-# Preprocessor script for Delta Cross Channel 
+# Preprocessor script for Delta Cross Channel
 def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
           tw="01OCT1974 0000 - 01OCT1991 0000"):
   """
@@ -107,12 +107,12 @@ def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
     infile        CALSIM dss file specifying # days operating
     outfile       output dss file readable by DSM2
     inpath        input path, e.g. /CALSIM/DXC/GATE-DAYS-OPEN//1MON//
-    outpath       output path, e.g. /CALSIM/DXC/GATE//IR-YEAR/fpart/ 
+    outpath       output path, e.g. /CALSIM/DXC/GATE//IR-YEAR/fpart/
     value         time series value when gate is opened (must be 1.0 or 2.0),
                   where 1.0 is used for gate ops and 2.0 is number gates operating.
     tw            time window of output
     allThirty     true if CALSIM input is hardwired to thirty day months
-  """  
+  """
   from vutils import timewindow
   from vdss import opendss,findpath,writedss
   from vista.time import TimeWindow
@@ -133,13 +133,13 @@ def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
   dxcITS=daysPerMonthToITS(dxc,value,allThirty)
   writedss(outfile,outpath,dxcITS)
   return dxcITS
-  
+
 def test():
   # test routine for this module
   from vtimeseries import timewindow
   from vdss import opendss,findpath
   from vista.set import DataReference
-  from vdisplay import tabulate  
+  from vdisplay import tabulate
   inpath='/CALSIM/DXC/GATE-DAYS-OPEN//1MON//'
   outpath='/CALSIM_PROCESSED/DCC/GATE//IR-YEAR/TEST/'
   infile="../timeseries/2001d10adv.dss"

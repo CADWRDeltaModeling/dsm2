@@ -24,7 +24,7 @@ module logging
     integer,parameter :: LOG_INFO = 2
     integer,parameter :: LOG_DEBUG = 2
     integer:: print_level   ! diagnostic printout level
-      
+
 !      contains:
 
 !      subroutine dsm2_log(level,message)
@@ -32,9 +32,9 @@ module logging
 !      character*(*) :: message
 !      integer :: level
 !      print *,"hello"
-!      return 
+!      return
 !      end subroutine
-!      
+!
 end module
-      
-      
+
+

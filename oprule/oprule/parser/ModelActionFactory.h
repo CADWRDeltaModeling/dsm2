@@ -14,7 +14,7 @@ namespace parser{
   *@todo is this needed? main thing it does is finesse the model timer,
   * which is a nuisance as a template parameter
   */
-class ModelActionFactory  
+class ModelActionFactory
 {
 public:
    ModelActionFactory(){};

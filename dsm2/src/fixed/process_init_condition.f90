@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@ subroutine process_channel_ic(channel, &
                               dist, &
                               stage, &
                               flow)
-      
+
       use io_units
       use logging
       use grid_data
@@ -32,7 +32,7 @@ subroutine process_channel_ic(channel, &
       implicit none
 
       character*8 dist
-      integer :: channel 
+      integer :: channel
       integer :: intchan,extchan
       integer :: distance
       real*8 :: stage
@@ -49,15 +49,15 @@ subroutine process_channel_ic(channel, &
       else
           FirstLocation(intchan) = k
       !end if
-      
+
       k=k+1
-     
+
       if (dist .eq. "length") then
           distance=chan_geom(intchan).length
-      else 
+      else
           read(dist,*)distance
       end if
-      
+
       NUserInitLocations(intchan)=NUserInitLocations(intchan)+1
       InitialX(k)=dble(distance)
       InitialWS(k)=stage
@@ -92,8 +92,8 @@ subroutine process_reservoir_ic(resname, &
            // trim(resname) // ' does not exist to load initial conditions.'
       else
           YRes(resno)=stage
-      end if 
+      end if
       return
 end subroutine
 
-       
+

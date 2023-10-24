@@ -70,10 +70,10 @@ public:
     typedef OE_NODE_PTR(NodeType) NodePtr;
 
     friend class DSM2ModelInterfaceResolver;
-    DeviceOpInterface(const int index, 
-        const int device_ndx, 
-        const int direct) 
-        : DeviceInterface(index,device_ndx), 
+    DeviceOpInterface(const int index,
+        const int device_ndx,
+        const int direct)
+        : DeviceInterface(index,device_ndx),
         direction(direct){}
 
     static NodePtr create(const int index, const int dev_ndx, const int direct){
@@ -110,7 +110,7 @@ public:
     }
 
 
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
     virtual bool isTimeDependent() const{ return true; }  //gotta finish this
@@ -133,10 +133,10 @@ public:
     virtual oprule::expression::DoubleNodePtr copy(){
         return NodePtr(new NodeType(ndx,devndx));
     }
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
-    virtual bool isTimeDependent() const{ return true; } 
+    virtual bool isTimeDependent() const{ return true; }
     virtual void setDataExpression(
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceHeightInterface(){};
@@ -157,7 +157,7 @@ public:
     virtual oprule::expression::DoubleNodePtr copy(){
         return NodePtr(new NodeType(ndx,devndx));
     }
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
     virtual bool isTimeDependent() const{ return true; }
@@ -182,7 +182,7 @@ public:
     }
 
 
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
     virtual bool isTimeDependent() const{ return true; }
@@ -207,7 +207,7 @@ public:
     }
 
 
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
     virtual bool isTimeDependent() const{ return false; }
@@ -229,7 +229,7 @@ public:
     virtual oprule::expression::DoubleNodePtr copy(){
         return NodePtr(new NodeType(ndx,devndx,direction));
     }
-    friend class DSM2ModelInterfaceResolver;   
+    friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
     virtual bool isTimeDependent() const{ return false; }

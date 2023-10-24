@@ -5,5 +5,5 @@
 #define OE_NODE_PTR(x) boost::shared_ptr<x >
 #define OE_NODE_NULL(x) x()
 #define OE_NODE_PTR_CREATE(x) boost::shared_ptr( x )
-#define OE_NODE_DELETE(x) 
+#define OE_NODE_DELETE(x)
 #endif

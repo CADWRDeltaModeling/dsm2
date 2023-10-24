@@ -19,7 +19,7 @@ public:
    ExpressionHandle(oprule::expression::BoolNodePtr bval) : boolval(bval),dblval(0){}
    /** Create a ExpressionHandle that holds a string*/
    ExpressionHandle(const std::string& name) : name(name), boolval(0),dblval(0){}
-   
+
    /**value in case this ExpressionHandle is a name.*/
    std::string name;
    /**value in case this ExpressionHandle is a bool.*/

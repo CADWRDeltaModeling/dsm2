@@ -20,5 +20,5 @@ def calsim_study_fpart(modify=0):
         fpart=config.getAttr('CALSIMSTUDY')
     if not fpart:
         raise "None of CALSIM, CALSIMSTUDY_ORIGINAL or CALSIMSTUDY_MODIFIED provided"
-        
+
     return fpart

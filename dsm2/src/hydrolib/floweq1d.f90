@@ -30,7 +30,7 @@ module floweq1d
     use channel_schematic, only: StreamDistance
     use netcntrl, only:  NetworkQuadPts, NetworkQuadPtWt,  &
         NetworkIteration, NetworkTheta, NetworkTimeIncrement
-    
+
     use solveutil, only: StoreDynmKnown, StoreDynmAdjust,  &
         StoreMassKnown, StoreMassAdjust, &
         ForwardElim
@@ -126,7 +126,7 @@ contains
         H2 = StreamDepth(Down)
 
         !-----Current channel properties.
- 
+
         !          upstream face
         X1 = StreamDistance(Up)
         call calculateChannelGeometryAspects(X1,Z1, Width1, Area1, Conv1, DConvDZ1)
@@ -134,7 +134,7 @@ contains
         !     Area1 = CxArea(X1,Z1)
         Velocity1 = Q1 / Area1
         BetaVelocity1 = 1.0 * Velocity1
-      
+
         !          downstream face
         X2 = StreamDistance(Down)
         call calculateChannelGeometryAspects(X2,Z2, Width2, Area2, Conv2, DConvDZ2)
@@ -142,7 +142,7 @@ contains
         !        Area2 = CxArea(X2,Z2)
         Velocity2 = Q2 / Area2
         BetaVelocity2 = 1.0 * Velocity2
-                
+
         !-----Time increment and weighting.
         DT = DFLOAT( NetworkTimeIncrement() )
         Theta = NetworkTheta()
@@ -213,13 +213,13 @@ contains
         DNDX(2) = -DNDX(1)
 
         QuadPts = NetworkQuadPts()
-        
+
         do 200 K=1,QuadPts
 
             !--------Estimate quadrature-point values.
 
             call NetworkQuadPtWt( K, QuadPt, QuadWt )
-            
+
             !--------Interpolation functions.
             N(1) = 1.0 - QuadPt
             N(2) = QuadPt
@@ -352,7 +352,7 @@ contains
 
         end if
 
-        DynamicWaveEq = .true.        
+        DynamicWaveEq = .true.
 
         return
     end function

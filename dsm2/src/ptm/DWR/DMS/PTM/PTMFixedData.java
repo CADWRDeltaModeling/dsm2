@@ -56,40 +56,40 @@ package DWR.DMS.PTM;
 public class PTMFixedData {
 
   /**
-   * constructor: loads library 
+   * constructor: loads library
    */
   public PTMFixedData(String filename){
     initialize(filename);
   }
-  
+
   /**
-   * 
+   *
    */
   public LimitsFixedData getLimitsFixedData(){
-    int maxChannels = getMaximumNumberOfChannels();            
-    int maxReservoirs = getMaximumNumberOfReservoirs();           
-    int maxDiversions = getMaximumNumberOfDiversions();          
-    int maxPumps = getMaximumNumberOfPumps();               
-    int maxBoundaryWaterbodies = getMaximumNumberOfBoundaryWaterbodies(); 
+    int maxChannels = getMaximumNumberOfChannels();
+    int maxReservoirs = getMaximumNumberOfReservoirs();
+    int maxDiversions = getMaximumNumberOfDiversions();
+    int maxPumps = getMaximumNumberOfPumps();
+    int maxBoundaryWaterbodies = getMaximumNumberOfBoundaryWaterbodies();
     //  int maxConveyors = getMaximumNumberOfConveyors();
-    int maxNodes = getMaximumNumberOfNodes();               
+    int maxNodes = getMaximumNumberOfNodes();
     int maxXSections = getMaximumNumberOfXSections();
-    
+
     return new LimitsFixedData(maxChannels,
-                               maxReservoirs, 
-                               maxDiversions, 
-                               maxPumps, 
-                               maxBoundaryWaterbodies, 
-                               maxNodes, 
+                               maxReservoirs,
+                               maxDiversions,
+                               maxPumps,
+                               maxBoundaryWaterbodies,
+                               maxNodes,
                                maxXSections);
   }
-  
+
   /**
    *
    */
   public ParticleFixedData getParticleFixedData(){
     ParticleFixedData pFD = new ParticleFixedData();
-  
+
     boolean[] booleanInputs = createParticleBooleanInputs();
     float[] floatInputs = getParticleFloatInputs();
     int nInjections = getParticleNumberOfInjections();
@@ -100,7 +100,7 @@ public class PTMFixedData {
     boolean qBinary = qualBinaryBooleanInput();
     int ngroups = getNumberOfChannelGroups();
     String[] qNames = getQualConstituentNames();
-  
+
     pFD.setVariables(booleanInputs[0],booleanInputs[1],
                      booleanInputs[2],booleanInputs[3],
                      booleanInputs[4],booleanInputs[5],
@@ -115,17 +115,17 @@ public class PTMFixedData {
                      startJulmin, lengthJulmin);
     pFD.setVariables(ngroups,qBinary,qNames);
     //pFD.setVariables(getParticleType());
-  
+
     return pFD;
   }
-  
+
   /**
-   * 
+   *
    */
   public FluxFixedData[] getFluxFixedData(){
     int numberOfFluxes = getNumberOfFluxes();
     FluxFixedData [] fFD = new FluxFixedData[numberOfFluxes];
-    
+
     for(int i=1; i<= fFD.length; i++){
       int[] inArray = getFluxIncoming(i);
       int[] outArray = getFluxOutgoing(i);
@@ -142,14 +142,14 @@ public class PTMFixedData {
     }//end for
     return fFD;
   }
-  
+
   /**
-   * 
+   *
    */
   public Group[] getOutputGroups(){
   	int numberOfGroups = getNumberOfGroupOutputs();
   	Group [] groups = new Group[numberOfGroups];
-    
+
   	for(int i=1; i<= groups.length; i++){
   	  int[] memberArray = getGroupMemberIndex(i);
   	  int[] typeArray = getGroupMemberType(i);
@@ -176,7 +176,7 @@ public class PTMFixedData {
     }
     return barray;
   }
-  
+
   native void initialize(String filename);
   //
   public native int getNumberOfWaterbodies();
@@ -241,7 +241,7 @@ public class PTMFixedData {
   native float getXSectionMinimumElevation(int i);
   //
   native int [] getParticleBooleanInputs();
-  native float[] getParticleFloatInputs(); 
+  native float[] getParticleFloatInputs();
   native int getParticleNumberOfInjections();
   native int [] getParticleInjectionNodes();
   native int [] getParticleNumberOfParticlesInjected();
@@ -268,9 +268,9 @@ public class PTMFixedData {
   native String getBehaviorFileName();
   native String getBehaviorInfileName();
   native String getTraceFileName();
-  native int getTraceOutputInterval(); 
-  native String getRestartOutputFileName(); 
+  native int getTraceOutputInterval();
+  native String getRestartOutputFileName();
   native int getRestartOutputInterval();
-  native String getRestartInputFileName(); 
+  native String getRestartInputFileName();
 
 }

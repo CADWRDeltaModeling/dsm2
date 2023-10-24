@@ -33,7 +33,7 @@ public:
           double tt,
           double b) :
 	    _y(y),
-        _ySet(ySet), 
+        _ySet(ySet),
 		_ulow(ulow),
 		_uhigh(uhigh),
         _k(k),
@@ -49,7 +49,7 @@ public:
         P(0.),I(0.),D(0.),
         _yold(HUGE_VAL),_ynew(HUGE_VAL),_u(HUGE_VAL)
         {}
-     
+
       virtual ExpressionNodePtr copy(){
         return NodePtr(new PIDNode(_y->copy(),
                       _ySet->copy(),
@@ -60,22 +60,22 @@ public:
                        _td,
                        _tt,
                        _b));
-                     
+
         }
 
      /**
-      * Factory function that assumes the control is bound between 
+      * Factory function that assumes the control is bound between
       * zero and one
       */
-     static NodePtr create(ExpressionNodePtr y, 
+     static NodePtr create(ExpressionNodePtr y,
                            ExpressionNodePtr ySet,
 						   double ulow,
 						   double uhigh,
-                           double k, 
-                           double ti, 
-                           double td, 
+                           double k,
+                           double ti,
+                           double td,
                            double tt,
-                           double b){ 
+                           double b){
        return NodePtr(new NodeType(y,ySet,ulow,uhigh,k,ti,td,tt,b));
      }
 
@@ -85,17 +85,17 @@ public:
        _yold=_ynew;
     }
 
-     double eval(){ 
+     double eval(){
       assert(_yold != HUGE_VAL); //assure that initialize() has been called
       return _u;
-     } 
+     }
 
     void step(double h){
       _ySet->step(h);
 	  _y->step(h);
       _ynew    = _y->eval();
 	  //std::cout << "_ynew: " << _ynew << " " << h << std::endl;
-      
+
 	  //todo: this is a horrible workaround for what is apparently initialize() not getting called
 	  if (_yold == HUGE_VAL) _yold=_ynew;
       double ysp   = _ySet->eval();
@@ -114,7 +114,7 @@ public:
       D = _ad*D -_bd*(_ynew-_yold);    //update derivative
       double v= P + I + D;             //update gain
       _u = _sat(v,_ulow,_uhigh);  //update control
-	  //std::cout << "_u " << _u << " "<< P <<" " << D << " " 
+	  //std::cout << "_u " << _u << " "<< P <<" " << D << " "
 		   //<< _ulow << " " << _uhigh << " " << I << " "<< std::endl;
 
 	  I += _bi*(ysp-_ynew)+_ao*(_u-v);  //update integral part
@@ -188,7 +188,7 @@ public:
         dP(0.),dI(0.),dD(0.),
         _yold(HUGE_VAL),_yoldPrev(HUGE_VAL),_ynew(HUGE_VAL),_yspOld(HUGE_VAL),_u(HUGE_VAL)
         {}
-     
+
       virtual ExpressionNodePtr copy(){
         return NodePtr(new IncrementalPIDNode(_y->copy(),
                       _ySet->copy(),
@@ -199,22 +199,22 @@ public:
                        _ti,
                        _td,
                        _b));
-                     
+
         }
 
      /**
-      * Factory function that assumes the control is bound between 
+      * Factory function that assumes the control is bound between
       * zero and one
       */
-     static NodePtr create(ExpressionNodePtr y, 
+     static NodePtr create(ExpressionNodePtr y,
                            ExpressionNodePtr ySet,
 						   ExpressionNodePtr uApplied,
 						   double ulow,
 						   double uhigh,
-                           double k, 
-                           double ti, 
-                           double td, 
-                           double b){ 
+                           double k,
+                           double ti,
+                           double td,
+                           double b){
        return NodePtr(new NodeType(y,ySet,uApplied,ulow,uhigh,k,ti,td,b));
      }
 
@@ -226,10 +226,10 @@ public:
 	   _yspOld = _ySet->eval();
     }
 
-     double eval(){ 
+     double eval(){
       assert(_yold != HUGE_VAL); //assure that initialize() has been called
       return _u;
-     } 
+     }
 
     void step(double h){
       _ySet->step(h);
@@ -237,13 +237,13 @@ public:
 	  _uApplied->step(h);
       _ynew    = _y->eval();
 	  //std::cout << "_ynew: " << _ynew << " " << h << std::endl;
-      
+
 	  //todo: this is a horrible workaround for what is apparently initialize() not getting called
 	  if (_yold == HUGE_VAL) _yold=_ynew;
 	  if (_yoldPrev == HUGE_VAL) _yoldPrev = _yold;
-      
+
 	  double ysp   = _ySet->eval();
-      if(_yspOld == HUGE_VAL) _yspOld = ysp; 
+      if(_yspOld == HUGE_VAL) _yspOld = ysp;
 	  //std::cout << "ysp " << ysp << std::endl;
 
 	  _bi=(_k*h/_ti);
@@ -256,9 +256,9 @@ public:
       dI = _bi*(ysp - _ynew);
 	  double incr = dP + dI + dD;
 	  double v = _uApplied->eval() + incr;   //update gain
-	  
+
       _u = _sat(v,_ulow,_uhigh);  //update control
-	  //std::cout << "_u " << _u << " "<< dP <<" " << dD << " " 
+	  //std::cout << "_u " << _u << " "<< dP <<" " << dD << " "
 	  //	   << dI << " "<< std::endl;
       _yold = _ynew;
 	  _yoldPrev = _yold;

@@ -825,7 +825,7 @@ module hdf_util
        integer :: i, from_i, to_i                       ! local variables
        character*32 :: from_obj, from_identifier        ! local variables
        character*32 :: to_obj, to_identifier            ! local variables
- 
+
        call allocate_source_flow_property()
        call h5gopen_f(hydro_id, "input", input_id, error)
 
@@ -840,7 +840,7 @@ module hdf_util
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
            call h5tinsert_f(dt1_id, "name", offset, dt_id, error)
            call h5dget_space_f(dset_id,dspace_id, error)
-           call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error) 
+           call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error)
            call h5dread_f(dset_id, dt1_id, source_flow%name, data_dims, error)
 
            type_size = 4
@@ -893,7 +893,7 @@ module hdf_util
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
        call h5tinsert_f(dt1_id, "name", offset, dt_id, error)
        call h5dget_space_f(dset_id,dspace_id, error)
-       call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error)   
+       call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error)
        call h5dread_f(dset_id, dt1_id, scalar_name, data_dims, error)
 
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)

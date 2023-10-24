@@ -1,18 +1,18 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
 /**
  * this class stores tracks for a particle
- * it also calculates if a particle passes a particular channel at the end. 
+ * it also calculates if a particle passes a particular channel at the end.
  * @author xwang
  *
  */
 public class BasicParticleTrace {
 
 	/**
-	 * 
+	 *
 	 */
 	public BasicParticleTrace() {
 		_tracks = new ArrayList<Track>();
@@ -41,22 +41,22 @@ public class BasicParticleTrace {
 					count = 1;
 				else if(preInToGroup&&currInFromGroup)
 					count = 0;
-			
+
 			}
 			/*
 			if(preInFromGroup&&currInToGroup)
 				count++;
 			else if(preInToGroup&&currInFromGroup)
 				count--;
-			*/			
+			*/
 			preWbId = currWbId;
 			preTime = currTime;
 		}
 		/*
-		 * a particle could circle around many times, therefore the count could 
-		 * less than -1 (in case of leaving multiple times) or greater than +1 (in case of entering multiple times ).  
-		 * only count once when the particle eventually passes the channel 
-		 * or 0 when the particle eventually reentering to the from-channels.	 		
+		 * a particle could circle around many times, therefore the count could
+		 * less than -1 (in case of leaving multiple times) or greater than +1 (in case of entering multiple times ).
+		 * only count once when the particle eventually passes the channel
+		 * or 0 when the particle eventually reentering to the from-channels.
 		 */
 		//return (count>0?1:0);
 		return count;

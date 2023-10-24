@@ -6,7 +6,7 @@
 #define PARSER_H__DAD4FB2A_93A9_BFCAD4DE6A0E__INCLUDED_
 
 
-class Parser  
+class Parser
 {
 public:
 	Parser();

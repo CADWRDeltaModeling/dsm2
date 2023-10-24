@@ -386,7 +386,7 @@ module gtm_subs
                 icell = pathoutput(i)%out_chan_cell
                 if (trim(dss_out).eq.'cell') then     ! ZZ 8/17/2020
                     vals(i) = conc(icell,pathoutput(i)%i_var)
-                else                
+                else
                     if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
                         down_cell = cell(icell)%down_cell
                         vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
@@ -700,7 +700,7 @@ module gtm_subs
                 call CxArea(hyd_area(i,j), x, hyd_ws(i,j), branch)
             end do
         end do
-        
+
         return
     end subroutine
 

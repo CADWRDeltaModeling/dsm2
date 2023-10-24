@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.Map;
@@ -20,19 +20,19 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	private Map<Integer, Double> _pStartAge;
 	// Map<pid, list of start stations already used>
 	private Map<Integer, HashSet<Integer>> _pGroupUsed;
-	
+
 	//TODO may not be needed because survival rates are not calculated as accumulative
 	// Map<pid, survival probability>
 	//private Map<Integer, Double> _pProb;
 
 	/**
-	 * 
+	 *
 	 */
 	public SalmonBasicSurvivalBehavior() {
 		// TODO Auto-generated constructor stub
 	}
 	/**
-	 * 
+	 *
 	 */
 	public SalmonBasicSurvivalBehavior(SurvivalInputs survivalIn) {
 		_survivalIn = survivalIn;
@@ -53,8 +53,8 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (_pGroupUsed.get(pId) == null)
 			_pGroupUsed.put(pId, new HashSet<Integer>());
 		boolean isStart = _survivalIn.isStart(chanId, p.x, p.getFromUpstream());
-		Integer sSta = _pStartSta.get(pId);		
-		// sSta == null means the particle doesn't know its survival start station. 
+		Integer sSta = _pStartSta.get(pId);
+		// sSta == null means the particle doesn't know its survival start station.
 		// need only to search for a start station.  no need to search for an end or exchange station
 		if (sSta == null){
 			if (isStart){
@@ -74,23 +74,23 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			return;
 		/*
 		 * no need to check isStart here because sSta != null.
-		 * only need to check if isExchange or isEnd 
+		 * only need to check if isExchange or isEnd
 		 */
 		Integer groupId = _survivalIn.getGroupNumber(sSta);
 		boolean isEnd = _survivalIn.isEnd(groupId, chanId, p.x, p.getFromUpstream());
-		boolean isExchange = _survivalIn.isExchange(groupId, chanId, p.x, p.getFromUpstream()); 
+		boolean isExchange = _survivalIn.isExchange(groupId, chanId, p.x, p.getFromUpstream());
 		if (isExchange){
 			// subtract 1 from the group that this particle leaves,
 			// and add one to the group currently entered
 			int newGroupId = _survivalIn.getGroupNumber(chanId);
 			_survivalIn.minusArrivalToGroup(groupId);
-			_survivalIn.addArrivalToGroup(newGroupId);			
+			_survivalIn.addArrivalToGroup(newGroupId);
 			_pStartSta.put(pId, chanId);
 			_pGroupUsed.get(pId).add(newGroupId);
 			_pGroupUsed.get(pId).remove(sSta);
 			if(DEBUG)
 				System.err.println(PTMHydroInput.getExtFromIntChan(chanId)+ ","+"pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" isExchange ");
-			return;				
+			return;
 		}
 		if (isEnd){
 			ArrayList<Double> paras = _survivalIn.getSurvivalParameters(groupId);
@@ -110,9 +110,9 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			 */
 			//if (_pProb.get(pId) == null)
 				//_pProb.put(pId, 1.0);
-			//TODO 
+			//TODO
 			/*
-			 * according to Russ Perry, the survival rate should not be accumulative (i.e., calculated according to 
+			 * according to Russ Perry, the survival rate should not be accumulative (i.e., calculated according to
 			 * previous survival rate) so comment out should only be calculated according to the current rate
 			 * _pProb may not be needed
 			 */
@@ -125,26 +125,26 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			if (survival < po){
 				p.setParticleDead();
 				_survivalIn.addLostToGroup(groupId);
-				if(DEBUG) 
+				if(DEBUG)
 					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-					+"  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");	
+					+"  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");
 				return;
 			}
 			else
 				_survivalIn.addSurvivalToGroup(groupId);
 			if(DEBUG){
-				System.err.println("pId:" + pId +" node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+				System.err.println("pId:" + pId +" node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 							+"  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-						+ "  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead 
+						+ "  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead
 						+ " rand:" + po +" X:" + X+"  isEnd");
 			}
 			_pStartSta.put(pId, null);
 			_pStartAge.put(pId, null);
-			
+
 			/* End node usually is also a start node for next group so that there is no travel time gap
-			 * if it is not, it should be a mistake in the behavior input file because some of the travel time will not be used for calculating survival  
+			 * if it is not, it should be a mistake in the behavior input file because some of the travel time will not be used for calculating survival
 			 * it is up to users to check the mistake in the input behavior file
-			 * 
+			 *
 			 * isStart has to be checked after all other checks (i.e., isExchange, isEnd) done to avoid exit prematurely.
 			 * */
 			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
@@ -156,10 +156,10 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			//TODO really need a warning?
 			//else
 				//System.err.println("Warnning: the end channel:" +PTMHydroInput.getExtFromIntChan(chanId)+" is not a next start channel, could miss travel time.");
-			//only possible to come here if it is the last end station.  After the last station, pass the last station, the particle is taken out of the system 
+			//only possible to come here if it is the last end station.  After the last station, pass the last station, the particle is taken out of the system
 			else
 				p.setParticleDead();
-				
+
 			return;
 		} //isEnd
 		/*

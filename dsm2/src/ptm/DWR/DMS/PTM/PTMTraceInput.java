@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -60,7 +60,7 @@ public class PTMTraceInput extends PTMInput{
    *  constructor
    */
   public PTMTraceInput(String filename, int type,
-                       int [] startTime, int [] endTime, int [] PTMTimeStep, 
+                       int [] startTime, int [] endTime, int [] PTMTimeStep,
                        int [] nParticles) throws FileNotFoundException{
     super(filename, type);
     try {
@@ -76,32 +76,32 @@ public class PTMTraceInput extends PTMInput{
   /**
    *  reads trace file header information
    */
-  protected final void inputHeader(int [] startTime, 
-                                   int [] endTime, 
-                                   int [] PTMTimeStep, 
+  protected final void inputHeader(int [] startTime,
+                                   int [] endTime,
+                                   int [] PTMTimeStep,
                                    int [] nParticles) throws IOException {
-    if (inputReader != null) 
+    if (inputReader != null)
       readHeaderAscii(startTime, endTime, PTMTimeStep, nParticles);
     else if (inputStream != null )
       readHeaderBinary(startTime, endTime, PTMTimeStep, nParticles);
-    else 
+    else
       throw new IOException("PTMTraceInput: inputHeader(), No input stream initialized");
   }
 
   /**
    *  reads one trace at a time (1 particle, 1 event).
    */
-  public final void input(int [] tmStamp, 
-                          int [] particleNum, 
-                          int [] nodeNum, 
+  public final void input(int [] tmStamp,
+                          int [] particleNum,
+                          int [] nodeNum,
                           int [] wbNum) throws IOException{
-    if (inputReader != null) 
+    if (inputReader != null)
       readInputAscii();
-    else if (inputStream != null) 
+    else if (inputStream != null)
       readInputBinary();
     else
       throw new IOException("PTMTraceInput: input(), No input stream initialized");
-     
+
     tmStamp[0] = (trace.timeStamp);
     particleNum[0] = (trace.particleNumber);
     nodeNum[0] = (trace.nodeNumber);
@@ -120,13 +120,13 @@ public class PTMTraceInput extends PTMInput{
     try{
       String line = inputReader.readLine();
       if(line == null) {
-        trace.timeStamp = -1;      
-        trace.particleNumber = -1; 
-        trace.nodeNumber = -1;     
+        trace.timeStamp = -1;
+        trace.particleNumber = -1;
+        trace.nodeNumber = -1;
         trace.waterbodyNumber = -1;
         return;
       }
-      
+
       StringTokenizer sToken = new StringTokenizer(line);
       trace.timeStamp = (new Integer(sToken.nextToken())).intValue();
       trace.particleNumber = (new Integer(sToken.nextToken())).intValue();
@@ -134,9 +134,9 @@ public class PTMTraceInput extends PTMInput{
       trace.waterbodyNumber = (new Integer(sToken.nextToken())).intValue();
     }
     catch (EOFException e){
-      trace.timeStamp = -1;      
-      trace.particleNumber = -1; 
-      trace.nodeNumber = -1;     
+      trace.timeStamp = -1;
+      trace.particleNumber = -1;
+      trace.nodeNumber = -1;
       trace.waterbodyNumber = -1;
     }
   }
@@ -152,9 +152,9 @@ public class PTMTraceInput extends PTMInput{
       trace.waterbodyNumber = (int) inputStream.readShort();
     }
     catch (EOFException e){
-      trace.timeStamp = -1;      
-      trace.particleNumber = -1; 
-      trace.nodeNumber = -1;     
+      trace.timeStamp = -1;
+      trace.particleNumber = -1;
+      trace.nodeNumber = -1;
       trace.waterbodyNumber = -1;
     }
   }
@@ -162,19 +162,19 @@ public class PTMTraceInput extends PTMInput{
   /**
    *  reads header from ascii trace file
    */
-  protected final void readHeaderAscii(int [] startTime, int [] endTime, 
+  protected final void readHeaderAscii(int [] startTime, int [] endTime,
                                        int [] PTMTimeStep, int [] nParticles){
    try{
      String line = inputReader.readLine();
      StringTokenizer sToken = new StringTokenizer(line);
-     
+
      startTime[0] = new Integer(sToken.nextToken()).intValue();
      endTime[0] =  new Integer(sToken.nextToken()).intValue();
      PTMTimeStep[0] =  new Integer(sToken.nextToken()).intValue();
      nParticles[0] =  new Integer(sToken.nextToken()).intValue();
    }
    catch (IOException e){
-     System.out.println("PTMTraceInput: readHeaderAscii:" + 
+     System.out.println("PTMTraceInput: readHeaderAscii:" +
                         " Incorrect format or corrupted trace file");
     }
   }
@@ -182,7 +182,7 @@ public class PTMTraceInput extends PTMInput{
   /**
    *  reads header from trace file.
    */
-  protected final void readHeaderBinary(int [] startTime, int [] endTime, 
+  protected final void readHeaderBinary(int [] startTime, int [] endTime,
                                         int [] PTMTimeStep, int [] nParticles){
     try{
       startTime[0] =( inputStream.readInt());
@@ -191,7 +191,7 @@ public class PTMTraceInput extends PTMInput{
       nParticles[0] =( inputStream.readInt());
     }
     catch (IOException e){
-      System.out.println("PTMTraceInput: readHeaderBinary:" + 
+      System.out.println("PTMTraceInput: readHeaderBinary:" +
                          " Incorrect format or corrupted trace file");
     }
   }

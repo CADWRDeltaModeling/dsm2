@@ -64,7 +64,7 @@ public:
     * of the expression.
     */
     virtual void setDataExpression( typename ExpressionNode<StateType>::NodePtr val  ){
-        throw new std::logic_error("Expression could not be set as permanent data source."); 
+        throw new std::logic_error("Expression could not be set as permanent data source.");
     }
 
 
@@ -73,14 +73,14 @@ public:
 
     /**
     * Tests whether this is the interface to a time dependent variable.
-    * Returns true if the variable being manipulated is time varying 
+    * Returns true if the variable being manipulated is time varying
     * (e.g. a boundary condition object controlled by a time series). The
-    * test is intended to reflect the way the model treats the underlying 
+    * test is intended to reflect the way the model treats the underlying
     * variable, not the details of a specific model run.
-    * For instance, if a boundary condition can take 
+    * For instance, if a boundary condition can take
     * a time series as a data source but is set to a constant valued data source
     * for a particular simulation, the variable is still time-dependent.
-    * If this method returns true, some non-trivial implementation of 
+    * If this method returns true, some non-trivial implementation of
     * setDataExpression is expected for the variable.
     * @return true if the model variable is time-varying.
     */

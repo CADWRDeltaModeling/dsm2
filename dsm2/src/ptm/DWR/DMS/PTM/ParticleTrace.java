@@ -68,7 +68,7 @@ public final int getNumberOfTraces(){ return traceNumber;};
 public String toString(){
   String rep = " " + getNumberOfTraces();
   for(int i=1; i<getNumberOfTraces(); i++){
-    rep += "@Time " + getTime(i) 
+    rep += "@Time " + getTime(i)
       + " @Node " + getNodeId(i)
       + " @Channel " + getWaterbodyId(i)+"\n";
   }
@@ -78,7 +78,7 @@ public String toString(){
   /**
    *  returns node entered from for a given trace number
    */
-public final int getNodeId(int traceNum){ 
+public final int getNodeId(int traceNum){
   return ((Integer) nodeNumber.elementAt(traceNum)).intValue();
 }
 
@@ -86,7 +86,7 @@ public final int getNodeId(int traceNum){
   /**
    *  returns the waterbody number for a given trace number
    */
-public final int getWaterbodyId(int traceNum){ 
+public final int getWaterbodyId(int traceNum){
   return ((Integer) channelNumber.elementAt(traceNum)).intValue();
 }
 
@@ -94,8 +94,8 @@ public final int getWaterbodyId(int traceNum){
   /**
    *  returns the timestamp of the given trace
    */
-public final int getTime(int traceNum) { 
-  return ((Integer) entryTime.elementAt(traceNum)).intValue(); 
+public final int getTime(int traceNum) {
+  return ((Integer) entryTime.elementAt(traceNum)).intValue();
 }
 
 

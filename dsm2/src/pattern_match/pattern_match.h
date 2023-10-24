@@ -16,7 +16,7 @@
 #endif
 /* This module defines pattern matching routines that are used
    to match object identifiers such as channel numbers and reservoir names
-   against regular expression patterns. At this time, they are used in 
+   against regular expression patterns. At this time, they are used in
    support of the groups module.
 */
 

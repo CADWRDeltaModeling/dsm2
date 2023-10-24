@@ -54,27 +54,27 @@ public class MainPTM {
             if (DEBUG) System.out.println("initializing globals");
             Globals.initialize();
             if (DEBUG) System.out.println("initialized globals");
-    
+
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
             String ptmInputFile = "dsm2.inp";
             if(args.length > 0)
             	ptmInputFile = args[0];
-            
+
             if (DEBUG) System.out.println("input file: " + ptmInputFile);
             PTMEnv Environment = new PTMEnv(ptmInputFile);
             if (DEBUG) System.out.println("Environment initialized");
-    
+
             // set global environment pointer
             Globals.Environment = Environment;
-    
+
             // get runtime parameters
             int startTime = Environment.getStartTime();
             int runTime = Environment.getRunLength();
             int endTime = startTime + runTime;
             int PTMTimeStep = Environment.getPTMTimeStep();
             if(DEBUG) System.out.println("Initialized model run times");
-            
+
             // set array of particles and initialize them
             Particle [] particleArray = null;
             int numberOfParticles=0;
@@ -92,20 +92,20 @@ public class MainPTM {
             numberOfParticles = numberOfRestartParticles
                               + Environment.getNumberOfParticlesInjected();
             if(DEBUG) System.out.println("total number of particles injected are " + numberOfParticles);
-    
+
             particleArray = new Particle[numberOfParticles];
             if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
 
             for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new Particle(Environment.getParticleFixedInfo());
             if(DEBUG) System.out.println("particles initialized");
-    
+
             // insert particles from fixed input information
             Environment.setParticleInsertionInfo(particleArray, numberOfRestartParticles);
             if(DEBUG) System.out.println("Set insertion info");
             // set observer on each Particle
             String traceFileName = Environment.getTraceFileName();
-            if ( traceFileName == null || traceFileName.length() == 0 ) 
+            if ( traceFileName == null || traceFileName.length() == 0 )
                 PTMUtil.systemExit("Trace file needs to be specified, Exit from MainPTM");
             ParticleObserver observer = null;
             observer = new ParticleObserver(traceFileName,
@@ -122,7 +122,7 @@ public class MainPTM {
             	if (observer != null && routeHelper != null && swimHelper != null) {
             		observer.setObserverForParticle(particleArray[i]);
             		routeHelper.setRouteHelperForParticle(particleArray[i]);
-            		swimHelper.setSwimHelperForParticle(particleArray[i]);            		
+            		swimHelper.setSwimHelperForParticle(particleArray[i]);
             	}
             	else
             		PTMUtil.systemExit("observer or swim and route helpers are not properly set, system exit");
@@ -130,7 +130,7 @@ public class MainPTM {
             	if (survivalHelper != null)
             		survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
             }
-            
+
             // initialize output restart file
             String outRestartFilename = Environment.getOutputRestartFileName();
             PTMRestartOutput outRestart = null;
@@ -144,7 +144,7 @@ public class MainPTM {
             	System.out.println("No restart file output");
             }
             if(DEBUG) System.out.println("Set restart output");
-    
+
             // initialize animation output
             String animationFileName = Environment.getAnimationFileName();
             PTMAnimationOutput animationOutput = null;
@@ -159,25 +159,25 @@ public class MainPTM {
             	System.out.println("No animation file output");
             }
             if(DEBUG) System.out.println("Set anim output");
-    
+
             System.out.println("Total number of particles: " + numberOfParticles + "\n");
-    
+
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-            
+
             //currentModelTime, startTime, endTime, PTMTimeStep are in minutes
             // timeStep is in seconds, which is used to update positions
-            for(Globals.currentModelTime  = startTime; 
-                Globals.currentModelTime <= endTime; 
+            for(Globals.currentModelTime  = startTime;
+                Globals.currentModelTime <= endTime;
                 Globals.currentModelTime += PTMTimeStep){
-            	
+
                 // output runtime information to screen
             	if(Globals.DisplaySimulationTimestep)
             		MainPTM.display(displayInterval);
                 //if (smeltBehavior)
                     Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
-                
+
                 // get latest hydro information using Global/model time in minutes!!!!!!
                 Environment.getHydroInfo(Globals.currentModelTime);
                 Waterbody[] allWbs = Environment.getWbArray();
@@ -202,7 +202,7 @@ public class MainPTM {
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
                 // write out restart file information
-                if ( outRestart != null ) outRestart.output();      
+                if ( outRestart != null ) outRestart.output();
             }
             if(Environment.getParticleType().equalsIgnoreCase("Salmon_Particle")){
             	Map<Integer, IntBuffer> lastTraces = new HashMap<Integer, IntBuffer>();
@@ -216,21 +216,21 @@ public class MainPTM {
             	//print out travel times
             	Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates(lastTraces);
-            	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();                     
-            
+            	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
+
             	rIn.writeEntrainmentRates();
             	if(Particle.ADD_TRACE)
             		rIn.writeFlux(particleArray);
             }
-            
+
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
             if ( outRestart != null ) outRestart.output();
-    
+
             // clean up after run is over
             observer = null;
             particleArray = null;
-            
+
             // output flux calculations in dss format
             if(Globals.CalculateWritePTMFlux){
             	FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
@@ -241,15 +241,15 @@ public class MainPTM {
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
             	fluxCalculator.calculateFlux();
-            	fluxCalculator.writeOutput(); 
+            	fluxCalculator.writeOutput();
             }
-           
+
             if (TransProbs.getFileOpen()) {
             	TransProbs.closeFile();
             }
-            
+
             System.out.println("done simulation");
-            
+
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Exception " + e + " occurred");
@@ -257,12 +257,12 @@ public class MainPTM {
         }
     }
 
-    public static boolean DEBUG = false;  
+    public static boolean DEBUG = false;
     protected static int previousDisplayTime = 0;
-    
+
     //public native static void display(int displayInterval);
-    public static void display(int displayInterval) { 
-        if(previousDisplayTime == 0){ 
+    public static void display(int displayInterval) {
+        if(previousDisplayTime == 0){
             previousDisplayTime = Globals.currentModelTime - displayInterval;
         }
 
@@ -271,8 +271,8 @@ public class MainPTM {
             String modelTime = Globals.getModelTime(Globals.currentModelTime);
             String modelDate = Globals.getModelDate(Globals.currentModelTime);
             System.out.println("Model date: " + modelDate + " time: " + modelTime);
-            previousDisplayTime = Globals.currentModelTime;            
+            previousDisplayTime = Globals.currentModelTime;
         }
     }
-    
+
 }

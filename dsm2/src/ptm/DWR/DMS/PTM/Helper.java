@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.Map;
@@ -15,7 +15,7 @@ public abstract class Helper<K,B> {
 	private B _basic;
 
 	/**
-	 * 
+	 *
 	 */
 	public Helper(B basic, Map<K,B> specialBehaviors) {
 		_basic = basic;
@@ -62,10 +62,10 @@ public abstract class Helper<K,B> {
 	*/
 	public B getBehavior(Particle p){
 		K key = getKey(p);
-		
+
 		if (key == null)
 			PTMUtil.systemExit("cannot find search key for a behavior, the method is mis-used, check the code!");
-		
+
 		// get a special route selection method otherwise use the basic
 		B specialB = lookUp(key);
 		if (specialB != null)
@@ -77,10 +77,10 @@ public abstract class Helper<K,B> {
 			return null;
 		}
 	}
-	
+
 	/*
 	 * method call to get a key (or a junction indicator)
-	 * the indicator will be used to locate a route selection method 
+	 * the indicator will be used to locate a route selection method
 	 */
 	public abstract K getKey(Particle p);
 	//public abstract void help(Particle p);

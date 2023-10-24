@@ -1,4 +1,4 @@
-##!d:/vista/bin/vscript.bat 
+##!d:/vista/bin/vscript.bat
 
 def version():
     f = open("version.txt",'r')

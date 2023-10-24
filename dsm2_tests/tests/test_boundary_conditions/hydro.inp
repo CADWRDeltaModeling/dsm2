@@ -39,12 +39,12 @@ binary_output    FALSE
 dss_direct        TRUE
 END
 
-IO_FILE 
+IO_FILE
 MODEL    TYPE    IO   INTERVAL    FILE
 hydro    hdf5    out  1hour    ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5       # Flow data to be passed to qual and ptm
 #hydro    restart out  1mon     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf      # Initial condition a restart is required
 #hydro    output  out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.out      # Echoed input and run status
-#hydro    echo    out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp  #Echoed input  
+#hydro    echo    out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp  #Echoed input
 END
 
 GRID
@@ -52,15 +52,15 @@ channel.inp
 END
 
 CHANNEL_IC
-CHAN_NO  DISTANCE  STAGE  FLOW  
-2        0       0.00    0.0         
-2        length  0.00    0.0                         
-3        0       0.00    0.0         
-3        length  0.00    0.0         
-4        0       0.00    0.0         
-4        length  0.00    0.0 
-5        0       0.00    0.0         
-5        length  0.00    0.0         
+CHAN_NO  DISTANCE  STAGE  FLOW
+2        0       0.00    0.0
+2        length  0.00    0.0
+3        0       0.00    0.0
+3        length  0.00    0.0
+4        0       0.00    0.0
+4        length  0.00    0.0
+5        0       0.00    0.0
+5        length  0.00    0.0
 END
 
 BOUNDARY_FLOW
@@ -84,6 +84,6 @@ chan5       5    0         stage   15min    inst    ${HYDROOUTDSSFILE}
 chan5_len   5    length    flow    15min    inst    ${HYDROOUTDSSFILE}
 chan5_len   5    length    stage   15min    inst    ${HYDROOUTDSSFILE}
 END
-  
+
 
 

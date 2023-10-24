@@ -61,7 +61,7 @@ public class IOFileFixedData {
                          String traceFileName, int traceOutputInterval,
                          String restartOutputFileName, int restartOutputInterval,
                          String restartInputFileName){
-    
+
     this.animationFileName=animationFileName;
     this.animationOutputInterval=animationOutputInterval;
     this.traceFileName=traceFileName;
@@ -70,7 +70,7 @@ public class IOFileFixedData {
     this.restartOutputInterval=restartOutputInterval;
     this.restartInputFileName=restartInputFileName;
   }
-  
+
   /**
    * String representation
    */

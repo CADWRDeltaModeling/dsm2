@@ -59,7 +59,7 @@
 	WS(6) = 6.
 	WS(7) = 7.
 	WS(8) = 8.
-      
+
 	nGate=2
       GateArray(1).Name="gate 1"
 	GateArray(1).NDevice=4
@@ -114,7 +114,7 @@
 	obj2obj(2).name="Transfer 2"
 	obj2obj(2).flow=3000
 
-  
+
       ninpaths=3
       pathinput(1).name="TS1"
 	pathinput(1).value=1.

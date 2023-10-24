@@ -34,4 +34,4 @@ using a logarithmic profile to account for slower particles closer to the channe
 longitudinal movement is then the sum of transverse and vertical velocities multiplied by time
 step. Particles also move across the channel and in vertical direction along the depth due to
 mixing. A random factor and mixing coefficients and the length of time step is used to compute
-the movement of particle in transverse and vertical direction. 
+the movement of particle in transverse and vertical direction.

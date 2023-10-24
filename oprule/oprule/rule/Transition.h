@@ -3,7 +3,7 @@
 #include<math.h>
 #include "boost/shared_ptr.hpp"
 /**
- * Function objects representing transitions. They map a 
+ * Function objects representing transitions. They map a
  * fraction of completion in time to a fraction of
  * completion of a task
  */
@@ -42,7 +42,7 @@ public:
 
 class SmoothStepTransition : public Transition{
 public:
-    SmoothStepTransition(double _duration, double k) : 
+    SmoothStepTransition(double _duration, double k) :
       Transition(_duration),
       tc(k){}
     Transition* copy() const { return new SmoothStepTransition(*this);}

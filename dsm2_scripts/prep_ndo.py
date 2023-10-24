@@ -41,13 +41,13 @@ def main():
     endyr=int(config.getAttr('END_DATE')[5:])
     if (startyr < 1974 and endyr > 1991):
         twstr = "01NOV1921 0000 - 01OCT2003 0000"
-    else: 
+    else:
         twstr = "01OCT1974 0000 - 01OCT1991 0000"
     STEP=string.lower(config.getAttr('CALSIMSTEP'))
-    
+
     prep_ndo(calsimdss,STEP,fpart,twstr)
     sys.exit()
-    
-        
+
+
 if __name__ == '__main__':
     main()

@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -42,8 +42,8 @@ subroutine process_transfer(ID, &
       call locase(TransName)
       call locase(FromObjID)
       call locase(ToObjID)
-      
-      
+
+
       FromObjType = obj_type_code(FromType)
       ToObjType = obj_type_code(ToType)
 

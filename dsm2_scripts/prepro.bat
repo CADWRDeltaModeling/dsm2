@@ -1,6 +1,6 @@
 @echo off
 ::  usage:  prepro hydro|qual|both config-file, place it in the specific study folder (with config file)
-:: 
+::
 
 if {%1%}=={} (
 echo "usage:  prepro config-file"

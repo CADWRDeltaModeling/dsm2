@@ -48,7 +48,7 @@ package DWR.DMS.PTM;
 import java.util.HashMap;
 /**
  * Fixed Data for Filters
- * Read from DSM2 Fortran & C++ input system   
+ * Read from DSM2 Fortran & C++ input system
  * @author Yu Zhou
  * @version 2012/07/3 18:16:24
  */
@@ -56,16 +56,16 @@ class FiltersFixedData {
 public FiltersFixedData(int nFilters,
                         int[] filterIndices,
                         String [] filterNames,
-                        int[] filterNodes, 
+                        int[] filterNodes,
                         int[] filterWbs,
                         int[] filterWbTypes){
 
-  this.nFilters = nFilters; 
+  this.nFilters = nFilters;
   this.filterIndices = filterIndices;
   this.filterNames = filterNames;
-  this.filterNodes = filterNodes; 
-  this.filterWbs = filterWbs; 
-  this.filterWbTypes = filterWbTypes; 
+  this.filterNodes = filterNodes;
+  this.filterWbs = filterWbs;
+  this.filterWbTypes = filterWbTypes;
 }
 
 public String toString(){
@@ -131,12 +131,12 @@ public boolean filterExist(Node nd, Waterbody wb) {
 //  filterArr.put(key,filter);
 //}
 
-protected int nFilters; 
+protected int nFilters;
 private int[] filterIndices;
 private String[] filterNames;
-protected int[] filterNodes; 
-protected int[] filterWbs; 
-protected int[] filterWbTypes; 
+protected int[] filterNodes;
+protected int[] filterWbs;
+protected int[] filterWbTypes;
 private float [] filterOps;   //on-1;off-0.
 
 /**

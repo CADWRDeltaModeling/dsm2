@@ -8,7 +8,7 @@ namespace rule {
 /** Abstract timer interface to return model time.
  * @todo may not be used anymore?
  */
-class ModelTimer  
+class ModelTimer
 {
 public:
    virtual ~ModelTimer(){}

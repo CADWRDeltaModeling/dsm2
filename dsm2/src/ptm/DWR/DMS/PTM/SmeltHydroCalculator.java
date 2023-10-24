@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SmeltHydroCalculator extends BasicHydroCalculator {
 
 	/**
-	 * 
+	 *
 	 */
 	public SmeltHydroCalculator() {
 		super();
@@ -23,7 +23,7 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 	}
     public void setSmeltBehaviorData(ParticleBehavior behaviorData){_behaviorData = behaviorData;}
 	/*
-	 * update channel length, width, depth, velocity, area, previous width, depth info 
+	 * update channel length, width, depth, velocity, area, previous width, depth info
 	 */
     /*
 	public void updateChannelParameters(Particle p){
@@ -36,7 +36,7 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 	void updateStageInfo(Particle p, float delT){
 		float stageValue, slope;
 		stageValue = ((Channel)p.wb).getStage(p.x);
-		if(_pStageSet.get(p.Id)!=null){			
+		if(_pStageSet.get(p.Id)!=null){
 			slope = (stageValue - _pLastStageValue.get(p.Id))/delT;
 			if(slope >= MIN_SLOPE){
 				_pStagePhase.put(p.Id, STAGE_RISING);
@@ -46,13 +46,13 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 			}
 			else{
 				_pStagePhase.put(p.Id, STAGE_TRANSITIONAL);
-			}			
+			}
 			if (DEBUG)
 				System.err.println(PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())+"  "+stageValue+"  "+_pLastStageValue.get(p.Id)+"  "+delT+"  "+_pStagePhase.get(p.Id));
-		}		
+		}
 		_pLastStageValue.put(p.Id, stageValue);
 		if(_pStageSet.get(p.Id)==null)
-			_pStageSet.put(p.Id, true);		
+			_pStageSet.put(p.Id, true);
 	}
 
   /**
@@ -112,17 +112,17 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 	if (DEBUG)  System.err.println(_pStagePhase.get(p.Id)+"  "+getZUpperBound(p)+"  "+getZLowerBound(p));
     return getZUpperBound(p)-getZLowerBound(p);
   }
-  
+
 
   /**
     *  Externally induced Random
     */
     //@Override
-  
+
 	protected float calcZDisplacementExtRandom(Particle p, float z, float timeStep, double gaussian){
 		// get the random mixing component
 //  		behaviorData.setCurrentAgeId(age);
-		
+
 		float dz = 0.0f;
 		//0: length, 1: width, 2: depth, 3: velocity, 4: area
 		float depth = getChannelInfo(p.Id)[2];
@@ -142,19 +142,19 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 		if (DEBUG) System.out.println(" Id = "+p.Id+" dz = "+dz+" channelDepth = "+depth+" z = "+z+" mag = "+getZRangeMagnitude(p));
 		if (getVertMove()) return(dz);
 		else return 0.0f;
- 
+
 	}
 
 	 /**
 	   *  Externally induced Deterministic
 	   */
 	 //@Override
-	   
+
 	 protected  float calcZDisplacementExtDeterministic(Particle p, float timeStep){
 	    return(-getFallVel(p)*timeStep);
 	  }
-	      
-	  
+
+
 	/**
 	  *  Z Position calculation for time step given
 	  */
@@ -168,7 +168,7 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 		if(getVertMove())
 			zPos += (calcZDisplacementExtRandom(p, z, timeStep, gaussian) + calcZDisplacementExtDeterministic(p,timeStep));
 			//zPos += (float) (gaussian*((float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep)));
-		
+
 		// reflections from bottom of Channel and water surface
 		int k = 0;
 		int MAX_BOUNCING = 100;
@@ -177,16 +177,16 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 		  else if (zPos > depth) zPos = depth - (zPos - depth);
 		  k++;
 		}
-		if (k > MAX_BOUNCING) 
+		if (k > MAX_BOUNCING)
 			PTMUtil.systemExit("Too many iterations in calcZPosition()");
 		return (zPos);
 	}
-	
-	 
+
+
 	/**
 	  *  returns a particles fall velocity
 	  */
-	 
+
 	private float getFallVel(Particle p){
 	      return _behaviorData.getFallVel(p.age);
 	}
@@ -194,57 +194,57 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 	/**
 	  *  returns the 24 hour model time
 	  */
-	    
+
 	private int getModelTime(){
 	    return (Globals.currentMilitaryTime);
 	}
-	
+
 	 // knam: The parent class has DEBUG already
 	 //  boolean DEBUG = false;
-	
+
 	/**
 	*  a pointer to ParticleBehavior containing behavior data
 	*/
 	protected ParticleBehavior _behaviorData;
-	
+
 	/**
 	*  a particles assigned random number.
 	*  a large number increases chance of survival
 	*  a small number reduces chance of survival
 	*/
 	//protected float _rand;
-	
+
 	/**
 	*  holds the previous mortality rate
 	*  particles are re-assigned a random number after a new mortality rate
 	*  is assigned
 	*/
 	//protected float _prevMortRate = -1;
-	
+
 	 /**
 	*  the age at which a particular phase begins
 	*  used to calculate the age in a particular phase
 	*/
 	//protected float _baseAge;
-			
+
 	//protected float _lastStageValue;
-	
+
 	//protected int _stagePhase;
-	
+
 	//protected int _ageId = -901; // set to non ageId number
-	
+
 	//protected float _lastLowerValue = 0; // set to initial value
-	
+
 	//protected float _lastUpperValue = 1; // set to initial value
-	
+
 	public static int STAGE_RISING = 0;
-	
+
 	public static int STAGE_FALLING = 1;
-	
+
 	public static int STAGE_TRANSITIONAL = 2;
-	
+
 	public static float MIN_SLOPE = 0.0001f; // about 0.1 ft in 15 min or 900 sec
-	
+
 	/**
 	 * True after one cycle when _lastStageValue has been set.
 	 */

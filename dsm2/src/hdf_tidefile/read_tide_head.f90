@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -29,7 +29,7 @@ subroutine read_tide_head(filenm, check_headers)
       use common_tide
       use runtime_data
       use iopath_data
-      use grid_data      
+      use grid_data
       implicit none
 
 
@@ -69,7 +69,7 @@ subroutine read_tide_head(filenm, check_headers)
           /' max_conpth:',i2)
 
       tidefile_version=' '
-      
+
 
 
 !-----open tidefile and check version

@@ -12,7 +12,7 @@
 class DSM2HydroTimeNodeFactory : public oprule::parser::ModelTimeNodeFactory
 {
 public:
-   
+
    virtual oprule::expression::DoubleNodePtr getDateTimeNode(){
 	   return DSM2HydroDateTimeNode::create();
    }
@@ -34,28 +34,28 @@ public:
 	  return oprule::expression::DoubleScalarNode::create(juldt);
    }
 
-   virtual oprule::expression::DoubleNodePtr getSeasonNode(){ 
-      return DSM2HydroSeasonNode::create(); 
+   virtual oprule::expression::DoubleNodePtr getSeasonNode(){
+      return DSM2HydroSeasonNode::create();
    }
 
    virtual oprule::expression::DoubleNodePtr getReferenceSeasonNode(int mon, int day, int hour, int min){
       return DSM2HydroReferenceSeasonNode::create(mon,day,hour,min);
    }
 
-   virtual oprule::expression::DoubleNodePtr getYearNode(){ 
-      return DSM2HydroYearNode::create(); 
+   virtual oprule::expression::DoubleNodePtr getYearNode(){
+      return DSM2HydroYearNode::create();
    }
    virtual oprule::expression::DoubleNodePtr getMonthNode(){
-      return DSM2HydroMonthNode::create(); 
+      return DSM2HydroMonthNode::create();
    }
    virtual oprule::expression::DoubleNodePtr getDayNode(){
-      return DSM2HydroDayNode::create(); 
+      return DSM2HydroDayNode::create();
    }
    virtual oprule::expression::DoubleNodePtr getHourNode(){
-      return DSM2HydroHourNode::create(); 
-   } 
+      return DSM2HydroHourNode::create();
+   }
    virtual oprule::expression::DoubleNodePtr getMinOfDayNode(){
-      return DSM2HydroMinuteOfDayNode::create(); 
+      return DSM2HydroMinuteOfDayNode::create();
    }
    virtual oprule::expression::DoubleNodePtr getMinNode(){
       return DSM2HydroMinuteNode::create(); }

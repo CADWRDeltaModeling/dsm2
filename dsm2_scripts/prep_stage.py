@@ -11,13 +11,13 @@ from planning_time_window import prepro_window
 def copy_stage():
     """ Unsmoothed transfer from DICU file to model input file.
     """
-    sourcefile=getAttr("STAGE_SOURCE_FILE") 
+    sourcefile=getAttr("STAGE_SOURCE_FILE")
     f=opendss(sourcefile)
     outfile=getAttr("STAGEFILE")
     stageversion=getAttr("STAGE_VERSION")
     dsspath="/FILL\+CHAN/RSAC054/STAGE//15MIN/%s/" % stageversion
     if not outfile or outfile == "":
-        raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
+        raise "Config variable BOUNDARYFILE not set and needed for prepro output"
     tw=prepro_window()
     ref = findpath(f,dsspath)
     if len(ref) != 1:

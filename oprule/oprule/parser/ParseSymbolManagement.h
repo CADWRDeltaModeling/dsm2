@@ -54,7 +54,7 @@ const string EVAL_STR=string(EVAL);
 
 #define yylval op_rulelval
 
-extern void lexer_init(); 
+extern void lexer_init();
 
 
 typedef map<string, symbol > express_map;
@@ -140,7 +140,7 @@ vector<double>& get_array_vector(int index);
 void clear_array_vectors();
 
 
-// String manipulation function that converts an object to 
+// String manipulation function that converts an object to
 // string using the relevant operator<< function.
 template<class T>
 string ToString(const T& val){

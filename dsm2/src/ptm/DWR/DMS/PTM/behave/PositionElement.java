@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -54,7 +54,7 @@ import java.util.*;
 /**
  * This class contains Physical Behavior Properties.
  * It can read and write this information to/from XML. <br>
- * 
+ *
  * @author Aaron Miller
  * @version $Id: PositionElement.java,v 1.3 2000/08/07 17:05:07 miller Exp $
  */
@@ -89,7 +89,7 @@ public class PositionElement extends Behavior {
 
 
   public Vector getTransversePosition(){
-    return yVector;    
+    return yVector;
   }
 
   public void xmlToVector(Element element, Vector vector, String name){
@@ -134,7 +134,7 @@ public class PositionElement extends Behavior {
 
 // 	  zPosData [0][i][j] = (new Integer (element.getAttribute(headerData[j]))).intValue();
 // 	  System.out.println(headerData[j]+" "+element.getAttribute(headerData[j]));
-	  
+
        	array [0][i][j] = (new Integer (element.getAttribute(headerData[j]))).intValue();
       }
     }
@@ -143,16 +143,16 @@ public class PositionElement extends Behavior {
   public void dumpArray(){
 //         System.out.println("zlen = "+zPosData.length+" ylen = "+yPosData.length);
 //         System.out.println("zlen = "+zPosData[0].length+" ylen = "+yPosData[0].length);
-//         System.out.println("zlen = "+zPosData[0][0].length+" ylen = "+yPosData[0][0].length);    
-    System.out.println("ll = "+zPosData[0][0][0]+" ul = "+zPosData[0][0][1]);    
-    System.out.println("st = "+zPosData[0][0][2]+" et = "+zPosData[0][0][3]);    
+//         System.out.println("zlen = "+zPosData[0][0].length+" ylen = "+yPosData[0][0].length);
+    System.out.println("ll = "+zPosData[0][0][0]+" ul = "+zPosData[0][0][1]);
+    System.out.println("st = "+zPosData[0][0][2]+" et = "+zPosData[0][0][3]);
 
     int test [][][] = new int[1][][];
 
     System.arraycopy(zPosData, 0, test, 0, zPosData.length);
 
-    System.out.println("ll = "+test[0][0][0]+" ul = "+test[0][0][1]);    
-    System.out.println("st = "+test[0][0][2]+" et = "+test[0][0][3]);    
+    System.out.println("ll = "+test[0][0][0]+" ul = "+test[0][0][1]);
+    System.out.println("st = "+test[0][0][2]+" et = "+test[0][0][3]);
 //     System.out.println("tlen = "+test.length);
 //     System.out.println("tlen = "+test[0].length);
 //     System.out.println("tlen = "+test[0][0].length);
@@ -196,7 +196,7 @@ public class PositionElement extends Behavior {
 	  if(testCondition(stmp)){
 	    element.setAttribute(headerData[j], stmp);
 	  }
-      
+
 	}
 	parent.appendChild(element);
       }

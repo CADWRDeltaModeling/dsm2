@@ -12,7 +12,7 @@ using namespace boost;
 
 template<typename T>
 InputStatePtr ItemInputState<T>::process(istream& in)
-{ 
+{
   // Make sure that the header is present and OK
   while (true)
     {
@@ -26,7 +26,7 @@ InputStatePtr ItemInputState<T>::process(istream& in)
 	    break;               // header is in order, move on
 	  }
       else
-	  {     
+	  {
         stringstream errmsg;
         string message("Bad header in line.");
         handleFatalError(errmsg.str(),line,m_filename,m_lineNo);
@@ -34,21 +34,21 @@ InputStatePtr ItemInputState<T>::process(istream& in)
     }
     // Process lines until END
     while(1)
-    { 
+    {
       string line;
       getline(in,line);
       m_lineNo++;
       line = strip(line);              // strip comments, trailing/leading whitespace
       if (in.eof() && ! isBlockEnd(line))
-	    { 
+	    {
           string message("End of file reached in middle of input block.");
 	      handleFatalError(message,line,m_filename,m_lineNo);
 	    }
       if (line.size()==0) continue;
       if(isBlockEnd(line))
 	    {
-	      InputStatePtr newState(new FileInputState(m_contextItems, 
-                                                    m_filename, 
+	      InputStatePtr newState(new FileInputState(m_contextItems,
+                                                    m_filename,
                                                     m_lineNo));
           newState->setActiveItems(m_activeItems);
           return newState;  // graceful return to file state
@@ -73,7 +73,7 @@ bool ItemInputState<T>::verifyHeader(string& line)
   if (! headersOK) return false;
   const char** colNames = table.field_names;
   for (size_t i = 0; i < splitLine.size() ; ++i)
-    { 
+    {
       string refHeader(colNames[i]);
       to_upper(refHeader);
       headersOK &= (splitLine[i] == refHeader);
@@ -101,14 +101,14 @@ void ItemInputState<T>::processItem(string& line)
        s >> obj;
      }
    catch(runtime_error e)
-     { 
+     {
        stringstream errmsg;
        string message("Error reading object\n");
        message += e.what();
        handleFatalError(message,line,m_filename,m_lineNo);
      }
    catch(...)
-     { 
+     {
        stringstream errmsg;
        string message("Error reading object.");
        handleFatalError(message,line,m_filename,m_lineNo);
@@ -121,7 +121,7 @@ void ItemInputState<T>::processItem(string& line)
 
 template<typename T>
 void ItemInputState<T>::onFilenameSet()
-{ 
+{
   string layername = LayerManager::instance().generateLayerName(m_filename);
   m_layerIndex = LayerManager::instance().addLayer(layername);
 }

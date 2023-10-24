@@ -13,7 +13,7 @@
 #else
 #define __MIN_PORTABLE(a,b)  ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
 #endif
-				
+
 #include<iostream>
 #include<string>
 #include<map>
@@ -39,7 +39,7 @@ using namespace oprule::expression;
 #define _SETB add_temp_symbol
 
 char *strinput;
-char *strinputptr; 
+char *strinputptr;
 char *inputlim;
 map<string,int > monthmap;
 double month_to_double(const string& mstr);
@@ -70,7 +70,7 @@ mon JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|jan|feb|mar|apr|may|jun|jul|
 
          /* Puctuation and operators*/
 
-         /* Math operations */ 
+         /* Math operations */
 
 
 [-+*/:()\[\],.^t;] {return yytext[0];}
@@ -97,7 +97,7 @@ false|FALSE {return FALSE;}
 true|TRUE|startup|STARTUP { return TRUE;}
 
 ifelse|IFELSE {return IFELSE;}
-or|OR    {return OR;}   
+or|OR    {return OR;}
 and|AND   {return AND;}
 not|NOT   {return NOT;}
 
@@ -116,7 +116,7 @@ PID|pid                 {return PID;   }
 IPID|ipid               {return IPID; }
 
 ":="    {return ASSIGN;}
-"="     {return DEFINE; } 
+"="     {return DEFINE; }
 
 
 
@@ -128,7 +128,7 @@ IPID|ipid               {return IPID; }
 
 [0-3][0-9]{mon}               { yylval.stringval=add_to_string_list(yytext);
                                 return REFSEASON; }
-{mon}   {                       yylval.dval=month_to_double(yytext); 
+{mon}   {                       yylval.dval=month_to_double(yytext);
                                 return NUMBER; }
 
 date|DATE|DATETIME {return DATETIME;}
@@ -139,12 +139,12 @@ month|MONTH {yylval.stringval=add_to_string_list(yytext); return MONTH;}
 day|DAY     {yylval.stringval=add_to_string_list(yytext); return DAY;}
 hour|HOUR   {yylval.stringval=add_to_string_list(yytext); return HOUR;}
 min|MIN     {yylval.stringval=add_to_string_list(yytext); return MIN;}
-dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;} 
+dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;}
 
 
-(([0-9]+)|([0-9]*\.[0-9]*)([eE][-+]?[0-9]+)?)  { 
+(([0-9]+)|([0-9]*\.[0-9]*)([eE][-+]?[0-9]+)?)  {
              /* number, possibly with exponent*/
-             yylval.dval = atof(yytext); return NUMBER; }  
+             yylval.dval = atof(yytext); return NUMBER; }
 [\t];                             /* ignore whitespace */
 
 [\"\'][A-Za-z][ _@A-Za-z0-9\-]*[\"\'] {
@@ -168,16 +168,16 @@ dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;}
             std::string name(yytext);
 			symbol sym=name_lookup(name);
 			// First shot: look up names that have been defined
-			// earlier in oprule expressions 
+			// earlier in oprule expressions
 			if (sym.type() != symbol::EMPTY ){
-			   if (sym.type() == symbol::DOUBLE) { 
-			      yylval.pnode=_SETD(sym.dblval); 
-				  return NAMEDVAL;}                  
+			   if (sym.type() == symbol::DOUBLE) {
+			      yylval.pnode=_SETD(sym.dblval);
+				  return NAMEDVAL;}
 			   else if(sym.type()== symbol::BOOL){
-			      yylval.pbnode=_SETB(sym.boolval); return BOOLNAMEDVAL; 
+			      yylval.pbnode=_SETB(sym.boolval); return BOOLNAMEDVAL;
 			   }
 			 }
-			// Second shot: ask the model-provided NamedValueLookup 
+			// Second shot: ask the model-provided NamedValueLookup
 			// to interpret the name
             NamedValueLookup & lookup = *get_lookup();
 
@@ -245,7 +245,7 @@ int op_ruleerror(const char * s){
 
 
 
-void fillmonthmap(){ 
+void fillmonthmap(){
  typedef pair<string,int > strgint;
  monthmap.insert( strgint("JAN",1));
  monthmap.insert( strgint("FEB",2));

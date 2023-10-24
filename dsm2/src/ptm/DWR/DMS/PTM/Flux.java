@@ -33,7 +33,7 @@ public class Flux{
    * Get the type of Flux: node Flux or type Flux
    */
   public int getFluxType(){return fluxType;}
-  
+
   /**
    * This is subtyped by subtypes to calculate Flux
    */
@@ -49,7 +49,7 @@ public class Flux{
     for(int i=0; i< numberOfTimeSteps; i++) flux[i]=0;
     initialized = true;
   }
-  
+
   /**
    * Gets the Flux at the given time
    */
@@ -57,7 +57,7 @@ public class Flux{
     int currentIndex = (currentTime-startTime)/timeStep;
     return flux[currentIndex];
   }
-  
+
   /**
    * Gets the start time for Flux calculations
    */
@@ -73,7 +73,7 @@ public class Flux{
   }
 
   /**
-   * Gets the particle model time step 
+   * Gets the particle model time step
    */
   public int getPTMTimeStep(){
     return timeStep;
@@ -85,7 +85,7 @@ public class Flux{
   public int getNumberOfParticles(){
     return totalNumberOfParticles;
   }
-  
+
   public final int NODE_FLUX=1;
   public final int TYPE_FLUX=2;
   /**

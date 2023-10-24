@@ -65,7 +65,7 @@ module Groups
     end type
 
     type (Group), dimension(0:MAX_GROUPS), target, save :: groupArray
-      
+
 contains
 
     subroutine initGroupAll()
@@ -99,7 +99,7 @@ contains
         do i=1,n
             if ( groupArray(grp)%members(i)%obj_type == obj_type .and. &
                 groupArray(grp)%members(i)%obj_no == ndx) then
-            
+
                 GroupContains =.true.
                 exit
             end if
@@ -274,9 +274,9 @@ contains
         end if
         return
     end subroutine
-	
 
-	
+
+
     !     Retrieves the index (internal number) of the i'th match of type objtype
     !     matching the pattern string.
     subroutine RetrieveMatch(i,match_ndx)
@@ -285,9 +285,9 @@ contains
 	                                                        ! see BOOST docs for details, but pretty typical stuff
         integer, intent(out) :: match_ndx ! number of matches
         integer, external :: pattern_match_index
-      
+
         match_ndx=pattern_match_index(i)
- 
+
         return
     end subroutine
 

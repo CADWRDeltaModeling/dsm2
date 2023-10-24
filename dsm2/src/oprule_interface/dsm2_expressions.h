@@ -3,7 +3,7 @@
 #define dsm2_expressions_h
 #include "oprule/expression/ExpressionNode.h"
 
-#define STDCALL 
+#define STDCALL
 extern "C" double STDCALL get_expression_data(int* express);
 
 int register_express_for_data_source(

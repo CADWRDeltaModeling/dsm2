@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -22,7 +22,7 @@ subroutine buffer_input_qual()
       use input_storage_fortran
       use constants
       use io_units
-      
+
       implicit none
       integer :: nitem
       character*(128) filename
@@ -35,7 +35,7 @@ subroutine buffer_input_qual()
 
       ! input_node
 
-      character*32 :: rolename 
+      character*32 :: rolename
 
 
       ! output_channel
@@ -45,7 +45,7 @@ subroutine buffer_input_qual()
       character*16 variable, &
                      perop
       character*32 :: sourcegroup
-      
+
       character*32 :: group_name
       character*16 :: constituent
       real*8  :: value
@@ -55,21 +55,21 @@ subroutine buffer_input_qual()
       character*8 cdist
       real*8 stage
       real*8 flow
-      
-      
+
+
       ! output_reservoir
       character*32 reservoir
       character*392 inpath
       character*8  fillin
       character*8  node_str
       integer      sign
-      integer node      
-      
+      integer node
+
        ! output_gate
       character*32 gate, device
 
 
-      character*(16) :: sdate,edate  
+      character*(16) :: sdate,edate
 
 !======================== Input and output ======================
       nitem = rate_coefficient_buffer_size()
@@ -79,7 +79,7 @@ subroutine buffer_input_qual()
                                                  constituent, &
                                                  variable, &
                                                  value, &
-                                                 ierror) 
+                                                 ierror)
 
          sign = 1
 
@@ -87,7 +87,7 @@ subroutine buffer_input_qual()
                                 constituent, &
                                 variable, &
                                 value)
- 
+
       end do
       print *,"Number of rate coefficients processed: ", nitem
 
@@ -102,7 +102,7 @@ subroutine buffer_input_qual()
                                               fillin, &
                                               filename, &
                                               inpath, &
-                                              ierror) 
+                                              ierror)
 
          sign = 1
 
@@ -111,7 +111,7 @@ subroutine buffer_input_qual()
                                     fillin, &
                                     filename, &
                                     inpath)
- 
+
       end do
       print *,"Number of climate inputs processed: ", nitem
 
@@ -179,9 +179,9 @@ subroutine buffer_input_qual()
          if (sourcegroup .eq. "none")sourcegroup = ""
 
          call locase(distance)
-         if (distance(:6) .eq. "length") then 
+         if (distance(:6) .eq. "length") then
             idistance = chan_length
-         else 
+         else
             read(distance,*,err=120)idistance
          end if
          call process_output_channel(name, &
@@ -206,7 +206,7 @@ subroutine buffer_input_qual()
                                          interval, &
                                          perOp, &
                                          filename, &
-                                         ierror) 
+                                         ierror)
       if (sourcegroup .eq. "none")sourcegroup = ""
 
       call process_output_reservoir(name, &
@@ -216,7 +216,7 @@ subroutine buffer_input_qual()
                                     interval, &
                                     perOp, &
                                     sourceGroup, &
-                                    filename) 
+                                    filename)
       end do
       print *,"Number of reservoir concentration (source track) output requests: ", nitem
       return
@@ -228,6 +228,5 @@ subroutine buffer_input_qual()
       call exit(-3)
       return
 end subroutine
-      
-      
-      
+
+

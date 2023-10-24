@@ -1,11 +1,11 @@
 #ifndef reservoir_node_connect_STORAGE_H__
 #define reservoir_node_connect_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class reservoir_node_connect
 {
 public:
 
-  /** Data type reservoir_node_connect, default constructor */  
+  /** Data type reservoir_node_connect, default constructor */
   typedef const boost::tuple<const int&>  identifier_type;
 
   reservoir_node_connect() :
@@ -68,10 +68,10 @@ public:
     layer(a_layer)
   {
     memcpy(res_name,a_res_name,32);
-    memcpy(connection_type,a_connection_type,8);  
+    memcpy(connection_type,a_connection_type,8);
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   reservoir_node_connect (const reservoir_node_connect & other) :
     res_node_index(other.res_node_index),
@@ -83,20 +83,20 @@ public:
     layer(other.layer)
   {
     memcpy(res_name,other.res_name,32);
-    memcpy(connection_type,other.connection_type,8);  
+    memcpy(connection_type,other.connection_type,8);
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( res_node_index );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      res_node_index=identifier.get<0>();
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -107,7 +107,7 @@ public:
      return reservoir_node_connect::identifier_type( res_node_index );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<reservoir_node_connect>& pbuf = HDFTableManager<reservoir_node_connect>::instance().buffer();
@@ -117,7 +117,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<reservoir_node_connect>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -128,10 +128,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const reservoir_node_connect & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -143,12 +143,12 @@ public:
 
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const reservoir_node_connect & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   reservoir_node_connect& operator=(const reservoir_node_connect& rhs)
   {
@@ -166,11 +166,11 @@ public:
 
   /** Return the class name of this object (reservoir_node_connect) */
   string objectName() const
-  { 
-    return "reservoir_node_connect"; 
+  {
+    return "reservoir_node_connect";
   }
 
-  
+
   int res_node_index;
   char res_name[32];
   int res_index;
@@ -179,7 +179,7 @@ public:
   int ext_node_no;
   char connection_type[8];
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -201,7 +201,7 @@ ostream& operator<<(ostream & stream, const reservoir_node_connect & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void reservoir_node_connect_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -209,9 +209,9 @@ FCALL int reservoir_node_connect_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void reservoir_node_connect_append_to_buffer_f(const int * a_res_node_index,const  char a_res_name[32],const int * a_res_index,const int * a_connect_index,const int * a_node_no,const int * a_ext_node_no,const  char a_connection_type[8], int * ierror, 
+FCALL void reservoir_node_connect_append_to_buffer_f(const int * a_res_node_index,const  char a_res_name[32],const int * a_res_index,const int * a_connect_index,const int * a_node_no,const int * a_ext_node_no,const  char a_connection_type[8], int * ierror,
               const int res_name_len,const int connection_type_len);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void reservoir_node_connect_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -224,8 +224,8 @@ FCALL void reservoir_node_connect_number_rows_hdf5_f(const hid_t* file_id, hsize
 
 
 /** get one row worth of information from the buffer */
-FCALL void reservoir_node_connect_query_from_buffer_f(int32_t* row, 
-                        int * a_res_node_index, char a_res_name[32],int * a_res_index,int * a_connect_index,int * a_node_no,int * a_ext_node_no, char a_connection_type[8], int * ierror, 
+FCALL void reservoir_node_connect_query_from_buffer_f(int32_t* row,
+                        int * a_res_node_index, char a_res_name[32],int * a_res_index,int * a_connect_index,int * a_node_no,int * a_ext_node_no, char a_connection_type[8], int * ierror,
               int res_name_len,int connection_type_len);
 /**
   prioritize buffer by layers, delete unused items and sort

@@ -19,7 +19,7 @@ public:
   }
 
   /** The input state map is a map of string-reader pairs.
-	  The string represents a keyword. When a keyword is 
+	  The string represents a keyword. When a keyword is
 	  encountered, the parser will look up the corresponding
 	  ItemInputState and use it to parse the section.
   */
@@ -30,16 +30,16 @@ public:
   */
   void setInputStateMap(const InputStateMap & a_inputMap);
 
-  /** Get a reference to the current InputStateMap 
+  /** Get a reference to the current InputStateMap
   */
   InputStateMap& getInputMap(){return m_inputMap;}
 
   /** Set the text substitution object for the reader
       You won't necessarily use this function in an application,
-	  and there is an empty existing one automatically. The  
+	  and there is an empty existing one automatically. The
  	  more typical programming model would be to call getTextSubstitution()
 	  to get a reference to the existing one and add/clear items.
-  */    
+  */
   void setTextSubstitution(const EnvSubstitution & textSub);
 
   /** Get a reference to the current text substitution instance
@@ -50,7 +50,7 @@ public:
   /** Set the list of items (keywords) that will be read */
   void setActiveItems(const std::vector<std::string> & a_activeItems);
 
-  /** Get a copy of all item names in reader, 
+  /** Get a copy of all item names in reader,
       including 'include' categories*/
   const std::vector<std::string> allKeywords();
 
@@ -82,7 +82,7 @@ public:
   // for the current read, they are considered "OK"
   std::vector<std::string> m_initialContextItems;
   EnvSubstitution m_sub;
-  
+
   /* Verify that the given list of items is in the input map */
   bool verifyItemsInMap(std::vector<std::string> items);
 

@@ -15,10 +15,10 @@ namespace rule {
 
 /** Manipuates stored variable(s)
  *  for the operating rule framework
- *  
+ *
  */
-class StoredVariableAction : public OperationAction  
-{ 
+class StoredVariableAction : public OperationAction
+{
  public:
 
   /** Create the model action.
@@ -28,12 +28,12 @@ class StoredVariableAction : public OperationAction
     _active(false),
 	_variableName(variableName)
   {setActive(false);}
-  
+
   /** Virtual destructor */
   virtual ~StoredVariableAction(){};
 
   /** Advance this action.
-   *  Sets the value of the variable 
+   *  Sets the value of the variable
    */
   virtual void advance(){
 
@@ -69,8 +69,8 @@ class StoredVariableAction : public OperationAction
   }
 
 
-  virtual bool isActive() { 
-    return _active; 
+  virtual bool isActive() {
+    return _active;
   }
   virtual void onCompletion();
 
@@ -86,10 +86,10 @@ class StoredVariableAction : public OperationAction
    */
   typename ModelInterface<ModelIFType>::NodePtr getModelInterface(){
     return _interface;
-  }   
+  }
 
  private:
-	
+
   typename ModelInterface<ModelIFType>::NodePtr _interface;
   typename ExprType::NodePtr _expression;
   ModelTimer _timer;
@@ -111,11 +111,11 @@ template<class ModelTimer, class ModelIFType >
     _initTime=_timer.ticks();
     if (! _interface->isTimeDependent()){
       // The parameter is stored in a single, static storage variable,
-      // advance() is going to be changing it, so 
-      // we need a snapshot. 
+      // advance() is going to be changing it, so
+      // we need a snapshot.
       _initState=_interface->eval();
     }
-    _active=true;   
+    _active=true;
   }else{
     _active=false;
   }
@@ -124,7 +124,7 @@ template<class ModelTimer, class ModelIFType >
 
 template<class ModelTimer, class ModelIFType >
   void StoredVariableAction<ModelTimer, ModelIFType>::onCompletion(){
-  if (_interface->isTimeDependent()){ 
+  if (_interface->isTimeDependent()){
     // permanently fix expression as data source
     _interface->setDataExpression(_expression);
   }
@@ -149,7 +149,7 @@ template<class ModelTimer, class ModelIFType >
   }else{
     _transFraction=1.0;
   }
-  _currentState=_baseState*(1.0 - _transFraction) + 
+  _currentState=_baseState*(1.0 - _transFraction) +
     _expression->eval()*_transFraction;
   _interface->set(_currentState);
   if(_transFraction == 1.0){

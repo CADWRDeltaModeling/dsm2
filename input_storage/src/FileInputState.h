@@ -24,16 +24,16 @@ FileInputState(
 	           const vector<string> & a_contextItems,
 	           const string         & a_fileName,
                const int            & a_lineNo=0
-	   ) : 
+	   ) :
   InputState(a_contextItems)
-{  
+{
   m_filename=a_fileName;
   m_lineNo=a_lineNo;
 }
 
 /** Determine if an item is allowed in the current
-    context. Checks against all items allowed in context 
-	and the list of all recognized items. 
+    context. Checks against all items allowed in context
+	and the list of all recognized items.
 */
 bool isItemAllowed(const string & item) const;
 

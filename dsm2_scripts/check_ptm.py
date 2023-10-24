@@ -34,10 +34,10 @@ def check_ptm(calsimfile, node, f_out, f_out_day):
 			f_out.write(t+"\t"+str(y)+"\n")
 			if t.find("0015")>0:
 				f_out_day.write(t+"\t"+str(y)+"\n")
-            
-	
-	
-	
+
+
+
+
 use = '''
 Usage:
 vscript check_ptm.py ptm_out_dss study_number
@@ -46,7 +46,7 @@ def main():
     print sys.argv
     ptm_out_file = sys.argv[1]
     study = sys.argv[2]
-	
+
     for node in nodes:
         f_out=open(study+'_ptm_errors_at_node'+node+'.txt','w')
         f_out_day=open(study+'_ptm_errors_daily_at_node'+node+'.txt','w')
@@ -54,6 +54,6 @@ def main():
         f_out.close()
         f_out_day.close()
     sys.exit()
-        
+
 if __name__ == '__main__':
     main()

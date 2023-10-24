@@ -10,17 +10,17 @@
 
 class EnvSubstitution
 {
- 
+
  public:
-  EnvSubstitution() : 
+  EnvSubstitution() :
 	   m_enabledUser(true),
 	   m_enabledEnvironment(true),
 	   m_notFoundIsError(true){}
- 
+
   ~EnvSubstitution();
 
   /** Enable substitution based on application-provided
-      name-value pairs. 
+      name-value pairs.
   */
   void setEnabledUser(const bool& enabled);
 

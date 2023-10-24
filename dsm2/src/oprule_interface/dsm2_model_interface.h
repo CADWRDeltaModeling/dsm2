@@ -17,7 +17,7 @@
 #include "oprule/expression/ExpressionPtr.h"
 
 #include "oprule/rule/ModelInterface.h"
- 
+
 class DSM2ModelInterfaceResolver;
 
 
@@ -26,7 +26,7 @@ public:
    typedef ExternalFlowInterface NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
 
-   friend class DSM2ModelInterfaceResolver;   
+   friend class DSM2ModelInterfaceResolver;
    ExternalFlowInterface(const int index);
    static NodePtr create(const int index){
       return NodePtr(new NodeType(index));
@@ -73,7 +73,7 @@ public:
    typedef ChannelFlowNode NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
 
-   ChannelFlowNode(const int intchan, 
+   ChannelFlowNode(const int intchan,
                    const double dist);
 
    static NodePtr create(const int intchan, const double dist){
@@ -124,7 +124,7 @@ public:
    typedef ChannelVelocityNode NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
 
-   ChannelVelocityNode(const int intchan, 
+   ChannelVelocityNode(const int intchan,
                        const double dist );
    static NodePtr create(const int intchan, const double dist){
       return NodePtr(new NodeType(intchan,dist));
@@ -148,7 +148,7 @@ public:
    typedef ReservoirFlowNode NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
 
-   ReservoirFlowNode( const int res, 
+   ReservoirFlowNode( const int res,
                       const int connect);
    static NodePtr create(const int res, const int connect){
       return NodePtr(new NodeType(res,connect));

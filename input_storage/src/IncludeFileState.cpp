@@ -6,7 +6,7 @@
 #define TOO_MANY_TRANSITIONS 100000
 
 InputStatePtr IncludeFileState::process(istream& in)
-{  
+{
     while(true)
     {
         string line;
@@ -19,7 +19,7 @@ InputStatePtr IncludeFileState::process(istream& in)
         }
         if (line.size()==0) continue;
         if ( isBlockEnd(line))
-        { 
+        {
             InputStatePtr newState(new FileInputState(m_cachedContextItems,
 					                                  m_filename,
 													  m_lineNo));
@@ -33,7 +33,7 @@ InputStatePtr IncludeFileState::process(istream& in)
             //todo: handle file does not exist, still check even if not active?
             boost::filesystem::path p(filename);
             if (!boost::filesystem::exists(p))
-            { 
+            {
                 //todo
                 handleFatalError( "File does not exist: " + filename,line,m_filename,m_lineNo);
             }
@@ -50,7 +50,7 @@ InputStatePtr IncludeFileState::process(istream& in)
                 if (nTransition > TOO_MANY_TRANSITIONS)
                 {
                     throw logic_error(
-                    "Too many state transitions, something is wrong in input processor"); 
+                    "Too many state transitions, something is wrong in input processor");
                 }
             }
         }

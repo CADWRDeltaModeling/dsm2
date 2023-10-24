@@ -1,5 +1,5 @@
 module sed_internal_vars
-    
+
 use gtm_precision
 use sed_type_defs
 use common_variables, only: k_eq_solids_t, solids_inputs_t, n_chan
@@ -41,7 +41,7 @@ real (gtm_real), allocatable, dimension (:)       :: r_ct_interface         !for
         ! dimensions (ncells,nzones)
 real (gtm_real), allocatable, dimension (:,:)         :: burial_total  !for outputs layer1 to layer2
 
-         ! dimensions (ncells)  
+         ! dimensions (ncells)
 real (gtm_real), allocatable, dimension (:)           :: length         !cell length
          ! dimensions (ncells, nzones,nlayers)
 type (k_eq_solids_t), allocatable, dimension (:,:,:)   :: k_eq_solids_sed
@@ -67,8 +67,8 @@ subroutine setup_sed_internals(ncells,nzones,layers, nresv, nosolids)
     integer, intent (in)            :: layers
     integer, intent (in)            :: nresv
     integer, intent (in)            :: nosolids
-    
-    
+
+
     allocate (decomposition(ncells,nzones,layers,nosolids,2))
     allocate (carbonturnover(ncells,nzones,layers,nosolids,2))
     allocate (burial(ncells,nzones,layers,nosolids,2))
@@ -78,54 +78,54 @@ subroutine setup_sed_internals(ncells,nzones,layers, nresv, nosolids)
     allocate (sedsolidsflux(ncells,nzones,layers,nosolids,2))
     allocate (burial_total(ncells,nzones))
     !allocate (length(ncells))
-    
-    allocate (decomposition_inter(ncells,nzones,2))   
+
+    allocate (decomposition_inter(ncells,nzones,2))
     allocate (carbonturnover_inter(ncells,nzones,2))
-    
+
     allocate (wat_decomposition_inter(ncells,2))
-    allocate (wat_carbonturnover_inter(ncells,2)) 
-    
+    allocate (wat_carbonturnover_inter(ncells,2))
+
     allocate (r_ct_interface(ncells))
     allocate (k_sed(ncells, nzones, layers))
     k_sed(:,:,:)%methyl = zero
     k_sed(:,:,:)%biodemethyl = zero
     k_sed(:,:,:)%methyl_int = zero
     k_sed(:,:,:)%biodemethyl_int = zero
-    
+
     allocate (conc_tss(ncells,3))
     allocate (conc_wat_hdf(ncells,9))
     allocate (conc_wat_flux_hdf(n_chan,13))
     allocate (conc_tss_resv(nresv,3))
-    
+
 end subroutine setup_sed_internals
 
 subroutine deallocate_sed_internals()
-   
+
     deallocate (decomposition)
     deallocate (carbonturnover)
     deallocate (burial)
     deallocate (settling)
     deallocate (erosion_sb)
-    
+
     deallocate (sedsolids)
     deallocate (sedsolidsflux)
     deallocate (burial_total)
     deallocate (length)
-    deallocate (decomposition_inter)   
+    deallocate (decomposition_inter)
     deallocate (carbonturnover_inter)
-    
+
     deallocate (wat_decomposition_inter)
-    deallocate (wat_carbonturnover_inter) 
-    
+    deallocate (wat_carbonturnover_inter)
+
     deallocate (r_ct_interface)
     deallocate (k_sed)
-    
+
     deallocate (conc_tss)
     deallocate (conc_wat_hdf)
     deallocate (conc_wat_flux_hdf)
     deallocate (conc_tss_resv)
-    
-    
+
+
 end subroutine deallocate_sed_internals
 
 

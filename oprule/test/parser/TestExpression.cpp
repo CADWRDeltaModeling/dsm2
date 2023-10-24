@@ -56,7 +56,7 @@ using namespace std;
 class ExpressionTest {
 
 
-public:   
+public:
     ExpressionTest(){}
 
     ~ExpressionTest(){}
@@ -143,7 +143,7 @@ public:
         BOOST_CHECK_CLOSE(accum.eval(),3.,FLOAT_TOL);
         accum.step(1.);   // this is due to reset+increment
         BOOST_CHECK_CLOSE(accum.eval(),5.,FLOAT_TOL);
-        expr2->set(3.);  // isfour will be false, no resets 
+        expr2->set(3.);  // isfour will be false, no resets
         accum.step(1.);
         BOOST_CHECK_CLOSE(accum.eval(),7.,FLOAT_TOL);
         accum.step(1.);

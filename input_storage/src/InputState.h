@@ -32,7 +32,7 @@ typedef map<string, InputStatePtr > InputStateMap;
 typedef vector<string> StringVec;
 
 /** Construct the InputState
-    @arg  a_inputStateMap A map of block headers to 
+    @arg  a_inputStateMap A map of block headers to
 	      corresponding reader InputState subclasses
     @arg a_contextItems A list of input blocks that are legal "below" this context. This list is
           used to determine which items this reader will allow itself to transition to...for instance
@@ -43,7 +43,7 @@ InputState(const vector<string> & a_contextItems)
   m_contextItems(a_contextItems),
   m_active(true),
   m_lineNo(0)
-{ 
+{
 }
 
 /** Construct the InputState with no context items or state map
@@ -91,9 +91,9 @@ bool isActive() const
 /** Set the activation state of the InputState (default is true).
      This function is called by the text reading
      framework, not the user or client program, deactivating
-     InputStates in some contexts so that input processing 
+     InputStates in some contexts so that input processing
      can be abbreviated or skipped.  Client programs will
-     not want to set activation with this function 
+     not want to set activation with this function
      (and it may not stay set if you do).
      Instead, set the list of active items using \ref setActiveItems on the initial state
      -- this list will then be passed on to subsequent model state.
@@ -120,7 +120,7 @@ virtual InputStatePtr process(istream & in)=0;
 /**
 // Determine if a line represents the end of an input block.
 // Subclasses can alter this, but the base implementation assumes
-// there is a string constant in the macro END that 
+// there is a string constant in the macro END that
 // delineates the end of the section.
 */
 virtual bool isBlockEnd(string & line);
@@ -134,9 +134,9 @@ string strip(const string& line) const;
 string substitute(const string& line) const;
 
 
-/** Determine if an item is active 
+/** Determine if an item is active
    The list of active items is set by the calling program. And
-   forwarded to the next state upon transition. 
+   forwarded to the next state upon transition.
    Active is not the same as "recognized".
    An item that is not active must still be a legal input,
    it just isn't active in the current round of parsing.
@@ -147,7 +147,7 @@ bool isItemActive(const string & item) const;
 
 /** Determine if an item is allowed in the current
 // context. For instance, the current file name
-// or include file might be restricted to include 
+// or include file might be restricted to include
 // certain types of input. An item that fails this test
 // represents bad input.
 */
@@ -156,7 +156,7 @@ virtual bool isItemAllowed(const string & item) const;
 /**
 // Unified way of handling fatal error
 */
-void handleFatalError(const string & message, 
+void handleFatalError(const string & message,
                       const string & line,
                       const string & filename,
                       const int& lineNo) const;
@@ -184,7 +184,7 @@ void setFilename(const string & a_filename)
 
 /** Get the name of the file being processed */
 string getFilename() const
-{  
+{
   return m_filename;
 }
 
@@ -196,7 +196,7 @@ void setEnvSubstitution(EnvSubstitution & substitution)
 
 
 
-protected:  
+protected:
 StringVec                       m_activeItems;
 StringVec                       m_contextItems;
 string                          m_filename;

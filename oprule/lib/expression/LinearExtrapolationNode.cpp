@@ -5,10 +5,10 @@
 LinearExtrapolationNode::~LinearExtrapolationNode(){}
 
 LinearExtrapolationNode::LinearExtrapolationNode(
-                  DoubleNode& node, 
+                  DoubleNode& node,
                   const double& stepsProjected)
-                  : _oldVal(HUGE_VAL), _node(node), 
-                     c0(1.+stepsProjected), 
+                  : _oldVal(HUGE_VAL), _node(node),
+                     c0(1.+stepsProjected),
                      c1(-stepsProjected){}
 
 void LinearExtrapolationNode::init(){
@@ -16,7 +16,7 @@ void LinearExtrapolationNode::init(){
   _oldVal=_newVal;
 }
 
-double LinearExtrapolationNode::eval(){ 
+double LinearExtrapolationNode::eval(){
       assert(_oldVal != HUGE_VAL); //assure that initialize() has been called
       return c0*_newVal + c1*_oldVal;
 }

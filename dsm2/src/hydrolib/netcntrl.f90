@@ -64,7 +64,7 @@ module netcntrl
     logical, save:: Perturbation
     logical, save:: Restart_Write
     logical, save::Restart_Read
-    
+
 !   Definitions:
 
 !     MaxBndEq - maximum number of equation-type boundaries.
@@ -365,7 +365,7 @@ contains
             CloseQ = .true.
         end if
 
-        if(NormClose) then 
+        if(NormClose) then
             StoreNetworkClosure = .true.
         else
             !--------Check for exceedence of maximum number of iterations.

@@ -24,21 +24,21 @@ import edu.cornell.RngPack.RandomElement;
 import edu.cornell.RngPack.Ranecu;
 
 /**
- * 
+ *
  *  This class is the core definition of a Particle and its movement in
  *  a Waterbody. Most of the movement functions are separated to make this
  *  a modular class. The core function is updatePosition() and its related.
  *  <p>
  *
  *  CODING NOTES<br>
- * 
- * 
+ *
+ *
  *  CODING NOTES: POSITION DETERMINATION<br>
  *  A Particle is modeled as a non interacting object.<br>
- * 
+ *
  *  Position in any direction is calculated by adding those components of various
  *  displacements over the time step.<p>
- * 
+ *
  *  For example
  * <p>
  *  DX = DX_External_Deterministic + DX_External_Random +
@@ -46,14 +46,14 @@ import edu.cornell.RngPack.Ranecu;
  * <p>
  *  This leads to a more modular approach and helps one to separate out the
  *  effect of different components of movement.<br>
- *  updatePosition() is the core function for the particle obj. 
+ *  updatePosition() is the core function for the particle obj.
  * <p>
- * 
- * 
+ *
+ *
  *  CODING NOTES: JUNCTION DECISION<br>
  *  Particle's junction decision is based on flow ratios.<br>
  * <p>
- * 
+ *
  *  CODING NOTES: BOUNDARY REFLECTIONS<br>
  *  A Particle during its movement may step out of the boundaries of a Waterbody. This
  *  effect is minimized by choosing a sub time step small enough to limit this jump to.
@@ -61,15 +61,15 @@ import edu.cornell.RngPack.Ranecu;
  *  However when the Particle does step out of bounds it is bounced back the extraneous
  *  distance is traveled in a manner similar to a ball bouncing off the floor.
  * <p>
- * 
- * 
+ *
+ *
  *  CODING NOTES: CROSSING RESERVOIRS<br>
  *  The total volume of the Reservoir = Vtotal<br>
  *  Flow volume out of Node i = Vi<br>
  *  Then the probability that a Particle will leave the Reservoir through a
  *  certain Node is proportional to the ratio of Vi:Vtotal.
  *  <p>
- *  
+ *
  *  CODING NOTES: RESERVOIRS PROBLEMS<br>
  *  A Particle's swimming in the Reservoir is not simulated instead it is assumed
  *  that a Particle entering a Reservoir is fully mixed and therefore it is possible
@@ -78,10 +78,10 @@ import edu.cornell.RngPack.Ranecu;
  *  may be to keep track of a Particle's position for the first few time steps in the
  *  Reservoir or some other method. Any other solutions can be mailed to use folks.
  *  <p>
- *  
+ *
  * @author Nicky Sandhu
  * @version $Id: Particle.java,v 1.6.6.1 2006/04/04 18:16:25 eli2 Exp $
- * 
+ *
  */
 public class Particle{
 		/**
@@ -116,31 +116,31 @@ public class Particle{
 	    *  inserted or not inserted
 	    */
 	  public boolean inserted;
-	    
+
 	  public static boolean DEBUG = false;
 	  //if flux needs to be calculated, ADD_TRACE will be set true in RouteInputs.java line 35
 	  public static boolean ADD_TRACE = false;
-  
+
 	  /**
 	   *  Total number of particles in the system.
 	   */
 	  static int totalNumberOfParticles;
-	 
+
 	  /**
 	   	*  true if it is the first update of position after insertion
 	   	*/
 	  boolean first;
-	 
+
 	  /**
 	   	*  the Waterbody which the particle currently stays in
 	   	*/
 	  Waterbody wb;
-	 
+
 	  /**
 	   	*  the Node which the particle was inserted or just passed
 	   	*/
 	  Node nd;
-	 
+
 	  /**
 	   	*  A Particle may be asked to wait instead of move with the velocity
 	   	*  An example is when seep flows control at a Node and Particle to seep
@@ -152,7 +152,7 @@ public class Particle{
 	   	*  Particle observer
 	   	*/
 	  ParticleObserver observer;
-	 
+
 	  /**
 	   *  Particle Helpers
 	   */
@@ -163,7 +163,7 @@ public class Particle{
 	  private float _swimmingVelocity = 0.0f;
 	  private boolean _swimVelSetInJunction = false;
 	  // when there is no flow out of a node, a particle cannot be inserted into the node. it'll wait and reinsert
-	  public boolean _reInsert = false; 
+	  public boolean _reInsert = false;
 	  static final int MISSING = -99999;
 	  //TODO change the way the random numbers are called
 	  private int _randomSeed = 32001;
@@ -189,17 +189,17 @@ public class Particle{
 	   *  Factor used in repositioning when a no outflow condition is encountered
 	   */
 	  protected float repositionFactor = 0.00001f;
-	  
+
 	  /**
 	   *  Insertion time for pParticle
 	   */
 	  private long insertionTime;
-	  
+
 	  /**
 	   *  Insertion Node Id for pParticle
 	   */
 	  private String _insertStationName;
-	  private long _swimmingTime; 
+	  private long _swimmingTime;
 	  // time in second used by a particle from the beginning of a time step
 	  private float _timeUsedInSecond;
 	  // current model time step
@@ -212,7 +212,7 @@ public class Particle{
 	   *  The vertical/transverse profiles are set to true
 	   */
 	  public Particle(ParticleFixedInfo pFI){
-		  totalNumberOfParticles++; 
+		  totalNumberOfParticles++;
 		  Id = totalNumberOfParticles;
 		  if (DEBUG) System.out.println("Initializing particle " + Id);
 		  _randomSeed = pFI.getRandomSeed();
@@ -246,12 +246,12 @@ public class Particle{
 	   */
 	  public final void uninstallObserver(){observer = null;}
 	  public final void installRouteHelper(RouteHelper routeHelper){_routeHelper = routeHelper;}
-	  public final void uninstallRouteHelper(){_routeHelper = null;} 
+	  public final void uninstallRouteHelper(){_routeHelper = null;}
 	  public final void installSwimHelper(SwimHelper swimHelper){_swimHelper = swimHelper;}
-	  public final void uninstallSwimHelper(){_swimHelper = null;}	
+	  public final void uninstallSwimHelper(){_swimHelper = null;}
 	  public final void installSurvivalHelper(SurvivalHelper survivalHelper){_survivalHelper = survivalHelper;}
 	  public final void uninstallSurvivalHelper(){_survivalHelper = null;}
-	  
+
 	  /**
 	   * gets the location of Particle by returning a pointer to the Waterbody
 	   * recursionCounter=0;<br>
@@ -280,14 +280,14 @@ public class Particle{
 	      return (null);
 	    }
 	  }
-	  
+
 	  /**
 	   *  returns the unique id of Particle
 	   */
 	  public final int getId(){
 	    return Id;
 	  }
-	  
+
 	  /**
 	   *  returns the current particle time
 	   */
@@ -297,27 +297,27 @@ public class Particle{
 	  public final long getCurrentParticleTimeExact(){return Globals.currentModelTime + Math.round(_timeUsedInSecond/60.0f);}
 	  public final long getInsertionTime(){return insertionTime;}
 	  public final boolean checkSurvival(){
-	    // check survival if not survived isDead is set to true	
+	    // check survival if not survived isDead is set to true
 	    _survivalHelper.helpSurvival(this);
 	    if(isDead == true) {
 	    	//TODO this line can be commented out because line 126 in SalmonBasicSurvialBehavior already sets p.setParticleDead()
 	    	//leave here in case other SurvivalBehavior not set the particle.
 	    	observer.observeDeath(this);
 	    	return false;
-	    }  
+	    }
 	    return true;
 	  }
 	  /**
 	   *  updates the position and parameters of Particle.
 	   */
-	  //delT is time step in seconds, usually 900 seconds (15 minutes) 
+	  //delT is time step in seconds, usually 900 seconds (15 minutes)
 	  public final void updatePosition(float delT){ //delT in seconds
 		  if (isDead) return;
 		  if (observer == null)
 			  PTMUtil.systemExit("expect an observer be installed, but not, system exit");
 		  particleWait = false;  //set or reset particle wait variable
 		  if (DEBUG) System.out.println("In updating position for particle " + this);
-	
+
 		  // insertion time is checked in PTMEnv.
 		  // if a insertion time is earlier than the model start time, simulation exits because a particle needs hydro info when inserted.
 		  _timeUsedInSecond = 0;
@@ -325,11 +325,11 @@ public class Particle{
 		  long currPTime = getCurrentParticleTimeExact();
 		  if((!inserted && currPTime >= insertionTime)||_reInsert){ //when current time reach insertion time
 			  _swimHelper.insert(this);
-			  if (_reInsert) 
-				  age += delT;			 
-			  if (DEBUG) System.out.println("Inserted particle No. " + Id); 
+			  if (_reInsert)
+				  age += delT;
+			  if (DEBUG) System.out.println("Inserted particle No. " + Id);
 		  }
-	
+
 		  if (inserted && (!_reInsert)){
 			  // move when 1) it is a neutrally buoyant particle (swimming time never be set and no holding)
 			  // or 2) fish passes holding time
@@ -339,7 +339,7 @@ public class Particle{
 				  //rearing holding, wait a time step
 				  age += delT;
 				  // particle _timeUsedInsecond will be reset @ the beginning of the loop
-	  
+
 		  }
 		  /*
 		  if (wb.getType()==Waterbody.CHANNEL && Id == 1)
@@ -347,7 +347,7 @@ public class Particle{
 					 +PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+" "+x+" "+y+" "+z);
 					 */
 	  }
-	 
+
 	  /**
 	   *  Insertion time and insertion Node
 	   */
@@ -355,7 +355,7 @@ public class Particle{
 	    this.insertionTime = particleInsertionTime;
 	    nd = inNode;
 	  }
-	  
+
 	  public final void setInsertionInfo(long particleInsertionTime, Node inNode, Waterbody inWb, int distance, String name){
 		    this.insertionTime = particleInsertionTime;
 		    wb = inWb;
@@ -364,10 +364,10 @@ public class Particle{
 		    _insertStationName = name;
 	  }
 	  /**
-	   *  Get the recent Node which particle just passed or was inserted in 
+	   *  Get the recent Node which particle just passed or was inserted in
 	   */
 	  public final Node getRecentNode(){ return nd; }
-	  
+
 	  /**
 	   *  Get current Waterbody
 	   */
@@ -390,18 +390,18 @@ public class Particle{
 		/*
 		 * isNodeReached() replaces current nd with the node just reached
 		 * now node is the current Node in which Particle entered
-		 * send message to observer about change 
+		 * send message to observer about change
 		 */
-		  if (observer != null) 
-			  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
-	
+		  if (observer != null)
+			  observer.observeChange(ParticleObserver.NODE_CHANGE,this);
+
 		  // decide which water body to go and set the particle with the new water body and new x
 		  if(_routeHelper ==  null)
 			  PTMUtil.systemExit("routeHelper not initialized, exit from Particle.java line 727.");
 		  _routeHelper.helpSelectRoute(this);
-	
+
 	  	}
-	
+
 	  /**
 	   * moves to the Node with inflow and decides where to go from there...
 	   */
@@ -409,22 +409,22 @@ public class Particle{
 	    Conveyor c = (Conveyor)wb;
 	    if (DEBUG) System.out.println("Particle in conveyor: " + c );
 	    float flow = c.getInflow(c.getNodeEnvIndex(0));
-	    if (flow > 0) 
+	    if (flow > 0)
 	    	setLocation( c.getNode(1) );
 	    else
 	    	setLocation( c.getNode(0) );
 	    if (DEBUG) System.out.println("Current node: " + nd);
 	    makeNodeDecision();
 	    if (DEBUG) System.out.println("Current wb: " + wb);
-	    if (DEBUG) System.out.println(" wb type: " + wb.getPTMType() 
-	                        + ", waterbody.CHANNEL=" 
+	    if (DEBUG) System.out.println(" wb type: " + wb.getPTMType()
+	                        + ", waterbody.CHANNEL="
 	                                + Waterbody.CHANNEL);
 	    if (wb.getPTMType() == Waterbody.CHANNEL) {
 	      first=true;
 	      _swimHelper.setXYZLocationInChannel(this);
 	    }
-	  }  
-	  
+	  }
+
 	  /**
 	   *  returns Node to which pParticle transitions or null
 	   */
@@ -442,7 +442,7 @@ public class Particle{
 			  nodeId++;
 			  flowvol += Math.max(0.0f,((Reservoir)wb).getVolumeOutflow(nodeId, timeStep));
 		  }
-		  while( flowvol < totvol && nodeId < wb.getNumberOfNodes()-1);	  
+		  while( flowvol < totvol && nodeId < wb.getNumberOfNodes()-1);
 		  if(flowvol > totvol) return wb.getNode(nodeId);
 		  else return null;
 	  }
@@ -450,12 +450,12 @@ public class Particle{
 	    System.out.println( "WARNING: " + msg + " !" );
 	  }
 	  //TODO need to clean up left over from Aaron's code
-	  // this function is overridden in the BehavedParticle class  
+	  // this function is overridden in the BehavedParticle class
 	  //protected void checkHealth(){
 	    // used for behavior
 	  //}
-	  
-	  
+
+
 	  /**
 	   *  String representation
 	   */
@@ -464,12 +464,12 @@ public class Particle{
 	    if (this.wb != null) rep += this.wb.getEnvIndex() + " ";
 	    else rep += -1 + " ";
 	    if (this.inserted){
-	    	rep += this.x + " " 
+	    	rep += this.x + " "
 	    			+ this.y + " "
 	    			+ this.z + " ";
 	    }
 	    else{
-	    	rep += -1.0f + " " 
+	    	rep += -1.0f + " "
 	    			+ -1.0f + " "
 	    			+ -1.0f + " ";
 	    }
@@ -480,7 +480,7 @@ public class Particle{
 	    	rep += -1 + " ";
 	    return rep;
 	  }
-	
+
 	  public void fromString(String rep){
 	    StringTokenizer sToken = new StringTokenizer(rep);
 	    try {
@@ -488,7 +488,7 @@ public class Particle{
 	    	Id = (new Integer(token)).intValue();
 	    	token = sToken.nextToken();
 	    	int wbNum = (new Integer(token)).intValue();
-	      
+
 	    	if (wbNum !=  -1){
 	    		this.wb = Globals.Environment.getWaterbody(wbNum);
 	    		this.inserted = true;
@@ -497,7 +497,7 @@ public class Particle{
 	    		this.wb = null;
 	    		this.inserted = false;
 	    	}
-	      
+
 	    	token = sToken.nextToken();
 	    	x = (new Float(token)).floatValue();
 	    	token = sToken.nextToken();
@@ -512,8 +512,8 @@ public class Particle{
 	    }catch( NoSuchElementException e){
 	    	System.out.println("Exception while parsing particle string representation");
 	    }
-	  }  
-	  
+	  }
+
 	  void setParticleDead(){
 		  if (observer == null)
 			  PTMUtil.systemExit("try to take away particle from the system, but oberser is not set.  system exit");
@@ -534,9 +534,9 @@ public class Particle{
 			  PTMUtil.systemExit("Called getTmLeftInSecs and got negative number, system exit");
 		  return t_step_left;
 	  }
-	  //check if the particle is a holder. fish particles have holding behaviors, e.g., holding during day time.  
+	  //check if the particle is a holder. fish particles have holding behaviors, e.g., holding during day time.
 	  public boolean isAHolder() {return _isAHolder;}
-	  //set holding.  
+	  //set holding.
 	  public void setToHold(boolean toHold) {_isAHolder = toHold;}
 	  //will be overridden in Arron's behaved particle
 	  protected void updateOtherParameters(float delT){}
@@ -545,7 +545,7 @@ public class Particle{
 	  //
 	  boolean isSwimVelSetInJunction(){return _swimVelSetInJunction;}
 	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
-	  
+
 	  //to be used in survival model
 	  private boolean _fromUpstream;
 	  private BasicParticleTrace _particleTrace;
@@ -563,6 +563,6 @@ public class Particle{
 	  boolean getFromUpstream(){return _fromUpstream;}
 	  boolean getReInsert() {return _reInsert;}
 	  void setReInsert(boolean reI) {_reInsert = reI; }
-	  
-	  
+
+
 }

@@ -26,12 +26,12 @@ integer function calcHDF5NumberOfTimeIntervals() result (ans)
 	integer span
 	span = end_julmin - tf_start_julmin
 	ans = span/TideFileWriteInterval
-	
+
 	if (mod(span,TideFileWriteInterval) .eq. 0) then
 	  ans = ans+1
 	end if
-	return 
-	
+	return
+
 end function
 
 
@@ -52,8 +52,8 @@ integer function getHDF5TimeLength() result (ans)
 
 	ans = (getHDF5NumberOfTimeIntervals() - 1) * getHDF5TimeInterval()
 
-	return 
-	
+	return
+
 end function
 
 !***********************************************************************
@@ -70,8 +70,8 @@ integer function getHDF5EndTime() result (time)
 
 	time = getHDF5StartTime() + getHDF5TimeLength()
 
-	return 
-	
+	return
+
 end function
 
 !***********************************************************************
@@ -90,8 +90,8 @@ integer function getHDF5IndexForTideTime(time) result (index)
 
 	index = ((time - h5_time_start) / getHDF5TimeInterval())
 
-	return 
-	
+	return
+
 end function
 
 !***********************************************************************
@@ -118,7 +118,7 @@ integer function getHDF5IndexAtOrBeyondTime(tidetime) result(index)
 	else
 	  index = (reltime/intvl)+1
       endif
-	return 
+	return
 end function
 
 
@@ -139,7 +139,7 @@ subroutine getTimeAttributes(file_id, &
       integer :: hdf_end_julmin
       integer :: hdf_interval
       integer :: hdf_ntime
-      integer, dimension(1) :: hdf5_read_buffer      
+      integer, dimension(1) :: hdf5_read_buffer
       integer        :: error   ! HDF5 Error flag
 
       call h5ltget_attribute_int_f(file_id,"hydro", &
@@ -163,20 +163,20 @@ end subroutine
 !***********************************************************************
 
 integer function getHDF5StartTime() RESULT (time)
-      ! read the start time from the HDF5 file 
+      ! read the start time from the HDF5 file
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use common_tide
 
       implicit none
 
 
-      integer(HID_T) :: attr_id ! Attribute identifier 
-      integer(HID_T) :: atype_id ! Attribute Dataspace identifier 
+      integer(HID_T) :: attr_id ! Attribute identifier
+      integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer        :: error   ! HDF5 Error flag
       integer(HSIZE_T), dimension(7) :: a_data_dims
-      
+
       integer, save :: temptime
       integer getHDF5TimeInterval
 
@@ -200,13 +200,13 @@ end
 
 integer function getHDF5TimeInterval() RESULT (out)
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use common_tide
       implicit none
 
-      integer(HID_T) :: attr_id ! Attribute identifier 
-      integer(HID_T) :: atype_id ! Attribute Dataspace identifier 
+      integer(HID_T) :: attr_id ! Attribute identifier
+      integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer        :: error   ! HDF5 Error flag
       integer(HSIZE_T), dimension(7) :: a_data_dims
       integer,save :: prev_tidefile = 0
@@ -223,7 +223,7 @@ integer function getHDF5TimeInterval() RESULT (out)
       end if
 	out=interval
 
-    
+
       return
 end
 
@@ -232,13 +232,13 @@ end
 
 integer function getHDF5NumberOfTimeIntervals() RESULT (out)
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use common_tide
       implicit none
 
-      integer(HID_T) :: attr_id ! Attribute identifier 
-      integer(HID_T) :: atype_id ! Attribute Dataspace identifier 
+      integer(HID_T) :: attr_id ! Attribute identifier
+      integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer        :: error   ! HDF5 Error flag
       integer(HSIZE_T), dimension(7) :: a_data_dims
       integer,save :: prev_tidefile = 0

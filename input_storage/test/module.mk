@@ -39,7 +39,7 @@ test_parser_cpp.exe: $(unit_test_src) testgeneration.a input_storage.a
 
 
 
-FLIB := -L/lib -L/cygdrive/c/devtools/hdf5_cygwin/lib -lboost_regex-gcc-mt -lhdf5_fortran -lhdf5_hl -lhdf5 -L/cygdrive/c/cygwin/szip/lib -lsz -lz 
+FLIB := -L/lib -L/cygdrive/c/devtools/hdf5_cygwin/lib -lboost_regex-gcc-mt -lhdf5_fortran -lhdf5_hl -lhdf5 -L/cygdrive/c/cygwin/szip/lib -lsz -lz
 
 local_fortran := ../test/input_storage_fortran.f90 ../test/test_parser.f90
 

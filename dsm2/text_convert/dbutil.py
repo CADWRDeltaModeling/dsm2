@@ -12,7 +12,7 @@ class DBConnect(object):
     if psw:
        self.pwd=psw
     else:
-      import getpass  
+      import getpass
       self.pwd=getpass.win_getpass("password>")
     self.open()
 
@@ -25,7 +25,7 @@ class DBConnect(object):
     return
   #
   def commit(self): self.cnn.commit()
-  
+
   def getCursor(self):
     assert(self.cnn)
     return self.cnn.cursor()
@@ -65,7 +65,7 @@ class DBConnect(object):
           return items
       else:
           return None
-  
+
   def generatePrimaryID(self,nalloc,autocommit=True,limit=1000):
       if nalloc > limit or nalloc <1:
           raise "Maximum number of primary ids exceeded or fewer than one requested (%s requested)" % nalloc

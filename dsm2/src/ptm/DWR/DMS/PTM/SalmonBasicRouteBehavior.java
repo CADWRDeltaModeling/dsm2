@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -11,16 +11,16 @@ package DWR.DMS.PTM;
 public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements SalmonRouteBehavior {
 	private boolean DEBUG = false;
 	/**
-	 * 
+	 *
 	 */
 	public SalmonBasicRouteBehavior(RouteInputs in) {
 		super(in);
 	}
-	
-	/* 
-	 * be careful! when isNodeReached() method is called in Particle, the current node is replaced 
+
+	/*
+	 * be careful! when isNodeReached() method is called in Particle, the current node is replaced
 	 * by the node just reached and the total waterbodyInflows is related to
-	 * that node.  
+	 * that node.
 	 */
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
@@ -35,12 +35,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		if (wbs == null)
 			PTMUtil.systemExit("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 					              +" doesn't have any waterbody connect to it, please check, exit.");
-		
+
 		//float[] pMeanSwimmingVels = new float[wbs.length];
 		float[] swimmingVels = new float[wbs.length];
 		float[] wbFlows = new float[wbs.length];
 		int[] confusionFactors = new int[wbs.length];
-		
+
 	    float totalWbInflows = 0.0f;
 	    int nodeId = p.nd.getEnvIndex();
 	    int wbId = 0;
@@ -54,7 +54,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			else{
 				if(wb.getPTMType() == Waterbody.CHANNEL){
 					Channel c = (Channel) wb;
-					int cId = c.getEnvIndex();				
+					int cId = c.getEnvIndex();
 					//mean swimming velocity set once per particle per channel group.
 					//Here is the only place to set a mean swimming velocity.
 					p.getSwimHelper().setMeanSwimmingVelocity(p.Id, cId);
@@ -70,7 +70,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			totalWbInflows += wbFlows[wbId];
 			wbId++;
 		}
-				
+
 		// if in a dead end, move some distance and recalculate (p.x will be reset)
 		if (!prescreen(p, totalWbInflows)){
 			if(p.Id == 1 && DEBUG)
@@ -81,27 +81,27 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		float totalAgDiversions = p.nd.getTotalAgDiversions();
 		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
 			totalWbInflows = totalAgDiversions*_dicuEfficiency;
-		// at this point, totalFlows is the sum of all inflows and the dicuEfficiency doesn't matter for the totalFlows 
+		// at this point, totalFlows is the sum of all inflows and the dicuEfficiency doesn't matter for the totalFlows
 		// because leftover flows are added to other inflows and the total remains the same.
 		// except for the case above with that only inflows are ag diversions, in which the dicuEfficiency has to be counted for.
-		// 
+		//
 		//float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
 		float randTotalWbInflows = ((float)p.nd.getRandomNumber())*totalWbInflows;
-		
+
 		// if total flow is 0 wait for a time step
 		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
 			if(p.Id == 1 && DEBUG)
 				System.err.println("total flow = 0, wait until next time step");
 		      p.particleWait = true;
 		      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
-			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
+			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 		      return;
 		}
-		
+
 		float diversionsLeftover = totalAgDiversions*(1-_dicuEfficiency);
 		//if totalWbInflows = totalAgDiversions*_dicuEfficiency totalFlowsWOAg = totalAgDiversions*(_dicuEfficiency-1) <= 0
 		float totalFlowsWOAg = totalWbInflows - totalAgDiversions;
-		
+
 		wbId = -1;
 		float flow = 0.0f;
 		do {
@@ -109,21 +109,21 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		    wbId ++;
 	    	if (wbs[wbId].isAgDiv())
 	    		// the probability of this route reduce (1-_dicuEfficiency)
-	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency)); 
+	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency));
 	    	else if (totalFlowsWOAg > 0.0f)
 	    		//wbFlows[wbId] always >= 0, if totalFlowsWOAg > 0.0f wbFlows[wbId] > = 0
 	    		modFlow = wbFlows[wbId] + (wbFlows[wbId]/totalFlowsWOAg)*diversionsLeftover;
 	    	else
-	    		// if (totalFlowsWOAg <= 0.0f) && (!wbs[wbId].isAgDiv()) always false. 
+	    		// if (totalFlowsWOAg <= 0.0f) && (!wbs[wbId].isAgDiv()) always false.
 	    		// this block will never be executed
 		    	modFlow = wbFlows[wbId];
 	    	flow += modFlow;
 	    }while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
 		p.wb = wbs[wbId];
-	    // send message to observer about change 
-	    if (p.observer != null) 
+	    // send message to observer about change
+	    if (p.observer != null)
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-	    // need to set x only channels.   
+	    // need to set x only channels.
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
 	    	setChannelStartingCondition(p, swimmingVels[wbId], confusionFactors[wbId]);
 	    	//TODO use a method setChannelStartingCondition(Particle p)instead, code below to be cleaned up.
@@ -143,15 +143,15 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			else
 				p.setFromUpstream(false);
 			*/
-	    	
-			//TODO clean up	
-			/* 
+
+			//TODO clean up
+			/*
 	    	System.err.println(p.Id + " " +(p.getCurrentParticleTimeExact()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 					 + " " +"in route"+ " "+ wbFlows[wbId]//p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
 					 +" "+p.getSwimmingVelocity()+" "+ totalWbInflows);
 	    	*/
-	    	
+
 	    }
 	}
 	public void updateCurrentInfo(Waterbody[] allWbs, int currT){
@@ -160,7 +160,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			rIn.updateCurrentBarrierInfo(allWbs, currT);
 	}
 	void setChannelStartingCondition(Particle p, float swimVel, int confFactor){
-		// need to set x only channels.   
+		// need to set x only channels.
     	Channel chan = (Channel) p.wb;
     	int chanId = chan.getEnvIndex();
     	p.x = super.getXLocationInChannel(chan, p.nd);
@@ -177,5 +177,5 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			p.setFromUpstream(false);
 		if(DEBUG && (chanId == PTMHydroInput.getIntFromExtChan(309) || chanId == PTMHydroInput.getIntFromExtChan(281)))
 			System.err.println("pId: "+p.Id+" chanId: "+ chanId+" swimVel: "+swimVel+" chan: "+PTMHydroInput.getExtFromIntChan(chanId)+" node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()));
-	} 
+	}
 }

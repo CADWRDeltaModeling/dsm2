@@ -46,7 +46,7 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 public class TimeFixedData {
-	
+
   /**
    *  Constructor
    */
@@ -56,7 +56,7 @@ public class TimeFixedData {
     this.PTMTimeStep = PTMTimeStep;
     this.displayInterval = displayInterval;
   }
-  
+
   /**
    *  String representation
    */

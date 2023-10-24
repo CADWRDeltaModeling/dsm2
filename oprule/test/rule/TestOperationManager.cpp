@@ -48,7 +48,7 @@ public:
          TrivialOperationAction& left = dynamic_cast<TrivialOperationAction&>(act1);
          TrivialOperationAction& right = dynamic_cast<TrivialOperationAction&>(act2);
          return left == right;
-      } catch (std::bad_cast&){ 
+      } catch (std::bad_cast&){
          return false;
       }
    }
@@ -58,7 +58,7 @@ public:
 
 /**
  * The triggers in the test rules go off every n times, n given in the constructor.
- * The actions store a (fixed) number, given in the constructor and 
+ * The actions store a (fixed) number, given in the constructor and
  * if that number is the same for two actions then they conflict (e.g. 1&2).
 */
 
@@ -90,22 +90,22 @@ public:
       BOOST_CHECK(! manager.isActive(rule1) && !manager.isActive(rule2));
       manager.addRule(rule2);
       manager.addRule(rule3);
-      BOOST_CHECK( ! rule2->isActive() && 
+      BOOST_CHECK( ! rule2->isActive() &&
                    ! rule3->isActive());
    };
 
    void testManageActivation(){
       manager.manageActivation();  // none active yet, n=1
-      BOOST_CHECK( ! rule1->isActive() ); 
-      BOOST_CHECK( ! rule2->isActive()); 
+      BOOST_CHECK( ! rule1->isActive() );
+      BOOST_CHECK( ! rule2->isActive());
       BOOST_CHECK( ! rule3->isActive());
       manager.manageActivation();  // 1 and 3 active  because n=2 and blocking is not an issue
-      BOOST_CHECK( manager.isActive(rule1)); 
-      BOOST_CHECK( !manager.isActive(rule2)); 
+      BOOST_CHECK( manager.isActive(rule1));
+      BOOST_CHECK( !manager.isActive(rule2));
       BOOST_CHECK( manager.isActive(rule3));
       manager.manageActivation();  // 1 and 3 active. Two attempts to activate, but is blocked
-      BOOST_CHECK( manager.isActive(rule1)); 
-      BOOST_CHECK( !manager.isActive(rule2)); 
+      BOOST_CHECK( manager.isActive(rule1));
+      BOOST_CHECK( !manager.isActive(rule2));
       BOOST_CHECK( manager.isActive(rule3));
    };
 
@@ -116,10 +116,10 @@ public:
       manager.manageActivation();
       manager.manageActivation(); //1 and 3
       rule1->setActive(false);
-      manager.advanceActions(HUGE_VAL);  //todo: urgent      
+      manager.advanceActions(HUGE_VAL);  //todo: urgent
       manager.manageActivation();
-      BOOST_CHECK( !manager.isActive(rule1)); 
-      BOOST_CHECK( manager.isActive(rule2)); 
+      BOOST_CHECK( !manager.isActive(rule1));
+      BOOST_CHECK( manager.isActive(rule2));
       BOOST_CHECK( manager.isActive(rule3));
    };
 
@@ -149,7 +149,7 @@ struct OperationManagerTestSuite : public test_suite {
     add( BOOST_CLASS_TEST_CASE( &OperationManagerTest::testCheckActionPriority, instance ));
     }
 };
- 
+
 test_suite* getOperationManagerTestSuite(){ return new OperationManagerTestSuite(); }
 
 

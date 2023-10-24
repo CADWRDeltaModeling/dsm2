@@ -9,10 +9,10 @@ namespace expression{
 /** Ternary op that provides if-else evaluation.
  *  When asked to evaluate itself, the Node first evaluates a
  *  boolean node -- if the result is true it evaluates and returns one node,
- *  and if the result is false it returns the value from another node. 
+ *  and if the result is false it returns the value from another node.
  */
 template<typename T>
-class TernaryOpNode : public ExpressionNode<T >  
+class TernaryOpNode : public ExpressionNode<T >
 {
 public:
     typedef TernaryOpNode<T> NodeType;
@@ -29,10 +29,10 @@ public:
     */
     TernaryOpNode(
         BoolNodePtr pIf,
-        ResultNodePtr pLeft, 
+        ResultNodePtr pLeft,
         ResultNodePtr pRight)
         : _pIf(pIf), _pLeft (pLeft), _pRight (pRight),
-        _timeDependent( pLeft->isTimeDependent() 
+        _timeDependent( pLeft->isTimeDependent()
         ||  pRight->isTimeDependent()
         ||  pIf ->isTimeDependent()  ){}
 
@@ -46,7 +46,7 @@ public:
     }
 
     static NodePtr create(BoolNodePtr pIf,
-        ResultNodePtr pLeft, 
+        ResultNodePtr pLeft,
         ResultNodePtr pRight)
     {
             return NodePtr(new NodeType(pIf,pLeft,pRight));
@@ -71,7 +71,7 @@ public:
 
     virtual void step(double dt){
 		_pIf->step(dt);
-        _pLeft->step(dt); 
+        _pLeft->step(dt);
         _pRight->step(dt);
     }
 
@@ -87,7 +87,7 @@ private:
 
 */
 template<typename T>
-class Max3Node : public ExpressionNode<double >  
+class Max3Node : public ExpressionNode<double >
 {
 public:
     typedef Max3Node<T> NodeType;
@@ -105,10 +105,10 @@ public:
     */
     Max3Node(
         ArgNodePtr pFirst,
-        ArgNodePtr pSecond, 
+        ArgNodePtr pSecond,
         ArgNodePtr pThird)
         : _pFirst(pFirst), _pSecond (pSecond), _pThird (pThird),
-        _timeDependent( pFirst->isTimeDependent() 
+        _timeDependent( pFirst->isTimeDependent()
         ||  pSecond->isTimeDependent()
         ||  pThird ->isTimeDependent()  ){}
 
@@ -122,7 +122,7 @@ public:
     }
 
     static NodePtr create(ArgNodePtr pFirst,
-        ArgNodePtr pSecond, 
+        ArgNodePtr pSecond,
         ArgNodePtr pThird){
             return NodePtr(new NodeType(pFirst,pSecond,pThird));
     }
@@ -143,12 +143,12 @@ public:
     }
 
     virtual bool isTimeDependent() const{return _timeDependent;}
-    virtual void init(){ 
+    virtual void init(){
         _pFirst->init();
         _pSecond->init();
         _pThird->init();
     }
-    virtual void step(double dt){ 
+    virtual void step(double dt){
         _pFirst->step(dt);
         _pSecond->step(dt);
         _pThird->step(dt);
@@ -182,10 +182,10 @@ public:
     */
     Min3Node(
         ArgNodePtr pFirst,
-        ArgNodePtr pSecond, 
+        ArgNodePtr pSecond,
         ArgNodePtr pThird)
         : _pFirst(pFirst), _pSecond (pSecond), _pThird (pThird),
-        _timeDependent( pFirst->isTimeDependent() 
+        _timeDependent( pFirst->isTimeDependent()
         ||  pSecond->isTimeDependent()
         ||  pThird ->isTimeDependent()  ){}
 
@@ -199,7 +199,7 @@ public:
     }
 
     static NodePtr create(ArgNodePtr pFirst,
-        ArgNodePtr pSecond, 
+        ArgNodePtr pSecond,
         ArgNodePtr pThird){
             return NodePtr(new NodeType(pFirst,pSecond,pThird));
     }
@@ -221,11 +221,11 @@ public:
     }
 
     virtual bool isTimeDependent() const{return _timeDependent;}
-    virtual void init(){ 
+    virtual void init(){
         _pFirst->init();
         _pSecond->init();
         _pThird->init();}
-    virtual void step(double dt){ 
+    virtual void step(double dt){
         _pFirst->step(dt);
         _pSecond->step(dt);
         _pThird->step(dt);

@@ -1,4 +1,4 @@
-include src.list               
+include src.list
 
 CLASS_DIR=./classes
 CLASS_LOC=$(CLASS_DIR)/DWR/DMS/PTM
@@ -11,7 +11,7 @@ SITE_DIR=/delta/models/java/ptm/lib
 
 .KEEP_STATE:
 
-PRECIOUS: $(JAVA_FILES) 
+PRECIOUS: $(JAVA_FILES)
 
 #JAVA = /site/java/jdk1.2.2/bin/java
 JAVA = /site/java/jdk/bin/java
@@ -54,24 +54,24 @@ gui: FORCE
 docs: ${JAVA_FILES}
 	${JAVADOC} ${JAVADOC_OPT} ${JAVA_FILES}
 
-clean: 
+clean:
 	(cd ${CLASS_LOC};rm -rf *.class;)
 
-writeList: $(CLASS_FILES) 
-	
+writeList: $(CLASS_FILES)
+
 $(CLASS_LOC)/%.class: %.java $?
-	@echo $< 
+	@echo $<
 
 install_src:
 	cp -fP `gfind . \
 	  \( -name '*.java' -o -name '*.c' -o -name '*.h' -o -name '*.f' -o -name '*.inc' \) \
 	  -print` $(FTP_DIR)
 
-jar: 
+jar:
 	(cd ${CLASS_DIR}; ${JAR} -cf ptm.jar DWR/DMS/PTM; mv ptm.jar ../lib)
 
 install: opt jar
-	(cp lib/*.jar lib/*.so lib/*.dll ${SITE_DIR})	
+	(cp lib/*.jar lib/*.so lib/*.dll ${SITE_DIR})
 
 release: install
 	(cd installer; make; cd ../; mv ptm-bin.zip ${FTP_DIR})
@@ -79,7 +79,7 @@ release: install
 fullrelease: install release source ptm-docs
 
 source:	install
-	(cd ../ ; zip -o ptm-src.zip -r ptm -x \*.zip -x \*CVS -x \*~ -x \*,v;) 	
+	(cd ../ ; zip -o ptm-src.zip -r ptm -x \*.zip -x \*CVS -x \*~ -x \*,v;)
 	mv ../ptm-src.zip ${FTP_DIR}
 
 ptm-docs: docs

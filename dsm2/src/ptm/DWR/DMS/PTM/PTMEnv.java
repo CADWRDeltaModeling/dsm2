@@ -25,7 +25,7 @@ import java.nio.IntBuffer;
  *  PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
  *  which utilizes information from DSM2 to track particles moving according
  *  to hydrodynamics and quality information.<p>
- * 
+ *
  * This class defines the parameters and information about the environment
  * a Particle moves in. This information is either fixed or dynamic. Fixed information
  * is information that is relatively fixed during a run of the model such
@@ -34,8 +34,8 @@ import java.nio.IntBuffer;
  * flow, velocity, volume, etcetra.<p>
  *
  * The network consists of nodes and waterbodies. Waterbody is an entity
- * containing water such as a Channel, Reservoir, Conveyor, Boundary, etcetra. 
- * Node is a connection between waterbodies. Each Waterbody is given a unique id 
+ * containing water such as a Channel, Reservoir, Conveyor, Boundary, etcetra.
+ * Node is a connection between waterbodies. Each Waterbody is given a unique id
  * and contains information about which nodes it is connected to. Each Node also
  * has a unique id and the information about which waterbodies it is connected to.
  *
@@ -55,7 +55,7 @@ public class PTMEnv{
     //Input files
     fixedInput = new PTMFixedInput(fixedInputFilename);
     hydroInput = new PTMHydroInput();
-    
+
     //no and max no of waterbodies, nodes, xsections
     numberOfWaterbodies = fixedInput.getNumberOfWaterbodies();
     maxNumberOfWaterbodies = fixedInput.getMaximumNumberOfWaterbodies();
@@ -67,10 +67,10 @@ public class PTMEnv{
     //
     numberOfXSections = fixedInput.getNumberOfXSections();
     maxNumberOfXSections = fixedInput.getMaximumNumberOfXSections();
-    if(DEBUG) System.out.println("# of cross-sections: " + numberOfXSections);  
+    if(DEBUG) System.out.println("# of cross-sections: " + numberOfXSections);
     //
     numberOfGroups = fixedInput.getNumberOfChannelGroups();
-    
+
     // fill in waterbodies, nodes, xSections with information
     if(DEBUG) System.out.println("Creating waterbodies ");
     wbArray = fixedInput.createWaterbodyFixedInfo();
@@ -83,8 +83,8 @@ public class PTMEnv{
     xSectionArray = fixedInput.createXSectionFixedInfo();
     //
     if(DEBUG) System.out.println("Waterbodies, nodes, xsections created");
-    
-    // provide waterbodies with XSection* array and 
+
+    // provide waterbodies with XSection* array and
     // nodes with Waterbody* array
     if(DEBUG) System.out.println("Setting waterbody info");
     setWaterbodyInfo();
@@ -96,7 +96,7 @@ public class PTMEnv{
         System.out.println(wbArray[i]);
       }
     }
-    
+
     // get fixed input for PTM model
     pInfo = new ParticleFixedInfo();
     fixedInput.getPTMFixedInfo(pInfo);
@@ -134,7 +134,7 @@ public class PTMEnv{
 	  }//end for wb
 	  if (DEBUG) System.out.println("Done with initialzing nodes");
   	}
-  public void addBehaviors(){	    
+  public void addBehaviors(){
 	    /*
 	     * add behaviors
 	     */
@@ -145,24 +145,24 @@ public class PTMEnv{
 	    _routeHelper = _behaviorInputs.getRouteHelper();
 	    _swimHelper = _behaviorInputs.getSwimHelper();
 	    _survivalHelper = _behaviorInputs.getSurvivalHelper();
-	    	
+
   }
-		  
+
   /**
    * Return the current PTMFixedInput object
    */
   public PTMFixedInput getPTMFixedInput(){
     return (fixedInput);
   }
-  
+
   /**
    * Return the current PTMHydroInput object
    */
   public PTMHydroInput getPTMHydroInput(){
     return (hydroInput);
   }
-  
- 
+
+
   /**
    * Get the Waterbody object for a given unique id
    * @param   wbId a unique id
@@ -173,7 +173,7 @@ public class PTMEnv{
   }
   public Waterbody[] getWbArray(){return wbArray;}
 
-  /** 
+  /**
    * Get the Node object for given unique Node id
    * @param nodeId a unique Node id
    * @return a Node object
@@ -182,43 +182,43 @@ public class PTMEnv{
     return nodeArray[nodeId];
   }
   public Node[] getNodeArray(){return nodeArray;}
-  
-  /** 
+
+  /**
    * Return a XSection* to the particular Node
    */
   XSection getXSection(int xSectionId){
     return xSectionArray[xSectionId];
   }
-  
-  /** 
+
+  /**
    * @Return The number of waterbodies
    */
   int getNumberOfWaterbodies(){
     return(numberOfWaterbodies);
   }
 
-  /** 
+  /**
    * @Return The number of nodes
    */
   int getNumberOfNodes(){
     return(numberOfNodes);
   }
 
-  /** 
+  /**
    * The number of animated particles
    */
   int getNumberOfAnimatedParticles(){
     return(numberOfAnimatedParticles);
   }
-  
-  /** 
+
+  /**
    * @return the number of cross Sections
    */
   int getNumberOfXSections(){
     return(numberOfXSections);
   }
 
-  /** 
+  /**
    * @return the number of Channel groups
    */
   int getNumberOfGroups(){
@@ -264,14 +264,14 @@ public class PTMEnv{
     GroupInfo fI = fixedInput.getgroupInfo();
     return fI;
   }
-  
+
   Group[] getOutputGroups(){
   	return fixedInput.getOutputGroups();
   }
 
 
   /**
-   * Calculate an array of common nodes amongst a set of 
+   * Calculate an array of common nodes amongst a set of
    * waterbodies
    */
   public int [] getCommonNodes(Waterbody [] Wbs){
@@ -283,7 +283,7 @@ public class PTMEnv{
     }
     return nodes;
   }
-  
+
   /**
    * Return the intersection of two sets of integers
    */
@@ -307,11 +307,11 @@ public class PTMEnv{
     }
     return intersection;
   }
-  
+
   /**
    * Calculate an array of common nodes to the waterbodies x and y.
    * It creates the array of nodes twice. Once with an upperbound of the
-   * number of common nodes and second time with the actual number of 
+   * number of common nodes and second time with the actual number of
    * common nodes. If no common nodes are found it returns a null pointer.
    * @return an array of global Node ids or null if no common Node found
    */
@@ -332,21 +332,21 @@ public class PTMEnv{
     }
     return nodes;
   }
-  
+
   /**
    * Return start time
    */
   public int getStartTime(){
     return fixedInput.getStartTime();
   }
-  /** 
+  /**
    * Return model run length
    */
   public int getRunLength(){
     return fixedInput.getRunLength();
   }
   /**
-   * @return time step 
+   * @return time step
    */
   public int getPTMTimeStep(){
     return fixedInput.getPTMTimeStep();
@@ -405,15 +405,15 @@ public class PTMEnv{
     							else if (d < 0 || d > l)
     								PTMUtil.systemExit("expect the channel distance of particle insert station greater than 0 and less than channel length, but get:" + d);
     						}
-    						else 
+    						else
     							d = 0;
     					}catch (Exception e){
     						PTMUtil.systemExit("input wrong insert station info for insert station name:" + releaseStationName);
-    					}	
-    					particlePtrArray[pNum].setInsertionInfo((rtime), 
+    					}
+    					particlePtrArray[pNum].setInsertionInfo((rtime),
     															n, w,d, releaseStationName);
     					pNum++;
-    				}	
+    				}
     			}
     		}
     	}
@@ -434,17 +434,17 @@ public class PTMEnv{
 		        pNum++;
 		        if (DEBUG) System.out.println("Particle injection for particle " + pNum);
 		      } // end for
-		      
+
 		      injNum++;
     	}
     } // end while
     if (DEBUG) System.out.println("Finished injection");
   }
-  
+
   public String getParticleType(){
 	  return _particleType;
   }
-  
+
   /**
    *
    */
@@ -454,12 +454,12 @@ public class PTMEnv{
     if (DEBUG) System.out.println("in updateBoundaryWaterbodiesHydroInfo");
     int flowNumber = fixedInput.getMaximumNumberOfChannels()
                    + fixedInput.getMaximumNumberOfReservoirs()
-                   + fixedInput.getMaximumNumberOfDiversions() 
+                   + fixedInput.getMaximumNumberOfDiversions()
                    + fixedInput.getMaximumNumberOfPumps();
     if (DEBUG) System.out.println("Waterbody array size is " + wbArray.length);
     if (DEBUG) System.out.println(flowNumber);
-    
-    for(int nBoundary = flowNumber + 1; 
+
+    for(int nBoundary = flowNumber + 1;
         nBoundary <= flowNumber + fixedInput.getMaximumNumberOfBoundaryWaterbodies();
         nBoundary++){
       if (wbArray[nBoundary] != null){
@@ -517,7 +517,7 @@ public class PTMEnv{
   //TODO clean up later
   /*
   public final void updateBehaviorHydroInfo(int currentTime){
-	 _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);  
+	 _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);
   }
   */
   /**
@@ -584,7 +584,7 @@ public class PTMEnv{
   public ParticleBehavior getBehavior(){
     return behaviorIn;
   }
-  
+
   public PTMBehaviorInputs getBehaviorInputs(){ return _behaviorInputs;}
   public RouteHelper getRouteHelper(){ return _routeHelper;}
   public SurvivalHelper getSurvivalHelper(){return _survivalHelper;}
@@ -644,7 +644,7 @@ public class PTMEnv{
   private int numberOfGroups;
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
-  private static Map<String, Integer> _reservoirObj2objNameID = null; 
+  private static Map<String, Integer> _reservoirObj2objNameID = null;
   private RouteHelper _routeHelper;
   private SwimHelper _swimHelper;
   private SurvivalHelper _survivalHelper;

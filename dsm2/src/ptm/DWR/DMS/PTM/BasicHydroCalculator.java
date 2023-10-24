@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BasicHydroCalculator implements HydroCalculator {
 
 	/**
-	 * 
+	 *
 	 */
 	public BasicHydroCalculator() {
 		_pChanInfo = new ConcurrentHashMap<Integer, float []>();
@@ -33,7 +33,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    Channel.useTransProfile = pFI.doTransverseProfile();
 	    Channel.constructProfile();
 	    //Channel.constructProfile();
-	    
+
 	}
 	public void updateDiffusion(Particle p){
 		float [] chanInfo = getChannelInfo(p.Id);
@@ -44,11 +44,11 @@ public class BasicHydroCalculator implements HydroCalculator {
 		_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]*0.1f),EMIN));
 		//TODO original PTM line, calculate the shear velocity wrong -
 		//_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]),EMIN));
-		
+
 	}
 	float getVerticalDiffusionCoeff(int pid){ return _pVertD.get(pid);}
 	/*
-	 * update channel length, width, depth, velocity, area, previous width, depth info 
+	 * update channel length, width, depth, velocity, area, previous width, depth info
 	 */
 	public void updateChannelParameters(Particle p){
 		float [] cL = new float[1], cW = new float[1], cD = new float[1], cV = new float[1], cA = new float[1];
@@ -57,14 +57,14 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    //obtain previous channel info
 	    float [] chanInfo = _pChanInfo.get(p.Id);
 	    float [] preWD = _prePWidthDepth.get(p.Id);
-	    
+
 	    //if no previous info available, put an empty one, otherwise ignore.
 	    if (preWD == null) {
 	    	//previous=current, if transfer from reservoir/conveyer to channel
 	    	preWD = new float[2];
 	    	_prePWidthDepth.put(p.Id, preWD);
 	    }
-	    
+
 	    //if no previous info available, put an empty one, otherwise put value to the preWD basket.
 	    if (chanInfo == null){
 	    	chanInfo = new float[5];
@@ -84,7 +84,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    if (p.first){
 	    	p.first=false;
 	    	preWD[0] = chanInfo[1];
-	    	preWD[1] = chanInfo[2]; 
+	    	preWD[1] = chanInfo[2];
 	    }
 	}
 	/*
@@ -102,9 +102,9 @@ public class BasicHydroCalculator implements HydroCalculator {
 	}
 	/**
 	 *  map particle y, z position in previous cross section to current cross section
-	 */ 
+	 */
 	public void mapYZ(Particle p){
-		// 
+		//
 		float [] chanInfo = getChannelInfo(p.Id);
 		float [] preWD = _prePWidthDepth.get(p.Id);
 		// previous channel info should not be null and previous width and depth should not be 0
@@ -130,7 +130,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    float minTimeStep = timeStep;
 	    if ((_vertMove) || (_transMove))
 	    	minTimeStep = getMinTimeStep(timeStep, p);
-	  
+
 	    int numOfSubTimeSteps = 1;
 	    if (minTimeStep < timeStep) numOfSubTimeSteps=(int) (timeStep/minTimeStep+1);
 
@@ -138,15 +138,15 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    	System.err.println("Warning: Number Of Sub Time Steps exceeds a maximum of "+MAX_NUM_OF_SUB_TIME_STEPS);
 	    	return MAX_NUM_OF_SUB_TIME_STEPS;
 	    }
-	    else 
+	    else
 	      return numOfSubTimeSteps;
 	}
-	
+
 	public float getMinTimeStep(float timeStep, Particle p){
 		//TODO calculated for each sub time step and everything will be updated before the function call (see line 87, 97 BasicSwimBehavior)
-		//don't need follow lines because getMinTimeStep is put back inside of the loop 
+		//don't need follow lines because getMinTimeStep is put back inside of the loop
 		//updateChannelParameters(p);
-		//updateDiffusion(p);				 
+		//updateDiffusion(p);
 		//mapYZ(p);
 	    float terminalVelocity = getTerminalVelocity();
 	    float [] chanInfo = getChannelInfo(p.Id);
@@ -190,7 +190,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 			//vertical diffusion coefficient _pvertD.get(id) = EvConst*depth*average_velocity*0.1f
 			//dz = gaussian*sqrt(2*vertical_diffusion_coefficient*dt)
 			zPos += (float) (gaussian*((float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep)));
-		
+
 		// reflections from bottom of Channel and water surface
 		int k = 0;
 		int MAX_BOUNCING = 100;
@@ -199,7 +199,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 		  else if (zPos > depth) zPos = depth - (zPos - depth);
 		  k++;
 		}
-		if (k > MAX_BOUNCING) 
+		if (k > MAX_BOUNCING)
 			PTMUtil.systemExit("Too many iterations in calcZPosition()");
 		return (zPos);
 	}
@@ -211,7 +211,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 	public float getYPosition(Particle p, float y, float timeStep, double gaussian){
 		int id = p.Id;
 	    // get current position
-		float yPos = y; 
+		float yPos = y;
 		float width = getChannelInfo(id)[1];
 		// calculate position after timeStep
 	    //yPos += calcDiffusionMove(id, timeStep, EtToEvConst, _transMove);
@@ -226,14 +226,14 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    	if (yPos > halfWidth ) yPos =  halfWidth - (yPos - halfWidth);
 	    	k++;
 	    }
-	
-	    if (k > MAX_BOUNCING)     
+
+	    if (k > MAX_BOUNCING)
 	    	PTMUtil.systemExit("Too many iterations in calcYPosition()");
 	    return (yPos);
 	}
 	/**
 	  *  y, z positioning for particle just out of reservoir/conveyor
-	  *  w random numbers generation 
+	  *  w random numbers generation
 	  */
 	public void setYZLocationInChannel(Particle p){
 		// this method should be called only when a particle is in a channel
@@ -255,13 +255,13 @@ public class BasicHydroCalculator implements HydroCalculator {
       if (c.getDownNodeId() == p.nd.getEnvIndex())
     	  return c.getLength();
       // the node doesn't match the channel
-      PTMUtil.systemExit("the node: " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+      PTMUtil.systemExit("the node: " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 			+ "doesn't match with Channel: "+PTMHydroInput.getExtFromIntChan(c.getEnvIndex())
 			+ ", system exit.");
       return MISSING;
 	}
 
-	  
+
 	public float calcTimeToNode(Channel c, float advVel, float swimVel, float x, float xPos){
 		float xAdvectionVelocity = advVel + swimVel;
 		if (Math.abs(xAdvectionVelocity) < 0.000001)
@@ -269,37 +269,37 @@ public class BasicHydroCalculator implements HydroCalculator {
 		float l = c.getLength();
 		// xAdvectionVelocity should not be exact 0
 		if (xPos < 0)
-			 return Math.abs(x/xAdvectionVelocity); 
+			 return Math.abs(x/xAdvectionVelocity);
 		else if (xPos > l)
 			 return (l-x)/xAdvectionVelocity;
 		else
 			PTMUtil.systemExit("passed in wrong calculated x value while calculating time to node, system exit.");
 		return 0.0f;
-			
+
 	}
-	
+
 	public float calcDistanceToNode(Channel c, float x, float xPos){
 		float l = c.getLength();
 		if (xPos < 0)
-			 return x; 
+			 return x;
 		else if (xPos > l)
 			 return (l-x);
 		else
 			PTMUtil.systemExit("passed in wrong calculated xPos value while calculating distance to node, system exit.");
 		return 0.0f;
-			
+
 	}
-	
+
 	/**
 	  *  factor used for calculating minimum time step
 	  *  set outside of method to allow overwriting to include fall velocity
-	  */  	
+	  */
 	public float getTerminalVelocity(){
 	    return 1.0e-10f;
 	}
 	ConcurrentHashMap<Integer, Float> getVerticalDiffCoef(){return _pVertD;}
 	ConcurrentHashMap<Integer, float[]> getPreWidthDepth(){return _prePWidthDepth;}
-	float getEtToEvSqrt() {return EtToEvSqrt;} 
+	float getEtToEvSqrt() {return EtToEvSqrt;}
 	float getEvConst() {return EvConst;}
 	boolean getTransMove(){return _transMove;}
 	boolean getVertMove(){ return _vertMove;}
@@ -322,5 +322,5 @@ public class BasicHydroCalculator implements HydroCalculator {
 	 */
 	private static final float DFAC = 0.1f;
 	private float MISSING = -9999999999.0f;
-	
+
 }

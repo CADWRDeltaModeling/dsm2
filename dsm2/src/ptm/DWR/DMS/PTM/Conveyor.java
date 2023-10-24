@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -72,7 +72,7 @@ class Conveyor extends Waterbody {
    */
   @Override
   public int getPTMType(){return Waterbody.CONVEYOR;}
-  /**   
+  /**
    *  Return the hydrodynamic type of Conveyor
    */
   public int getHydroType(){return FlowTypes.rim;}

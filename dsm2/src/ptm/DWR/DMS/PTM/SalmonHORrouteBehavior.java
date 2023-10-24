@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -12,15 +12,15 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 /**
  * @author Doug Jackson, QEDA Consulting, LLC
- * Read preprocessed transition probabilities for Head of Old River based on 
+ * Read preprocessed transition probabilities for Head of Old River based on
  * continuous time multistate Markov model in [CITATION]
  */
 public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 
 	public SalmonHORrouteBehavior(RouteInputs in, Integer nodeId) {
 		super(in, nodeId);
-		
-		// Specify distances between telemetry stations. 
+
+		// Specify distances between telemetry stations.
 		// At some point these should be added to the behavior input file instead.
 		distUD_ft = 6807.00;
 		distUT_ft = 6719.00;
@@ -39,7 +39,7 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		Map<String, Double> transProbs;
 		Channel fromChannel;
 		String transProbIndex;
-		
+
 		nodeId = getNodeId();
 
 		// Obtain all of the channels at this junction
@@ -47,7 +47,7 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		downstreamChannel = getChannels(p, (new String[] {"HOR_D"}))[0];
 		distribChannel = getChannels(p, (new String[] {"HOR_T"}))[0];
 
-		// Determine if the particle is entering the junction from an upstream, distributary, 
+		// Determine if the particle is entering the junction from an upstream, distributary,
 		// or downstream channel
 		fromChannel = (Channel) p.wb;
 		if (Arrays.asList(upstreamChannel).contains(fromChannel)) {
@@ -58,16 +58,16 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		}
 		else if (Arrays.asList(distribChannel).contains(fromChannel)) {
 			fromChannelGroup = ChannelGroup.DISTRIB;
-		}		
+		}
 		else {
 			PTMUtil.systemExit("Current channel not found in lists of upstream, downstream, or distributary channels. Exiting.");
-		}		
+		}
 
 		// Read the transition probabilities for the current datetime
 		modelDatetime = getModelDatetime();
 		transProbs = TransProbs.readTransProbs(modelDatetime);
 
-				
+
 		// Obtain the relevant transition probabilities given fromChannelGroup
 		transProbIndex = "HOR_" + modelDatetime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:SS"));
 
@@ -102,7 +102,7 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		RouteInputs rIn = getRouteInputs();
 		decisionType = "None";
 		selectChannel(p, nodeId, upstreamChannel, downstreamChannel, distribChannel);
-		rIn.putEntrainmentRate(nodeId, 
+		rIn.putEntrainmentRate(nodeId,
 				new ArrayList<Object>(Arrays.asList(p.Id, fromChannelGroup, transProbToU, transProbToD, transProbToT, decisionType)));
 	}
 }

@@ -36,7 +36,7 @@ public:
 
    /** Handle activation of inactive rules.
     * Tests inactive rules for activation by testing their triggers.
-    * If the triggers test true, the inactive rules are compared to 
+    * If the triggers test true, the inactive rules are compared to
     * already active operating rules and conflicts are handled.
     */
    virtual void manageActivation();
@@ -53,15 +53,15 @@ public:
    virtual void advanceActions(double dt);
 
    /** Compare newly activated rule to an old one for priority.
-    * Evaluates a new and old rule and determines their 
+    * Evaluates a new and old rule and determines their
     * compatibility/priority. Calls actionsOverlap.
     * @return member of the enum RulePriority showing outcome
     */
    virtual ActionResolver::RulePriority checkActionPriority(
-		OperatingRule& oldRule,	OperatingRule& newRule); 
+		OperatingRule& oldRule,	OperatingRule& newRule);
 
    /** Compare newly activated rule to an old one for overlapping actions.
-    * Evaluates a new and old rule and determines their 
+    * Evaluates a new and old rule and determines their
     * compatibility/priority.
     * @return boolean indicating whether rules overlap
     */

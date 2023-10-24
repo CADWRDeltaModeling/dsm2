@@ -14,7 +14,7 @@ call clear_all_buffers(ierror)
 call init_file_reader(ierror)
 
 
-! Read, collect and process the "ENVVAR" section used for 
+! Read, collect and process the "ENVVAR" section used for
 ! text substitution
 call set_user_substitution_enabled(.false.,ierror)    ! don't try to substitute now
 
@@ -34,7 +34,7 @@ call verify_error(ierror)
 
 print*,"Enable text substitution"
 call set_user_substitution_enabled(.true.,ierror)  ! substitute now
-! clear the buffer so that envvars are not loaded redundantly 
+! clear the buffer so that envvars are not loaded redundantly
 call envvar_clear_buffer()
 
 

@@ -19,7 +19,7 @@ public:
     static LayerManager _instance;
     return _instance;
   }
-   
+
   /** Generate a layer name out of a filename (e.g., by dropping extension) */
   std::string generateLayerName(const std::string & fileName);
 
@@ -33,7 +33,7 @@ public:
       The new layer will be added in the next incremental position
   */
   int addLayer(const std::string& name);
-  
+
   /** Get the index of the layer with the given name */
   int layerIndex(std::string& name);
 
@@ -42,13 +42,13 @@ public:
 
   /** Write the ordered list of layers to an hdf5 table at the given location */
   void writeToHdf5(const hid_t & file_id, const std::string& group_name);
-  
-  /** Write the ordered list of layers to an output stream 
-      using prefix at the begining of each line (e.g., a comment)  
-  */
-  void writeToStream(std::ostream & stream, const std::string& prefix);  
 
- private:  
+  /** Write the ordered list of layers to an output stream
+      using prefix at the begining of each line (e.g., a comment)
+  */
+  void writeToStream(std::ostream & stream, const std::string& prefix);
+
+ private:
   /* more (non-static, singleton - enforcing) functions here */
   LayerManager(){}
   ~LayerManager(){}

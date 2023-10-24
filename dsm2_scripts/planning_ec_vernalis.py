@@ -29,12 +29,12 @@ def calsim_path(calsimname):
 def transfer_ec():
     """ Unsmoothed transfer from CALSIM file to model input file.
     """
-    
+
     f=opendss(getAttr("CALSIMFILE"))           # open CALSIM file
     outfile=getAttr("BOUNDARYFILE")
     process=getAttr("SJR_PROCESS")
     if not outfile or outfile == "":
-        raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
+        raise "Config variable BOUNDARYFILE not set and needed for prepro output"
     tw=prepro_window()
     calsimstudy=calsim_study_fpart(modify=0)
     calsimstudyout=calsim_study_fpart(modify=1)
@@ -50,11 +50,11 @@ def transfer_ec():
     ref=DataReference.create(refs[0],tw)
     monthly=ref.getData()
     daily=interpolate(monthly,"1DAY")
-    
+
     if daily:
         writedss(outfile,processedpath, daily)
     else:
-        raise "Failure to find CALSIM input data for: " + calsimname 
+        raise "Failure to find CALSIM input data for: " + calsimname
     return
 #
 if __name__ == '__main__':

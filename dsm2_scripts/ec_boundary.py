@@ -109,7 +109,7 @@ def ECEst(stage, ndo, so, sb, beta, npow1, npow2,g0, zrms, c):
         raise "missing data not allowed in ndo. First missing data at index: %s" % first_missing(ndo)
     if (first_missing(stage)) >= 0:
         raise "missing data not allowed in stage. First missing data at index: %s" % first_missing(stage)
-    
+
     newstart=ndo.getStartTime() - "21HOURS"
     newend  =ndo.getEndTime() - "3HOURS"
     if (stage.getStartTime().getTimeInMinutes() - newstart.getTimeInMinutes() > 0):
@@ -127,13 +127,13 @@ def ECEst(stage, ndo, so, sb, beta, npow1, npow2,g0, zrms, c):
     ec=map(lambda x: -901.0, ec)
 
     zrmsiter=zrms.getIterator()
-  
+
     i=0
     while (not giter.atEnd()):
         gval=giter.getElement().getY()
         zrmsval=zrmsiter.getElement().getY()
         ecfrac = gval*c[0] + 1.1*gval**npow1*(c[1]*zarr[i+72] + c[2]*zarr[i+60]
-                      +   c[3]*zarr[i+48] + c[4]*zarr[i+36]                             
+                      +   c[3]*zarr[i+48] + c[4]*zarr[i+36]
                       +   c[5]*zarr[i+24] + c[6]*zarr[i+12] + c[7]*zarr[i])
         ec[i]=max(200,exp(ecfrac)*(so-sb) + sb)
         zrmsiter.advance()
@@ -143,11 +143,11 @@ def ECEst(stage, ndo, so, sb, beta, npow1, npow2,g0, zrms, c):
     rts = RegularTimeSeries("/ECest//////",g.getStartTime().toString(),g.getTimeInterval().toString(),ec)
     rts.getAttributes().setYUnits(Units.UMHOS_CM)
     return [rts,gval]
-        
+
 
 
 def gCalcFlatQ(ndo, beta, g0,out = "inst"):
-    """ Calculates antecedent outflow from ndo based on the flat ndo 
+    """ Calculates antecedent outflow from ndo based on the flat ndo
         assumption in the g documentation. In this case, the integration of g is exact
         rather than numeric, but the approximation to ndo is a series of flat lines. In the
         case of daily data this is probably acceptable. In the case of monthly data it leads
@@ -157,7 +157,7 @@ def gCalcFlatQ(ndo, beta, g0,out = "inst"):
            g0:  initial condition. If g0 is not given it is equal to ndo at the first time step.
            beta: g-model parameter.
            out: must be "inst" to calculate instantaneous values of g or "ave" to calculate averages over
-               the time step. 
+               the time step.
           Output:
            g:  a regular time series, same sampling rate as input
                with the same start time as ndo, ending at the end of ndo or the first piece of bad
@@ -193,7 +193,7 @@ def gCalcFlatQ(ndo, beta, g0,out = "inst"):
                      atend=1
             else:
                 atend=1
-            
+
     elif out[:3]=="ave":
         while atend == 0:
             el=dsi.getElement()

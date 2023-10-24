@@ -7,15 +7,15 @@
 namespace oprule{
 namespace expression{
 
-/** 
+/**
  Expression node representing a value that is lagged in time.
 */
 template<typename T>
-class LaggedExpressionNode  : public ExpressionNode<T>, 
+class LaggedExpressionNode  : public ExpressionNode<T>,
                               public LaggedValueHolder<T>
 {
  public:
-  
+
   typedef LaggedExpressionNode<T> NodeType;
   typedef OE_NODE_PTR(NodeType) NodePtr;
   typedef typename ExpressionNode<T>::NodePtr ExpressionNodePtr;
@@ -23,7 +23,7 @@ class LaggedExpressionNode  : public ExpressionNode<T>,
  /** Create a lagged expression with the stipulated number of lags.
    * @param lags number of lags to store.
    */
-  LaggedExpressionNode(int lags) 
+  LaggedExpressionNode(int lags)
     : LaggedValueHolder<T>(lags){} //vector holding lagged values in
 
   LaggedExpressionNode(NodePtr expression, int lags)
@@ -68,13 +68,13 @@ class LaggedExpressionNode  : public ExpressionNode<T>,
   }
 
   virtual bool isTimeDependent() const{ return true; }
- 
+
  private:
   ExpressionNodePtr _val;
 
 };
 /** Shorthand for lagged double node.*/
-typedef LaggedExpressionNode<double> LaggedDoubleNode; 
+typedef LaggedExpressionNode<double> LaggedDoubleNode;
 /** Shorthand for lagged bool.*/
 typedef LaggedExpressionNode<bool> LaggedBoolNode;
 

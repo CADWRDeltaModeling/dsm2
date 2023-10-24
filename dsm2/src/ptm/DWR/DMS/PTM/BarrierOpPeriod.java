@@ -10,19 +10,19 @@ public class BarrierOpPeriod {
 		_startTime = currentTime;
 		_endTime = currentTime;
 	}
-	
+
 	public boolean contains(Calendar time){
-		if ((time.equals(_startTime)||time.after(_startTime)) && (time.before(_endTime))) 
+		if ((time.equals(_startTime)||time.after(_startTime)) && (time.before(_endTime)))
 				return true;
 		return false;
 	}
-	
+
 	public Calendar getStartTime(){
 		return _startTime;
 	}
 	public Calendar getEndTime(){
 		return _endTime;
 	}
-	
+
 	private Calendar _startTime, _endTime;
 }

@@ -19,7 +19,7 @@ if [ ! -f $PTM_HOME/PTM.jar ]; then
     echo   ___
     echo   Installation instructions
     echo   ___
-    echo   The value of the environment variable PTM_HOME in the 
+    echo   The value of the environment variable PTM_HOME in the
     echo   file ptm needs to match the location where
     echo   ptm has been installed
     echo ############################################################

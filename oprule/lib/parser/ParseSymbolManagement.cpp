@@ -30,7 +30,7 @@ NamedValueLookup          * get_lookup(){return lookup;}
 ModelTimeNodeFactory      * get_time_factory(){return appModelTimeFactory;}
 string                    * add_to_string_list(char*);
 
-void clear_string_list(){ 
+void clear_string_list(){
     std::for_each(string_list.begin(),string_list.end(),boost::checked_delete<string>);
     string_list.clear();
 }
@@ -69,7 +69,7 @@ BoolNodePtr getBoolExpression(const char * name)
     return express[EVAL_STR].boolval;
   }
   else
-  { 
+  {
     string sb=string(name);
     return express[sb].boolval;
   }
@@ -82,8 +82,8 @@ DoubleNodePtr getDoubleExpression(const char *name)
   {
      return express[EVAL_STR].dblval;
   }
-  else 
-  { 
+  else
+  {
      string sd=string(name);
      return express[sd].dblval;
   }
@@ -96,7 +96,7 @@ OperatingRulePtr getOperatingRule(const string & name)
 
 
 template<class T1>
-bool add_to_collection(T1                         &collection, 
+bool add_to_collection(T1                         &collection,
                        const typename T1::key_type & key,
                        typename T1::mapped_type & item)
 {
@@ -154,40 +154,40 @@ void init_rule_names(){
 void init_expression()
 {
   //if (! express.empty()){
-     express.clear(); 
+     express.clear();
   // }
-} 
+}
 
 
 symbol name_lookup(const string& name)
 {
    // attempt to look up previously defined and named oprule expression
-   expressIterType i = express.find(name);            
+   expressIterType i = express.find(name);
    // attempt oprule (previously parsed) expression
    if (i != express.end()) {
        return ((*i).second);
    }else{
      return symbol();
-   }   
-     
+   }
+
 }
 
 
 symbol make_symbol(DoubleNodePtr dnode)
 {
   symbol result(dnode);
-  return result; 
+  return result;
 }
 
 symbol make_symbol(BoolNodePtr bnode)
 {
   symbol result(bnode);
-  return result; 
+  return result;
  }
 
 
 OperationActionPtr chain_actions( OperationActionPtr op1, OperationActionPtr op2)
-{ 
+{
     if (op1->getCollectionType() == OperationAction::CHAIN_COLLECTION)
     {
        op2->registerParent(op1); // todo: circular reference?
@@ -211,12 +211,12 @@ OperationActionPtr group_actions( OperationActionPtr op1, OperationActionPtr op2
   assert(op1 != NULL);
   assert(op1->isApplicable());
   if (op1->getCollectionType() == OperationAction::SET_COLLECTION)
-  {  
+  {
      op2->registerParent(op1);
      boost::static_pointer_cast<ActionSet,OperationAction>(op1)->addAction(op2);
      return op1;
   }
-  else{ 
+  else{
      OperationActionPtr set=OperationActionPtr(new ActionSet());
      op1->registerParent(set);
      op2->registerParent(set);
@@ -227,7 +227,7 @@ OperationActionPtr group_actions( OperationActionPtr op1, OperationActionPtr op2
 }
 
 void apply_lagged_values(const string& name, DoubleNodePtr expr){
-  for(lagged_expression_list::iterator i =laggedvals.begin(); 
+  for(lagged_expression_list::iterator i =laggedvals.begin();
                            i < laggedvals.end(); i++){
     if (i->first == name){
         i->second->setExpression(expr);
@@ -239,7 +239,7 @@ void apply_lagged_values(const string& name, DoubleNodePtr expr){
 
 void clear_arg_map(){ argmap.clear();}
 
-void add_expression(const string& name, 
+void add_expression(const string& name,
                     DoubleNodePtr expr)
 {
   oprule::parser::symbol asymbol(expr);
@@ -256,12 +256,12 @@ void clear_temp_expr(void)
 
 void set_parsed_type(oprule::parser::parse_type ptype)
 {
-    _parsed_type = ptype; 
+    _parsed_type = ptype;
 }
 
 oprule::parser::parse_type get_parsed_type()
 {
-    return _parsed_type; 
+    return _parsed_type;
 }
 
 
@@ -270,7 +270,7 @@ long padded_string_to_int(const string& str)
    char* end;
    if(str.substr(0,1) == "0"){
       return strtol(str.substr(1,1).c_str(),&end,0);
-   }else{ 
+   }else{
       return strtol(str.substr(0,2).c_str(),&end,0);
 	}
-}	
+}

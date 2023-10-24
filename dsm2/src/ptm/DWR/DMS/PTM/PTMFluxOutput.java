@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -49,7 +49,7 @@ package DWR.DMS.PTM;
  *
  */
 public class PTMFluxOutput extends PTMOutput{
-	
+
   /**
    *  constructor
    */
@@ -57,9 +57,9 @@ public class PTMFluxOutput extends PTMOutput{
     super();
     initializeFluxOutput(startTime);
   }
-  
+
   /**
-   * 
+   *
    */
   public void GroupOutput(Flux [] groupAt, boolean percent){
     groupPercent = percent;
@@ -70,31 +70,31 @@ public class PTMFluxOutput extends PTMOutput{
       System.out.println("Too many group values required");
       nGroup = MAX_GROUP_OUTPUT;
     }
-    
+
     groupAtNode = groupAt;
   }
 
   /**
-   * 
+   *
    */
   public void FluxOutput(Flux [] fluxAt, boolean percent){
     fluxPercent = percent;
-    
+
     if (fluxAt.length < MAX_FLUX_OUTPUT)
       nFlux = fluxAt.length;
     else {
       System.out.println("Too many flux values required");
       nFlux = MAX_FLUX_OUTPUT;
     }
-    
+
     fluxAtNode = fluxAt;
   }
-  
+
   /**
-   * 
+   *
    */
   public void output() {
-  	   
+
     if (fluxAtNode != null)
       genericFlux = fluxAtNode;
     else if (groupAtNode != null)
@@ -103,11 +103,11 @@ public class PTMFluxOutput extends PTMOutput{
       return;
     if (genericFlux[0] == null)
       return;
-    
+
     float fluxOut;
     for (int cTime = genericFlux[0].getStartTime(); cTime < genericFlux[0]
       	 .getEndTime(); cTime += genericFlux[0].getPTMTimeStep()) {
-         
+
       //Node
       for (int i = 0; i < nFlux; i++) {
         if (fluxPercent) {
@@ -132,9 +132,9 @@ public class PTMFluxOutput extends PTMOutput{
       writeFluxOutput();
     }// end for(cTime)
   }
-  
+
   /**
-   * 
+   *
    */
   public void closeFile(){
 	//TODO doesn't work with Linux

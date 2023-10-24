@@ -47,9 +47,9 @@
 
 package DWR.DMS.PTM;
 /**
- * A Filter is attached with one node, reside on one waterbody, e.g. channel, reservoir, boundary(ag) 
+ * A Filter is attached with one node, reside on one waterbody, e.g. channel, reservoir, boundary(ag)
  * Filter is 2-directional, with different functions respectively
- * at node enter side, filter functions as a catching net only if efficiency = 0, block and keep particles from entering 
+ * at node enter side, filter functions as a catching net only if efficiency = 0, block and keep particles from entering
  * at node exit side, filter functions as decision making adjustment if node has multiple target waterbodies
  * @author Yu Zhou
  * @version 2010/09/20 18:16:24
@@ -57,15 +57,15 @@ package DWR.DMS.PTM;
 public class Filter {
 public Filter(int filterIndex,
               String filterName,
-              int filterNode, 
+              int filterNode,
               int filterWb,
               int filterWbType){
 
 this.filterIndex = filterIndex;
 this.filterName = filterName;
-this.filterNode = filterNode; 
-this.filterWb = filterWb; 
-this.filterWbType = filterWbType; 
+this.filterNode = filterNode;
+this.filterWb = filterWb;
+this.filterWbType = filterWbType;
 
 }
 
@@ -100,8 +100,8 @@ public float getFilterOp(){
 
 private int filterIndex;
 private String filterName;
-protected int filterNode; 
-protected int filterWb; 
-protected int filterWbType; 
+protected int filterNode;
+protected int filterWb;
+protected int filterWbType;
 private float filterOp;   //Filter Operation at the specified timestamp: 1-on; 0-off
 }

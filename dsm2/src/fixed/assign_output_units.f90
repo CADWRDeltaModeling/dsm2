@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -37,9 +37,9 @@ subroutine assign_output_units(units, param_name)
       else if (Param .eq. 'elev') then
           units='feet'
       else if (Param .eq. 'height') then
-          units='feet'              
+          units='feet'
       else if (Param .eq. 'width') then
-          units='feet'                                             
+          units='feet'
       else if (Param .eq. 'tds') then
           units='ppm'
       else if (index(Param, 'weir-pos') .gt. 0) then
@@ -68,9 +68,9 @@ subroutine assign_output_units(units, param_name)
           units='mg/l'
       else if (Param .eq. 'temp') then
           units='deg c'
-      else   
+      else
           units=' '
-      endif      
+      endif
 end subroutine
 
 

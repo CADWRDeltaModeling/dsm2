@@ -27,18 +27,18 @@ package DWR.DMS.PTM;
 public class FluxMonitor{
 
   public static final boolean DEBUG = false;
-  
+
   /**
    *  Constructor
    */
   public FluxMonitor(String fileName, int iType, FluxInfo fInfo, GroupInfo gInfo){
-	  
+
     inputType = iType;
     traceFileName = fileName;
     fluxInfoPtr = fInfo;
     groupInfoPtr = gInfo;
     fluxAtNode = new Flux[fluxInfoPtr.getNumberOfFluxes()];
-    
+
     //NodeFlux, TypeFlux (? only TypeFlux is currently used)
     for(int i=0; i < fluxInfoPtr.getNumberOfFluxes(); i++){
       if(fluxInfoPtr.info[i].nodeId != -1){
@@ -48,11 +48,11 @@ public class FluxMonitor{
         fluxAtNode[i] = new TypeFlux(fluxInfoPtr.info[i]);
       }
     }
-    
+
     //GroupFlux
     int ngrp = groupInfoPtr.getNumberOfGroups();
     fluxOfGroup = new Flux[ngrp];
-    
+
     for(int i=0; i < ngrp; i++){
       fluxOfGroup[i] = new GroupFlux(groupInfoPtr.getOutputGroups()[i]);
     }
@@ -63,28 +63,28 @@ public class FluxMonitor{
    *  Calculate Flux
    */
   public final void calculateFlux() {
-  
+
     int startId = 0;
     int endId = 0;
     int[] startTime = new int[1], endTime = new int[1], timeStep = new int[1];
-    
+
     int[] totalNumberOfParticles = new int[1];
     totalNumberOfParticles[0] = getNumberOfParticlesFromTrace();
     traceArray = null;
-    
+
     //calculate traceArray with MAX_PARTICLES as size limit
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
 
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
-      
+
       for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
         fluxAtNode[i].calculateFlux(traceArray, nParticles,
       	                            startTime[0], endTime[0], timeStep[0],
       	                            totalNumberOfParticles[0]);
       }
-      
+
       for (int i = 0; i < groupInfoPtr.getNumberOfGroups(); i++) {
         if (DEBUG) System.out.println("group " + i + "\n");
         if (DEBUG) System.out.println(fluxOfGroup[i]);
@@ -95,7 +95,7 @@ public class FluxMonitor{
       }
     }
   }
-  
+
   /**
    *  Output Flux to file
    */
@@ -115,7 +115,7 @@ public class FluxMonitor{
   public final int getNumberOfParticlesFromTrace(){
     int [] startTime = new int[1],endTime = new int[1],timeStep = new int[1];
     int [] totalNumberOfParticles = new int[1];
-    
+
     try{
       PTMTraceInput traceInput = new PTMTraceInput(traceFileName,inputType,
                                                    startTime, endTime, timeStep,
@@ -157,7 +157,7 @@ public class FluxMonitor{
   protected GroupInfo groupInfoPtr;
   protected Flux [] fluxAtNode;
   protected Flux [] fluxOfGroup;
-  
+
   /**
    *  Create trace array for each particle
    *  This array contains part of the total particles
@@ -166,7 +166,7 @@ public class FluxMonitor{
   protected void createTraceArray(int sId, int eId,
                                   int [] startTime, int [] endTime,
                                   int [] timeStep, int [] totalNumberOfParticles){
-  
+
     // should check to see if start time , end time , time step and number of
     // particles match that from PTMEnv.
     try{
@@ -176,7 +176,7 @@ public class FluxMonitor{
                                      totalNumberOfParticles);
       int nParticles = eId - sId + 1;
       int[] tm=new int[1], pNum=new int[1], nd=new int[1], wb=new int[1];
-      
+
       //renew traceArray
       if(traceArray != null) {
         for(int i=0; i< nParticles; i++)
@@ -187,20 +187,20 @@ public class FluxMonitor{
         for(int i=0; i< nParticles; i++)
   	      traceArray[i] = new ParticleTrace();
       }
-      
+
       //vars transfer from trace to traceArray
       while(tm[0] != -1){
         traceInput.input(tm, pNum, nd, wb);
-        if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 
+        if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId))
           traceArray[pNum[0]-sId].insert(wb[0], nd[0], tm[0]);
       }
-      
+
     }catch(java.io.FileNotFoundException e){
       System.out.println("Error Trace file " + traceFileName + " not found!!");
     }catch(java.io.IOException e){
       System.out.println("Error reading trace from file " + traceFileName);
     }//end try-catch
   }
-  
+
 }
 

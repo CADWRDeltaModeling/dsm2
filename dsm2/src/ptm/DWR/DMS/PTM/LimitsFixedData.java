@@ -47,18 +47,18 @@
 package DWR.DMS.PTM;
 class LimitsFixedData {
 public LimitsFixedData(int maxChannels,
-		       int maxReservoirs, 
-		       int maxDiversions, 
-		       int maxPumps, 
-		       int maxBoundaryWaterbodies, 
-		       int maxNodes, 
+		       int maxReservoirs,
+		       int maxDiversions,
+		       int maxPumps,
+		       int maxBoundaryWaterbodies,
+		       int maxNodes,
 		       int maxXSections){
-  this.maxChannels =  maxChannels; 
-  this.maxReservoirs =  maxReservoirs; 
-  this.maxDiversions =  maxDiversions; 
-  this.maxPumps =  maxPumps; 
-  this.maxBoundaryWaterbodies =  maxBoundaryWaterbodies; 
-  this.maxNodes =  maxNodes; 
+  this.maxChannels =  maxChannels;
+  this.maxReservoirs =  maxReservoirs;
+  this.maxDiversions =  maxDiversions;
+  this.maxPumps =  maxPumps;
+  this.maxBoundaryWaterbodies =  maxBoundaryWaterbodies;
+  this.maxNodes =  maxNodes;
   this.maxXSections =  maxXSections;
 }
 
@@ -90,11 +90,11 @@ public int getMaximumNumberOfXSections(){
 public int getMaximumNumberOfReservoirNodes(){
   return 20;
 }
-protected int maxChannels; 
-protected int maxReservoirs; 
-protected int maxDiversions; 
-protected int maxPumps; 
-protected int maxBoundaryWaterbodies; 
-protected int maxNodes; 
-protected int maxXSections;           
+protected int maxChannels;
+protected int maxReservoirs;
+protected int maxDiversions;
+protected int maxPumps;
+protected int maxBoundaryWaterbodies;
+protected int maxNodes;
+protected int maxXSections;
 }

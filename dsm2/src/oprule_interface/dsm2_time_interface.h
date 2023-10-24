@@ -43,10 +43,10 @@ public:
       _mon(mon),_day(day),_hour(hour),_min(min){}
    static NodePtr create(const int mo, const int d,
                          const int hr, const int min){
-      return NodePtr(new NodeType(mo,d,hr,min));} 
-   virtual oprule::expression::DoubleNode::NodePtr copy(){ 
+      return NodePtr(new NodeType(mo,d,hr,min));}
+   virtual oprule::expression::DoubleNode::NodePtr copy(){
       return NodePtr(new NodeType(_mon,_day,_hour,_min));
-   } 
+   }
 
 
    virtual double eval(){ return (double) get_reference_minute_of_year(_mon,_day,_hour,_min); }

@@ -1,4 +1,4 @@
-"""This script changes references to the informix database to 
+"""This script changes references to the informix database to
     references to MS Access
 """
 
@@ -23,8 +23,8 @@ for line in f.readlines():
     linereplace=linereplace.replace("../../timeseries","${DSM2_HOME}/timeseries")
     if line != linereplace: print "Changing %s to %s" % (line,linereplace)
     outfile.write(linereplace)
-    
-    
+
+
 f.close()
 outfile.close()
 sys.exit()

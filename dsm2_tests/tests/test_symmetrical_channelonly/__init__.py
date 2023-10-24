@@ -22,4 +22,3 @@ def teardown():
         os.chdir(os.path.split(__file__)[0])
         dsm2test.cleanup(os.environ['OUTPUTDIR'])
         os.chdir(old_directory)
-    

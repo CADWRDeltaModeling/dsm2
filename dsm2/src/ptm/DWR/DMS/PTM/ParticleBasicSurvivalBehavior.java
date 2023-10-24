@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -10,7 +10,7 @@ package DWR.DMS.PTM;
 public class ParticleBasicSurvivalBehavior implements SurvivalBehavior {
 
 	/**
-	 * 
+	 *
 	 */
 	public ParticleBasicSurvivalBehavior() {
 		// TODO Auto-generated constructor stub

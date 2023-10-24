@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -61,13 +61,13 @@ public class GroupFlux extends Flux{
   public GroupFlux(Group wbGroup){
     this.wbGroup=wbGroup;
   }
-  
+
   /**
    * Calculates total Flux and fills up array of Flux over time as well
    */
   @Override
   public void calculateFlux(ParticleTrace[] traceArray,
-                            int numberOfTraceParticles, 
+                            int numberOfTraceParticles,
                             int sTime, int eTime, int tStep,
                             int nParticles) {
     if (initialized == false) {
@@ -78,13 +78,13 @@ public class GroupFlux extends Flux{
       for (int i = 0; i < numberOfTimeSteps; i++)
     	  circleFlux[i] = 0;
     }
-    
+
     numberOfParticles = numberOfTraceParticles;
     int pNum;
     int particleFlux = 0;
     boolean contributedToFlux = false;
     int index;
-    
+
     // do for each particle...
     //@todo circleFlux and contributedToFlux are confusing and seem not to do anything
     for (pNum = 0; pNum < numberOfParticles; pNum++) {
@@ -92,11 +92,11 @@ public class GroupFlux extends Flux{
       particleFlux = 0;
       int traceNum = 1;
       int maxTraces = traceArray[pNum].getNumberOfTraces();
-      
+
       try {
         for (index = 0; index < numberOfTimeSteps; index++) {
           while (traceNum <= maxTraces
-                 && traceArray[pNum].getTime(traceNum) == 
+                 && traceArray[pNum].getTime(traceNum) ==
                  index * timeStep + startTime) {
             Waterbody wbIn = Globals.Environment
                             .getWaterbody(traceArray[pNum]
@@ -104,7 +104,7 @@ public class GroupFlux extends Flux{
             Waterbody wbOut = Globals.Environment
                             .getWaterbody(traceArray[pNum]
                             .getWaterbodyId(traceNum));
-      
+
             //@todo why this stuff?
             //if (traceArray[pNum].getNodeId(traceNum) == -1) {
             //if (isInSameGroup(wbIn, wbOut) == true) {
@@ -113,12 +113,12 @@ public class GroupFlux extends Flux{
             //}else
             //System.out.println("Waterbodies being tested: \nIn:"+wbIn+"\nOut:"+wbOut+"\n");
             //System.out.println("Out type:"+wbOut.getType());
-            //System.out.println("Out env:"+wbOut.getEnvIndex());						                
+            //System.out.println("Out env:"+wbOut.getEnvIndex());
             //System.err.println("A");
-          
+
             boolean inWB=wbGroup.containsWaterbody(wbIn);
             boolean outWB=wbGroup.containsWaterbody(wbOut);
-          
+
             if ( inWB != outWB ) { // exactly one matches wb
               if (inWB) {
                 particleFlux--;
@@ -130,7 +130,7 @@ public class GroupFlux extends Flux{
             }
             traceNum++;
           }//end while(traceNum)
-            
+
           flux[index] += particleFlux;
           //System.out.println("particleFlux["+index+"]="+Flux[index]);
           if (particleFlux > 0)
@@ -152,19 +152,19 @@ public class GroupFlux extends Flux{
    *  Group in which residence is being measured
    */
   private Group wbGroup;
-  
+
   /**
    *  An array of Flux over time indexed from starttime to endtime
    *  using timestep which counts only repeated contributions to Flux
    *  from the same particle.
    */
   protected int [] circleFlux;
-  
+
   /**
    *  # of particles contributing to circle Flux and storage
    */
   protected int numberOfParticleCircleFlux;
-  
+
   /**
    * String representation
    */
@@ -175,7 +175,7 @@ public class GroupFlux extends Flux{
     rep.append( "Start Time: " ).append( getStartTime() ).append( "\n");
     rep.append( "End Time: " ).append( getEndTime() ).append( "\n");
     rep.append( "Time Step: " ).append( getPTMTimeStep() ).append( "\n");
-    
+
     for(int cTime=getStartTime();
         cTime< getEndTime();
         cTime += 24*60){

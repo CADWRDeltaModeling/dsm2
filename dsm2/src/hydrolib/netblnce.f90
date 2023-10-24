@@ -193,7 +193,7 @@ contains
                 X1 = StreamDistance(1)
                 !            H1 = StreamDepth(1)
                 Z1 = StreamSurfaceElevation(1)
-		
+
                 do 700 J=1,NumberOfStreamLocations()-1
 
                     X2 = StreamDistance(J+1)
@@ -344,7 +344,7 @@ contains
 
         !   Routines by module:
 
-        
+
 
         !**** Local:
 

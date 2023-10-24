@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -90,11 +90,11 @@ class Boundary extends Waterbody {
    */
   @Override
   public int getPTMType(){return Waterbody.BOUNDARY;}
-  /**   
+  /**
    *  Return the hydrodynamic type of Boundary
    */
   public int getHydroType(){return FlowTypes.rim;}
-  
+
   public String getBoundaryName(){return _boundaryName;}
 
   public float getInflowWSV(int nodeEnvId, float sv){

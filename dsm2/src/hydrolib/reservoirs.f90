@@ -221,7 +221,7 @@ contains
         InitReservoirFlow=.false.
 
         do i=1,Nreser
- 
+
             do j=1,res_geom(i)%nConnect
                 ChannelConnect=ResConnectingChannels(i,j)
                 ChanCompPt = IABS(StreamEndNode(ChannelConnect))

@@ -13,13 +13,13 @@ void GateInstallInterface::set(double val){
    set_gate_install(ndx, val);
 }
 double GateInstallInterface::eval(){
-   return is_gate_install(ndx); 
+   return is_gate_install(ndx);
 }
 
 /*void GateInstallInterface::setDataExpression(DoubleNodePtr express){
-   set_gate_install_datasource( ndx, 
+   set_gate_install_datasource( ndx,
 						 register_express_for_data_source(express),
-                         express->eval(), 
+                         express->eval(),
                          express->isTimeDependent()); //todo: finish this up
 }*/
 
@@ -30,14 +30,14 @@ bool GateInstallInterface::operator==( const GateInstallInterface& rhs){
 
 ///////////////////////////
 
-void DeviceOpInterface::set(double val){ 
-   set_device_op_coef(ndx,devndx,direction,val); 
+void DeviceOpInterface::set(double val){
+   set_device_op_coef(ndx,devndx,direction,val);
 }
 
 void DeviceOpInterface::setDataExpression(DoubleNodePtr express){
-   set_device_op_datasource( ndx, 
-                             devndx, 
-							 direction, 
+   set_device_op_datasource( ndx,
+                             devndx,
+							 direction,
 							 register_express_for_data_source(express),
       express->eval(), express->isTimeDependent()); //todo: finish this up
 }
@@ -56,8 +56,8 @@ bool DeviceOpInterface::operator==( const DeviceOpInterface& rhs){
 
 
 //////////////////////
-void DeviceNDuplicateInterface::set(double val){ 
-   set_device_nduplicate(ndx,devndx,val); 
+void DeviceNDuplicateInterface::set(double val){
+   set_device_nduplicate(ndx,devndx,val);
 }
 
 
@@ -73,8 +73,8 @@ bool DeviceNDuplicateInterface::operator==( const DeviceNDuplicateInterface& rhs
 //////////////////////
 
 
-void DeviceHeightInterface::set(double val){ 
-   set_device_height(ndx,devndx,val); 
+void DeviceHeightInterface::set(double val){
+   set_device_height(ndx,devndx,val);
 }
 
 double DeviceHeightInterface::eval(){
@@ -82,7 +82,7 @@ double DeviceHeightInterface::eval(){
 }
 
 void DeviceHeightInterface::setDataExpression(DoubleNodePtr express){
-   set_device_height_datasource( ndx, devndx, 
+   set_device_height_datasource( ndx, devndx,
        register_express_for_data_source(express),
       express->eval(), express->isTimeDependent()); //todo: finish this up
 }
@@ -97,8 +97,8 @@ bool DeviceHeightInterface::operator==( const DeviceHeightInterface& rhs){
 //////////////////
 
 
-void DeviceElevInterface::set(double val){ 
-   set_device_elev(ndx,devndx,val); 
+void DeviceElevInterface::set(double val){
+   set_device_elev(ndx,devndx,val);
 }
 
 double DeviceElevInterface::eval(){
@@ -106,7 +106,7 @@ double DeviceElevInterface::eval(){
 }
 
 void DeviceElevInterface::setDataExpression(DoubleNodePtr express){
-   set_device_elev_datasource( ndx, devndx, 
+   set_device_elev_datasource( ndx, devndx,
        register_express_for_data_source(express),
       express->eval(), express->isTimeDependent()); //todo: finish this up
 }
@@ -118,8 +118,8 @@ bool DeviceElevInterface::operator==( const DeviceElevInterface& rhs){
 //////////////////
 
 
-void DeviceWidthInterface::set(double val){ 
-   set_device_width(ndx,devndx,val); 
+void DeviceWidthInterface::set(double val){
+   set_device_width(ndx,devndx,val);
 }
 
 double DeviceWidthInterface::eval(){
@@ -127,7 +127,7 @@ double DeviceWidthInterface::eval(){
 }
 
 void DeviceWidthInterface::setDataExpression(DoubleNodePtr express){
-   set_device_width_datasource( ndx, devndx, 
+   set_device_width_datasource( ndx, devndx,
        register_express_for_data_source(express),
       express->eval(), express->isTimeDependent()); //todo: finish this up
 }
@@ -141,7 +141,7 @@ bool DeviceWidthInterface::operator==( const DeviceWidthInterface& rhs){
 
 
 void DeviceFlowCoefInterface::set(double val){
-   set_device_flow_coef(ndx,devndx,direction,val); 
+   set_device_flow_coef(ndx,devndx,direction,val);
 }
 
 double DeviceFlowCoefInterface::eval(){

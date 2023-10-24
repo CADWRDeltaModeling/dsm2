@@ -1,11 +1,11 @@
 #ifndef qext_STORAGE_H__
 #define qext_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -34,7 +34,7 @@ class qext
 {
 public:
 
-  /** Data type qext, default constructor */  
+  /** Data type qext, default constructor */
   typedef const boost::tuple<const std::string>  identifier_type;
 
   qext() :
@@ -55,10 +55,10 @@ public:
     layer(a_layer)
   {
     memcpy(name,a_name,32);
-    memcpy(attach_obj_name,a_attach_obj_name,32);  
+    memcpy(attach_obj_name,a_attach_obj_name,32);
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   qext (const qext & other) :
     attached_obj_type(other.attached_obj_type),
@@ -67,20 +67,20 @@ public:
     layer(other.layer)
   {
     memcpy(name,other.name,32);
-    memcpy(attach_obj_name,other.attach_obj_name,32);  
+    memcpy(attach_obj_name,other.attach_obj_name,32);
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( name );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      memcpy(name,identifier.get<0>().c_str(),32);
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -91,7 +91,7 @@ public:
      return qext::identifier_type( name );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<qext>& pbuf = HDFTableManager<qext>::instance().buffer();
@@ -101,7 +101,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<qext>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -112,10 +112,10 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const qext & other) const
   {
-     
+
      if(this->identifier() != other.identifier())
 	 {
 		 return this->identifier() < other.identifier();
@@ -127,12 +127,12 @@ public:
 
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const qext & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   qext& operator=(const qext& rhs)
   {
@@ -147,17 +147,17 @@ public:
 
   /** Return the class name of this object (qext) */
   string objectName() const
-  { 
-    return "qext"; 
+  {
+    return "qext";
   }
 
-  
+
   char name[32];
   char attach_obj_name[32];
   int attached_obj_type;
   int attached_obj_no;
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -179,7 +179,7 @@ ostream& operator<<(ostream & stream, const qext & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void qext_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -187,9 +187,9 @@ FCALL int qext_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror, 
+FCALL void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror,
               const int name_len,const int attach_obj_name_len);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void qext_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -202,8 +202,8 @@ FCALL void qext_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nrecords, int*
 
 
 /** get one row worth of information from the buffer */
-FCALL void qext_query_from_buffer_f(int32_t* row, 
-                         char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror, 
+FCALL void qext_query_from_buffer_f(int32_t* row,
+                         char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror,
               int name_len,int attach_obj_name_len);
 /**
   prioritize buffer by layers, delete unused items and sort

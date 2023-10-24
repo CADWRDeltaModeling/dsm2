@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior> implements SurvivalHelper{
 
 	/**
-	 * 
+	 *
 	 */
 	public SalmonSurvivalHelper(SalmonSurvivalBehavior basic,
 			Map<Integer, SalmonSurvivalBehavior> specialBehaviors) {
@@ -23,7 +23,7 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public SalmonSurvivalHelper() {
 		super();
@@ -39,7 +39,7 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 		else
 			return null;
 	}
-	
+
 	public void helpSurvival(Particle p){
 		SalmonSurvivalBehavior b = super.getBehavior(p);
 		if (b != null)

@@ -12,12 +12,12 @@ namespace rule {
 
 /** Collection comprised of consecutive sub-actions to be executed in series.
  * As each subaction ends, the next is activated. The subactions
- * contained in the chain may themselves be compound actions 
- * (collections such as ActionChain or ActionSet) or may be actions that 
+ * contained in the chain may themselves be compound actions
+ * (collections such as ActionChain or ActionSet) or may be actions that
  * directly manipulate the model.
  */
 
-class ActionChain : public OperationAction 
+class ActionChain : public OperationAction
 {
 
 public:
@@ -31,7 +31,7 @@ public:
     * @param action action to be added
     */
 	void pushBackAction(OperationActionPtr action);
-	
+
    /** Add action to front of chain.
     * @param action action to be added
     */
@@ -55,14 +55,14 @@ public:
     */
 	bool isActive();
 
-   /** Action to 
+   /** Action to
     *
     */
 	void onActivate();
     void setActive(bool active);
 
-   virtual bool hasSubActions(){ 
-      return true; 
+   virtual bool hasSubActions(){
+      return true;
    }
    virtual void appendToActionList( OperationAction::ActionListType& listToConstruct);
    virtual void childComplete();

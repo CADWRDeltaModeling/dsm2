@@ -18,7 +18,7 @@ def subEnv(val):
   import os
   osenv=os.environ.copy()
   if osenv.has_key('PATH'): del osenv['PATH']
-  
+
   if string.find(val,'$')>=0:
     value=val
     for key in config.keys():
@@ -26,7 +26,7 @@ def subEnv(val):
        brack=r"(\${"+key+"})|\$\("+key+"\)"    # See python re module docs
        value=re.sub(brack,config[key],value)
   if string.find(value,'$')>=0:
-    env_pattern=r"(\${(.*)})|\$\((.*)\)"    # See python re module docs    
+    env_pattern=r"(\${(.*)})|\$\((.*)\)"    # See python re module docs
     env_match=re.findall(env_pattern,value)
     if env_match:
       for m in env_match:
@@ -76,7 +76,7 @@ def setConfigVars(infile):
           if string.find(val,'$')>=0:
             val=subEnv(val)
           config[name]=val
-          os.environ[name]=val       
+          os.environ[name]=val
   if not start or not end:
     raise ValueError('Keyword ENVVARS or END is missing in config file')
   return config
@@ -93,4 +93,4 @@ def getAttr(attrName):
 
 
 
-  
+

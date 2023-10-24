@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -21,7 +21,7 @@
 subroutine buffer_input_hydro()
       use input_storage_fortran
       use constants
-      
+
       implicit none
       integer :: nitem
       character*(128) filename
@@ -33,7 +33,7 @@ subroutine buffer_input_hydro()
       integer :: ierror = 0
       ! input_node
 
-      character*32 :: rolename 
+      character*32 :: rolename
 
 
       ! output_channel
@@ -43,7 +43,7 @@ subroutine buffer_input_hydro()
       character*16 variable, &
                      perop
       character*32 :: sourcegroup
-      
+
       character*32 :: group_name
       character*16 :: constituent
       real*8  :: value
@@ -53,24 +53,24 @@ subroutine buffer_input_hydro()
       character*8 cdist
       real*8 stage
       real*8 flow
-      
-      
+
+
       ! output_reservoir
       character*32 reservoir
       character*392 inpath
       character*8  fillin
       character*8  node_str
       integer      sign
-      integer node      
-      
+      integer node
+
        ! output_gate
       character*32 gate, device
 
 
-      character*(16) :: sdate,edate   
+      character*(16) :: sdate,edate
 
 
-!=======================  Initial conditions 
+!=======================  Initial conditions
       nitem = channel_ic_buffer_size()
       do icount = 1,nitem
          call channel_ic_query_from_buffer(icount, &
@@ -89,7 +89,7 @@ subroutine buffer_input_hydro()
          call reservoir_ic_query_from_buffer(icount,resname,stage,ierror)
          call process_reservoir_ic(resname,stage)
       end do
-      print *,"Number of channel initial conditions processed: ", nitem      
+      print *,"Number of channel initial conditions processed: ", nitem
 
 
       nitem = boundary_stage_buffer_size()
@@ -103,8 +103,8 @@ subroutine buffer_input_hydro()
                                          ierror)
       rolename="stage"
       variable="stage"
-      sign=0 
- 
+      sign=0
+
          call process_input_node(name, &
                                 node, &
                                 variable, &
@@ -129,7 +129,7 @@ subroutine buffer_input_hydro()
                                          ierror)
       rolename="inflow"
       variable="flow"
-      !if ((sign .ne. -1) .or. (sign .ne. 1)) sign = 0  
+      !if ((sign .ne. -1) .or. (sign .ne. 1)) sign = 0
          call process_input_node(name, &
                                 node, &
                                 variable, &
@@ -153,7 +153,7 @@ subroutine buffer_input_hydro()
                                          inpath, &
                                          ierror)
       rolename="source-sink"
-      variable="flow" 
+      variable="flow"
          call process_input_node(name, &
                                 node, &
                                 variable, &
@@ -176,7 +176,7 @@ subroutine buffer_input_hydro()
                                          filename, &
                                          inpath, &
                                          ierror)
-      variable="flow" 
+      variable="flow"
          call process_input_reservoir(name, &
                                     resname, &
                                     variable, &

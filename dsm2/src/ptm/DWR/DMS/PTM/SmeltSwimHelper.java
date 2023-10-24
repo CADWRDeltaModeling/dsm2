@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -10,7 +10,7 @@ import java.util.Map;
  *
  */
 public class SmeltSwimHelper extends Helper<Integer, SmeltBasicSwimBehavior> implements SwimHelper {
-	
+
 	/**
 	 */
 	public SmeltSwimHelper(SmeltBasicSwimBehavior basic,
@@ -19,7 +19,7 @@ public class SmeltSwimHelper extends Helper<Integer, SmeltBasicSwimBehavior> imp
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public SmeltSwimHelper(SmeltBasicSwimBehavior basic) {
 		super(basic);

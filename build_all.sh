@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 source ./setup_linux_intelcompilers_32bit.sh
 
 cd oprule

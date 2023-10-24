@@ -14,8 +14,8 @@ ApplicationTextReader::InputStateMap input_state_map();
 const std::vector<string> profile(const string & name);
 
 ///////////////////
-FCALL void set_active_profile_f(const char* profile_name, 
-                                int* ierror, 
+FCALL void set_active_profile_f(const char* profile_name,
+                                int* ierror,
                                 int profilelen)
 {
 _TRAP_EXCEPT(*ierror,
@@ -29,7 +29,7 @@ _TRAP_EXCEPT(*ierror,
   {
       reader.setActiveItems(profile(name));
   }
-) // end exception trap  
+) // end exception trap
 }
 
 FCALL void set_initial_context_profile_f(const char* profile_name, int* ierror, int profilelen)
@@ -45,7 +45,7 @@ _TRAP_EXCEPT(*ierror,
   {
       reader.setInitialContextItems(profile(name));
   }
-) // end exception trap  
+) // end exception trap
 
 }
 /////////////////
@@ -53,9 +53,9 @@ _TRAP_EXCEPT(*ierror,
 FCALL void set_user_substitution_enabled_f(const bool * enabled, int* ierror)
 {
 _TRAP_EXCEPT(*ierror,
-    ApplicationTextReader & reader = ApplicationTextReader::instance();   
+    ApplicationTextReader & reader = ApplicationTextReader::instance();
     reader.getTextSubstitution().setEnabledUser(*enabled);
-) // end exception trap    
+) // end exception trap
 }
 
 /////////////////
@@ -63,9 +63,9 @@ _TRAP_EXCEPT(*ierror,
 FCALL void set_os_env_substitution_enabled_f(const bool * enabled, int* ierror)
 {
 _TRAP_EXCEPT(*ierror,
-    ApplicationTextReader & reader = ApplicationTextReader::instance();   
+    ApplicationTextReader & reader = ApplicationTextReader::instance();
     reader.getTextSubstitution().setEnabledEnvironment(*enabled);
-) // end exception trap    
+) // end exception trap
 }
 
 /////////////////
@@ -73,9 +73,9 @@ _TRAP_EXCEPT(*ierror,
 FCALL void set_substitution_not_found_is_error_f(const bool * is_error, int* ierror)
 {
 _TRAP_EXCEPT(*ierror,
-    ApplicationTextReader & reader = ApplicationTextReader::instance();   
+    ApplicationTextReader & reader = ApplicationTextReader::instance();
     reader.getTextSubstitution().setNotFoundIsError(*is_error);
-) // end exception trap    
+) // end exception trap
 }
 
 ////////////////////
@@ -90,7 +90,7 @@ _TRAP_EXCEPT(*ierror,
 	sub.add(envvars[i].name, envvars[i].value);
       }
     reader.setTextSubstitution(sub);
-) // end exception trap    
+) // end exception trap
 }
 
 //////////////////////
@@ -108,7 +108,7 @@ _TRAP_EXCEPT(*ierror,
 
 /////////////////////
 FCALL void read_buffer_from_text_f(const char* startfile, int* ierror, int startfilelen)
-{   
+{
 _TRAP_EXCEPT(*ierror,
     ApplicationTextReader & reader = ApplicationTextReader::instance();
     assert(reader.getInitialContextItems().size() != 0);

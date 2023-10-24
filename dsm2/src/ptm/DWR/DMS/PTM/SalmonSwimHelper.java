@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -20,7 +20,7 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public SalmonSwimHelper(SalmonSwimBehavior basic) {
 		super(basic);
@@ -30,7 +30,7 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public Integer getKey(Particle p) {
 		return p.wb.getEnvIndex();
@@ -38,17 +38,17 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 	}
 	public void helpSwim(Particle p, float deltaT){
 		super.getBehavior(p).updatePosition(p, deltaT);
-		//Commented out because it needs to be consistent with other helpers,i.e., using the call getBehavior method 
+		//Commented out because it needs to be consistent with other helpers,i.e., using the call getBehavior method
 		//super.getBasicBehavior().updatePosition(p, deltaT);
 	}
 
 	@Override
 	public void setSwimHelperForParticle(Particle p) {
-		p.installSwimHelper(this);	
+		p.installSwimHelper(this);
 	}
 	//TODO this is not good, get rid of it.  why???
 	//public SwimInputs getSwimInputs(){ return Globals.Environment.getBehaviorInputs().getSwimInputs();}
-	
+
 	public void setSwimmingTime(Particle p, int chanId){super.getBasicBehavior().setSwimmingTime(p, chanId);}
 	public void setMeanSwimmingVelocity(int pId, int chanId){super.getBasicBehavior().setMeanSwimmingVelocity(pId, chanId);}
 	// swimming velocity here does not include confusion factor

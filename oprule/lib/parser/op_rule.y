@@ -1,17 +1,17 @@
 %{
-/* Parser specification for operating rules 
+/* Parser specification for operating rules
 
    This file requires flex and bison to compile. The executables
-   should be on path. In MSC projects, this file should be 
-   associated with a custom build rule whose command is: 
+   should be on path. In MSC projects, this file should be
+   associated with a custom build rule whose command is:
       bison.exe -l -p $(InputName) -d $(InputName).y
       copy $(InputName)_tab.c $(InputName)_tab.cpp
    and output is:
       $(InputName)_tab.cpp
       $(InputName)_tab.h
 */
-#include "oprule/parser/ParseSymbolManagement.h"			   
- 
+#include "oprule/parser/ParseSymbolManagement.h"
+
 #define _SETD add_temp_symbol<DoubleNodePtr>
 #define _SETB add_temp_symbol<BoolNodePtr>
 #define _GETD(NDX) get_express_index()[NDX].dblval
@@ -112,25 +112,25 @@ line:
 	   set_parsed_type(oprule::parser::NUMERICAL_EXPRESS);
 	   clear_string_list();
 	   clear_temp_expr();
-        } 
+        }
    | boolexpression ';'{
        string dbkey=EVAL_STR;
 	   add_symbol(dbkey,_GETS($1));
 	   set_parsed_type(oprule::parser::BOOL_EXPRESS);
-	   clear_string_list();	   
+	   clear_string_list();
 	    }
    | expression ';'{
        string dbkey=EVAL_STR;
 	   add_symbol(dbkey,_GETS($1));
 	   set_parsed_type(oprule::parser::NUMERICAL_EXPRESS);
-	   clear_string_list();	   
+	   clear_string_list();
 	   }
    | NAME ASSIGN oprule ';' {
 	    string rulename=get_temp_symbol($1).stringval;
 	    OperatingRulePtr rulePtr = get_temp_symbol($3).rule;
         rulePtr->setName(rulename);
 		if (add_rule(rulename,rulePtr)){
-		  set_parsed_type(oprule::parser::OP_RULE);  	    
+		  set_parsed_type(oprule::parser::OP_RULE);
         }else{
 		  op_ruleerror(
 		    ("Operating rule name " + rulename + " used more than once.").c_str());
@@ -140,7 +140,7 @@ line:
 	    clear_temp_expr();
 	    clear_arg_map();
 
-        } 
+        }
    | oprule ';' {
 		static int ruleno;
         char num[16];
@@ -163,7 +163,7 @@ line:
                 cerr << "Error parsing expression." << endl;
 				YYABORT;}
 
-; 
+;
 
 reassignment:
      boolexpression ASSIGN {
@@ -184,7 +184,7 @@ action trigger{
    }
 
 
-trigger: 
+trigger:
 WHEN boolexpression{
               TriggerPtr trigger(new ExpressionTrigger(_GETB($2)->copy()));
               symbol s(trigger);
@@ -193,7 +193,7 @@ WHEN boolexpression{
 
 action:
 	modelaction { $$=$1; }
-  | action THEN action { 
+  | action THEN action {
             OperationActionPtr firstPtr = get_temp_symbol($1).action;
             OperationActionPtr secondPtr = get_temp_symbol($3).action;
             OperationActionPtr chain = chain_actions(firstPtr,secondPtr);
@@ -208,7 +208,7 @@ action:
   | '(' action ')' { $$=$2; }
 
 modelaction:
-    actionspec targetspec transitionspec{ 
+    actionspec targetspec transitionspec{
 			 ModelInterface<double>::NodePtr ifc
 			   =boost::static_pointer_cast<ModelInterface<double> >( _GETD($1) );
 			 TransitionPtr transition = get_temp_symbol($3).transition;
@@ -218,7 +218,7 @@ modelaction:
 			 $$=add_temp_symbol(act); //was ModelAction, also below was too
 	}
 
-  | actionspec targetspec{ 
+  | actionspec targetspec{
 			 ModelInterface<double>::NodePtr ifc
 			   =boost::static_pointer_cast<ModelInterface<double> >( _GETD($1) );
 			 TransitionPtr abrupt(new AbruptTransition());
@@ -240,7 +240,7 @@ transitionspec:
 
 ;
 term:
-   NUMBER { 
+   NUMBER {
       $$ =_SETD(DoubleScalarNode::create($1)); }
  | unary    { $$=$1; }
  | date     { $$=$1; }
@@ -248,7 +248,7 @@ term:
  | laggedval{ $$=$1;}
 ;
 
- 
+
 boolterm:
    '(' boolexpression ')' { $$ = $2;}
  |  FALSE { $$=_SETB(BoolScalarNode::create(false)); }
@@ -259,14 +259,14 @@ boolterm:
 array:
    '[' NUMBER   {
                   $$ = add_array_vector();
-                  get_array_vector($$).push_back($2); 
+                  get_array_vector($$).push_back($2);
                 }
  | array ',' NUMBER {get_array_vector($1).push_back($3);}
  | array ']'
 ;
 
 unary:
-   SQRT '(' expression ')' {  
+   SQRT '(' expression ')' {
             $$=_SETD(UnaryOpNode<sqrt_func>::create(_GETD($3)));}
  | ABS '(' expression ')'  {
            $$=_SETD(UnaryOpNode<abs_func>::create(_GETD($3)));}
@@ -277,8 +277,8 @@ unary:
  | EXP '(' expression ')'  {
            $$=_SETD(UnaryOpNode<exp_func>::create(_GETD($3)));}
  | LOOKUP '(' expression ',' array ',' array ')' {
-           $$=_SETD(LookupNode::create(_GETD($3), 
-                                       get_array_vector($5), 
+           $$=_SETD(LookupNode::create(_GETD($3),
+                                       get_array_vector($5),
                                        get_array_vector($7)));
            get_array_vector($5).clear();
            get_array_vector($7).clear();
@@ -298,11 +298,11 @@ expression:
  |  IFELSE '(' boolexpression ',' expression ',' expression ')' {
                     $$=_SETD(TernaryOpNode<double>::create(_GETB($3),
                                                            _GETD($5),
-                                                           _GETD($7))); }  
+                                                           _GETD($7))); }
  |  ACCUMULATE '(' expression ',' expression ',' boolexpression ')' {
 					$$=_SETD(AccumulationNode<double>::create(_GETD($3),
 					                                          _GETD($5),
-					                                          _GETB($7)));} 
+					                                          _GETB($7)));}
  |  ACCUMULATE '(' expression ',' expression ')' {
 					$$=_SETD(AccumulationNode<double>::create(_GETD($3),
 					                                          _GETD($5),
@@ -316,16 +316,16 @@ expression:
  |  MAX3 '(' expression ',' expression ',' expression ')' {
         $$=_SETD(Max3Node<double>::create( _GETD($3),_GETD($5),_GETD($7)));}
  |  PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
-        {  
+        {
         $$=_SETD(PIDNode::create( _GETD($3),_GETD($5),_GETD($7)->eval(),_GETD($9)->eval(),_GETD($11)->eval(),_GETD($13)->eval(),
                                   _GETD($15)->eval(),_GETD($17)->eval(),_GETD($19)->eval()));
         }
  |  IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
-        {  
+        {
         $$=_SETD(IncrementalPIDNode::create( _GETD($3),_GETD($5),_GETD($7),_GETD($9)->eval(),_GETD($11)->eval(),_GETD($13)->eval(),
                                   _GETD($15)->eval(),_GETD($17)->eval(),_GETD($19)->eval() ));
         }
- 
+
 
 ;
 
@@ -344,8 +344,8 @@ boolexpression:
 
 
 laggedval:
-   NAME '(' 't' '-' NUMBER ')' { 
-              LaggedExpressionNode<double>::NodePtr 
+   NAME '(' 't' '-' NUMBER ')' {
+              LaggedExpressionNode<double>::NodePtr
 			     laggedNode=LaggedDoubleNode::create((int)$5);
                const string nm=get_temp_symbol($1).stringval;;
                get_lagged_vals().push_back(
@@ -358,18 +358,18 @@ laggedval:
 arglist:
     arg
  |  arglist ',' arg
- |  arglist ';' arg 
+ |  arglist ';' arg
 ;
- 
+
 arg:
-   NAME DEFINE NUMBER  { 
+   NAME DEFINE NUMBER  {
                          get_arg_map()[get_temp_symbol($1).stringval]=ToString<double>($3);
 					   }
   | NAME DEFINE QUOTEDSTRING
-                       { 
+                       {
 					     get_arg_map()[get_temp_symbol($1).stringval]=get_temp_symbol($3).stringval;
 						}
-  | NAME DEFINE NAME   { 
+  | NAME DEFINE NAME   {
                         get_arg_map()[get_temp_symbol($1).stringval]=get_temp_symbol($3).stringval;
                        }
 ;
@@ -397,8 +397,8 @@ date:
  | DAY    { $$=_SETD(get_time_factory()->getDayNode()); }
  | HOUR   { $$=_SETD(get_time_factory()->getHourNode()); }
  | MINDAY { $$=_SETD(get_time_factory()->getMinOfDayNode()); }
- | MIN    { $$=_SETD(get_time_factory()->getMinNode()); }  
- | DT     { $$=_SETD(get_time_factory()->getTimeStepNode()); }   
+ | MIN    { $$=_SETD(get_time_factory()->getMinNode()); }
+ | DT     { $$=_SETD(get_time_factory()->getTimeStepNode()); }
 ;
 
 interface:
@@ -421,7 +421,7 @@ interface:
 							YYERROR;
 						 }
 			}
-  | IFNAME { 
+  | IFNAME {
              string ifname=get_temp_symbol($1).stringval;
              get_arg_map()["modelname"]=ifname;
 			 try{
@@ -430,13 +430,13 @@ interface:
 						    string message("Model name not found: ");
 						    op_ruleerror((message+e.what()).c_str());
 							YYERROR;
-			 } 
+			 }
            }
 
 
 namedval:
     NAMEDVAL { $$=$1; }
-  | EXPRESSPARAM '(' arglist ')' { 
+  | EXPRESSPARAM '(' arglist ')' {
                          string valname=get_temp_symbol($1).stringval;
                          get_arg_map()["modelname"]=valname;
 						 try{
@@ -455,7 +455,7 @@ namedval:
 							YYERROR;
 						 }
 			}
-  | EXPRESS { 
+  | EXPRESS {
              string expressname=get_temp_symbol($1).stringval;
              get_arg_map()["modelname"]=expressname;
 			 try{
@@ -467,13 +467,13 @@ namedval:
 			 }
            }
   | interface { $$=$1; }
-   
+
 
 
 ;
 
 namedboolval:
-   BOOLNAMEDVAL { 
+   BOOLNAMEDVAL {
 		 $$ = $1;
 	}
 ;

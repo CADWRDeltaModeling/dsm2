@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -21,37 +21,37 @@
 subroutine buffer_input_ptm()
       use input_storage_fortran
       use constants
-      
+
       implicit none
       integer nitem
       integer icount
       integer :: ierror = 0
-      
+
       integer node
       integer nparts
       character*8 delay
       character*16 duration
-      
+
       character*32 groupname
       character*16 member_type
       character*32 pattern
       integer*4 obj_type
-      
+
       character*32 name
       character*40 from_wb
       character*40 to_wb
       character*16 interval
       character*128 filename
-      
+
       character*40 group_name
-      
+
       character*32 resname
       character*32 at_wb
       character*8 fillin
       character*392 inpath
-      
+
       integer*4, external :: obj_type_code
-      
+
 
 
       nitem = particle_insertion_buffer_size()
@@ -78,7 +78,7 @@ subroutine buffer_input_ptm()
                                                    interval, &
                                                    filename, &
                                                    ierror)
-         
+
          call process_particle_flux_output(name, &
                                           from_wb, &
                                           to_wb, &
@@ -86,7 +86,7 @@ subroutine buffer_input_ptm()
                                           filename)
       end do
       print *,"Number of particle flux outputs processed: ", nitem
-      
+
       nitem = particle_group_output_buffer_size()
       do icount = 1,nitem
          call particle_group_output_query_from_buffer(icount, &
@@ -95,7 +95,7 @@ subroutine buffer_input_ptm()
                                                     interval, &
                                                     filename, &
                                                     ierror)
-         
+
          call process_particle_group_output(name, &
                                            group_name, &
                                            interval, &
@@ -140,6 +140,6 @@ subroutine buffer_input_ptm()
                                          inpath)
       end do
       print *,"Number of particle reservoir filters processed: ", nitem
-      
+
 end subroutine
 

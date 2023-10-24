@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ subroutine process_io_file(model,filetype,io,interval,filename)
 
       integer &
           i,i1,i2,i3           ! indices
- 
+
       character*8 &
           model &              ! string for model
           ,filetype &          ! string for type
@@ -40,13 +40,13 @@ subroutine process_io_file(model,filetype,io,interval,filename)
       character*128 &
           filename            ! string for filename
 
- 
+
  610  format(/a)
  620  format(/'Invalid value given in ',a,' field: ',a)
- 
+
 !-----fill in structure
       call locase(model)
-      
+
       if (model(1:5) .eq. 'hydro') then
          i1=hydro
       else if (model(1:4) .eq. 'qual') then
@@ -62,7 +62,7 @@ subroutine process_io_file(model,filetype,io,interval,filename)
       if (filetype .eq. 'output') then
          output_filename=filename
          return
-      endif      
+      endif
 
       if (filetype(1:7) .eq. 'restart') then
          i2=io_restart
@@ -104,4 +104,4 @@ subroutine process_io_file(model,filetype,io,interval,filename)
 
       return
 end subroutine
-     
+

@@ -27,9 +27,9 @@ def generateNotepad():
     userfile = open("userDefineLang.xml","w")
     userfile.write(usertxt)
     userfile.close()
-                  
-         
-         
+
+
+
 if (__name__=="__main__"):
     if len(sys.argv) == 1:
         print "Usage: component order"
@@ -39,7 +39,7 @@ if (__name__=="__main__"):
         if arg == "order":
             corder = component_order()
             ordered_print(corder)
-        if arg == "members": 
+        if arg == "members":
             members = component_members()
             if len(sys.argv)==2:
                 for key in component_order():

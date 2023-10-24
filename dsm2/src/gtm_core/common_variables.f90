@@ -1061,7 +1061,7 @@ module common_variables
              end if
          end do
          ! assign the segment properties
-         num_segm = chan_geom(up_bound)%down_comp - chan_geom(up_bound)%up_comp         
+         num_segm = chan_geom(up_bound)%down_comp - chan_geom(up_bound)%up_comp
          do i = 1, num_segm
              segm(i)%segm_no = i
              segm(i)%chan_no = up_bound
@@ -1071,12 +1071,12 @@ module common_variables
              segm(i)%up_distance = comp_pt(segm(i)%up_comppt)%distance
              segm(i)%down_distance = comp_pt(segm(i)%down_comppt)%distance
              segm(i)%length = segm(i)%down_distance - segm(i)%up_distance
-             segm(i)%nx = max( floor(segm(i)%length/gtm_dx), 1)     
+             segm(i)%nx = max( floor(segm(i)%length/gtm_dx), 1)
              if (segm(i)%nx .eq. 1)  segm(i)%nx = 2
              !if (segm(i)%nx .ne. 1) write(unit_error,*) "spatial discretization not implemented yet"
              segm(i)%start_cell_no = (i-1)*segm(i)%nx + 1
          end do
-         
+
          conn(1)%conn_no = 1
          conn(1)%segm_no = 1
          conn(1)%cell_no = 1

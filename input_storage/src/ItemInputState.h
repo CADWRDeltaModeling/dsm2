@@ -5,11 +5,11 @@
 
 /** InputState that reads concrete input items of type <T>.
     The ItemInputState is the one that does the real work
-    parsing blocks of data. The template parameter 
+    parsing blocks of data. The template parameter
 	represents the concrete item that is being input
 	(for instance "channel" or "gate"). This state will march
 	through rows of input and process lines representing data of
-	the given type until the END indicator is reached for the 
+	the given type until the END indicator is reached for the
 	block of input.
     \ingroup inputstates
 */

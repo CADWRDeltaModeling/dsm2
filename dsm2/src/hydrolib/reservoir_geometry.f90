@@ -58,20 +58,20 @@ contains
            reser_vol=reser_area*(z-res_geom(resno).botelv)
            return
         endif
-        
+
         if ( z > res_geom(resno).elev(nn)) then  !higher than the highest layer, assume constant area
            z1=res_geom(resno).elev(nn)
            V1=res_geom(resno).vol(nn)
            reser_area=res_geom(resno).area(nn)
            reser_vol=reser_area*(z-z1)+V1
            return
-        endif  
-        
+        endif
+
         if ( z < res_geom(resno).elev(1)) then  !lower than the bottom
            WRITE(UNIT_ERROR,923)res_geom(resno).name,z
            call exit(2)
-        endif        
-        
+        endif
+
         nn=nn-1
         do while (res_geom(resno).elev(nn) > z)
         nn=nn-1
@@ -82,11 +82,11 @@ contains
  925        FORMAT(' ERROR ... RESERVOIR: ',a,'Elevation =', 1PE12.5)
             call exit(2)
         end if
-        
+
         z1=res_geom(resno).elev(nn)
         z2=res_geom(resno).elev(nn+1)
         A1=res_geom(resno).area(nn)
-        A2=res_geom(resno).area(nn+1)        
+        A2=res_geom(resno).area(nn+1)
         V1=res_geom(resno).vol(nn)
         V2=res_geom(resno).vol(nn+1)
         dz=z2-z1
@@ -103,7 +103,7 @@ contains
 1926        FORMAT('resno ',a,'@Z', 2PE12.5,' Error was expecting Reservoir Factor (should be 1):',&
                    2PE12.5,' V1', 2PE12.5,' V2', 2PE12.5)
             call exit(2)
-        end if 
+        end if
         F=(A2-A1)/(z2-z1)
         A=A1+F*(z-z1)
         reser_area= A

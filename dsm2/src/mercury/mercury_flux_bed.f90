@@ -59,7 +59,7 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
     real (gtm_real)     :: test1
     real (gtm_real)     :: burial
     real (gtm_real)     :: settling
-    
+
     if (rkstep.eq.1) then
         sed_hg0(:,:,:,1) = sed_hg0(:,:,:,3)
         sed_hgii(:,:,:,1) =  sed_hgii(:,:,:,3)
@@ -75,10 +75,10 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
     do icell =1, n_cell
         do izone = 1, n_zones
 
-            
+
             do ilayer = 1, n_layers
                 !volume_pw = bed(icell,izone,ilayer).wp_wet*bed(icell,izone,ilayer).thickness*bed(icell,izone,ilayer).porosity
-                volume_pw_p = volume_pw(icell,izone,ilayer) 
+                volume_pw_p = volume_pw(icell,izone,ilayer)
                 if (ph(icell).LT.three) then
                     ph(icell)=seven
                 end if
@@ -93,10 +93,10 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
                 call sed_fluxes_hg(icell,izone,ilayer,f_wat(icell), rkstep)
            end do
            do ilayer = 1, n_layers
-    
+
                 call sum_hg_sed_solids_flux(icell,izone,ilayer,f_wat(icell), rkstep)
             end do
-            
+
         end do
     end do
 
@@ -133,7 +133,7 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
     check_erosion(:) = f_erosion_hg(:,1,mf_hgii,rkstep)+f_erosion_hg(:,2,mf_hgii,rkstep)+f_erosion_hg(:,3,mf_hgii,rkstep)
     f_wat%erosion(mf_hgii) =f_wat%erosion(mf_hgii)
     !check_concs(:) = hg_conc_sed(:,1, 1, rkstep)%hgii_ssx(1)
-    
+
     return
 end subroutine hg_flux_sed
 
@@ -194,7 +194,7 @@ subroutine sed_partitioning(icell,izone,ilayer,doc, ph, ec,rkstep)
                             m,                                      &
                             icell,                                  &
                             izone)
-        call hg_reactant_concs(m, nosolids, sedsolids(icell,izone,ilayer,:,rkstep)/volume_pw_p, solid_parms_sed(icell,izone,ilayer,:), hg_conc_sed(icell,izone,ilayer,rkstep))   
+        call hg_reactant_concs(m, nosolids, sedsolids(icell,izone,ilayer,:,rkstep)/volume_pw_p, solid_parms_sed(icell,izone,ilayer,:), hg_conc_sed(icell,izone,ilayer,rkstep))
     else
         eq_vals_sed(icell,izone,ilayer)%initialized = .false.
         call set_complexes_to_zero(m)
@@ -264,9 +264,9 @@ subroutine hg_sed_inert(icell,izone,ilayer,rkstep)
     endif
     adsorp = sedsolids(icell,izone,ilayer,1,rkstep)* hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(1) * (one - solid_parms_sed(icell,izone,ilayer,1).frac_exchg) - sed_s1_hgii(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
-        f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_adsorp*adsorp/day_to_sec 
+        f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_adsorp*adsorp/day_to_sec
     else
-        f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_desorp*adsorp/day_to_sec 
+        f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_desorp*adsorp/day_to_sec
     endif
     adsorp = sedsolids(icell,izone,ilayer,2,rkstep)*hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(2)* (one - solid_parms_sed(icell,izone,ilayer,2).frac_exchg) - sed_s2_hgii(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
@@ -280,7 +280,7 @@ subroutine hg_sed_inert(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
         f_sed_adsorption_s3(icell,izone,ilayer,rkstep) = k_adsorp*adsorp/day_to_sec
     else
-        f_sed_adsorption_s3(icell,izone,ilayer,rkstep) = k_desorp*adsorp/day_to_sec 
+        f_sed_adsorption_s3(icell,izone,ilayer,rkstep) = k_desorp*adsorp/day_to_sec
     endif
     !f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = 0.0d0
     !f_sed_adsorption_s2(icell,izone,ilayer,rkstep) = 0.0d0
@@ -316,7 +316,7 @@ subroutine hg_sed_solids(icell,izone,ilayer, rkstep)
     integer, intent(in) :: izone
     integer, intent(in) :: ilayer
     integer, intent(in) :: rkstep
-    
+
     !local
     integer             :: isolids
     real(gtm_real)      :: max_ss_3
@@ -333,12 +333,12 @@ subroutine hg_sed_solids(icell,izone,ilayer, rkstep)
 
         f_settling_hg(icell,izone,mf_HgII_s1,rkstep) = (settling(icell,izone,1, rkstep)*hg_conc_wat(icell, rkstep)%hgii_inert(1))
         f_settling_hg(icell,izone,mf_HgII_s2,rkstep) = (settling(icell,izone,2, rkstep)*hg_conc_wat(icell, rkstep)%hgii_inert(2))
-        
+
         max_ss_3 = hg_conc_wat(icell, rkstep)%hgii_ssX(3)* (one - solid_parms_sed(icell,izone,ilayer,3).frac_exchg)
-        
+
         if  (hg_conc_wat(icell, rkstep)%hgii_inert(3) <  max_ss_3) then
-            max_ss_3 = hg_conc_wat(icell, rkstep)%hgii_inert(3)    
-        end if   
+            max_ss_3 = hg_conc_wat(icell, rkstep)%hgii_inert(3)
+        end if
         f_settling_hg(icell,izone,mf_HgII_s3,rkstep) = (settling(icell,izone,3, rkstep)* max_ss_3) !hg_conc_wat(icell, rkstep)%hgii_inert(3))
 
         f_erosion_hg(icell,izone,1,rkstep) = (erosion_sb(icell,izone,1,rkstep)*hg_conc_sed(icell,izone, 1, rkstep)%hgii_ssx(1) &
@@ -352,8 +352,8 @@ subroutine hg_sed_solids(icell,izone,ilayer, rkstep)
         f_erosion_hg(icell,izone,4,rkstep) = (erosion_sb(icell,izone,1,rkstep)*hg_conc_sed(icell,izone, 1, rkstep)%hgii_inert(1))
         f_erosion_hg(icell,izone,5,rkstep) = (erosion_sb(icell,izone,2,rkstep)*hg_conc_sed(icell,izone, 1, rkstep)%hgii_inert(2))
         f_erosion_hg(icell,izone,6,rkstep) = (erosion_sb(icell,izone,3,rkstep)*hg_conc_sed(icell,izone, 1, rkstep)%hgii_inert(3))
-        
-     !....moved   
+
+     !....moved
         f_burial_hg(icell,izone,:,rkstep) = zero
 
         if (burial(icell,izone,1,1,rkstep).gt.zero) then    !burial
@@ -386,7 +386,7 @@ subroutine hg_sed_solids(icell,izone,ilayer, rkstep)
             f_burial_hg(icell,izone,mf_HgII_s3,rkstep) =                            burial(icell,izone,1,3,rkstep)*hg_conc_sed(icell,izone,2,rkstep)%hgii_inert(3)
         end if
     !else
-        
+
     end if
 
 end subroutine  hg_sed_solids
@@ -438,12 +438,12 @@ subroutine sum_hg_sed_solids_flux(icell,izone,ilayer, f_wat, rkstep)
 
 
         !f_sed_diffusion_hg(icell,izone,mf,rkstep)         !layer 2 -> layer 1  todo: check sign
-        !f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) = f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) + f_sed_diffusion_hg(icell,izone,mf_hgii,rkstep) 
-        !f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) = f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) + f_sed_diffusion_hg(icell,izone,mf_mehg,rkstep)  
+        !f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) = f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) + f_sed_diffusion_hg(icell,izone,mf_hgii,rkstep)
+        !f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) = f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) + f_sed_diffusion_hg(icell,izone,mf_mehg,rkstep)
         !f_sed_hg(icell,izone,ilayer,mf_hg0,rkstep)  = f_sed_hg(icell,izone,ilayer,mf_hg0,rkstep)  + f_sed_diffusion_hg(icell,izone,mf_hg0,rkstep)
-        
-        f_sed_hg(icell,izone,1,mf_hgii,rkstep) = f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) + f_sed_diffusion_hg(icell,izone,mf_hgii,rkstep) 
-        f_sed_hg(icell,izone,1,mf_mehg,rkstep) = f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) + f_sed_diffusion_hg(icell,izone,mf_mehg,rkstep)  
+
+        f_sed_hg(icell,izone,1,mf_hgii,rkstep) = f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep) + f_sed_diffusion_hg(icell,izone,mf_hgii,rkstep)
+        f_sed_hg(icell,izone,1,mf_mehg,rkstep) = f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep) + f_sed_diffusion_hg(icell,izone,mf_mehg,rkstep)
         f_sed_hg(icell,izone,1,mf_hg0,rkstep)  = f_sed_hg(icell,izone,ilayer,mf_hg0,rkstep)  + f_sed_diffusion_hg(icell,izone,mf_hg0,rkstep)
 
         f_sed_hg(icell,izone,2,mf_hgii,rkstep) = f_sed_hg(icell,izone,2,mf_hgii,rkstep) - f_sed_diffusion_hg(icell,izone,mf_hgii,rkstep)

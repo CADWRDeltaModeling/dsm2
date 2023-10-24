@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -47,38 +47,38 @@
 package DWR.DMS.PTM;
 import java.io.*;
 /**
- * This class outputs information for animation. At any 
+ * This class outputs information for animation. At any
  * given instant of time the Particle Id
  * and the normalized x,y and z location are output.
  * of the Particle.<br>
- * 
+ *
  * @author Nicky Sandhu
  * @version $Id: PTMAnimationOutput.java,v 1.7 2000/08/07 17:00:27 miller Exp $
  */
 public class PTMAnimationOutput extends PTMOutput{
   /**
-   * 
+   *
    * @param filename Name of animation output file
    * @param type format of output: ascii/binary
    * @param interval The number of minutes between animation information
    * @param numberOfParticles The number of particles for animation output
-   * @param particleArray The array of particles 
+   * @param particleArray The array of particles
    */
   public PTMAnimationOutput(String filename,
                             int type,
-                            int interval, 
-                            int numberOfParticles, 
+                            int interval,
+                            int numberOfParticles,
                             int requestedNumberOfParticles,
                             Particle [] particleArray) throws IOException{
     super(filename, type);
     outputInterval = interval;
     setOutputParameters(numberOfParticles, requestedNumberOfParticles, particleArray);
   }
-  
+
   /**
    *  Particle array and size
    */
-  private final void setOutputParameters(int numParts, 
+  private final void setOutputParameters(int numParts,
                                          int requestedNumParts,
                                          Particle [] pArray){
     if (requestedNumParts <= MAX_NUMBER_OF_PARTICLES && requestedNumParts <= numParts)
@@ -119,7 +119,7 @@ public class PTMAnimationOutput extends PTMOutput{
     String modelDate, modelTime;
     modelDate = Globals.getModelDate(julianMin);
     modelTime = Globals.getModelTime(julianMin);
-    String line = modelDate; 
+    String line = modelDate;
     outputStream.writeUTF(line);
     outputStream.writeShort(new Short(modelTime).shortValue());
     outputStream.writeShort(numberOfParticles);
@@ -132,7 +132,7 @@ public class PTMAnimationOutput extends PTMOutput{
       outputStream.writeShort(outputData[i].value);
     }
   }
-  
+
   /**
    *  output ascii
    */
@@ -141,16 +141,16 @@ public class PTMAnimationOutput extends PTMOutput{
     String modelDate, modelTime;
     modelDate = Globals.getModelDate(julianMin);
     modelTime = Globals.getModelTime(julianMin);
-  
+
     String line = modelDate + " " + modelTime;
     outputWriter.write(line, 0, line.length());
     outputWriter.newLine();
     line = numberOfParticles + " ";
     outputWriter.write(line, 0, line.length());
     outputWriter.newLine();
-  
+
     for (int i=0; i< numberOfParticles; i++){
-      line = "  " + outputData[i].particleNumber 
+      line = "  " + outputData[i].particleNumber
            + "  " + outputData[i].channelNumber
            + "  " + outputData[i].normXDistance
            + "  " + outputData[i].normYDistance
@@ -167,20 +167,20 @@ public class PTMAnimationOutput extends PTMOutput{
   private final void updateOutputStructure(InstantaneousOutput [] outputData){
     Waterbody wb=null;
     float []  x = new float [1],y = new float [1],z = new float [1];
-    
+
     for(int i=0; i<numberOfParticles; i++) {
       outputData[i] = new InstantaneousOutput();
       outputData[i].particleNumber = (short) particlePtrArray[i].getId();
-      
+
       wb = particlePtrArray[i].getLocation(x, y, z);
       if ( wb != null ) {
         if( wb.getPTMType() ==  Waterbody.CHANNEL) {
           outputData[i].channelNumber = (short) wb.getEnvIndex();
-          outputData[i].normXDistance = 
+          outputData[i].normXDistance =
             (short) ((1.0f-x[0]/((Channel )wb).getLength())*100);
-          outputData[i].normYDistance = 
+          outputData[i].normYDistance =
             (short) (y[0]/((Channel )wb).getWidth(x[0])*100);
-          outputData[i].normZDistance = 
+          outputData[i].normZDistance =
             (short) (z[0]/((Channel )wb).getDepth(x[0])*100);
           outputData[i].value = (short) (1);
         }
@@ -197,9 +197,9 @@ public class PTMAnimationOutput extends PTMOutput{
         outputData[i].normXDistance = (short)-1;
         outputData[i].normYDistance = (short)-1;
         outputData[i].normZDistance = (short)-1;
-        outputData[i].value = (short)0; 
+        outputData[i].value = (short)0;
       }// end if-else (wb)
-    } 
+    }
   }
 
   public void FlushAndClose() {
@@ -219,9 +219,9 @@ public class PTMAnimationOutput extends PTMOutput{
       }
     } catch(IOException e){System.out.println(e); }
   }
-  
+
   private final int DEFAULT_OUTPUT_INTERVAL = 15;
-  
+
   private final int MAX_NUMBER_OF_PARTICLES=20000;
 
   /**

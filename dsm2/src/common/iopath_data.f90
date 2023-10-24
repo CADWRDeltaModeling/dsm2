@@ -38,7 +38,7 @@ module iopath_data
     logical:: warn_question             ! true to warn about bad data
     logical:: warn_bad             ! true to warn about bad data
     logical:: output_inst          ! true to output results at computational points
-     
+
     logical:: dss_direct = .false.
     logical:: binary_output = .false.
     logical:: need_tmp_outfiles = .false.

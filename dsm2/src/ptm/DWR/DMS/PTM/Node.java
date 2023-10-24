@@ -26,14 +26,14 @@ import java.util.ArrayList;
  *  Node handles connection information as well as constructing outflow
  *  from or to kind of information
  *  <p>
- * 
+ *
  *  FUTURE DIRECTIONS
  *  <p>
  */
 public class Node{
   private RandomElement randomNumberGenerator;
   private static int INITIAL_SEED = 10000;
-  
+
   /**
    *  Node constructor
    */
@@ -41,7 +41,7 @@ public class Node{
     EnvIndex = nId;
     //set the number of waterbodies & number upstream / downstream channels
     //? This is number of channels only.. add ag. drains, pumps, reservoirs
-    //? later as that would information would have to be extracted from 
+    //? later as that would information would have to be extracted from
     //? reservoirs, pumps, and ag. drains.
     numberOfWaterbodies = wbIdArray.length;
     // create arrays to store index of array of waterbodies in PTMEnv
@@ -55,7 +55,7 @@ public class Node{
     //boundaryType = bdType;
     randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
-  
+
   /**
    *  Simpler Node initializer
    */
@@ -64,15 +64,15 @@ public class Node{
     numberOfWaterbodies=0;
     //LABoundaryType = -1;
   }
-  
+
   /**
    *  Clean up only if initialized
    */
-  
+
   public boolean equals(Node n){
 	  if (n.getEnvIndex() == this.getEnvIndex())
 		  return true;
-	  return false;		  
+	  return false;
   }
   /**
    *  Return a uniformly random number between 0-1 using drand48
@@ -80,14 +80,14 @@ public class Node{
   public final float getRandomNumber(){
     return (float) randomNumberGenerator.uniform(0,1);
   }
-  
+
   /**
    *  Return number of waterbodies connecting to the node
    */
   public final int getNumberOfWaterbodies(){
     return (numberOfWaterbodies);
   }
-  
+
   //xiao added
   public final int getNumberOfChannels(){
 	  int chan = 0;
@@ -95,7 +95,7 @@ public class Node{
 		  if (wbArray[i].getType()==Waterbody.CHANNEL)
 			  chan++;
 	  }
-	  return chan;	  
+	  return chan;
   }
   public final ArrayList<Channel> getChannels(){
 	  ArrayList<Channel> chans = new ArrayList<Channel>();
@@ -103,12 +103,12 @@ public class Node{
 		  if (wbArray[i].getType()==Waterbody.CHANNEL)
 			  chans.add((Channel)wbArray[i]);
 	  }
-	  return chans;	  
+	  return chans;
   }
-  
+
   public final Waterbody[] getWaterbodies() {return wbArray; }
-  
-  
+
+
   public final Waterbody getChannel(int envIndex){
 	  for (int i = 0; i<wbArray.length; i++){
 		  Waterbody awb = wbArray[i];
@@ -123,21 +123,21 @@ public class Node{
   public final int getWaterbodyId(int id){
     return(wbArray[id].getEnvIndex());
   }
-  
+
   /**
    *  Return a pointer to desired Waterbody
    */
   public final Waterbody getWaterbody(int id){
     return(wbArray[id]);
   }
-  
+
   /**
    *  Check to see if junction is a dead end.
    */
   public final boolean isJunctionDeadEnd(){
     return(false);
   }
-  
+
   //TODO clean up, no longer used
   /*
   public final void setTotalWaterbodyInflowsWMeanSV(){
@@ -157,7 +157,7 @@ public class Node{
 	  _totalWBInflowsWMeanSV = totalInflows;
 	  _totalAgInflows = totalags;
   }
-  
+
   public float getTotalAgDiversionWMeanSV(){return _totalAgInflows;}
   */
   /**
@@ -166,7 +166,7 @@ public class Node{
    *  for particle decision making at junction
    */
   //public final float getTotalWaterbodyInflowsWMeanSV(){return _totalWBInflowsWMeanSV;}
-  
+
   public void setTotalWaterbodyInflows(){
 	  float totalInflows = 0.0f;
 	  for (Waterbody wb: wbArray){
@@ -184,7 +184,7 @@ public class Node{
 	  float totalags = 0.0f;
 	  for (Waterbody wb: wbArray){
 		  // 1) not count for negative inflow
-		  // 2) a boundary waterbody doesn't have an area and swimming velocity.  
+		  // 2) a boundary waterbody doesn't have an area and swimming velocity.
 		  //    it therefore doesn't have a swimming flow
 		  float thisFlow = Math.max(0, wb.getInflow(EnvIndex));
 		  if (wb.isAgDiv())
@@ -192,21 +192,21 @@ public class Node{
 	  }
 	  _totalAgInflows = totalags;
   }
-  
+
   /**
    *  Return the node index
    */
   public final int getEnvIndex(){
     return(EnvIndex);
   }
-  
+
   /**
    *  Return the index of Waterbody in PTMEnv array using local index
    */
   public final int getWaterbodyEnvIndex(int localIndex){
     return(wbIndexArray[localIndex]);
   }
-  
+
   /**
    *  Fill the wbArray in one node, and cleans up the index array
    */
@@ -217,30 +217,30 @@ public class Node{
     }
     cleanUp();
   }
-  
+
   /**
    *  Add Waterbody of given PTMEnv index to Node wbIndexArray.
    *  These operations should be done prior to calling setWbArray
    */
   public final void addWaterbodyId(int envIndex){
-    
+
     if(numberOfWaterbodies > 0) {
       // store Waterbody indices and types in temporary arrays...
       int[] indexArray = new int[numberOfWaterbodies+1];
       for(int i=0; i< numberOfWaterbodies; i++) {
         indexArray[i] = wbIndexArray[i];
       }
-      
+
       // delete the memory for these arrays
       wbIndexArray = null;
       wbArray = null;
       // increment the number of waterbodies
       numberOfWaterbodies++;
-      
+
       // reallocate bigger chunks of memory
       wbIndexArray = new int[numberOfWaterbodies];
       wbArray = new Waterbody[numberOfWaterbodies];
-      
+
       // fill them up again..
       for(int i=0; i< numberOfWaterbodies-1; i++){
         wbIndexArray[i] = indexArray[i];
@@ -255,19 +255,19 @@ public class Node{
       wbIndexArray[numberOfWaterbodies-1] = envIndex;
     }
   }
-  
+
   /**
    * String representation
    */
   public String toString(){
     String rep = null;
     if (this != null) {
-      rep =  " Node # " + this.EnvIndex + "\n" 
+      rep =  " Node # " + this.EnvIndex + "\n"
            + " Number of Waterbodies = " + this.numberOfWaterbodies + "\n";
       for(int i=0 ; i< getNumberOfWaterbodies(); i++)
         rep += " Waterbody # " + i + " EnvIndex is " + wbIndexArray[i];
     }
-    return rep; 
+    return rep;
   }
   //xiao
   /**
@@ -279,7 +279,7 @@ public class Node{
   public void installFishScreen(){
 	  _fishScreenInstalled = true;
   }
-  
+
   /**
    *  get non-physical barrier op info
    */
@@ -291,40 +291,40 @@ public class Node{
   }
   public void setOutputNode(){_isOutputNode = true;}
   public boolean isOutputNode(){return _isOutputNode;}
-  
+
   /**
    *  Node global index
    */
   private int EnvIndex;
-  
+
   /**
    *  Number of waterbodies connecting to the node
    */
   private int numberOfWaterbodies;
-  
+
   /**
-   *  Array of waterbodies connecting to this node 
+   *  Array of waterbodies connecting to this node
    */
   private Waterbody[] wbArray;
-  
+
   /**
    *  A storage for index of waterbodies in PTMEnv till wbArray
    *  gets filled.
    */
   private int[] wbIndexArray;
-  
+
   /**
    *  Boundary array as defined from fixed input. This is not needed
    *  for boundary Waterbody information as only waterbodies can be
    *  boundaries.
    */
   //private String boundaryType;
-  
+
   /**
    *  Length of boundary array.
    */
   //private int LABoundaryType;
-  
+
   private boolean _barrierInstalled = false;
   private boolean _fishScreenInstalled = false;
   //TODO Clean up, not used anymore
@@ -332,7 +332,7 @@ public class Node{
   private float _totalAgInflows=0.0f;
   private float _totalWaterbodyInflows=0.0f;
   private boolean _isOutputNode = false;
-  
+
   /**
    *  Delete wbIndexArray and anything else to save space.
    */

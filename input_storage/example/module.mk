@@ -15,7 +15,7 @@ $(eval $(call make-library,examplegeneration.a,$(local_src)))
 generated += $(gensource) $(genheadertest)
 
 
-programs += fortran_example.exe 
+programs += fortran_example.exe
 #cpp_example.exe
 
 
@@ -34,11 +34,11 @@ all: $(example_input)
 
 
 cpp_example.exe: $(local_cpp) examplegeneration.a input_storage.a
-	$(CC) ${CPPFLAGS} $^ -o$@ 
+	$(CC) ${CPPFLAGS} $^ -o$@
 
 
 
-FLIB := -L/lib -L/cygdrive/c/devtools/hdf5_cygwin/lib -lboost_regex-gcc-mt -lhdf5_fortran -lhdf5_hl -lhdf5 -L/cygdrive/c/cygwin/szip/lib -lsz -lz 
+FLIB := -L/lib -L/cygdrive/c/devtools/hdf5_cygwin/lib -lboost_regex-gcc-mt -lhdf5_fortran -lhdf5_hl -lhdf5 -L/cygdrive/c/cygwin/szip/lib -lsz -lz
 
 local_fortran := ../example/input_storage_fortran.f90 ../example/example_parser.f90
 

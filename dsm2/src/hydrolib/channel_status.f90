@@ -654,7 +654,7 @@ contains
 
     real*8 function GlobalStreamFlow(LocationNumber)
 
-      
+
         implicit none
 
         !   Purpose:  Return current value of stream flow
@@ -785,7 +785,7 @@ contains
     !== Public (GlobalStreamDepth) =========================================
 
     real*8 function GlobalStreamDepth(LocationNumber)
-      
+
         implicit none
 
         !   Purpose:  Return current value of depth of flow
@@ -914,7 +914,7 @@ contains
     !== Public (GlobalStreamSurfaceElevation) ==============================
 
     real*8 function GlobalStreamSurfaceElevation(LocationNumber)
-      
+
         implicit none
 
         !   Purpose:  Return current value of water-surface elevation
@@ -1005,11 +1005,11 @@ contains
         use IO_Units
         use grid_data
         use netcntrl
-      
+
         use chinitcd
         use chnluser
         use chconnec
-      
+
         use channel_schematic &
             ,only :  NumberOfStreamLocations, &
             UpstreamPointer, DownstreamPointer, &
@@ -1017,7 +1017,7 @@ contains
             NumberOfChannels, &
             OpenChannel, CloseChannel, &
             GetUserStreamflow, GetUserStreamSurfaceElevation
-       
+
         use channel_xsect_tbl &
             ,only: BtmElev, CxArea, ChannelWidth, &
             Conveyance, dConveyance
@@ -1390,7 +1390,7 @@ contains
         use IO_Units
         use channel_schematic, only: UpstreamPointer, CurrentChannel, &
             CheckChannelCompLocationRange
-      
+
         implicit none
 
         !   Purpose:  Set current value of stream density in the current
@@ -1441,7 +1441,7 @@ contains
         use IO_Units
         use channel_schematic, only: UpstreamPointer, CurrentChannel, &
             CheckChannelCompLocationRange
- 
+
         implicit none
 
         !   Purpose:  Set current value of stream density in the current
@@ -1606,7 +1606,7 @@ logical function SetConstantStreamDensity()
     use IO_Units
     use channel_schematic, only: UpstreamPointer, DownstreamPointer, NumberOfChannels &
         , OpenChannel, CloseChannel
-      
+
     implicit none
 
     !   Purpose:  Set stream density to 1.0 for all channels.

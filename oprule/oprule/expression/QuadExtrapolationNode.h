@@ -24,15 +24,15 @@ public:
     /** Create the node given the expression node it will extrapolate.
     * NOTE: this is unfinished for variable steps
     *@param node node to extrapolate
-    *@param time length to project 
-    *           
+    *@param time length to project
+    *
     */
-    QuadExtrapolationNode(ExpressionNodePtr node, 
+    QuadExtrapolationNode(ExpressionNodePtr node,
                           double time) :
         _node(node),
         _time(time),
         _newVal(HUGE_VAL),
-        _oldVal(HUGE_VAL), 
+        _oldVal(HUGE_VAL),
         _prevVal(HUGE_VAL),
         _step(HUGE_VAL),
         _oldStep(HUGE_VAL){
@@ -43,7 +43,7 @@ public:
     };
 
 
-    static NodePtr create(DoubleNodePtr expr, double steps){ 
+    static NodePtr create(DoubleNodePtr expr, double steps){
         return boost::shared_ptr<QuadExtrapolationNode>(new QuadExtrapolationNode(expr,steps));
     }
 
@@ -83,7 +83,7 @@ public:
         c1=-steps*steps - 2.0*steps;
         c2= steps*steps/2. + steps/2.;
         _extrap=c0*_newVal + c1*_oldVal + c2*_prevVal;
-        
+
     }
 
     virtual bool isTimeDependent()const { return true; }

@@ -97,23 +97,23 @@ module mercury_fluxes
         source_mercury = zero
         area_wet = width*dx*L*L                         !m2 surface area
         depth_si = depth * L
-        
+
         volume(:) = dx(:)*width(:)*depth(:)*L*L*L       !m3
-        
-        volume(:) = dx(:)*area(:)*L*L*L                 !m3 
+
+        volume(:) = dx(:)*area(:)*L*L*L                 !m3
         day_to_sec = 8.64d04                            !convert rates from days to seconds
         call set_fluxes_to_zero(f_wat_hg,ncell)
         conc_doc(:) = conc(:,doc_ivar)
 
-        volume_pw(:,:,:) = bed(:,:,:).wp_wet*bed(:,:,:).thickness*bed(:,:,:).porosity 
+        volume_pw(:,:,:) = bed(:,:,:).wp_wet*bed(:,:,:).thickness*bed(:,:,:).porosity
         do icell = 1, ncell
             do izone = 1, n_zones
                 volume_pw(icell,izone,1) = volume_pw(icell,izone,1)*length(icell)
                 volume_pw(icell,izone,2) = volume_pw(icell,izone,2)*length(icell)
             end do
         end do
-        
-        
+
+
         do icell = 1, ncell
             solids(:) = conc_sed(icell,:)
             where (solids.lt.1.0d-5) solids = 1.0d-5
@@ -139,8 +139,8 @@ module mercury_fluxes
                                   rkstep)
 
             hg_conc_wat(icell, rkstep)%Hg0 = conc_mercury(icell,3)
-            
-            
+
+
            ! if ((hg_conc_wat(icell, rkstep)%HgII_SSX(2) > 10.0d0) .or. (hg_conc_wat(icell, rkstep)%HgII_SSX(2) > 10.0d0) .or. (hg_conc_wat(icell, rkstep)%HgII_SSX(3) > 10.0d0)) then
            !     print *, icell, "exchangable"
            !     read *
@@ -159,7 +159,7 @@ module mercury_fluxes
             !    print *, icell, "inert"
             !    read *
             !end if
-          
+
             call hg_flux_wat(area_wet(icell),    &
                          volume(icell),          &
                          depth_si(icell),        &
@@ -187,7 +187,7 @@ module mercury_fluxes
                          solid_in,               &
                          hg_conc_wat(icell, rkstep),          &
                          f_wat_hg(icell) )         ! not given yet
-            !call sum_fluxes(f_wat_hg(icell))  
+            !call sum_fluxes(f_wat_hg(icell))
         end do
 
         call hg_flux_sed(ncell, dt, f_wat_hg, conc_doc, conc_ph, conc_ec, rkstep)
@@ -195,8 +195,8 @@ module mercury_fluxes
         do icell = 1, ncell
             call sum_fluxes(f_wat_hg(icell))
         end do
-        
-         
+
+
                                                         !Todo: check units
         !f_wat_hg(:)%hgii = f_wat_hg(:)%hgii/day_to_sec  + f_wat_hg(:)%erosion(mf_hgii) - f_wat_hg(:)%settle(mf_hgii)
         !f_wat_hg(:)%mehg = f_wat_hg(:)%mehg/day_to_sec  + f_wat_hg(:)%erosion(mf_mehg) - f_wat_hg(:)%settle(mf_mehg)
@@ -204,7 +204,7 @@ module mercury_fluxes
         !f_wat_hg(:)%hg_inert(1) = f_wat_hg(:)%hg_inert(1)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s1) + f_wat_hg(:)%erosion(mf_hgii_s1)
         !f_wat_hg(:)%hg_inert(2) = f_wat_hg(:)%hg_inert(2)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s2) + f_wat_hg(:)%erosion(mf_hgii_s2)
         !f_wat_hg(:)%hg_inert(3) = f_wat_hg(:)%hg_inert(3)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s3) + f_wat_hg(:)%erosion(mf_hgii_s3)
-                        
+
         f_wat_hg(:)%hgii = f_wat_hg(:)%hgii  + f_wat_hg(:)%erosion(mf_hgii) - f_wat_hg(:)%settle(mf_hgii)
         f_wat_hg(:)%mehg = f_wat_hg(:)%mehg  + f_wat_hg(:)%erosion(mf_mehg) - f_wat_hg(:)%settle(mf_mehg)
 

@@ -29,7 +29,7 @@ module rate_coeff_assignment
 
 contains
 
- 
+
     !     output the rate coefficents values to a file ,if there are missing values
     !     at certain location, error message will be print out also
 
@@ -94,14 +94,14 @@ contains
 
 
 3000    format(A8,2A16,F16.4)
-	      
+
     end subroutine
 
     !     check the required rate coefficients ara input for every nonconservative
     !     constituent within every waterbody(channel and reservoir)
 
     logical function check_rate_for_waterbody(funit)
-     
+
         integer,intent(in)::funit
 
         !     local variables
@@ -158,7 +158,7 @@ contains
                 end do
             end do
         end do
-	      
+
     end function
 
 
@@ -252,5 +252,5 @@ contains
     end function
 
 
-     
+
 end module

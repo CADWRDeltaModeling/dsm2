@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -48,7 +48,7 @@ subroutine process_gate(id, &
       logical :: useObj
       integer, external :: ext2intnode
       integer, external :: obj_type_code
-      
+
       ObjConnType = obj_type_code(ObjConnTypeName)
             ngate=ngate+1
             if (ngate .gt. max_gates) then
@@ -57,7 +57,7 @@ subroutine process_gate(id, &
                call exit(-1)
                return
             endif
- 630        format(/a,i5) 
+ 630        format(/a,i5)
       gateArray(ngate).ID = ID
       gateArray(ngate).inUse=.true.
       call locase(name)
@@ -67,9 +67,9 @@ subroutine process_gate(id, &
       gateArray(ngate).node=ext2intnode(NodeConn)
 	gateArray(ngate).install_datasource.source_type=const_data
 	gateArray(ngate).install_datasource.indx_ptr=0 !fixme: is this is OK?
-	gateArray(ngate).install_datasource.value=1.            
+	gateArray(ngate).install_datasource.value=1.
             ObjConnID=trim(ObjConnID)
-            call locase(ObjConnID)           
+            call locase(ObjConnID)
             if ( (ObjConnType .eq. OBJ_CHANNEL) ) then
                channo=name_to_objno(ObjConnType, objConnID)
                gateArray(ngate).objConnectedID=channo
@@ -83,7 +83,7 @@ subroutine process_gate(id, &
  627	                format('Gate ',a, ' attached from reservoir ', a, ' to node ', &
                        i5, /'conflicts with a gate or reservoir connection ' / &
                        'defined between the same reservoir and node. ' / &
-                       'Use a single gate or reservoir connection.')     
+                       'Use a single gate or reservoir connection.')
                       call exit(1)
 	             end if
 	         end do
@@ -125,8 +125,8 @@ subroutine process_gate_device( &
           UNIDIR_TO_NODE,UNIDIR_FROM_NODE
       use io_units
       use constants
-      
-      
+
+
       implicit none
 
 !-----local variables
@@ -143,8 +143,8 @@ subroutine process_gate_device( &
           ,nout &
           ,default_op &
           ,get_objnumber       ! function to get object number
-      
-      integer,external :: name_to_objno   
+
+      integer,external :: name_to_objno
 
       real*8 &
           max_width &
@@ -157,7 +157,7 @@ subroutine process_gate_device( &
           ,gatename
       character*8  structure_name
       character*16 default_op_name
-      
+
       call locase(name)
       call locase(gatename)
       call locase(structure_name)
@@ -195,7 +195,7 @@ subroutine process_gate_device( &
                         trim(name),trim(default_op_name)
                call exit(-3)
 	         return
-	end if          
+	end if
       gateNo=name_to_objno(obj_gate,gatename)
       devNo=gateArray(gateNo).nDevice
       devNo=devNo+1
@@ -208,9 +208,9 @@ subroutine process_gate_device( &
       gateArray(gateNo).devices(devNo).nduplicate=nduplicate
       gateArray(gateNo).devices(devNo).maxWidth=max_width
       gateArray(gateNo).devices(devNo).height=height
-      gateArray(gateNo).devices(devNo).baseElev=base_elev                  
+      gateArray(gateNo).devices(devNo).baseElev=base_elev
 
-	
+
 	 gateArray(gateNo).devices(devNo).op_to_node_datasource.source_type=const_data
 	!fixme: is this next line OK?
 	gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0

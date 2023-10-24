@@ -7,7 +7,7 @@ CHAN_NO    LENGTH    MANNING    DISPERSION    UPNODE    DOWNNODE
 END
 
 XSECT_LAYER
-CHAN_NO  DIST  ELEV  AREA  WIDTH  WET_PERIM  
+CHAN_NO  DIST  ELEV  AREA  WIDTH  WET_PERIM
 2        0.500   -24       0           40          40
 2        0.500   0         960         80          102.5
 2        0.500   20        2640        160         192

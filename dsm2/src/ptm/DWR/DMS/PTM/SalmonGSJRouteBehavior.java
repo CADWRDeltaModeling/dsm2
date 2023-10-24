@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
@@ -11,14 +11,14 @@ import org.apache.commons.math3.special.Beta;
 /**
  * @author xwang
  * using junction models developed by Russ Perry's group in USGS to calculate entrainment/routing probability
- * inherited from SalmonDCCRouteBehavior so some of the methods such as calcA, calcB can be used.  
+ * inherited from SalmonDCCRouteBehavior so some of the methods such as calcA, calcB can be used.
  */
 public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 	private int _nodeId;
 	private RouteInputs _rIn = null;
 	private boolean DEBUG = false;
 	/**
-	 * 
+	 *
 	 */
 	public SalmonGSJRouteBehavior(RouteInputs rIn, Integer nodeId) {
 		super(rIn, nodeId);
@@ -28,7 +28,7 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 	}
 
 	/* (non-Javadoc)
-	 * @see 
+	 * @see
 	 * override the method in SalmonDCCRouteBehavior
 	 */
 	public void makeRouteDecision(Particle p) {
@@ -49,20 +49,20 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		float qSacDDCFS = sacDownDown.getFlow(0.0f);
 		float qGsCFS = gs.getFlow(0.0f);
 		float dtSacDDCFS = sacDownDown.deltaFlowAt[0];
-		double gsProbability;		
-				
+		double gsProbability;
+
 		/* if particle from upstream and unidirectional flow greater than 14000cfs
 		 * using the model in:
 		 * "Georgiana Slough: Combined model of the critical streakline, cross-stream fish distribution and entrainment probability"
 		 * by Dalton et al.
 		 * otherwise use the model in
 		 * "Effect of Tides, River Flow, and Gate Operations on Entrainment of Juvenile Salmon into the interior Sacramento-san Joaquin river Delta"
-		 * by Perry et al. 
+		 * by Perry et al.
 		 */
-		// else using Russ' regression model 
-		
+		// else using Russ' regression model
+
 		if (qUpSacGSCFS > 14000 && qGsCFS > 0 && qSacDDCFS > 0 && (p.wb.getEnvIndex() == sacUpgs.getEnvIndex())){
-			//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms/500 
+			//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms/500
 			float gs_scaled = 0.0283f/500.0f;
 			float qUpSac = gs_scaled*qUpSacGSCFS;
 			float qDownSac = gs_scaled*qSacDDCFS;
@@ -82,7 +82,7 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		    int bOp = gs.getCurrentBarrierOp(p.nd.getEnvIndex());
 		    //pr1 pr0 conditional probability of entrainment
 		    double mu, epow, epowPR1, epowPR0, pr1, pr0, a, b, p1, p0;
-		    //Although Because of div flow, qDownSac+qGs != qUpSac, qUpSac should still be used because the original equation 
+		    //Although Because of div flow, qDownSac+qGs != qUpSac, qUpSac should still be used because the original equation
 		    //is derived from the upstream Sacramento River flow
 		    double fi = Math.exp(2.496-0.267*qUpSac);
 		    if(d == 0){
@@ -103,7 +103,7 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		    		epowPR1 = Math.exp(-1.948+1.027*qUpSac);
 		    		epowPR0 = Math.exp(-2.636-0.468*qUpSac);
 		    	}
-		    	else{		    		
+		    	else{
 		    		epow = Math.exp(-0.131+0.096*qUpSac);
 		    		epowPR1 = Math.exp(-0.807+1.027*qUpSac);
 		    		epowPR0 = Math.exp(-1.495-0.468*qUpSac);
@@ -116,13 +116,13 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		    b = (1-mu)*fi;
 		    p1 = Beta.regularizedBeta(si, a, b);
 		    p0 = 1-p1;
-		    gsProbability = pr1*p1 + pr0*p0;	
-		    _rIn.putEntrainmentRate(_nodeId, 
+		    gsProbability = pr1*p1 + pr0*p0;
+		    _rIn.putEntrainmentRate(_nodeId,
 		    		new ArrayList<Object>(Arrays.asList(p.Id, qUpSac/gs_scaled, d, bOp, sr, "", "",gsProbability)));
 		} //if (qUpSacGSCFS > 14000 && qGsCFS > 0 && qSacDDCFS > 0 && (p.wb.getEnvIndex() == sacUpgs.getEnvIndex()))
-		else{					
-			//the flow unit in DSM2 is cfs. scale the flow to the unit used by the junction model, i.e., cms 
-			//and standardized it			
+		else{
+			//the flow unit in DSM2 is cfs. scale the flow to the unit used by the junction model, i.e., cms
+			//and standardized it
 			float qSacDD = (scaled*qSacDDCFS-qSacDownGsMean)/qSacDownGsSD;
 			float qGss = (scaled*qGsCFS-qGsMean)/qGsSD;
 			float dtQSac = (scaled*dtSacDDCFS-dtQSacDownGsMean)/dtQSacDownGsSD;
@@ -144,13 +144,13 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 			double a = calcA(new float[]{qSacDD, qGss, dir});
 			double b = calcB(new float[]{qSacDD, dtQSac});
 			double piDcc = pi(b, a, dccGate,gsGate);
-			double piGs = pi(a, b, gsGate, dccGate);	
+			double piGs = pi(a, b, gsGate, dccGate);
 			gsProbability = piGs/(1.0d-piDcc);
-			rIn.putEntrainmentRate(nodeId, 
+			rIn.putEntrainmentRate(nodeId,
 					new ArrayList<Object>(Arrays.asList(p.Id, qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc, piGs, gsProbability)));
 		}
 		selectChannel(p, new Channel[]{sacUpgs, sacDownDown, gs}, nodeId, gsProbability,3);
-		
+
 	}
 }
 

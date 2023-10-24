@@ -12,14 +12,14 @@ namespace rule {
 /** Discovers actions that possibly conflict.
  *  The meaning of a <i>conflict</i> is application specific. The best way to
  *  resolve differences is with double dispatch -- developers may want to use
- *  the class ModelInterfaceActionResolver as a template with double dispatch 
+ *  the class ModelInterfaceActionResolver as a template with double dispatch
  *  using Loki.
  *  @todo name? -- discovers conflicts resolve them.
  */
 class ActionResolver{
 public:
 
-/** 
+/**
   *Enumeration of responses when an old rule and new rule are compared.
   */
 	enum RulePriority {
@@ -43,7 +43,7 @@ public:
     */
    virtual bool overlap(OperationAction& act1,
                         OperationAction& act2)=0;
-   
+
    /**
     * Provides a policy for resolving situations when two rules conflict.
     */

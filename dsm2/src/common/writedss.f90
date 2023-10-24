@@ -28,7 +28,7 @@ module mod_writedss
           ,unit_day1=33 &
           ,unit_week1=34 &
           ,unit_month1=35 &
-          ,unit_year1=36 
+          ,unit_year1=36
 
 !-----output data buffers
 !-----the zero'th location is used to store the value from the

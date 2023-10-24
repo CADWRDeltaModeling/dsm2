@@ -67,7 +67,7 @@ module interpolation
         integer :: i, j                                                    ! local variable
         integer :: end_c
         end_c = start_c + nx - 1
-        ! Applying semi-implicitness theta to time interpolation. 
+        ! Applying semi-implicitness theta to time interpolation.
         a_theta = (one - hydro_theta)*a*2.0
         c_theta = hydro_theta*c*2.0
         b_theta = (one - hydro_theta)*b*2.0
@@ -80,7 +80,7 @@ module interpolation
             factor = (dble(i)-one)/(dble(nt)-one)
             mesh_lo(i,start_c) = a_theta + factor*(c_theta-a_theta)
             mesh_hi(i,end_c) = b_theta + factor*(d_theta-b_theta)
-        end do        
+        end do
         do i = 1, nt
             do j = 1, nx-1
                 factor = dble(j)/dble(nx)
@@ -94,7 +94,7 @@ module interpolation
                 volume_change(i,start_c+j-1) = ((one-hydro_theta)*mesh_lo(i,start_c+j-1)+hydro_theta*mesh_lo(i+1,start_c+j-1) &
                                     -(one-hydro_theta)*mesh_hi(i,start_c+j-1)-hydro_theta*mesh_hi(i+1,start_c+j-1))*dt*sixty ! theta average
             end do
-        end do        
+        end do
         return
     end subroutine
 
@@ -183,7 +183,7 @@ module interpolation
         ! call CxArea to obtain area
         do j  = 1, nt
             do i = 1, nx
-                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)          
+                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
             end do
             call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), dp_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
             do i = 1, nx-1
@@ -214,15 +214,15 @@ module interpolation
                     xdist = N(1) * x1 + N(2) * x2
                     z = N(1) * z1 + N(2) * z2
 
-                    if ( abs(xdist-x1) < 1e-06) then                       
-                        quadarea = mesh_lo(j,start_c+i-1)                
-                    else if ( abs(xdist-x2) < 1e-06) then                        
-                        quadarea = mesh_hi(j,start_c+i-1)               
+                    if ( abs(xdist-x1) < 1e-06) then
+                        quadarea = mesh_lo(j,start_c+i-1)
+                    else if ( abs(xdist-x2) < 1e-06) then
+                        quadarea = mesh_hi(j,start_c+i-1)
                     else
-                        call CxInfo(quadarea, width_tmp, wet_p_tmp, depth_tmp, xdist, z, branch)                        
-                    endif     
+                        call CxInfo(quadarea, width_tmp, wet_p_tmp, depth_tmp, xdist, z, branch)
+                    endif
                     area_mesh(j,start_c+i-1) = area_mesh(j,start_c+i-1) + quadwt(k) * quadarea    ! volume averaged area consistent with quardrature point method in hydro
-                end do 
+                end do
             end do
         end do
         do j = 1, nt-1
@@ -571,7 +571,7 @@ module interpolation
         real(gtm_real), intent(in) :: flow_a, flow_b, flow_c, flow_d                !< input four corner flow points
         real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points
         real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
-        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh        
+        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: flow_volume_change     !< volume change from flow interpolation for each cell
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: area_volume_change     !< volume change from area interpolation for each cell
 

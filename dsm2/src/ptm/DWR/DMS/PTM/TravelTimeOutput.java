@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.io.BufferedWriter;
@@ -21,7 +21,7 @@ import java.util.Arrays;
 public class TravelTimeOutput {
 
 	/**
-	 * Output travel time to a .csv file 
+	 * Output travel time to a .csv file
 	 */
 	public TravelTimeOutput(ArrayList<String> outText) { // outText:  the line specify travel time output in the behavior input file
 		if (outText == null)
@@ -100,7 +100,7 @@ public class TravelTimeOutput {
 			_ttHolder.put(items[3], new ConcurrentHashMap<Integer, TTEntry>());
 		}
 	}
-	
+
 	public void travelTimeOutput(){
 		//TODO clean up _ttHolder will never be zero see line above line 91
 		/*
@@ -131,10 +131,10 @@ public class TravelTimeOutput {
 						ttWriter.write(Integer.toString(pId).concat(",").
 									concat(tt4P.getInsertStationName()).concat(",").concat(dateStr).concat(",").
 									concat(stationName).concat(",").concat(Integer.toString((int)tt4P.getTravelTime())));
-						ttWriter.newLine();	
+						ttWriter.newLine();
 					}
 				}
-				
+
 			}
 			PTMUtil.closeBuffer(ttWriter);
 		}catch(IOException e){
@@ -146,19 +146,19 @@ public class TravelTimeOutput {
 		//only record when need to output TravelTime
 		if (_pathName == null)
 			return;
-		
-		
-		/* after discussed with Adam Pope and Russell Perry of USGS, we decided that we lift the restrict that we only record travel times for particles from upstream  
+
+
+		/* after discussed with Adam Pope and Russell Perry of USGS, we decided that we lift the restrict that we only record travel times for particles from upstream
 		// only record particles from upstream
 		if (fromUpstream){
 			String staName = _stationNames.get(ndWb);
-			
+
 			 //if staName == null, the particle is not at the recording location
 			 //_recorderTest != null, the particle has been recorded, don't record again
-			 //a particle can hit multiple receiving stations.  
+			 //a particle can hit multiple receiving stations.
 			 //the station with the shortest travel time is the one that the particle first hits.
 			 //do not record travel time after the first hit
-			 
+
 			if ((staName != null) && (_recorderTest.get(id) == null)){
 				float dist = _staDist.get(ndWb);
 				float distDiff = Math.abs(x-dist);
@@ -168,8 +168,8 @@ public class TravelTimeOutput {
 					double tt = ageInSec;
 					if (distDiff>_threshold){
 						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
-						if (velocity < 0.0001f)  
-							System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
+						if (velocity < 0.0001f)
+							System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:"
 							+ velocity+", could cause an error at travel time calculation");
 						tt -= (x-dist)/velocity;
 					}
@@ -179,12 +179,12 @@ public class TravelTimeOutput {
 			}
 		}
 	*/
-		
+
 		String staName = _stationNames.get(ndWb.get(1));
 		/*
 		if staName == null, the particle is not at the recording location
 		 _recorderTest != null, the particle has been recorded, don't record again
-		 a particle can hit multiple receiving stations.  
+		 a particle can hit multiple receiving stations.
 		 the station with the shortest travel time is the one that the particle first hits.
 		 do not record travel time after the first hit
 		  * */
@@ -197,10 +197,10 @@ public class TravelTimeOutput {
 			x = sign*x;
 			if (!(x < dist)) {
 				double tt = ageInSec;
-				if (Math.abs(velocity) < 0.0001f)  
-					System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
+				if (Math.abs(velocity) < 0.0001f)
+					System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:"
 						+ velocity+", could cause an error at travel time calculation");
-				// when x<0 and dist<0, velocity has to be negative.  However, it could have a round up error so take abs to be safe 
+				// when x<0 and dist<0, velocity has to be negative.  However, it could have a round up error so take abs to be safe
 				tt -= Math.abs(x-dist)/Math.abs(velocity);
 				if (tt < 0)
 				//if (tt < 0 || (x<0 && dist<0 && velocity > 0) || (x>0 && dist>0 && velocity < 0))
@@ -208,7 +208,7 @@ public class TravelTimeOutput {
 					PTMUtil.systemExit("The travel time is negative. velocity:"+velocity+" x:"+x+"  dist:"+dist+"  node/chan:"+ Arrays.toString(ndWb.array())+"  tt:"+tt+"  System exit.");
 				_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt/60d));
 				_recorderTest.put(id, true);
-			}	
+			}
 		}
 	}
 	public void setThreshold(float t){_threshold = t;}
@@ -217,7 +217,7 @@ public class TravelTimeOutput {
 	//private ArrayList<IntBuffer> _outputStations;
 	// map of channel number and detection station name
 	private Map<Integer, String> _stationNames = null;
-	// detection station, {particleId, TTEntry} 
+	// detection station, {particleId, TTEntry}
 	private Map<String, Map<Integer, TTEntry>> _ttHolder;
 	// map of channel number and distance
 	private Map<Integer, Float> _staDist;
@@ -225,7 +225,7 @@ public class TravelTimeOutput {
 	private Map<Integer, Boolean> _recorderTest;
 	private String _pathName;
 	private float _threshold = 0.000001f;
-	
+
 	//TODO assume that there is only one travel time per particle
 	private class TTEntry{
 		private String _inSta;

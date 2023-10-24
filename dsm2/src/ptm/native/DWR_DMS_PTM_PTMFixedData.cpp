@@ -345,8 +345,8 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNodeArrayForWaterbo
   int numberOfNodes = getNumberOfNodesForWaterbody(&number);
   jintArray nodeArrayJava = env->NewIntArray((jsize) numberOfNodes);
   getNodeArrayForWaterbody(&number, array);
-  env->SetIntArrayRegion(nodeArrayJava, 
-			 (jsize) 0, (jsize) numberOfNodes, 
+  env->SetIntArrayRegion(nodeArrayJava,
+			 (jsize) 0, (jsize) numberOfNodes,
 			 (jint*) array);
   return nodeArrayJava;
 }
@@ -375,8 +375,8 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelNodeArray
   int numberOfNodes = getChannelNumberOfNodes(&channelNumber);
   jintArray nodeArrayJava = env->NewIntArray((jsize) numberOfNodes);
   getChannelNodeArray(&channelNumber, array);
-  env->SetIntArrayRegion(nodeArrayJava, 
-			 (jsize) 0, (jsize) numberOfNodes, 
+  env->SetIntArrayRegion(nodeArrayJava,
+			 (jsize) 0, (jsize) numberOfNodes,
 			 (jint*) array);
   return nodeArrayJava;
 }
@@ -449,8 +449,8 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getReservoirNodeArray
   int arrayLen = getReservoirNumberOfNodes(&reservoirNumber);
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getReservoirNodeArray(&reservoirNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   return arrayJava;
 }
@@ -467,10 +467,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getDiversionNodeArray
   if(arrayLen <= 0) return NULL;
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getDiversionNodeArray(&diversionNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -486,10 +486,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getPumpNodeArray
   if(arrayLen <= 0) return NULL;
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getPumpNodeArray(&pumpNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
@@ -504,10 +504,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBoundaryWaterbodyNo
   if(arrayLen <= 0) return NULL;
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getBoundaryWaterbodyNodeArray(&boundaryWaterbodyNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
@@ -522,10 +522,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getConveyorNodeArray
   if(arrayLen <= 0) return NULL;
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getConveyorNodeArray(&number, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -537,7 +537,7 @@ JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNumberOfWaterbodiesForNo
 (JNIEnv * env, jobject thisOne, jint i){
   int nodeNumber = (int) i;
   jint number = (jint) getMaximumNumberOfNodes();
-  return number; 
+  return number;
 }
 
 /*
@@ -568,8 +568,8 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodyIdArrayFor
   int arrayLen = getNumberOfWaterbodiesForNode(&nodeNumber);
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getWaterbodyIdArrayForNode(&nodeNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   return arrayJava;
 }
@@ -586,8 +586,8 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getXSectionWidths
   int arrayLen = getXsectionNumberOfElevations();
   jfloatArray arrayJava = env->NewFloatArray((jsize) arrayLen);
   getXsectionWidths(&index, array);
-  env->SetFloatArrayRegion(arrayJava, 
-			   (jsize) 0, (jsize) arrayLen, 
+  env->SetFloatArrayRegion(arrayJava,
+			   (jsize) 0, (jsize) arrayLen,
 			   (jfloat*) array);
   return arrayJava;
 }
@@ -605,8 +605,8 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getXSectionElevation
   int arrayLen = getXsectionNumberOfElevations();
   jfloatArray arrayJava = env->NewFloatArray((jsize) arrayLen);
   getXsectionElevations(&index, array);
-  env->SetFloatArrayRegion(arrayJava, 
-			   (jsize) 0, (jsize) arrayLen, 
+  env->SetFloatArrayRegion(arrayJava,
+			   (jsize) 0, (jsize) arrayLen,
 			   (jfloat*) array);
   return arrayJava;
 }
@@ -625,8 +625,8 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getXSectionAreas
   int arrayLen = getXsectionNumberOfElevations();
   jfloatArray arrayJava = env->NewFloatArray((jsize) arrayLen);
   getXsectionAreas(&index, array);
-  env->SetFloatArrayRegion(arrayJava, 
-			   (jsize) 0, (jsize) arrayLen, 
+  env->SetFloatArrayRegion(arrayJava,
+			   (jsize) 0, (jsize) arrayLen,
 			   (jfloat*) array);
   return arrayJava;
 }
@@ -656,8 +656,8 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleBooleanInpu
   int arrayLen = 9;
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleBooleanInputs(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   return arrayJava;
 }
@@ -674,8 +674,8 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleFloatInpu
   int arrayLen = 7;
   jfloatArray arrayJava = env->NewFloatArray((jsize) arrayLen);
   getParticleFloatInputs(array);
-  env->SetFloatArrayRegion(arrayJava, 
-			     (jsize) 0, (jsize) arrayLen, 
+  env->SetFloatArrayRegion(arrayJava,
+			     (jsize) 0, (jsize) arrayLen,
 			     (jfloat*) array);
   return arrayJava;
 }
@@ -704,10 +704,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionNo
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionNodes(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -722,10 +722,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleNumberOfPar
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleNumberOfParticlesInjected(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -740,10 +740,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionSt
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionStartJulmin(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -758,10 +758,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionLe
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionLengthJulmin(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -790,11 +790,11 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxIncoming
   int * array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getFluxIncoming(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -811,11 +811,11 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxOutgoing
   int * array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getFluxOutgoing(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -832,11 +832,11 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxIncomingType
   int * array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getFluxIncomingType(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava; 
+  return arrayJava;
 }
 
 
@@ -853,11 +853,11 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxOutgoingType
   int * array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getFluxOutgoingType(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -882,10 +882,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getIndicesOfFilters
   int arrayLen = getNumberOfFilters();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getIndicesOfFilters(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -912,7 +912,7 @@ JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNamesOfFilters
 	  env->SetObjectArrayElement(arrayJava, i, tmpstr);
 	  env->DeleteLocalRef(tmpstr);
   }
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -926,10 +926,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNodesOfFilters
   int arrayLen = getNumberOfFilters();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getNodesOfFilters(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -943,10 +943,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodiesOfFilter
   int arrayLen = getNumberOfFilters();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getWaterbodiesOfFilters(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -960,10 +960,10 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodyTypesOfFil
   int arrayLen = getNumberOfFilters();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getWaterbodyTypesOfFilters(array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
-  return arrayJava; 
+  return arrayJava;
 }
 
 /*
@@ -990,11 +990,11 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getGroupMemberType
   int* array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getGroupMemberType(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava;  	
+  return arrayJava;
   }
 
 /*
@@ -1010,12 +1010,12 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getGroupMemberIndex
   int* array = new int[arrayLen];
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getGroupMemberIndex(&index, array, &arrayLen);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) arrayLen, 
+  env->SetIntArrayRegion(arrayJava,
+			 (jsize) 0, (jsize) arrayLen,
 			 (jint*) array);
   delete array;
-  return arrayJava;  	
-  	
+  return arrayJava;
+
   }
 
 
@@ -1080,7 +1080,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getAnimationFileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 
 
@@ -1109,7 +1109,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorFileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 
 /*
@@ -1126,7 +1126,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorInfileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 
 /*
@@ -1143,7 +1143,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getTraceFileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 
 
@@ -1173,7 +1173,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartOutputFileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 
 
@@ -1203,7 +1203,7 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartInputFileName
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
-  return nameJava; 
+  return nameJava;
 }
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData

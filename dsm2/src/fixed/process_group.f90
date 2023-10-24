@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -39,7 +39,7 @@ subroutine process_group(name, id)
 	      call exit(-1)
          end if
       end if
-      return    
+      return
 end subroutine
 
 subroutine process_group_member(groupname, &
@@ -55,7 +55,7 @@ subroutine process_group_member(groupname, &
       integer :: groupNdx = miss_val_i
       integer :: npattern = miss_val_i
       call locase(groupname)
-      
+
       if (membertype .eq. obj_group) then ! member is another group
             write(unit_error, *)"Subgroups not supported"
 	      call exit(-2)
@@ -66,14 +66,13 @@ subroutine process_group_member(groupname, &
 	   write(unit_error,*)"Maximum number of member patterns exceeded for group"
          call exit(-2)
          return
-	endif      
-      
+	endif
+
       groupArray(GroupNdx).memberPatterns(npattern).obj_type=membertype
       groupArray(GroupNdx).memberPatterns(npattern).pattern= &
-                                        trim(adjustl(pattern))     
-      groupArray(GroupNdx).nMemberPatterns=npattern  
+                                        trim(adjustl(pattern))
+      groupArray(GroupNdx).nMemberPatterns=npattern
       return
 end subroutine
-      
-	    
-          
+
+

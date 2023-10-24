@@ -17,10 +17,10 @@ void EnvSubstitution::add(string name, string value)
 {
   if (m_subMap.find(name) != m_subMap.end())
     {   //todo: real logging
-		cerr << "Warning: redefinition of text substitution variable:\n" 
+		cerr << "Warning: redefinition of text substitution variable:\n"
              << name << ": " << value << endl;
     }
-  string subbedVal = (*this)(value); 
+  string subbedVal = (*this)(value);
   m_subMap[name]=subbedVal;
 }
 
@@ -39,12 +39,12 @@ void EnvSubstitution::setEnabledEnvironment(const bool& enabled)
 }
 
 void EnvSubstitution::setNotFoundIsError(const bool & isError)
-{   
+{
 	m_notFoundIsError=isError;
 }
 
 string EnvSubstitution::operator()(const std::string & arg)
-{   
+{
     std::string str(arg);
 
     //if(arg.find_first_of("${") == string::npos) return arg;
@@ -68,14 +68,14 @@ string EnvSubstitution::operator()(const std::string & arg)
 		{
             const char* envvar = getenv(toReplace.c_str());
             if (envvar != NULL)
-            {   
+            {
                 string envWithBrace="${" + toReplace + "}";
                 replace_all(str,envWithBrace,string(envvar));
                 found = true;
             }
 		}
         if (m_enabledUser)
-        { 
+        {
             if(m_subMap.find(toReplace) != m_subMap.end())
             {
                 std::string replacement = m_subMap[toReplace];

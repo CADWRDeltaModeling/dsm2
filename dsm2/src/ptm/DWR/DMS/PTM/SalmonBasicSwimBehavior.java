@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.nio.IntBuffer;
@@ -23,10 +23,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	private SwimInputs _si;
 
 	/**
-	 * 
+	 *
 	 */
-	public SalmonBasicSwimBehavior(SwimInputs si) { 
-		_confusionCalc = new SalmonConfusionFactorCalculator(si); 
+	public SalmonBasicSwimBehavior(SwimInputs si) {
+		_confusionCalc = new SalmonConfusionFactorCalculator(si);
 		_swimCalc = new SalmonSwimmingVelocityCalculator(si);
 		_holdingTimeCalc = new SalmonHoldingTimeCalculator(si);
 		_hydroCalc = new BasicHydroCalculator();
@@ -38,15 +38,15 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	public int getConfusionFactor(int chanId){ return _confusionCalc.getConfusionFactor(chanId);}
 	// add a current time to particle???
 	public void setMeanSwimmingVelocity(int pId, int chanId){_swimCalc.setMeanSwimmingVelocity(pId, chanId);}
-	public void setSwimmingTime(Particle p, int chanId){_holdingTimeCalc.setSwimTime(p, chanId);} 
+	public void setSwimmingTime(Particle p, int chanId){_holdingTimeCalc.setSwimTime(p, chanId);}
 	public long getSwimmingTime(int pId, int chanId){ return _holdingTimeCalc.getSwimTime(pId, chanId);}
 	// careful swimming velocity here does not include confusion factor
-	public float getSwimmingVelocity(Particle p, int chanId){ 
+	public float getSwimmingVelocity(Particle p, int chanId){
 		return _swimCalc.getSwimmingVelocity(p, chanId);
 	}
 	public float[] getChannelInfo(int pId){return _hydroCalc.getChannelInfo(pId);}
 	private final boolean isNodeReached(Channel ch, float xpos){
-	    if ((xpos < 0.0f) || (xpos > ch.getLength())) // crossed starting/ending Node of Channel 
+	    if ((xpos < 0.0f) || (xpos > ch.getLength())) // crossed starting/ending Node of Channel
 	    	return true;
 	    else return false;
 	}
@@ -55,7 +55,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    	return ch.getNode(Channel.UPNODE);
 	    else if (xpos > ch.getLength()) // crossed ending Node of Channel
 	    	return ch.getNode(Channel.DOWNNODE);
-	    else 
+	    else
 	    	PTMUtil.systemExit("getNewNode method should not be called here, system exit");
 	    return null;
 	}
@@ -69,10 +69,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			p.x = _hydroCalc.getXLocationInChannel(p);
 			if (p.first) _hydroCalc.updateChannelParameters(p);
 			_hydroCalc.setYZLocationInChannel(p);
-		}else{ 
+		}else{
 			p.x=MISSING; p.y=MISSING; p.z=MISSING;
 		}
-	}	  
+	}
 	/**
 	  *  insert particle in the system
 	  */
@@ -84,16 +84,16 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    	//makeNodeDecision will set mean and instantaneous swimming velocities, confusion factor and swimming time
 	    	//swimming time is only set at insert() and makeNodeDecision()
 	    	p.makeNodeDecision();
-	    	
-	    	// when for some reason, e.g., all flows from connecting channel flow into the insertion node, 
+
+	    	// when for some reason, e.g., all flows from connecting channel flow into the insertion node,
 	    	// the particle cannot go anywhere, p.wb == null.  In such a case, re-insert
 	    	if (p.wb==null) {
 	    		p.setReInsert(true);
 	    		return;
 	    	}
-	    	else if (p.getReInsert()) 
+	    	else if (p.getReInsert())
 	    		p.setReInsert(false);
-	    	
+
 	    	setXYZLocationInChannel(p);
 	    }
 	    // insert to a channel (and distance known), p.x already set
@@ -107,7 +107,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    		 //it'll be set at the beginning of the first time step
 	 	    	 if (p.first) _hydroCalc.updateChannelParameters(p);
 	 	    	 _hydroCalc.setYZLocationInChannel(p);
-	    	 }else{ 
+	    	 }else{
 	    		 p.x=MISSING; p.y=MISSING; p.z=MISSING;
 	    	 }
 	    }
@@ -117,17 +117,17 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 		 * check if a particle is stuck in or comes back to the same channel after a threshold time
 		 * the threshold time is user-defined
 		 */
-		
+
 		 if (_si.checkStuck(p.Id, p.wb.getEnvIndex(),p.age)){
 			 p.setParticleDead();
 			 return;
 		 }
-		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL) 
+		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL)
 				&& (_holdingTimeCalc.daytimeHolding(p, ((Channel)p.wb).getEnvIndex()))) {
 			p.age += delT;
 			p.addTimeUsed(delT);
 			return;
-		}		
+		}
 		float tmLeft = delT;
 		while (tmLeft>0){
 			if (p.particleWait){
@@ -137,17 +137,17 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 System.err.println("Warning: At the beginning of the loop, the particle "+p.Id+" will wait until next time step.");
 				 return;
 			}
-			// Channel	
+			// Channel
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
 				//if just exit from a reservoir or a conveyance, thus, p.x = 0 or length.
-				//there is no need to +/- time from p.age. if start a time step, no info about velocity.  So pass velocity = max_value so that 
+				//there is no need to +/- time from p.age. if start a time step, no info about velocity.  So pass velocity = max_value so that
 				//(p.x- the check station channel distance)/velocity = 0
-				 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, 
+				 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age,
 						 IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()}), Float.MAX_VALUE, p.x, p.getFromUpstream());
 				 p.checkSurvival();
 				 if (p.isDead) return;
-				 int cId = ((Channel)p.wb).getEnvIndex();		
-				 
+				 int cId = ((Channel)p.wb).getEnvIndex();
+
 				 // confusion and swimming velocity are sampled in two places
 				 // 1) at the beginning of a new time step (here)
 				 // 2) when entering a new channel (in SalmonBasicRouteBehavior.makeRouteDecision)
@@ -161,32 +161,32 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 }
 				 else
 					 p.swimVelSetInJunction(false);
-				 
+
 				 //y, z set up for particles which are just out of reservoir or conveyor or inserted
 				 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
-				 if (PTMUtil.floatNearlyEqual(p.y, MISSING) || PTMUtil.floatNearlyEqual(p.z,MISSING)) 
+				 if (PTMUtil.floatNearlyEqual(p.y, MISSING) || PTMUtil.floatNearlyEqual(p.z,MISSING))
 					 _hydroCalc.setYZLocationInChannel(p);
-				 
-				 //one time step won't make a particle too far (e.g., from one node to another).  So timesLooped will not have memory 
-				 int timesLooped = 0;	 
+
+				 //one time step won't make a particle too far (e.g., from one node to another).  So timesLooped will not have memory
+				 int timesLooped = 0;
 				 // update particle's x,y,z position every sub-time step
 				 while (tmLeft > 0 && !p.isDead){
 					 _hydroCalc.updateChannelParameters(p);
-					 _hydroCalc.updateDiffusion(p);	
+					 _hydroCalc.updateDiffusion(p);
 					 float [] cInfo = _hydroCalc.getChannelInfo(p.Id);
-					 
-					 // if an average cross section velocity (channelVave) is less than a user specified threshold, the particle holds for one time step 
+
+					 // if an average cross section velocity (channelVave) is less than a user specified threshold, the particle holds for one time step
 					 // because channelVave will not change in that time step.
-					 // confusion may be reset after makeNodeDecision, so use p.getConfusionFactor().  					  
+					 // confusion may be reset after makeNodeDecision, so use p.getConfusionFactor().
 					 if (cInfo[3]*p.getConfusionFactor() < _floodHoldVel){
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
-						 p.addTimeUsed(tmLeft);						 
+						 p.addTimeUsed(tmLeft);
 						 if (_pOutId != null && p.Id == _pOutId && DEBUG_SWIM)
 							 System.err.println("Warning: particle "+p.Id+" velocity < flood hold velocity, velocity:"
-							 + cInfo[3]*p.getConfusionFactor()+", will wait until next time step.");							 
+							 + cInfo[3]*p.getConfusionFactor()+", will wait until next time step.");
 						 return;
-					 } 
+					 }
 					 _hydroCalc.mapYZ(p);
 					 // update sub-time step to avoid y & z direction boundary bouncing
 					 int numOfSubTimeSteps = _hydroCalc.getSubTimeSteps(tmLeft, p);
@@ -203,54 +203,54 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 float deltaX = advDeltaX + swimDeltaX;
 					 float xPos = p.x + deltaX;
 					 IntBuffer ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
-					 
+
 					 //TODO hold when advVel+swimV is very small
-					 				 
+
 					 if (Math.abs(advVel+swimV) < 0.00001f){
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
-						 p.addTimeUsed(tmLeft);	
+						 p.addTimeUsed(tmLeft);
 						 if(DEBUG_SWIM)
 							 System.err.println("Warning: particle "+p.Id+" very small velocity, advection:"
-							 +advVel+", swimming velocity:"+swimV+", will wait until next time step.");							 
+							 +advVel+", swimming velocity:"+swimV+", will wait until next time step.");
 						 return;
-					 } 
-					 
-					 
+					 }
+
+
 					// this is to avoid swimming velocity to be reset immediately after exiting from a junction
 					// after a couple of sub-time step it is OK to reset
 					 p.swimVelSetInJunction(false);
 					 //if( _pOutId == null && p.nd.getEnvIndex()==297){_pOutId = p.Id;}
 					 //if (_pOutId != null && p.Id == _pOutId){
 					 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
-						  System.out.println("pId:"+p.Id+"  node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+						  System.out.println("pId:"+p.Id+"  node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 								  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 								  + "  p.x:" +p.x +"  xPos:" +xPos +" p.age:" + p.age
-								  +"  advVel:" + advVel + "  swimV:" + swimV + "  tmToAdv:" + tmToAdv 
+								  +"  advVel:" + advVel + "  swimV:" + swimV + "  tmToAdv:" + tmToAdv
 								  + "  tmLeft:" +tmLeft +"  currTime:" + p.getCurrentParticleTimeExact()
 								  + "  confusion:" + p.getConfusionFactor());
 					  }
 					 //if (_pOutId != null &&p.Id == _pOutId){System.err.println("here"+p.isDead);}
-					 
+
 					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called
 					 if (isNodeReached((Channel) p.wb, xPos)){
-						 //tmToAdv could be less than tmToAdv passed on 
+						 //tmToAdv could be less than tmToAdv passed on
 						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos);
 						 if (xPos>0)
 							 p.x = ((Channel)p.wb).getLength();
 						 else
 							 p.x = 0;
-						 
+
 						 //TODO change the way that the random numbers are calculated
 						 //Every particle carries its own random number generator to avoid the pseudo-random number caused dependency
-						 //The random number is called from its particle. 
+						 //The random number is called from its particle.
 						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
 						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
 						 //p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, PTMUtil.getNextGaussian());
 						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
-						 //if the Travel Time recording station at the node, no need to calculate overshoot time so pass max float value 
+						 //if the Travel Time recording station at the node, no need to calculate overshoot time so pass max float value
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
 						 //if (p.Id==131)
 							 //System.err.println("first  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
@@ -259,9 +259,9 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 p.checkSurvival();
 						 if(p.isDead){
 							 if (DEBUG_SURVIVAL && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
-								  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+								  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 										  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-										  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+										  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv
 										  + "  tmLeft:" +tmLeft
 										  + "  p.isDead:" + p.isDead);
 							 }
@@ -272,23 +272,23 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //set new node so make node decision can calculate total node inflow and call a special behavior if necessary
 						 p.makeNodeDecision();
 						 // now p.wb is the new water body just selected
-						 // and p.x is set either 0 or channel length if p.wb is a channel						 
+						 // and p.x is set either 0 or channel length if p.wb is a channel
 						 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
-							  System.err.println("Reach Node, node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+							  System.err.println("Reach Node, node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv
 									  + "  tmLeft:" +tmLeft
 									  );
 						  }
-						 
+
 						 if (DEBUG_SURVIVAL && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
-							  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+							  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv
 									  + "  tmLeft:" +tmLeft
 									  + "  p.isDead:" + p.isDead);
 						  }
-						 
+
 						 // wait for a time step
 						 // For basic routing behavior code the particle will stay in the same place, but for some special code
 						 // it may select a new channel.  Therefore need to check survival and travel time
@@ -312,32 +312,32 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 // check if the new water body is a channel
 						 // if NOT, exit the while loop and find a block that deal with the waterbody type
 						// don't need to check survival because survival stations are only installed in channels
-						 if (p.wb.getPTMType() != Waterbody.CHANNEL)							 
+						 if (p.wb.getPTMType() != Waterbody.CHANNEL)
 							 break;
-						 else{							 
+						 else{
 							 ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
 							 //just made node decision with a new node and channel, thus, p.x = 0 or length.
-							 //there is no need to +/- time from p.age. So pass velocity = max_value so that 
+							 //there is no need to +/- time from p.age. So pass velocity = max_value so that
 							 //(p.x-the check station channel distance)/velocity = 0
 							 //if (p.Id==131)
 								 //System.err.println("second  "+ndWb.get(0) + "  "+ndWb.get(1) + "  "+p.x);
-							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());							 
+							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
 							 //check survival when arrive a new channel
 							 p.checkSurvival();
 							 if(p.isDead)
 								 return;
-							 /* 
+							 /*
 							  * in some special junctions (e.g., Georgiana Slough Junction) the probability of a particle
-							  * into a certain branch is calculated by a statistical model and may not be related to 
-							  * swimming velocity etc.  Under certain swimming and hydrodynamic conditions 
-							  * (e.g., the swimming velocity is upstream, or the downstream flow rate is small), 
-							  * a particle could swim upstream. Because the particle is at the same time and place, 
-							  * the hydrodynamic conditions are not changed, the particle could come back 
-							  * to the same node where it is from again and again.  
-							  *   
-							  * this block is to prevent the same particle from coming back to the same node more than 20 times 
-							  * at the same sub time step.  it counts how many times the particle gets to the same node.  
-							  * If the count is more than 20 times, the particle will wait until the next time step. 
+							  * into a certain branch is calculated by a statistical model and may not be related to
+							  * swimming velocity etc.  Under certain swimming and hydrodynamic conditions
+							  * (e.g., the swimming velocity is upstream, or the downstream flow rate is small),
+							  * a particle could swim upstream. Because the particle is at the same time and place,
+							  * the hydrodynamic conditions are not changed, the particle could come back
+							  * to the same node where it is from again and again.
+							  *
+							  * this block is to prevent the same particle from coming back to the same node more than 20 times
+							  * at the same sub time step.  it counts how many times the particle gets to the same node.
+							  * If the count is more than 20 times, the particle will wait until the next time step.
 							  * By then, the hydrodynamic condition will be changed.
 							  */
 							 if (tmToAdv < Float.MIN_VALUE && p.nd.getEnvIndex() == ndWb.get(0) && p.wb.getEnvIndex() == ndWb.get(1)){
@@ -350,12 +350,12 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 								 }
 							 }
 						 }
-					 } //end if (isNodeReached(xPos) == true) 
+					 } //end if (isNodeReached(xPos) == true)
 					 else{
 						 p.x = xPos;
 						 /*
 						  * y, z are calculated according to current xsection info (channel parameters hasn't been updated yet)
-						  * they'll be mapped to new xsection at the beginning of the loop 
+						  * they'll be mapped to new xsection at the beginning of the loop
 						  */
 						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
 						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
@@ -365,9 +365,9 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 tmLeft -= tmToAdv;
 						 /*
 						  * check survival
-						  * to make sure no survival station is skipped, survival will be checked again in the isNodeReached loop 
+						  * to make sure no survival station is skipped, survival will be checked again in the isNodeReached loop
 						  * because node and channel will be reset when a node is reached
-						  * 
+						  *
 						  * only calculate survival when a particle is in a channel
 						  */
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
@@ -377,10 +377,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 }
 				 }// end the while in Channel
 			}// end if(CHANNEL)
-		     
-			else if (p.wb.getPTMType() ==  Waterbody.RESERVOIR){				 
+
+			else if (p.wb.getPTMType() ==  Waterbody.RESERVOIR){
 			    p.nd = p.makeReservoirDecision(tmLeft);
-			  
+
 			    if (p.nd != null){
 			    	// zero time delay
 			    	//makes decision of which Waterbody to go into
@@ -397,17 +397,17 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			    	tmLeft = 0.0f;
 			    }
 			}
-	    
+
 			else if (p.wb.getPTMType() == Waterbody.CONVEYOR){
 				 // zero time delay
-				 p.moveInConveyor(tmLeft);				 
+				 p.moveInConveyor(tmLeft);
 			 }
 
 			 else if (p.wb.getPTMType() ==  Waterbody.BOUNDARY) {
-				 p.setParticleDead();	 
+				 p.setParticleDead();
 				 break;
 			 }
-			
-		 } // end first while 
+
+		 } // end first while
 	}
 }

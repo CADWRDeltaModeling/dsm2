@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -12,12 +12,12 @@ import java.util.Map;
 public class ParticleSurvivalHelper extends Helper<Integer, ParticleBasicSurvivalBehavior> implements SurvivalHelper {
 
 	/**
-	 * 
+	 *
 	 */
 	public ParticleSurvivalHelper() {
 		super();
 	}
-	
+
 	public ParticleSurvivalHelper(ParticleBasicSurvivalBehavior basic) {
 		super(basic);
 	}

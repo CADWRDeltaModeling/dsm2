@@ -12,10 +12,10 @@
  *      Alberto Sangiovanni-Vincentelli
  *
  *
- *       Sparse is available for a $150.00 charge.  The package includes the 
+ *       Sparse is available for a $150.00 charge.  The package includes the
  *  source code on tape, the user's guide and a paper that discusses techniques
- *  for solving sparse systems of equations [1].  To obtain a copy of Sparse, 
- *  send a check or money order payable to the Regents of the University of 
+ *  for solving sparse systems of equations [1].  To obtain a copy of Sparse,
+ *  send a check or money order payable to the Regents of the University of
  *  California to:
  *
  *      EECS Industrial Liaison Program
@@ -25,12 +25,12 @@
  *
  *  Please allow four weeks for delivery.
  *
- *       The University often does not have the resources to consult with 
- *  users on how to use or modify these programs.  We would, however, like 
- *  to be notified of any problems or errors in the material provided and 
- *  appreciate copies on tape of any troublesome matrices.  If the program 
+ *       The University often does not have the resources to consult with
+ *  users on how to use or modify these programs.  We would, however, like
+ *  to be notified of any problems or errors in the material provided and
+ *  appreciate copies on tape of any troublesome matrices.  If the program
  *  is enhanced or converted to run on other systems, we would like to receive
- *  copies of the modified program so that it can be made available to the 
+ *  copies of the modified program so that it can be made available to the
  *  public.
  *
  *  References
@@ -73,7 +73,7 @@
  *
  *  Revision 1.1a  20 March 1985
  *      Modified DecomposeMatrix() and OrderAndDecomposeMatrix() so that
- *      the parameters Growth, PseudoCondition and LargestElement may be 
+ *      the parameters Growth, PseudoCondition and LargestElement may be
  *      given as NULL.
  *
  *  Revision 1.1b  28 March 1985
@@ -105,7 +105,7 @@
  *  Revision 1.2d
  *      Modified the pivot selection algorithm so that singletons also meet
  *      numerical threshold criterion.  Deleted some global variables.  Modified
- *      test program to add command line options among other things.  Made 
+ *      test program to add command line options among other things.  Made
  *      thresholds sticky, so that once a valid threshold has been specified
  *      for a particular matrix, it becomes the new default.
  *

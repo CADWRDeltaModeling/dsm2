@@ -42,7 +42,7 @@ def manifest(infile,outfile,copydir):
                 continue
             m=inp_file_re.match(line)
             if m: filelist.append(m.group(2))
-    
+
     dssfiles = set(dssfilelist)
     files = filelist + list(dssfiles)
     # not portable!!!
@@ -58,8 +58,8 @@ def manifest(infile,outfile,copydir):
             os.mkdir(copydir)
         for f in files:
             shutil.copy(f,copydir)
-        
-       
+
+
 if (__name__ == "__main__"):
     if len(sys.argv) < 3 or sys.argv[1] == "--help" or sys.argv[1] == "--usage":
         print "\nUsage: manifest.py echofile manifestfile [copydir]\n"\
@@ -79,7 +79,7 @@ if (__name__ == "__main__"):
         else:
             outfile = sys.argv[2]
             copydir = None
-            if len(sys.argv) > 3: 
+            if len(sys.argv) > 3:
                 copydir = sys.argv[3]
             manifest(infile,outfile,copydir)
             sys.exit()

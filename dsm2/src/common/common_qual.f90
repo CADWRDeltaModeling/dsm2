@@ -57,7 +57,7 @@ module common_qual
     real*8:: rcoef_res_temp(max_constituent,ncoef_type,max_reservoirs)
     real*8:: rcoef(max_constituent,ncoef_type)
     real*8:: rcoef_res(max_constituent,ncoef_type,max_reservoirs)
-      
+
     character*20:: coeff_res_name(max_reservoirs)
 
     !-----qual global parameters
@@ -78,7 +78,7 @@ module common_qual
     real*8 :: lambda1             ! Nonlinear algal self shading coefficient
     real*8 :: lambda2             ! Nonlinear algal self shading coefficient
     real*8 :: alg_bod             ! Nonlinear algal self shading coefficient
-	              
+
 
 
 

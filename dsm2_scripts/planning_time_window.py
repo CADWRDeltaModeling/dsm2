@@ -1,26 +1,26 @@
 """This script is a utility for obtaining the runtime and preprocessing
    times from the config file.
-"""   
-   
-   
+"""
+
+
 from config import getAttr
 from vtimeseries import timewindow,timeinterval
 from vista.time import TimeFactory
 
 def planning_window():
-    """ 
+    """
     Returns the runtime represented by START_DATE START_TIME END_DATE and END_TIME
     in the config file as a timewindow
     """
-    return timewindow(getAttr("START_DATE") + " " + getAttr("START_TIME") 
+    return timewindow(getAttr("START_DATE") + " " + getAttr("START_TIME")
                 + " - " +
                 + getAttr("END_DATE") + " " + getAttr("END_TIME"))
 
 def prepro_window(prepro_window_option = None):
-    """ 
+    """
     Returns the preprocessing window corresponding to the run
     The prepro_window_option can be set to "RUNDATE" "16yr" or "82yr"
-    and the prepro time window will be buffered to the nearest day, 
+    and the prepro time window will be buffered to the nearest day,
     the standard 16yr preprocessing window or 82 years accordingly.
     The default is RUNDATE.
     """
@@ -48,5 +48,4 @@ def grow_window(tw,left,right=None):
     st = tw.getStartTime() - timeinterval(left)
     et = tw.getEndTime() + timeinterval(right)
     return TimeFactory.getInstance().createTimeWindow(st,et)
-                
-                
+

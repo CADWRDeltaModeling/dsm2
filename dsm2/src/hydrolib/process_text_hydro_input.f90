@@ -3,7 +3,7 @@
 subroutine process_text_gate_input()
     use input_storage_fortran
     use constants
-      
+
     implicit none
     integer :: nitem
     character*(128) filename
@@ -17,8 +17,8 @@ subroutine process_text_gate_input()
     character*392 inpath
     character*8  fillin
     character*32 ::device
-      
-      
+
+
     nitem = input_gate_buffer_size()
     do icount = 1,nitem
         call input_gate_query_from_buffer(icount, &
@@ -47,7 +47,7 @@ end subroutine
 subroutine process_text_oprule_ts_input()
     use input_storage_fortran
     use constants
-      
+
     implicit none
     integer :: nitem
     character*(128) filename
@@ -80,7 +80,7 @@ end subroutine
 subroutine process_text_oprule_input()
     use input_storage_fortran
     use constants
-      
+
     implicit none
     integer :: nitem
     integer :: icount

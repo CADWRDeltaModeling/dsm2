@@ -24,7 +24,7 @@ public:
     */
 
    LinearExtrapolationNode(
-                  ExpressionNodePtr node, 
+                  ExpressionNodePtr node,
                   const double time):
                     _node(node),
                     _newVal(HUGE_VAL),
@@ -33,20 +33,20 @@ public:
                     _time(time)
 				    {}
 
-   static NodePtr create(ExpressionNodePtr expr, double time){ 
+   static NodePtr create(ExpressionNodePtr expr, double time){
      return NodePtr(new NodeType(expr,time));
    }
-   
+
    virtual ExpressionNodePtr copy(){
      return NodePtr(new NodeType(_node->copy(),_time));
    }
- 
+
     void init(){
        _newVal=_node->eval();
        _oldVal=_newVal;
     }
 
-     double eval(){ 
+     double eval(){
       assert(_oldVal != HUGE_VAL); //assure that initialize() has been called
       return _extrap;
      }

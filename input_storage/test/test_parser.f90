@@ -13,14 +13,14 @@ call init_file_reader(error)
 call clear_all_buffers(error)
 call init_file_reader(error)
 
-! Read, collect and process the "ENVVAR" section used for 
+! Read, collect and process the "ENVVAR" section used for
 ! text substitution
 call set_user_substitution_enabled(.false.,error)    ! don't try to substitute now
 call set_active_profile("ENVVAR",error)        ! read only ENVVAR blocks
 call read_buffer_from_text("example.txt",error) ! read starting from this file
 
 call process_text_substitution(error)
-! so that envvars are not loaded redundantly 
+! so that envvars are not loaded redundantly
 call envvar_clear_buffer()
 
 call set_active_profile("all",error)

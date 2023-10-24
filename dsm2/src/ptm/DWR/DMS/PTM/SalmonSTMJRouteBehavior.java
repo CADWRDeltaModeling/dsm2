@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -46,7 +46,7 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		float dtQSutCFS = qSutCFS - qSutPreCFS;
 		float qStmCFS = stm.getFlow(0.0f);
 		float[] ratios = calcFlowProportions(new float[]{qSacDDCFS, qSutCFS, qStmCFS});
-		//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms 
+		//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms
 		float qSut = (scaled*qSutCFS-qSutMean)/qSutSD;
 		float qSutPre = (scaled*qSutPreCFS-qSutMean)/qSutSD;
 		//float deltaQSut = qSut - qSutPre;
@@ -68,7 +68,7 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		double piSut = pi(b, a, sutGate, stmGate);
 		double piStm = pi(a, b, stmGate, sutGate);
 		double stmProb = piStm/(1.0d-piSut);
-		rIn.putEntrainmentRate(nodeId, 
+		rIn.putEntrainmentRate(nodeId,
 				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1],ratios[2],qSutCFS,qStmCFS,deltaQSut,stmProb)));
 		selectChannel(p, new Channel[]{channels[1],channels[4],channels[3]}, nodeId, stmProb, 1);
 	}

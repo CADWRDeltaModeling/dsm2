@@ -9,7 +9,7 @@ namespace expression{
 /** Expression node representing a value.
  */
 template<typename T>
-class ExpressionNode  
+class ExpressionNode
 {
 public:
    typedef ExpressionNode<T> NodeType;
@@ -29,12 +29,12 @@ public:
     * @return current value
     */
 	virtual T eval()=0;
-   
+
    /**Test whether the expression is time dependent.
     * @return true if the expression is time dependent
    */
    virtual bool isTimeDependent() const=0;
-   
+
    /**Perform any initialization for this node.*/
    virtual void init(){};
 

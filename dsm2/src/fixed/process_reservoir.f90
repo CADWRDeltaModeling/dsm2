@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -23,14 +23,14 @@ subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
       use logging
       use io_units
       implicit none
-      integer id   
+      integer id
       real*8 &               !todo: this should be real*8
           reser_area &
           ,reser_botelv
 
       character &
-          reser_name*32 
-      
+          reser_name*32
+
       nreser=nreser+1
       if (nreser .gt. max_reservoirs) then
           write(unit_error,630) &
@@ -47,11 +47,11 @@ subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
       res_geom(nreser).botelv=reser_botelv
       if (print_level .ge. 3) &
          write(unit_screen,'(i5,1x,a)') &
-              nreser,trim(res_geom(nreser).name)   
+              nreser,trim(res_geom(nreser).name)
  630   format(/a,i5)
       return
 end subroutine
-      
+
 subroutine alloc_reservoir_connections(alloc)
       use grid_data
       use common_tide
@@ -72,14 +72,14 @@ subroutine alloc_reservoir_connections(alloc)
       if (alloc .and. .not. allocated(inst_qresv))then
          allocate(inst_qresv(nres_connect))
          inst_qresv = 0.
-      end if      
+      end if
       if (.not. alloc)then
          deallocate(qresv)
          deallocate(inst_qresv)
       end if
       return
 end subroutine
-      
+
 subroutine process_reservoir_vol(resname, &
                                        reselev, &
                                        reser_area)
@@ -89,7 +89,7 @@ subroutine process_reservoir_vol(resname, &
       use io_units
       use network
       implicit none
-            
+
       character*32 resname
       integer :: resno
       integer :: nn
@@ -99,7 +99,7 @@ subroutine process_reservoir_vol(resname, &
       real*8 :: prev_area,prev_vol,prev_elev,current_area
       real*8 Small,dz
       parameter (Small = 1.00e-6)
-      
+
       call locase(resname)
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nelevs=res_geom(resno).nelevs+1
@@ -109,13 +109,13 @@ subroutine process_reservoir_vol(resname, &
            MaxResElevs
             call exit(-1)
           return
-      endif	                   
+      endif
       nn=res_geom(resno).nelevs
       res_geom(resno).area(nn)=reser_area * 43560
       res_geom(resno).vol(nn)=0 !initial
       res_geom(resno).elev(nn)=reselev
 
-!-----------upper layer vol=lower layer vol + trapezoidal vol between them 
+!-----------upper layer vol=lower layer vol + trapezoidal vol between them
       if (nn .gt. 1) then
          prev_elev = res_geom(resno).elev(nn-1)
          prev_area = res_geom(resno).area(nn-1)
@@ -151,10 +151,10 @@ subroutine process_reservoir_vol(resname, &
 	   end if
 
       end if
-    
+
       return
 end subroutine
-      
+
 subroutine process_reservoir_connection(resname, &
                                              con_node, &
                                              rescon_incoef, &
@@ -165,8 +165,8 @@ subroutine process_reservoir_connection(resname, &
       use io_units
       use network
       implicit none
-            
-      
+
+
       character*32 resname
       integer :: con_node
       integer :: resno
@@ -183,7 +183,7 @@ subroutine process_reservoir_connection(resname, &
               MaxResConnectChannel
           call exit(-1)
           return
-       endif	                   
+       endif
        nn=res_geom(resno).nnodes
        res_geom(resno).nConnect=res_geom(resno).nnodes   ! may add gated nodes later
        res_geom(resno).isNodeGated(nn)=.false.
@@ -191,12 +191,12 @@ subroutine process_reservoir_connection(resname, &
        res_geom(resno).node_no(nn)=ext2intnode(con_node)
        res_geom(resno).coeff2res(nn)=rescon_incoef
        res_geom(resno).coeff2chan(nn)=rescon_outcoef
-       nres_connect = nres_connect + 1     
+       nres_connect = nres_connect + 1
        return
 end subroutine
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+

@@ -12,7 +12,7 @@ typedef typename OE_NODE_PTR(NodeT) NodePtrT;
 
 public:
   ptr_wrapper(NodePtrT p) : ptr(p){}
-  
+
   ptr_wrapper(){}
 
   NodePtrT operator->(){

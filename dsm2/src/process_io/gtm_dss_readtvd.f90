@@ -270,7 +270,7 @@ module gtm_dss_readtvd
                pathinput(ptr)%value_flag=indata(ndx,i)%flag
             else                   ! don't interpolate
                if (run_pdaf) then
-                   if (indata(ndx,i)%data == -901.0 .and. ndx>1) then ! when data for current time is not available 
+                   if (indata(ndx,i)%data == -901.0 .and. ndx>1) then ! when data for current time is not available
                        indata(ndx,i)%data = indata(ndx-1,i)%data      ! use previous value
                    endif
                endif

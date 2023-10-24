@@ -33,7 +33,7 @@ public:
 {
    return first < second.identifier();
 }
-                  
+
 
 };
 template<typename T>
@@ -72,7 +72,7 @@ template<typename T>
 class entry_used : public std::unary_function<T, bool>{
 public:
     bool operator()(const T& entry) const
-    { 
+    {
         return entry.used;
     }
 };

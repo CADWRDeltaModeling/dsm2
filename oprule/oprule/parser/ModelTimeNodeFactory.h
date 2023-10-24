@@ -10,7 +10,7 @@ namespace parser{
 /**
  * Abstract factory for building nodes having to do with time.
  */
-class ModelTimeNodeFactory  
+class ModelTimeNodeFactory
 {
 
 public:
@@ -22,17 +22,17 @@ public:
    ModelTimeNodeFactory(){};
    virtual ~ModelTimeNodeFactory(){};
 
-   /** Get a node that represents the given reference datetime. 
-    *  Datetime is in a model-compatible double format 
+   /** Get a node that represents the given reference datetime.
+    *  Datetime is in a model-compatible double format
     *  (ie, as model ticks).
     *  Should be suitable for comparison to datetimes from the other
     *  overloaded getModelTimeNode() methods
     *  @todo is double really appropriate??
     *  @return a node that returns a reference datetime
-    */ 
+    */
    virtual DoubleNodePtr getDateTimeNode(const std::string & dt,
       const std::string & tm)=0;
-  
+
    /** Get a node that represents current model time.
     *  Should be suitable for comparison to datetimes from the other
     *  overloaded getModelTimeNode() methods
@@ -40,10 +40,10 @@ public:
    virtual DoubleNodePtr getDateTimeNode()=0;
 
    /** Get a node that represents current model time as ticks into the year.
-    */ 
+    */
    virtual DoubleNodePtr getSeasonNode()=0;
-   
-   /** Get a node that expresses the given reference mon-day-hour-min 
+
+   /** Get a node that expresses the given reference mon-day-hour-min
     *date as ticks into the current model year.
     */
    virtual DoubleNodePtr getReferenceSeasonNode(int mon, int day, int hour, int min)=0;
@@ -58,10 +58,10 @@ public:
    virtual DoubleNodePtr getDayNode()=0;
 
    /** Get a node that will return the current model hour (0 = midnight, 13=1PM
-    *  as a double 
+    *  as a double
     */
    virtual DoubleNodePtr getHourNode()=0;
-   
+
    /** Get a node that will return the current model minute of the day*/
    virtual DoubleNodePtr getMinOfDayNode()=0;
 

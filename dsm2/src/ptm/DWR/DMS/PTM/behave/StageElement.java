@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
 /**
  * This class contains Physical Behavior Properties.
  * It can read and write this information to/from XML. <br>
- * 
+ *
  * @author Aaron Miller
  * @version $Id:
  */
@@ -72,7 +72,7 @@ public class StageElement extends Behavior{
 			return "";
 		return _lowerHorzRising;
 	}
-	
+
 	public void setUpperHorizontalRising(String upper){
 		_upperHorzRising = upper;
 	}
@@ -112,7 +112,7 @@ public class StageElement extends Behavior{
 			return "";
 		return _lowerVertRising;
 	}
-	
+
 	public void setUpperVerticalRising(String upper){
 		_upperVertRising = upper;
 	}
@@ -194,7 +194,7 @@ public class StageElement extends Behavior{
 	public int [][][] getVerticalArray(){
 		return zPosData;
 	}
-	
+
 	public int [][][] getTransverseArray(){
 		return yPosData;
 	}
@@ -202,7 +202,7 @@ public class StageElement extends Behavior{
 	public void toArray(){
 		// LL = 0
 		// UL = 1
-		// 
+		//
 		if(getLowerHorizontalRising() != "")
 			yPosData[0][0][0] = Integer.parseInt(getLowerHorizontalRising());
 		if(getUpperHorizontalRising() != "")
@@ -255,7 +255,7 @@ public class StageElement extends Behavior{
 
 		zPosData = new int [1][2][2];
 		yPosData = new int [1][2][2];
-		
+
 		toArray();
 	}
 

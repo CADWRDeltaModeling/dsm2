@@ -34,7 +34,7 @@ void test_envvar()
   sub.add("TESTEXPR","newanswer");
   out = sub(teststr);
   std::cout << out << std::endl;
-  sub.add("TESTEXPR","redefine");  
+  sub.add("TESTEXPR","redefine");
   out = sub(teststr);
   teststr = "${NESTED_1}plus$inside";
   BOOST_CHECK_THROW(sub(teststr),runtime_error);
@@ -48,10 +48,10 @@ void test_quoted_string_stream()
   string outStr = os.str();
   BOOST_CHECK_EQUAL( outStr.find_first_of("\""), 17);
   cout << outStr;
-  xsect xIn; 
+  xsect xIn;
   istringstream is(outStr);
   is >> xIn;
-  
+
   BOOST_CHECK( !(xIn < xOut || xOut < xIn));
   BOOST_CHECK_EQUAL( xOut.chan_no, xOut.chan_no);
   BOOST_CHECK_EQUAL( xIn.file, "with string");
@@ -68,10 +68,10 @@ void test_stream()
   ostringstream os;
   os << cOut;
   string outStr = os.str();
-  channel cIn; 
+  channel cIn;
   istringstream is(outStr);
   is >> cIn;
-  
+
   BOOST_CHECK( !(cIn < cOut || cOut < cIn));
   BOOST_CHECK( cIn.manning == cOut.manning);
   BOOST_CHECK( cIn.upnode == cOut.upnode);
@@ -98,11 +98,11 @@ void test_bad_stream_input()
 
 /** Add thing to the buffer using the FORTRAN API for appends.
     todo: the fortran API does not add layer numbers, so this
-    function doesn't work when there are duplicate entries -- 
+    function doesn't work when there are duplicate entries --
     prioritize_buffer will throw an exception
 */
 void append_buffer_fortran_api()
-{ 
+{
     //Create a new file using default properties.
     channel_clear_buffer_f();
     int ierror = 0;
@@ -126,7 +126,7 @@ void append_buffer_fortran_api()
     channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=2;
     layer=2;
-    manning=0.04;    
+    manning=0.04;
     channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=3;
     layer=1;
@@ -184,21 +184,21 @@ void append_buffer_fortran_api()
     dist = 0.200;
     file = "525_0_200.txt";
     xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
-    
+
     //todo: what if there were accidently a chan 525 xsect on level 2?
 }
 
 
 
-/** Predictable test fixture for channels and cross sections. The 
-    buffer that is set up here includes some overridden items, so it 
+/** Predictable test fixture for channels and cross sections. The
+    buffer that is set up here includes some overridden items, so it
     is necessary to prioritize the buffer.
 */
 void setup_buffer()
-{ 
+{
     //Create a new file using default properties.
     channel_clear_buffer_f();
-    
+
     vector<channel> & cbuffer = HDFTableManager<channel>::instance().buffer();
     cbuffer.push_back(channel(525,0.035,5,6,true,1));
     cbuffer.push_back(channel(1,0.035,1,2,true,0));
@@ -252,7 +252,7 @@ void setup_buffer()
     dist = 0.200;
     file = "525_0_200.txt";
     xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
-    
+
     //todo: what if there were accidently a chan 525 xsect on level 2?
 }
 
@@ -309,7 +309,7 @@ void test_hdf()
     int use_it=0;
     //cout << channel_query_from_buffer(2,&channo_in,&layer_in,&manning_in,&upnode_in) <<endl;
     //cout<< channo_in << " " << layer_in << " " << manning_in << " " << upnode_in << " " << endl;
-    //Close the file. 
+    //Close the file.
     H5Fclose( file_id );
     cout << "Done testing hdf" <<endl;
 
@@ -349,7 +349,7 @@ void test_input_reader()
 
   reader.setActiveItems(envvarActive);
   reader.processInput(filename);
-  
+
   vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
 
   EnvSubstitution sub;
@@ -358,7 +358,7 @@ void test_input_reader()
   active.push_back("XSECT");
   active.push_back("INCLUDE");
 
-  
+
   for ( size_t i = 0 ; i < envvars.size();i++)
     {
       sub.add(envvars[i].name, envvars[i].value);
@@ -440,7 +440,7 @@ void test_input_reader_duplicate()
 void test_bad_input()
 {
   envvar env;
-  istringstream in("superlongnamesolongitshouldcertainlycauseanerror  modestlengthvalue");  
+  istringstream in("superlongnamesolongitshouldcertainlycauseanerror  modestlengthvalue");
   //BOOST_CHECK_THROW( in >> env;,  std::logic_error )
 }
 

@@ -16,11 +16,11 @@ InputStatePtr FileInputState::process(istream& in)
         // strip comments, trailing/leading whitespace
         line = strip(line);
         if (in.eof())  //todo: last line in file?
-        { 
+        {
             if (! line.size() == 0)
             {
                 handleFatalError("File must end in a terminal carriage return: ",
-                                 line, 
+                                 line,
                                  m_filename,
                                  m_lineNo);
             }
@@ -28,7 +28,7 @@ InputStatePtr FileInputState::process(istream& in)
             return next;
         }
         if (line.size()==0)   //skip if empty
-        { 
+        {
             continue;
         }
         // If we got here, the line is "substantial"
@@ -36,7 +36,7 @@ InputStatePtr FileInputState::process(istream& in)
         return nextState(line);
         nProcess++;
     }
-    throw logic_error("End of file not found, processing in endless loop");  
+    throw logic_error("End of file not found, processing in endless loop");
     return InputStatePtr(new EndOfFileState(m_filename));
 }
 
@@ -50,9 +50,9 @@ InputStatePtr FileInputState::nextState(const string &line) const
     bool isKey = ApplicationTextReader::instance().isKeyword(item);
 	InputStateMap::const_iterator it = stateMap.find(item);
     if (it == stateMap.end())
-    { 
+    {
         for (InputStateMap::const_iterator mapIter = stateMap.begin() ;
-            mapIter != stateMap.end() ; ++ mapIter) 
+            mapIter != stateMap.end() ; ++ mapIter)
         {
             cout << "Item: " << mapIter->first << endl;
         }
@@ -61,7 +61,7 @@ InputStatePtr FileInputState::nextState(const string &line) const
     }
 
     if (! isItemAllowed(item))
-    {   
+    {
         string message("Keyword/table not allowed in context. It may be mispelled or be included in the wrong kind of include block:");
         handleFatalError(message + item,
                      line,
@@ -76,7 +76,7 @@ InputStatePtr FileInputState::nextState(const string &line) const
     next->setActive( find(m_activeItems.begin(),
                           m_activeItems.end(),
                           item) != m_activeItems.end());
-	
+
     next->setIncomingContextItems(m_contextItems);
     return next;
 }

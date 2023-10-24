@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -38,7 +38,7 @@ integer function rate_variable_code(name)
       end if
       return
 end function
-      
+
 subroutine rate_variable_code_to_name(id, name)
       use constants
       use io_units
@@ -65,7 +65,7 @@ subroutine rate_variable_code_to_name(id, name)
       return
 end subroutine
 
-          
+
 integer function ncc_code(name)
       use constants
       use io_units
@@ -96,7 +96,7 @@ integer function ncc_code(name)
       end if
       return
 end function
-      
+
 subroutine ncc_code_to_name(id, name)
       use constants
       use io_units
@@ -133,4 +133,4 @@ subroutine ncc_code_to_name(id, name)
 end subroutine
 
 
-          
+

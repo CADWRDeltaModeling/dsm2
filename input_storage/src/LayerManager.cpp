@@ -21,7 +21,7 @@ string LayerManager::layerName(int index)
 }
 
 int LayerManager::addLayer(const string& name)
-{ 
+{
     if (find(layers.begin(),layers.end(),name) == layers.end())
     {
         layers.push_back(name);
@@ -29,10 +29,10 @@ int LayerManager::addLayer(const string& name)
     }
     //todo: make sure this isn't slowing us  // todo: verify it is std::find, not boost
     return (int)(std::find(layers.begin(),layers.end(),name) - layers.begin());
-}   
+}
 
 void LayerManager::clearAllLayer()
-{   
+{
     layers.clear();
 }
 
@@ -46,12 +46,12 @@ int LayerManager::getNumberLayers()
     return (int) layers.size();
 }
 
-/* Write the ordered list of layers to an output stream 
-    Adds prefix at the begining of each line (e.g., a comment) 
+/* Write the ordered list of layers to an output stream
+    Adds prefix at the begining of each line (e.g., a comment)
 */
-void LayerManager::writeToStream(ostream & stream, 
+void LayerManager::writeToStream(ostream & stream,
                                  const std::string& prefix)
-{   
+{
     stream << prefix << "Entry file (top priority):  " << layers[0] << endl;
     stream << prefix << "Other files, increasing priority: " << endl;
     if (layers.size() == 1)
@@ -90,7 +90,7 @@ void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)
    /* Field information */
    const char *field_names[NFIELDS] =
    { "number","name" };
-  
+
    /* Initialize the field field_type */
    hid_t      field_type[NFIELDS];
    hid_t string_type = H5Tcopy( H5T_C_S1 );
@@ -107,9 +107,9 @@ void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)
    /* make a table */
    status=H5TBmake_table("layers",file_id,
                          "layers",NFIELDS,layers.size(),
-                         dst_size, field_names, 
+                         dst_size, field_names,
                          dst_offset, field_type,
-                         chunk_size, fill_data, 
+                         chunk_size, fill_data,
                          compress, &data[0]);
 }
 

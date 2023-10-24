@@ -134,7 +134,7 @@ static char RCSid[] =
 
 
 #ifdef _WIN32
-#define STDCALL  
+#define STDCALL
 #define sfCreate                STDCALL SFCREATE
 #define sfStripFills            STDCALL SFSTRIPFILLS
 #define sfDestroy               STDCALL SFDESTROY

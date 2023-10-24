@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -19,7 +19,7 @@
 !!</license>
 
 ! --- reads in the grid information from a hydro tidefile
-! --- h5open_f must already have been called 
+! --- h5open_f must already have been called
 subroutine read_grid_from_tidefile()
       use hdf5
       use common_tide
@@ -27,27 +27,27 @@ subroutine read_grid_from_tidefile()
       use runtime_data
       use io_units
       implicit none
-      
+
       character(len=11) :: group_name = "hydro", subgroup_name = "input"
-      integer(HID_T) :: file_id 
+      integer(HID_T) :: file_id
       integer(HID_T) :: group_id, subgroup_id
       integer :: ierror = 0
       logical :: file_exist
-      
+
       inquire(FILE=trim(tide_files(1).filename),EXIST=file_exist)
       if (.not. file_exist)then
           write (UNIT_ERROR,*) "Could not read grid from tidefile (exists?, access?): ", &
                              tide_files(1).filename
           call exit(-2)
       end if
-      
+
       call h5fopen_f(trim(tide_files(1).filename), H5F_ACC_RDONLY_F, file_id, ierror)
       call VerifyHDF5(ierror,"HDF5 opened to read grid")
       call h5gopen_f (file_id, "hydro",    group_id,   ierror)  ! open group instead of create
 	call h5gopen_f(group_id, "input", subgroup_id, ierror)
-      
+
       call read_buffer_profile_from_hdf5("Grid",subgroup_id,ierror)  ! Do the actual read
-      
+
       call verify_error(ierror,"Error reading grid from hdf5")
       call h5gclose_f (subgroup_id, ierror)
       call h5gclose_f (group_id, ierror)

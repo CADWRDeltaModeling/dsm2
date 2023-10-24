@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 source ./setup_linux_intelcompilers_32bit_hpc4.sh
 
 cd oprule
@@ -35,6 +35,6 @@ cd dsm2
 cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD
-cmake -Dhydro_1000=on -DTHIRD_PARTY_DIR=/scratch/dms/dsm2/third_party -G "Unix Makefiles" ../src # -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_TYPE=Debug 
+cmake -Dhydro_1000=on -DTHIRD_PARTY_DIR=/scratch/dms/dsm2/third_party -G "Unix Makefiles" ../src # -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_TYPE=Debug
 make clean
 make -j4

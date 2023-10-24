@@ -12,11 +12,11 @@
 namespace oprule{
 namespace expression{
 
-/** Expression node that returns values based on evaluating the 
+/** Expression node that returns values based on evaluating the
   * result of a binary op on two expression nodes.
   */
-template<class BinaryFunc> 
-class BinaryOpNode : public ExpressionNode<typename BinaryFunc::result_type >  
+template<class BinaryFunc>
+class BinaryOpNode : public ExpressionNode<typename BinaryFunc::result_type >
 {
 public:
    /** Argument types*/
@@ -32,32 +32,32 @@ public:
    typedef BinaryOpNode<BinaryFunc> NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
    typedef OE_NODE_PTR(ExpressionNode<ResultType>) ExpressionNodePtr;
-   
+
 
    /** Create a binary op node based on the arguments to the function it will evaluate.
     * @param pLeft first argument to the binary function.
     * @param pRight second argument to the binary function
     */
-   BinaryOpNode(FirstArgPtr pLeft, 
+   BinaryOpNode(FirstArgPtr pLeft,
 		          SecondArgPtr pRight)
-     : _pLeft (pLeft), 
+     : _pLeft (pLeft),
        _pRight (pRight),
        _timeDependent(_pLeft->isTimeDependent() ||
 		              _pRight->isTimeDependent()) {}
-	
+
     virtual ~BinaryOpNode()
 	{
     OE_NODE_DELETE(_pLeft);
     OE_NODE_DELETE(_Right);
 	};
 
-   static NodePtr create(FirstArgPtr pLeft, 
+   static NodePtr create(FirstArgPtr pLeft,
 		          SecondArgPtr pRight)
    {
      return NodePtr(new NodeType(pLeft,pRight));
    }
 
-   virtual ExpressionNodePtr copy(){ 
+   virtual ExpressionNodePtr copy(){
      return NodePtr(new NodeType(_pLeft->copy(),_pRight->copy()));
   }
 
@@ -76,7 +76,7 @@ public:
     virtual bool isTimeDependent() const{return _timeDependent;}
     virtual void init(){ _pLeft->init(); _pRight->init();}
 
-private: 
+private:
     FirstArgPtr _pLeft;
     SecondArgPtr _pRight;
 	 BinaryFunc func;

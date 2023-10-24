@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 import java.io.BufferedReader;
@@ -21,12 +21,12 @@ public class PTMBehaviorInputs {
 	private int _totalParticlesReleased = 0;
 	private TravelTimeOutput _travelTimeOutput = null;
 	// Map<name of release station, FishReleaseGroup>
-	private Map<String, FishReleaseGroup> _fishGroups = null; 
-	// Map<insert station(node id, wb id, and distance), station name> 
+	private Map<String, FishReleaseGroup> _fishGroups = null;
+	// Map<insert station(node id, wb id, and distance), station name>
 	private Node[] _nodeArray=null;
 	private Waterbody[] _wbArray=null;
 	private TimeZone _timeZone = null;
-	
+
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
 		if (releaseInputText.size()< 6)
 			PTMUtil.systemExit("Errors in Fish_Release_Inputs, system exit.");
@@ -49,12 +49,12 @@ public class PTMBehaviorInputs {
 			else{
 				for (String rline: groupText.subList(3, groupText.size())){
 					String [] oneRelease = rline.trim().split("[,\\s\\t]+");
-					
+
 					if (oneRelease.length<4)
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
 					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1], _timeZone);
 					int particleNumber = Integer.parseInt(oneRelease[2].trim());
-					
+
 					int releaseStyle = FishRelease.RANDOM;
 					if(oneRelease[3].equalsIgnoreCase("CENTER"))
 						releaseStyle = FishRelease.CENTER;
@@ -62,11 +62,11 @@ public class PTMBehaviorInputs {
 						releaseStyle = FishRelease.RANDOM;
 					else
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
-					
+
 					if (_fishGroups == null)
 						// map key: node id
 						_fishGroups = new HashMap<String, FishReleaseGroup>();
-					
+
 					if (_fishGroups.get(name) == null){
 						ArrayList<FishRelease> frList = new ArrayList<FishRelease>();
 						frList.add(new FishRelease(releaseTime, particleNumber, releaseStyle));
@@ -74,13 +74,13 @@ public class PTMBehaviorInputs {
 					}
 					else
 						_fishGroups.get(name).addFishRelease(new FishRelease(releaseTime, particleNumber, releaseStyle));
-					_totalParticlesReleased += particleNumber; 
+					_totalParticlesReleased += particleNumber;
 				}
 			}
 		}
-			
+
 	}
-	
+
 	//TODO copied from TravelTimeOutput, need write a utility method to read in node, wb ids and distances
 	private Pair<String, IntBuffer> setIdsDistance(String stationLine){
 		int[] station = new int[3];
@@ -118,9 +118,9 @@ public class PTMBehaviorInputs {
 		}
 		return new Pair<String, IntBuffer>(items[3], IntBuffer.wrap(station));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public PTMBehaviorInputs() {
 		PTMUtil.systemExit("missing nodes, waterbodies and input file info, system exit.");
@@ -131,24 +131,24 @@ public class PTMBehaviorInputs {
 			PTMUtil.systemExit("Behavior input file not found, system exit");
 		_nodeArray = nodeArray;
 		_wbArray = wbArray;
-		
+
 		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
-		
-		// read in general info 
+
+		// read in general info
 		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "PARTICLE_TYPE_INPUTS", "END_PARTICLE_TYPE_INPUTS");
-		if (fishTypeList==null || fishTypeList.size()==0) 
+		if (fishTypeList==null || fishTypeList.size()==0)
 			PTMUtil.systemExit("No Particle Type found, exit.");
-		_fishType = fishTypeList.get(0).trim();	
+		_fishType = fishTypeList.get(0).trim();
 		if (_fishType.equalsIgnoreCase("Salmon_Particle"))
 			Globals.CalculateWritePTMFlux = false;
-		
+
 		ArrayList<String> tzList = PTMUtil.getInputBlock(inputText, "TIME_ZONE", "END_TIME_ZONE");
-		if (tzList==null || fishTypeList.size()==0){ 
+		if (tzList==null || fishTypeList.size()==0){
 			_timeZone = TimeZone.getTimeZone("PST");
 			System.out.println("Set default time zone to PST");
 		}
-		else{ 
+		else{
 			String id = tzList.get(0).trim();
 			if(id.equalsIgnoreCase("PST")|| id.equalsIgnoreCase("MST")
 					|| id.equalsIgnoreCase("CST")|| id.equalsIgnoreCase("EST"))
@@ -157,24 +157,24 @@ public class PTMBehaviorInputs {
 				PTMUtil.systemExit("Wrong time zone input, exit.");
 		}
 		Globals.TIME_ZONE = _timeZone;
-		
+
 		ArrayList<String> randomSequence = PTMUtil.getInputBlock(inputText, "RANDOM_SEQUENCE_INPUTS", "END_RANDOM_SEQUENCE_INPUTS");
-		if (randomSequence==null || randomSequence.size()==0) 
+		if (randomSequence==null || randomSequence.size()==0)
 			System.err.println("Warning: No random sequence input found!");
 		if (PTMUtil.getStringFromLine(randomSequence.get(0).trim(), "Use_New_Random_Seed").equalsIgnoreCase("YES"))
-			PTMUtil.setRandomNumber();	
-		
+			PTMUtil.setRandomNumber();
+
 		ArrayList<String> travelTimeOutputInfo = PTMUtil.getInputBlock(inputText, "TRAVEL_TIME_OUTPUT", "END_TRAVEL_TIME_OUTPUT");
-		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0) 
+		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0)
 			System.out.println("No travel time output info defined in behavior input file");
-		_travelTimeOutput = new TravelTimeOutput(travelTimeOutputInfo);	
-		
+		_travelTimeOutput = new TravelTimeOutput(travelTimeOutputInfo);
+
 		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
 		if (releaseInputs==null || releaseInputs.size()==0)
 			System.out.println("No fish release timeseries found in the behavior input file, using specification in historical_ptm.inp instead!");
 		else
 			extractReleaseInputs(releaseInputs);
-		
+
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
 			System.out.println("No survival behavior inputs.");
@@ -187,7 +187,7 @@ public class PTMBehaviorInputs {
 		if (routeInputText == null)
 			System.out.println("No routing behavior inputs");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
-	
+
 		ArrayList<String> outputOpText = PTMUtil.getInputBlock(inputText, "OUTPUT_OPTIONS", "END_OUTPUT_OPTIONS");
 		if(outputOpText != null && !outputOpText.equals("")){
 			for(String writeOp: outputOpText){
@@ -201,8 +201,8 @@ public class PTMBehaviorInputs {
 					_survivalInputs.setSurvivalAllWriteout(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURVIVAL_WRITE_ALL"));
 			}
 		}
-			
-		
+
+
 		PTMUtil.closeBuffer(inputTextBuff);
 		setNodeInfo(_nodeArray);
 		setWaterbodyInfo(_wbArray);
@@ -257,7 +257,7 @@ public class PTMBehaviorInputs {
 		PTMUtil.systemExit("No smelt helper defined, system exit.");
 	else
 		PTMUtil.systemExit("No helper defined for this type of particle, system exit.");
-    
+
 	*/
 }
 

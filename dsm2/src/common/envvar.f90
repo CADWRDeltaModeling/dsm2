@@ -19,7 +19,7 @@
 !</license>
 
 module envvar
-      
+
     integer, parameter:: ENVVAR_NAME_LEN = 32
     integer, parameter:: ENVVAR_VALUE_LEN = 128
     !----pseudo (internal) environment variables
@@ -28,7 +28,7 @@ module envvar
         character (len=ENVVAR_NAME_LEN) :: name
         character (len=ENVVAR_VALUE_LEN) :: value
     end type
-            
+
     ! max number of pseudo (internal) env vars
     integer,parameter :: max_envvars = 128
     type(envvar_t)::  envvars(max_envvars)
@@ -47,14 +47,14 @@ contains
                 return
             endif
         enddo
-      
+
         nenvvars=nenvvars+1
         if (nenvvars > max_envvars) then
             write(unit_error,'(a,i)') &
                 'Too many envvars specified; max allowed is:',max_envvars
             call exit(-1)
         endif
-            
+
         envvars(nenvvars)%name=name
         envvars(nenvvars)%value=val
         return
@@ -163,7 +163,7 @@ contains
         !----its value in EVALUE
         use iopath_data
         implicit none
-      
+
         integer:: &
             i                    ! index
 
@@ -171,7 +171,7 @@ contains
             estring*(*)		  ! lower case of envvars.name
         character:: evalue*(*)		  ! lower case of envvars.name
         character:: evarname*130		  ! lower case of envvars.name
-      
+
         call locase(estring)      ! convert to lower case
         evalue=' '
 
@@ -186,5 +186,5 @@ contains
         enddo
         return
     end subroutine getenv_internal
-      
+
 end module envvar

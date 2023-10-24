@@ -3,7 +3,7 @@
 !!    Department of Water Resources.
 !!    This file is part of DSM2.
 
-!!    The Delta Simulation Model 2 (DSM2) is free software: 
+!!    The Delta Simulation Model 2 (DSM2) is free software:
 !!    you can redistribute it and/or modify
 !!    it under the terms of the GNU General Public License as published by
 !!    the Free Software Foundation, either version 3 of the License, or
@@ -28,7 +28,7 @@ subroutine Write1DStringArray(dest_id,name,arr,strlen,nstr)
       use inclvars
 
       implicit none
-      integer(HID_T),intent(in) :: dest_id ! Destination group identifier      
+      integer(HID_T),intent(in) :: dest_id ! Destination group identifier
       character*(*) :: name       ! Name of array
       integer       :: strlen     ! Length of string element
       integer       :: nstr       ! Dimension of string array
@@ -83,7 +83,7 @@ subroutine WriteChannelAreaToHDF5()
       h_offset(1) = 0
       h_offset(2) = 0
       h_offset(3) = hdf5point
-  
+
 
       call h5dget_space_f (chan_z_dset_id, chan_z_fspace_id, error)
       call h5sselect_hyperslab_f(chan_z_fspace_id, H5S_SELECT_SET_F, &
@@ -92,7 +92,7 @@ subroutine WriteChannelAreaToHDF5()
           error, chan_z_memspace, chan_z_fspace_id)
       call VerifyHDF5(error,"Channel stage write")
       call h5sclose_f (chan_z_fspace_id, error)
-   
+
 
           ! Write out AChan
       call h5dget_space_f (chan_a_dset_id, chan_a_fspace_id, error)
@@ -114,7 +114,7 @@ subroutine WriteChannelAreaToHDF5()
       call h5dwrite_f(chan_aa_dset_id,H5T_NATIVE_REAL, AChan_Avg(1:nchans), chan_aa_mdata_dims, &
           error, chan_aa_memspace, chan_aa_fspace_id)
       call VerifyHDF5(error,"Channel avg area write")
-      call h5sclose_f (chan_aa_fspace_id, error)   
+      call h5sclose_f (chan_aa_fspace_id, error)
 
       return
 end
@@ -159,7 +159,7 @@ subroutine WriteCompPointToHDF5()
       use inclvars
       use common_tide
       use chnlcomp, only: TotalCompLocations   ! to obtain the value for TotalComputations
-      
+
       implicit none
 
       integer(HSIZE_T), dimension(2) :: h_offset
@@ -176,8 +176,8 @@ subroutine WriteCompPointToHDF5()
       call h5dwrite_f(cp_q_dset_id,H5T_NATIVE_REAL, Qcp(1:TotalCompLocations), cp_q_mdata_dims, &
           error, cp_q_memspace, cp_q_fspace_id)
       call VerifyHDF5(error,"Computational point flow write")
-      call h5sclose_f (cp_q_fspace_id, error)  
-      
+      call h5sclose_f (cp_q_fspace_id, error)
+
           ! Write out stage
       call h5dget_space_f (cp_z_dset_id, cp_z_fspace_id, error)
       call h5sselect_hyperslab_f(cp_z_fspace_id, H5S_SELECT_SET_F, &
@@ -185,7 +185,7 @@ subroutine WriteCompPointToHDF5()
       call h5dwrite_f(cp_z_dset_id,H5T_NATIVE_REAL, Zcp(1:TotalCompLocations), cp_z_mdata_dims, &
           error, cp_z_memspace, cp_z_fspace_id)
       call VerifyHDF5(error,"Computational point water surface write")
-      call h5sclose_f (cp_z_fspace_id, error)   
+      call h5sclose_f (cp_z_fspace_id, error)
 
       return
 end subroutine
@@ -195,7 +195,7 @@ end subroutine
 
 subroutine WriteReservoirFlowToHDF5()
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
       use common_tide
@@ -211,7 +211,7 @@ subroutine WriteReservoirFlowToHDF5()
 
       h_offset(1) = 0
       h_offset(2) = hdf5point
-       
+
       ! write out theta average value
       call h5dget_space_f (res_q_dset_id, res_q_fspace_id, error)
       call h5sselect_hyperslab_f(res_q_fspace_id, H5S_SELECT_SET_F,  &
@@ -221,8 +221,8 @@ subroutine WriteReservoirFlowToHDF5()
           QResv, res_q_mdata_dims,  &
           error, res_q_memspace, res_q_fspace_id)
       call VerifyHDF5(error,"Reservoir flow write")
-      call h5sclose_f (res_q_fspace_id, error)      
-      
+      call h5sclose_f (res_q_fspace_id, error)
+
       if (output_inst) then
         ! write out instantaneous value
           call h5dget_space_f (inst_res_q_dset_id, inst_res_q_fspace_id, error)
@@ -233,7 +233,7 @@ subroutine WriteReservoirFlowToHDF5()
             inst_QResv, inst_res_q_mdata_dims,  &
             error, inst_res_q_memspace, inst_res_q_fspace_id)
           call VerifyHDF5(error,"Instantaneous Reservoir flow write")
-          call h5sclose_f (inst_res_q_fspace_id, error)      
+          call h5sclose_f (inst_res_q_fspace_id, error)
       end if
       return
 end subroutine
@@ -243,7 +243,7 @@ end subroutine
 
 subroutine WriteReservoirHeightToHDF5()
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
       use common_tide
@@ -257,11 +257,11 @@ subroutine WriteReservoirHeightToHDF5()
       h_offset(2) = hdf5point
       call h5dget_space_f (res_h_dset_id, res_h_fspace_id, error)
       call h5sselect_hyperslab_f(res_h_fspace_id, H5S_SELECT_SET_F,  &
-          h_offset, res_h_fsubset_dims, error) 
+          h_offset, res_h_fsubset_dims, error)
       call h5dwrite_f(res_h_dset_id,H5T_NATIVE_REAL, EResv, res_h_mdata_dims,  &
           error, res_h_memspace, res_h_fspace_id)
       call VerifyHDF5(error,"Reservoir height write")
-      call h5sclose_f (res_h_fspace_id, error)      
+      call h5sclose_f (res_h_fspace_id, error)
 
       return
 end subroutine
@@ -271,7 +271,7 @@ end subroutine
 
 subroutine WriteTransferFlowToHDF5()
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
       use common_tide
@@ -291,27 +291,27 @@ subroutine WriteTransferFlowToHDF5()
 
       h_offset(1) = 0
       h_offset(2) = hdf5point
-      
+
       ! write out the theta average value
       call h5dget_space_f (transfer_dset_id, transfer_fspace_id, error)
       call h5sselect_hyperslab_f(transfer_fspace_id, H5S_SELECT_SET_F,  &
-          h_offset, transfer_fsubset_dims, error) 
+          h_offset, transfer_fsubset_dims, error)
       call h5dwrite_f(transfer_dset_id,H5T_NATIVE_REAL, objavg, transfer_mdata_dims,  &
           error, transfer_memspace, transfer_fspace_id)
       call VerifyHDF5(error,"Transfer flow write")
       call h5sclose_f (transfer_fspace_id, error)
-      
+
       if (output_inst) then
         ! write out the instantaneous value
         call h5dget_space_f (inst_transfer_dset_id, inst_transfer_fspace_id, error)
         call h5sselect_hyperslab_f(inst_transfer_fspace_id, H5S_SELECT_SET_F,  &
-            h_offset, inst_transfer_fsubset_dims, error) 
+            h_offset, inst_transfer_fsubset_dims, error)
         call h5dwrite_f(inst_transfer_dset_id,H5T_NATIVE_REAL, inst_obj2obj, inst_transfer_mdata_dims,  &
             error, inst_transfer_memspace, inst_transfer_fspace_id)
         call VerifyHDF5(error,"Instantaneous Transfer flow write")
         call h5sclose_f (inst_transfer_fspace_id, error)
       end if
-      
+
       return
 end subroutine
 
@@ -320,7 +320,7 @@ end subroutine
 
 subroutine WriteQExtChangedToHDF5()
 
-      use HDF5                  ! HDF5 This module contains all necessary modules 
+      use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
       use common_tide
@@ -342,7 +342,7 @@ subroutine WriteQExtChangedToHDF5()
       !   end do
       !else
          do i=1,max_qext
-            qextavg(i) = qext(i).avg !- qext(i).prev_avg 
+            qextavg(i) = qext(i).avg !- qext(i).prev_avg
          end do
       !endif
       do i=1,max_qext
@@ -351,27 +351,27 @@ subroutine WriteQExtChangedToHDF5()
                                 ! Creation of hyperslab
       h_offset(1) = 0
       h_offset(2) = hdf5point
-      
+
       ! write out the theta average value
       call h5dget_space_f (qext_change_dset_id, qext_fspace_id, error)
       call h5sselect_hyperslab_f(qext_fspace_id, H5S_SELECT_SET_F,  &
-          h_offset, qext_fsubset_dims, error) 
+          h_offset, qext_fsubset_dims, error)
       call h5dwrite_f(qext_change_dset_id,H5T_NATIVE_REAL, qextavg, qext_mdata_dims,  &
           error, qext_memspace, qext_fspace_id)
       call VerifyHDF5(error,"Qextchanged write")
       call h5sclose_f (qext_fspace_id, error)
-      
+
       if (output_inst) then
         ! write out the instantaneous value
         call h5dget_space_f (inst_qext_change_dset_id, inst_qext_fspace_id, error)
         call h5sselect_hyperslab_f(inst_qext_fspace_id, H5S_SELECT_SET_F,  &
-            h_offset, inst_qext_fsubset_dims, error) 
+            h_offset, inst_qext_fsubset_dims, error)
         call h5dwrite_f(inst_qext_change_dset_id,H5T_NATIVE_REAL, inst_qext, inst_qext_mdata_dims,  &
             error, inst_qext_memspace, inst_qext_fspace_id)
         call VerifyHDF5(error,"Instantaneous Qextchanged write")
-        call h5sclose_f (inst_qext_fspace_id, error)      
+        call h5sclose_f (inst_qext_fspace_id, error)
       end if
-      
+
       return
 end subroutine
 

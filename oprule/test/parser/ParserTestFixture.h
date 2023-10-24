@@ -22,7 +22,7 @@ public:
    typedef OE_NODE_PTR(TestModelInterface) NodeTypePtr;
    typedef ExpressionNode<double>::NodePtr BaseNodePtr;
 
-   TestModelInterface() { 
+   TestModelInterface() {
    }
 
    static NodePtr create(){
@@ -44,8 +44,8 @@ class TestModelInterface2 : public oprule::rule::ModelInterface<double>
 public:
    typedef TestModelInterface2 NodeType;
    typedef OE_NODE_PTR(TestModelInterface) NodeTypePtr;
-   typedef ExpressionNode<double>::NodePtr BaseNodePtr;      
-   
+   typedef ExpressionNode<double>::NodePtr BaseNodePtr;
+
    TestModelInterface2() {}
 
    static NodePtr create(){
@@ -68,7 +68,7 @@ class TestModelInterface3 : public oprule::rule::ModelInterface<double>
 {
 public:
    typedef TestModelInterface3 NodeType;
-   typedef OE_NODE_PTR(TestModelInterface) NodeTypePtr;  
+   typedef OE_NODE_PTR(TestModelInterface) NodeTypePtr;
    typedef ExpressionNode<double>::NodePtr BaseNodePtr;
 
    TestModelInterface3() {}
@@ -118,7 +118,7 @@ _VEC.push_back(S3);
 
 class TestNamedValueLookup : public oprule::parser::NamedValueLookupImpl
 {
-public:   
+public:
    TestNamedValueLookup(){
    ModelNameInfo info;
 
@@ -128,33 +128,33 @@ public:
    info.factory=&expression_factory;
    add("test_state",info);
 
-   
+
    info.name="LookupName";
    info.type=NamedValueLookup::READONLY;
    info.params.clear();
    info.factory=&lookup_factory;
    add("LookupName",info);
-   
-   info.name="test_interface";   
+
+   info.name="test_interface";
    info.type=NamedValueLookup::READWRITE;
    info.factory=&interface_factory;
    _VEC_ASSG3(test_interface,info.params,std::string,"first_arg","second_arg","third_arg");
    add("test_interface",info);
 
-   info.name="second_interface";   
+   info.name="second_interface";
    info.type=NamedValueLookup::READWRITE;
    info.factory=&interface2_factory;
    _VEC_ASSG1(second_interface,info.params,std::string,"first_arg");
    add("second_interface",info);
 
-   info.name="third_interface";   
+   info.name="third_interface";
    info.type=NamedValueLookup::READWRITE;
    info.factory=&interface3_factory;
    _VEC_ASSG1(third_interface,info.params,std::string,"first_arg");
    add("third_interface",info);
 }
 
-   virtual ~TestNamedValueLookup(){}   
+   virtual ~TestNamedValueLookup(){}
 };
 
 
@@ -175,7 +175,7 @@ public:
    virtual DNodePtr getReferenceSeasonNode(int _mon, int _day, int _hour, int _min){
       return DScalarNode::create(0.);}
    virtual DNodePtr getDateTimeNode(){return DScalarNode::create(0);}
-   virtual DNodePtr getDateTimeNode(const std::string& dt, const std::string& tm){ 
+   virtual DNodePtr getDateTimeNode(const std::string& dt, const std::string& tm){
       return DScalarNode::create(0.);}
    virtual DNodePtr getYearNode(){return DScalarNode::create(year);}
    virtual DNodePtr getMonthNode(){return DScalarNode::create(mon);}

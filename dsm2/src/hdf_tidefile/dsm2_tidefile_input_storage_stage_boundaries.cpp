@@ -1,9 +1,9 @@
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 
 /**
   READ case:
@@ -11,7 +11,7 @@ IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRES
   2. Append items to the buffer one at a time from fortran.
   3. Write the buffer to file.
   4. Clear the buffer.
-  
+
   WRITE case:
   1. Clear the buffer.
   2. Read table from file.
@@ -39,22 +39,22 @@ using namespace boost;
 
 /** Write the table item to an output stream */
 ostream& operator<<(ostream & stream, const stage_boundaries & obj)
-{  
+{
   quote_if_spaces quote_spaces;
   stream.setf(ios_base::fixed,ios_base::floatfield);
-  return stream <<  
+  return stream <<
             setw(max(4+32,(int)(4+strlen(obj.name))))
             << setfill(' ')
             << left
-            << quote_spaces(obj.name, 32)  
+            << quote_spaces(obj.name, 32)
         << setw(13)
             << setfill(' ')
             << left
-            << obj.int_node_no  
+            << obj.int_node_no
         << setw(13)
             << setfill(' ')
             << left
-            << obj.ext_node_no  
+            << obj.ext_node_no
         ;
 }
 
@@ -75,12 +75,12 @@ istream& operator>> (istream& stream, stage_boundaries & obj)
   FilterIter end(predicate, xtok.end());
   istringstream tokenstrm;
   string tempstr;
-   
-  
+
+
    if (beg == end)
    {
      throw runtime_error("Fewer input fields received than expected");
-   }        
+   }
    if(beg->size()<= 32)
    {
         strcpy(obj.name, (beg++)->c_str());
@@ -90,12 +90,12 @@ istream& operator>> (istream& stream, stage_boundaries & obj)
       cout << "fatal error" <<endl;
          throw logic_error("String too long (max width 32):" + (*beg));
    }
-   
+
 
         if (beg == end)
         {
             throw runtime_error("Fewer input fields received than expected");
-        }        
+        }
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);
@@ -104,12 +104,12 @@ istream& operator>> (istream& stream, stage_boundaries & obj)
         {
           throw invalid_argument("Could not convert int_node_no to correct data type:"+tempstr);
         }
-        
+
 
         if (beg == end)
         {
             throw runtime_error("Fewer input fields received than expected");
-        }        
+        }
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);
@@ -124,7 +124,7 @@ istream& operator>> (istream& stream, stage_boundaries & obj)
 
 template<>
 HDFTableManager<stage_boundaries>::HDFTableManager() :
-    description(stage_boundaries_table_description()),  
+    description(stage_boundaries_table_description()),
     m_default_fill(stage_boundaries("",-901,-901)){}
 
 template<>
@@ -136,19 +136,19 @@ void HDFTableManager<stage_boundaries>::prioritize_buffer()
     std::sort(buffer().begin(),buffer().end());
     vector<stage_boundaries>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
-    {   
+    {
         string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
         throw runtime_error(messagestrm.str());
     }
-    // Eliminate duplicates. Because of prior ordering, 
+    // Eliminate duplicates. Because of prior ordering,
     // this will eliminate lower layers
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<stage_boundaries>()),buffer().end());
     // Eliminate items that are not used. This must be done after lower layers have been removed
     buffer().erase(remove_if(buffer().begin(), buffer().end(),not1(entry_used<stage_boundaries>())), buffer().end());
-    
+
 }
 
 TableDescription stage_boundaries_table_description(){
@@ -181,14 +181,14 @@ TableDescription stage_boundaries_table_description(){
 
 /**
   Clear the storage buffer for objects of type stage_boundaries
-*/  
+*/
 void stage_boundaries_clear_buffer_f(){
   //stage_boundaries_table::instance().buffer().destroy();
   stage_boundaries_table::instance().buffer().clear();
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void stage_boundaries_append_to_buffer_f(const  char a_name[32],const int * a_int_node_no,const int * a_ext_node_no, int * ierror, 
+void stage_boundaries_append_to_buffer_f(const  char a_name[32],const int * a_int_node_no,const int * a_ext_node_no, int * ierror,
               const int name_len)
 {
  _TRAP_EXCEPT(*ierror,
@@ -198,23 +198,23 @@ void stage_boundaries_append_to_buffer_f(const  char a_name[32],const int * a_in
                                       ));
  ) // end of exception trap
 }
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 void stage_boundaries_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
   stage_boundaries_table & table = stage_boundaries_table::instance();
-    *ierror = static_cast<int>( H5TBmake_table( stage_boundaries_table::instance().description.title.c_str(), 
-                                              *file_id, 
-		                                      table.description.title.c_str(), 
-                                              table.description.nfields, 
-                                              table.buffer().size(), 
-                                              table.description.struct_size, 
-                                              table.description.field_names, 
-                                              table.description.field_offsets, 
-                                              table.description.field_types, 
-                                              table.description.chunk_size, 
-		                                     &table.default_fill(), //fill data 
-		                                       1,                     //stage_boundaries_table::instance().description.compress, 
+    *ierror = static_cast<int>( H5TBmake_table( stage_boundaries_table::instance().description.title.c_str(),
+                                              *file_id,
+		                                      table.description.title.c_str(),
+                                              table.description.nfields,
+                                              table.buffer().size(),
+                                              table.description.struct_size,
+                                              table.description.field_names,
+                                              table.description.field_offsets,
+                                              table.description.field_types,
+                                              table.description.chunk_size,
+		                                     &table.default_fill(), //fill data
+		                                       1,                     //stage_boundaries_table::instance().description.compress,
 		                                      table.buffer().size() > 0 ? &table.buffer()[0] : NULL));
   ) // end of exception trap
 }
@@ -225,44 +225,44 @@ void stage_boundaries_read_buffer_from_hdf5_f(const hid_t* file_id, int* ierror)
     hsize_t nfields;
     hsize_t nrecords;
     stage_boundaries_table & table = stage_boundaries_table::instance();
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-                               table.description.title.c_str(), 
-                               &nfields, 
-			                   &nrecords )); 
-    if ( *ierror < 0) return; 
- 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+                               table.description.title.c_str(),
+                               &nfields,
+			                   &nrecords ));
+    if ( *ierror < 0) return;
+
     if (nfields != table.description.nfields){ *ierror = LOGIC_ERROR; return;}
 
-    table.buffer().resize(static_cast<int>(nrecords)); 
+    table.buffer().resize(static_cast<int>(nrecords));
 
-	if (nrecords > 0) 
+	if (nrecords > 0)
 	{
-		*ierror = static_cast<int>( H5TBread_table(*file_id, 
-			                        table.description.title.c_str(), 
-			                        table.description.struct_size, 
-			                        table.description.field_offsets, 
+		*ierror = static_cast<int>( H5TBread_table(*file_id,
+			                        table.description.title.c_str(),
+			                        table.description.struct_size,
+			                        table.description.field_offsets,
 			                        table.description.field_sizes,
 			                        &(table.buffer()[0])));
 	}
- ) // end of exception trap                                   
+ ) // end of exception trap
 }
 
 /** query size information about the table */
 void stage_boundaries_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, int* ierror){
  _TRAP_EXCEPT(*ierror,
     hsize_t nfields = 0;
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-				     stage_boundaries_table::instance().description.title.c_str(), 
-				     &nfields, 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+				     stage_boundaries_table::instance().description.title.c_str(),
+				     &nfields,
 				     nrecords));
  ) // end of exception trap
 }
 
 
-    
+
 /** get one row worth of information from the buffer */
-void stage_boundaries_query_from_buffer_f(int32_t* row, 
-                         char a_name[32],int * a_int_node_no,int * a_ext_node_no, int * ierror, 
+void stage_boundaries_query_from_buffer_f(int32_t* row,
+                         char a_name[32],int * a_int_node_no,int * a_ext_node_no, int * ierror,
               int name_len
                         )
 {
@@ -280,7 +280,7 @@ void stage_boundaries_query_from_buffer_f(int32_t* row,
 
 /** Prioritize buffer by layers, delete unused items and sort */
 void stage_boundaries_prioritize_buffer_f(int* ierror)
-{  
+{
  _TRAP_EXCEPT(*ierror,
   stage_boundaries_table::instance().prioritize_buffer();
    ) // end of exception trap
@@ -288,7 +288,7 @@ void stage_boundaries_prioritize_buffer_f(int* ierror)
 
 /** Query the size of the storage buffer for objects of type stage_boundaries */
 int stage_boundaries_buffer_size_f()
-{ 
+{
   return (int) stage_boundaries_table::instance().buffer().size();
 }
 
@@ -299,7 +299,7 @@ void stage_boundaries_write_buffer_to_stream(ostream & out, const bool& append)
    out << keyword <<endl;
    vector<stage_boundaries> & obs = stage_boundaries_table::instance().buffer();
    stage_boundaries_table& table = stage_boundaries_table::instance();
-   for (size_t icount = 0; icount < table.description.nfields; ++ icount) 
+   for (size_t icount = 0; icount < table.description.nfields; ++ icount)
    {
      string name = table.description.field_names[icount];
      boost::to_upper(name);
@@ -308,16 +308,16 @@ void stage_boundaries_write_buffer_to_stream(ostream & out, const bool& append)
    out << endl;
    for (vector<stage_boundaries>::const_iterator it = obs.begin();
         it != obs.end(); ++it)
-        {  
+        {
            const stage_boundaries & outitem = *it;
            out << outitem << endl;
         }
    out << "END\n" << endl;
 }
 
-void stage_boundaries_write_buffer_to_text_f(const char* file, 
-                                      const bool* append, 
-                                      int* ierror, 
+void stage_boundaries_write_buffer_to_text_f(const char* file,
+                                      const bool* append,
+                                      int* ierror,
                                       int filelen)
 {
  _TRAP_EXCEPT(*ierror,
@@ -325,9 +325,9 @@ void stage_boundaries_write_buffer_to_text_f(const char* file,
   boost::filesystem::path p(filename);
   ios_base::openmode mode = *append ? (ios::out | ios::ate | ios::app) : (ios::out | ios::trunc );
   ofstream out(filename.c_str(),mode);
-  
-  stage_boundaries_write_buffer_to_stream(out,*append); 
-  ) // end of exception trap  
+
+  stage_boundaries_write_buffer_to_stream(out,*append);
+  ) // end of exception trap
 }
 
 

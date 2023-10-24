@@ -6,7 +6,7 @@
 
 #define INIT_STEP 13
 #define INIT_STATE 2
-#define INIT_DYN_STATE 4 
+#define INIT_DYN_STATE 4
 #define INIT_TIME 100
 #define DT 15
 #define DURATION 30
@@ -41,7 +41,7 @@ namespace test_model{
     // being set by a time series, before the action does anything.
     // The action will "permanently set the data source" by changing
     // base_dyn_state
-    dbl_dyn1=base_dyn1+newstep;  
+    dbl_dyn1=base_dyn1+newstep;
 
   }
 }
@@ -125,10 +125,10 @@ class DynamicModelState : public oprule::rule::ModelInterface<double>{
   virtual ExpressionNodePtr copy(){return NodePtr(new DynamicModelState());}
 
   StateType eval(){return test_model::dbl_dyn1;}
-  virtual void setDataExpression( 
+  virtual void setDataExpression(
 	  oprule::expression::ExpressionNode<StateType>::NodePtr val  ){
     test_model::base_dyn1=EXPRESSION_SET;
-  }	
+  }
   virtual void set(StateType val){test_model::dbl_dyn1=val;}
   virtual bool operator==(const DynamicModelState& other){return true;}
 

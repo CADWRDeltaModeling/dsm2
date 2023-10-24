@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -20,7 +20,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public ParticleSwimHelper(BasicSwimBehavior basic) {
 		super(basic);
@@ -116,7 +116,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 
 	}
 	/**
-	 * 
+	 *
 	 */
 	public Integer getKey(Particle p) {
 		return p.wb.getEnvIndex();

@@ -38,7 +38,7 @@ bool TransferFlowInterface::operator==( const TransferFlowInterface& rhs){
 //////////////////
 
 ChannelFlowNode::ChannelFlowNode(
-                   const int intchan, 
+                   const int intchan,
 				   const double dist) :
   channel(intchan),
   distance(dist)
@@ -46,7 +46,7 @@ ChannelFlowNode::ChannelFlowNode(
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
-  upCompPt=points[0]; 
+  upCompPt=points[0];
   downCompPt=points[1];
   upWt=weights[0];
   downWt=weights[1];
@@ -56,9 +56,9 @@ inline double ChannelFlowNode::eval(){
   return upWt*get_flow(upCompPt)+downWt*get_flow(downCompPt);
 }
 
-   
+
 ChannelWSNode::ChannelWSNode(
-                 const int intchan, 
+                 const int intchan,
                  const double dist):
   channel(intchan),
   distance(dist)
@@ -66,7 +66,7 @@ ChannelWSNode::ChannelWSNode(
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
-  upCompPt=points[0]; 
+  upCompPt=points[0];
   downCompPt=points[1];
   upWt=weights[0];
   downWt=weights[1];
@@ -79,18 +79,18 @@ double ChannelWSNode::eval(){
 ////////////////
 //fixme: this stinks, but keep it for now for comparison to old op rules
 ChannelVelocityNode::ChannelVelocityNode(
-                 const int intchan, 
-                 const double dist) : 
-      channel(intchan), 
-	  distance(dist) 
+                 const int intchan,
+                 const double dist) :
+      channel(intchan),
+	  distance(dist)
 {
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
-  upCompPt=points[0]; 
+  upCompPt=points[0];
   downCompPt=points[1];
   upWt=weights[0];
-  downWt=weights[1];      
+  downWt=weights[1];
 }
 
 double ChannelVelocityNode::eval(){
@@ -98,10 +98,10 @@ double ChannelVelocityNode::eval(){
 }
 ////////////////
 
-ReservoirFlowNode::ReservoirFlowNode( 
-                      const int res, 
-                      const int connect)  
-                      : _res(res), 
+ReservoirFlowNode::ReservoirFlowNode(
+                      const int res,
+                      const int connect)
+                      : _res(res),
 					    _conn(connect){
 }
 
@@ -110,7 +110,7 @@ double ReservoirFlowNode::eval(){
 }
 
 
-ReservoirWSNode::ReservoirWSNode(const int res) 
+ReservoirWSNode::ReservoirWSNode(const int res)
  : _res(res){}
 
 inline double ReservoirWSNode::eval(){ return get_res_surf_elev(_res); }

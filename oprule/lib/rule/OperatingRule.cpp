@@ -19,25 +19,25 @@ OperatingRule::OperatingRule(OperationActionPtr opact,TriggerPtr trigger) :
    _action(opact), _trigger(trigger), _prevTriggerValue(false){
 }
 
-void OperatingRule::advanceAction(double dt){ 
+void OperatingRule::advanceAction(double dt){
     _action->advance(dt);
 }
 
-bool OperatingRule::isActionApplicable(){ 
+bool OperatingRule::isActionApplicable(){
     return _action->isApplicable();
 }
 
-bool OperatingRule::testTrigger(){ 
-    return _trigger->test(); 
+bool OperatingRule::testTrigger(){
+    return _trigger->test();
 }
 
 
 //todo: this embeds the prev=current logic
 bool OperatingRule::testNewlyTriggered(){
    bool current=_trigger->test();
-   bool ret= (! _prevTriggerValue) && current; 
+   bool ret= (! _prevTriggerValue) && current;
    _prevTriggerValue=current;
-   return ret; 
+   return ret;
 }
 
 void OperatingRule::step(double dt){
@@ -57,7 +57,7 @@ OperationAction::ActionListType& OperatingRule::getActionList(){
    if (_actionList.empty())
    {
        if(_action->hasSubActions())
-       {    
+       {
          _action->appendSubActionsToList( _actionList );
        }
        else

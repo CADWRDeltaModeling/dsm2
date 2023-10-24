@@ -14,7 +14,7 @@ class Trigger
 
 public:
 
-   /** Test trigger for activation 
+   /** Test trigger for activation
    *@return true if the trigger expression evaluates to true
    *@todo clarify difference between this and "newly triggered"
    */

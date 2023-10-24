@@ -19,19 +19,19 @@ def do_example():
                            DoubleField("manning",10,4),
                            IntField("upnode"),
                             IntField("downnode")],
-                           ["chan_no"])            # chan_no is the identifier        
+                           ["chan_no"])            # chan_no is the identifier
     component.layered=True                         # Component is part of the layering system
     prep_component(component,outdir)
 
     # Create the child object called a channel. It is linked to a parent channel by the field
     # chan_no
     component = TableComponent("xsect",
-                           [IntField("chan_no"), 
+                           [IntField("chan_no"),
                            DoubleField("dist",8,3),
                            CharField("file",120,24)], \
                            ["chan_no","dist"],
-                           parent="channel",      
-                           parent_id=["chan_no"])               
+                           parent="channel",
+                           parent_id=["chan_no"])
     component.layered = False
     prep_component(component,outdir)
 

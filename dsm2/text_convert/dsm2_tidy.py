@@ -1,7 +1,7 @@
 """ Cleanup script for dsm2 input files.
 Usage:
 > dsm2_tidy.py inputfile outputfile
-where 
+where
 inputfile   is the file to be cleaned
 outputfile  is the destination to write
 """
@@ -22,8 +22,8 @@ block_re=re.compile(block_txt,re.M | re.DOTALL)
 number_re = re.compile(r"([0-9.-]+|length|none)")
 
 def is_numberlike(inp):
-    """ Returns whether the input a number 
-        (or a special case in a field of numbers) 
+    """ Returns whether the input a number
+        (or a special case in a field of numbers)
     """
     isnum=number_re.match(inp.strip()) != None
     return isnum
@@ -33,7 +33,7 @@ def tidy(infile,outfile):
     f=open(infile,"r")
     txt=f.read()
     f.close()
-  
+
     if not txt.endswith("\n"):
         txt += "\n"
     top_comment = top_comment_re.match(txt).group(0)
@@ -45,7 +45,7 @@ def tidy(infile,outfile):
     out=[top_comment]
     if len(matches) == 0:
         raise ValueError("No input blocks found in file %s. Make sure the last block has an END indicated" % infile)
-            
+
     for m in matches:
         key=m[0].strip()
         all_block=m[1].split("\n")
@@ -57,7 +57,7 @@ def tidy(infile,outfile):
         numberlike[0] = False
         format=["%s" for x in header]+["%s"]
         inputs = []
-        
+
         for line in lines:
             splitline = line.strip().split("#")
             if (len(splitline) > 1):
@@ -68,14 +68,14 @@ def tidy(infile,outfile):
             if (len(numberlike) < len(input)):
                 print "Problem with assesing number formate in line: " + line
             for i in range(len(input)):
-                if len(input[i]) > max_width[i]: 
+                if len(input[i]) > max_width[i]:
                     max_width[i] = len(input[i])
                 numberlike[i] &= (is_numberlike(input[i]))
             inputs.append(input )
         out.append(key)
         for i in range(len(numberlike)):
-            if numberlike[i]: 
-                justify[i]="" 
+            if numberlike[i]:
+                justify[i]=""
             format[i]="%"+justify[i]+str(max_width[i])+"s"
 
         header = [format[i] % header[i] for i in range(len(header))]
@@ -92,7 +92,7 @@ def tidy(infile,outfile):
         out.append("END\n")
         trail_comment=m[3]
         out.append(trail_comment)
-    outfile=open(outfile,"w")          
+    outfile=open(outfile,"w")
     outfile.write(string.join(out,"\n"))
 
 if __name__=="__main__":

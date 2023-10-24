@@ -2,7 +2,7 @@
 !! This is a listing of the automatically generated FORTRAN bindings
 !! for reading and writing data from text and hdf5. Each routine is listed by
 !! module_name::routine_name
-!@{ 
+!@{
 module dsm2_tidefile_input_storage_fortran
 	   contains
        include "qext_input_storage.fi"

@@ -61,8 +61,8 @@ module solver
         , Rescale
 
     integer, save:: Equations, ErrUnit
-      
- 
+
+
 contains
     !****************-SPARSE COPYRIGHT *************
     !  Revision and copyright information.
@@ -84,7 +84,7 @@ contains
 
     logical function CloseSolver()
         use klu
-      
+
         implicit none
 
         !   Purpose: Close and deallocate
@@ -116,7 +116,7 @@ contains
     !== Public (InitializeMatrix) ==========================================
 
     logical function InitializeMatrix()
-      
+
         use klu
         implicit none
 
@@ -159,7 +159,7 @@ end function
 !== Public (StoreAtLocation) ==========================================
 
 logical function StoreAtLocation(Location, Val)
-      
+
     use klu
     implicit none
     !   Purpose:  Store a value in the coeficient matrix at a location
@@ -210,7 +210,7 @@ end function
 !== Public (AddAtLocation) ============================================
 
 logical function AddAtLocation(Location, Val)
-      
+
     use klu
     implicit none
     !   Purpose:  Add a value to the coeficient matrix at a location
@@ -283,14 +283,14 @@ logical function SolveFourPt()
     logical Scaled
     real*8, parameter :: CLOSE_L2=1.D0
     real*8, parameter :: MIN_RESCALE=(1.D0/16.D0)
-    
+
     !   Local Variables
     logical lasttime
     integer Error
 
     integer sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector,sfPrint
     external sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector, sfPrint
-      
+
     integer netIteration
 
     !      Argument definitions:
@@ -302,7 +302,7 @@ logical function SolveFourPt()
     !-----Implementation -----------------------------------------------------
 
     SolveFourPt = .false.
-      
+
     !-----Create RHS vector of proper size and precision
     if ( FirstTime ) then ! .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
         if (use_klu) then
@@ -316,7 +316,7 @@ logical function SolveFourPt()
     end if
 
     netIteration=NetworkIteration()
-      
+
     if (netIteration==1) then
         firstbacktrack=.true.
         lastbacktrack=.false.
@@ -386,7 +386,7 @@ logical function SolveFourPt()
         LastL2Norm=L2Norm
         lastbacktrack=.false.
     else
-         
+
         lastbacktrack=.true.
         Rescale=0.5*Rescale
         X=0.5*X
@@ -462,6 +462,6 @@ logical function ForwardElim()
     return
 end function
 
-     
+
 
 end module

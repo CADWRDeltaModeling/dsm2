@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package DWR.DMS.PTM;
 
@@ -13,7 +13,7 @@ public interface SwimHelper {
 	public void setSwimmingTime(Particle p, int chId);
 	public void setMeanSwimmingVelocity(int pId, int chId);
 	public long getSwimmingTime(int pId, int chId);
-	public float getSwimmingVelocity (Particle p, int chId); 
+	public float getSwimmingVelocity (Particle p, int chId);
 	// confusion factor returned include the channel direction
 	public int getConfusionFactor(int chId);
 	public void setXYZLocationInChannel(Particle p);

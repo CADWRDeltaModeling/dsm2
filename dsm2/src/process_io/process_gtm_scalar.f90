@@ -64,7 +64,7 @@ module process_gtm_scalar
       elseif (Param .eq. 'dss_out') then
          dss_out = Val(1:7)
       elseif (Param .eq. 'nonnegative') then
-         read(Val, '(l2)', err=810) nonnegative 
+         read(Val, '(l2)', err=810) nonnegative
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '

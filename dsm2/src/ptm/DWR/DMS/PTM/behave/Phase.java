@@ -6,7 +6,7 @@
 //    Branched Lagrangian Transport Model (BLTM) code written by the
 //    United States Geological Survey.  Protection claimed in the
 //    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact 
+//    If you did not receive a copy of this file contact
 //    Tara Smith, below.
 //
 //    This program is licensed to you under the terms of the GNU General
@@ -51,9 +51,9 @@ import com.sun.xml.tree.TreeWalker;
 import org.w3c.dom.Element;
 
 /**
- * This class creates a field that contains 
+ * This class creates a field that contains
  * a label, text field and a combo box. <br>
- * 
+ *
  * @author Aaron Miller
  * @version $Id: Phase.java,v 1.5.6.1 2006/04/04 18:16:26 eli2 Exp $
  */
@@ -85,7 +85,7 @@ public class Phase {
     */
   private FlowElement flow;
 
-  /**    
+  /**
     *  Stage related behaviors
     */
   private StageElement stage;
@@ -209,7 +209,7 @@ public class Phase {
   //****************************************************************
 
 
-  /** 
+  /**
     *  passes this Element to the specific behaviors
     */
   public void fromXml(Element phaseElement){
@@ -225,7 +225,7 @@ public class Phase {
     //    System.out.println(physical.getFallVel());
     //    System.out.println(physical.getMortality());
   }
-  
+
 
   /**
     *
@@ -238,7 +238,7 @@ public class Phase {
     //    time.toXml(doc,phaseElement);
     position.toXml(doc,phaseElement);
     flow.toXml(doc,phaseElement);
-    stage.toXml(doc,phaseElement);    
+    stage.toXml(doc,phaseElement);
     //    quality.toXml(doc,phaseElement);
 
     element.appendChild(phaseElement);
