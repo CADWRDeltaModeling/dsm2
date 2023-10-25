@@ -5,4 +5,4 @@ add_library(fourpt)
 target_sources(fourpt PRIVATE fourpt.f90 dsm2_hydro_init.f90)
 target_include_directories(fourpt PRIVATE
   ${HDF5_Fortran_INCLUDE_DIRS})
-add_dependencies(fourpt hydrolib common)
+add_dependencies(fourpt hydrolib oprule_interface common)
