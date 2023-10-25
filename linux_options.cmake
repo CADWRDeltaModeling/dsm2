@@ -10,7 +10,7 @@ set(CMAKE_CXX_COMPILER
 set(CMAKE_Fortran_COMPILER
     ifort
     CACHE STRING "Fortran compiler")
-# set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard")
 set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")
@@ -22,7 +22,7 @@ set(BOOST_ROOT
     ${CMAKE_SOURCE_DIR}/deps/boost-1.83.0
     CACHE PATH "Boost root directory")
 set(HDF5_ROOT
-    ${CMAKE_SOURCE_DIR}/deps/HDF5-1.14.2-Linux/HDF_Group/HDF5/1.14.2
+    ${CMAKE_SOURCE_DIR}/deps/hdf5-1.14.2
     CACHE PATH "HDF5 root directory")
 set(HEClib_ROOT
     ${CMAKE_SOURCE_DIR}/deps/heclib-6
