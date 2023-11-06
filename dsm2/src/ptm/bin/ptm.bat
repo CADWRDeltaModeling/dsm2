@@ -30,8 +30,9 @@ rem ###############
 rem starting ptm
 rem ###############
 ::start %ptm_home%/jre/bin/
-"%ptm_home%jre\bin\java" -ss1m -mx64m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar;%ptm_home%PTM.jar"  DWR.DMS.PTM.MainPTM  %*
+"%ptm_home%jre\bin\java" -ss1m -mx512m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar;%ptm_home%lib\threetenbp-1.5.1.jar;%ptm_home%PTM.jar" DWR.DMS.PTM.MainPTM %*
 
 :end
 endlocal
 rem
+
