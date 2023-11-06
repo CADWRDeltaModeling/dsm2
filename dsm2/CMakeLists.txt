@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 
 enable_language(Fortran C CXX)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(GetGitHash)
+
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 
 # Options for MSVC
@@ -22,7 +25,6 @@ if(MSVC)
       CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # Find libraries
@@ -81,7 +83,7 @@ endif(MSVC)
   # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
   # PATH_SUFFIXES "Release"
   # NO_DEFAULT_PATH)
-# 
+#
 # find_library(
   # INPUT_STORAGE_DEBUG
   # NAMES
