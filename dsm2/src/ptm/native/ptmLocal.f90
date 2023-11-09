@@ -44,6 +44,37 @@
       return
       end
 
+      real*8 function get_output(ptr)
+      use io_units
+      use ptm_local
+      use iopath_data
+      implicit none
+
+      integer ptr
+
+!-----global variables
+
+!-----local variables
+      integer i, &
+            fluxNumber, &
+            groupNumber
+
+      if (pathoutput(ptr).meas_type .eq. 'ptm_flux') then
+         if (pathoutput(ptr).b_part .ne. ' ') then
+            fluxNumber=pathoutput(ptr).flux_group_ndx
+            get_output = flux(fluxNumber).fluxOut
+         endif
+      else if(pathoutput(ptr).meas_type .eq. 'ptm_group')then
+         if (pathoutput(ptr).b_part .ne. ' ') then
+            groupNumber=pathoutput(ptr).flux_group_ndx
+            get_output = groupOut(groupNumber).value
+         endif
+      else
+          write(unit_error,*)"Unrecognized PTM output type for output: ", &
+            pathoutput(ptr).b_part
+      endif
+      end
+
 !-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine process_tide(new_tidefile, &
            first_used_tidefile, curr_tidefile)
