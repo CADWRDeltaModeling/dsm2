@@ -1,0 +1,23 @@
+
+ENVVAR
+NAME                     VALUE                                 
+DSM2MODIFIER             DSM2MODIFIER_PLACEHOLDER               #Study name used for DSM2 output                  
+PTM_START_DATE           START_DATE_PLACEHOLDER
+END_DATE                 END_DATE_PLACEHOLDER
+END_TIME                 0000
+TEMPDIR                  N/A           
+#Input envvars          
+STUDYDIR                 .
+TSINPUTDIR               N/A   
+#Output                 
+DSM2OUTPUTDIR            ${STUDYDIR}/output
+OUTPUTFILE               N/A                                                                       
+#hydro                  
+HYDROTIDEFILE            HYDROTIDEFILE_PLACEHOLDER
+#PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/PTMOUTFILE_PLACEHOLDER
+#PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/PTMOUTPUTFILE_PLACEHOLDER.txt
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/PTMOUTPUTFILE_PLACEHOLDER.dss
+END
+
+

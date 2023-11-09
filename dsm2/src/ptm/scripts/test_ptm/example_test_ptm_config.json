@@ -1,0 +1,13 @@
+{
+    "workingDir": "C:/Users/dougj/Documents/QEDA/DWR/ECO_PTM_runs/test_23mar21",
+    "javaHome": "C:/Program Files (x86)/Java/jdk1.6.0_45",
+    "javaRootDir": "C:/Users/dougj/Documents/QEDA/DWR/DSM2/dsm2_v8_2_ECO-PTM/dsm2/dsm2/src/ptm",
+    "runTestSuite": true,
+    "runProfilingTest": false,
+    "runCodeCoverage": false,
+    "useNewRandomSeed": false,
+    "runSpecificTests": [],
+    "runSpecificScenarios": []
+}
+
+
