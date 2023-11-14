@@ -3,7 +3,7 @@
 # Please change the values to match your environment
 # ~~~~
 set(JAVA_HOME
-    "C:/Program Files/Java/jdk1.6.0_45"
+    "C:/Program Files/Java/jdk-21"
     CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
     icc

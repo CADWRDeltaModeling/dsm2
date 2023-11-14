@@ -223,13 +223,11 @@ find_package(JNI REQUIRED)
 target_include_directories(${PTM_DYNLIB} PUBLIC ${JNI_INCLUDE_DIRS})
 
 # Build PTM Java
-find_package(Java 1.6 REQUIRED)
+find_package(Java 1.21 REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 # Need to include UseJava to use add_jar.
 include(UseJava)
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-# file(TO_CMAKE_PATH ${JAVA_HOME}/jre JAVA_JRE_HOME)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
 file(GLOB PTM_JAVA_SOURCES src/ptm/DWR/DMS/PTM/*.java src/ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS src/ptm/lib/*.jar)
 add_jar(
