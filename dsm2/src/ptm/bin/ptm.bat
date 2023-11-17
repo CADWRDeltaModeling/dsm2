@@ -1,10 +1,29 @@
 @echo on
+rem Find Java
+setlocal enabledelayedexpansion
+set JAVA_BIN=
+if defined JAVA_HOME (
+    echo JAVA_HOME is set to: %JAVA_HOME%
+    for %%i in ("%JAVA_HOME%\bin\java") do (
+        set "JAVA_BIN=%JAVA_HOME%\bin\java"
+    )
+    if not defined "JAVA_BIN" (
+        echo JAVA_HOME is set incorrectly.
+        echo Please set JAVA_HOME to the location of your Java installation.
+        goto :end
+    )
+) else (
+    echo JAVA_HOME is not set.
+    echo Please set JAVA_HOME to the location of your Java installation.
+    goto :end
+)
+
 rem ###################################
 rem Batch file for running PTM
 rem ###################################
 setlocal
 set ptm_home=%~dp0
-if exist "%ptm_home%\PTM.jar" goto :valid
+if exist "%ptm_home%\ptm.jar" goto :valid
 
 :notfound
 
@@ -30,7 +49,7 @@ rem ###############
 rem starting ptm
 rem ###############
 ::start %ptm_home%/jre/bin/
-"%ptm_home%jre\bin\java" -ss1m -mx512m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar;%ptm_home%lib\threetenbp-1.5.1.jar;%ptm_home%PTM.jar" DWR.DMS.PTM.MainPTM %*
+"%JAVA_BIN%" -ss1m -mx512m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar;%ptm_home%lib\threetenbp-1.5.1.jar;%ptm_home%ptm.jar" DWR.DMS.PTM.MainPTM %*
 
 :end
 endlocal

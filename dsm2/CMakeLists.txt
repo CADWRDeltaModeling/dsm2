@@ -223,7 +223,7 @@ find_package(JNI REQUIRED)
 target_include_directories(${PTM_DYNLIB} PUBLIC ${JNI_INCLUDE_DIRS})
 
 # Build PTM Java
-find_package(Java 1.21 REQUIRED)
+find_package(Java REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 # Need to include UseJava to use add_jar.
 include(UseJava)
@@ -293,10 +293,6 @@ install(
   LIBRARY DESTINATION bin)
 install_jar(ptm_jar DESTINATION bin)
 install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
-install(
-  DIRECTORY ${JAVA_HOME}/jre
-  DESTINATION bin
-  USE_SOURCE_PERMISSIONS)
 if(WIN32)
   install(PROGRAMS src/ptm/bin/ptm.bat DESTINATION bin)
   message(

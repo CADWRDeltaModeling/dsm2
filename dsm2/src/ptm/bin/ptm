@@ -1,4 +1,19 @@
 #!/usr/bin/bash
+# Check if Java is available from JAVA_HOME.
+# It does not check the version.
+if [ -v JAVA_HOME ]; then
+    if [ -x "$JAVA_HOME/bin/java" ]; then
+        echo "Java is available at $JAVA_HOME."
+        JAVA_BIN="$JAVA_HOME/bin/java"
+    else
+        echo "Java is not available at $JAVA_HOME."
+        exit 1
+    fi
+else
+    echo "JAVA_HOME is not defined. Define it to point to the root of your Java installation."
+    exit 1
+fi
+
 ###################################
 # Batch file for running PTM
 ###################################
@@ -13,7 +28,7 @@ fi
 export PTM_HOME=$DIR
 #
 {
-if [ ! -f $PTM_HOME/PTM.jar ]; then
+if [ ! -f $PTM_HOME/ptm.jar ]; then
     echo ############################################################
     echo   Error: ptm files not found
     echo   ___
@@ -33,6 +48,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PTM_HOME/lib:$PTM_HOME
 # starting ptm
 ###############
 
-"$PTM_HOME/jre/bin/java" -ss1m -mx512m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar:$PTM_HOME/lib/commons-math3-3.6.1.jar:$PTM_HOME/PTM.jar" DWR.DMS.PTM.MainPTM "$@"
+$JAVA_BIN -ss1m -mx512m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar:$PTM_HOME/lib/commons-math3-3.6.1.jar:$PTM_HOME/ptm.jar" DWR.DMS.PTM.MainPTM "$@"
 
 
