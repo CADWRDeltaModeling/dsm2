@@ -26,6 +26,18 @@ For convenience, there are scripts to build dependencies in a separate repositor
 ## DSM2 Build steps
 First, build or copy/download the dependencies to deps under the top directory or to any location you want. If the dependencies are not under deps, modify CMake option files to point to the location of the dependencies. The option files are located in the top directory of DSM2 source code. The CMake option files are: `win_options.cmake` for Windows and `linux_options.cmake` for Linux.
 
-On Linux, run `build_linux.sh`, assuming the prerequisites accessible. This will create a build directory, run CMake to generate Makefiles, run Linux Make to build DSM2 in the release mode, and package products into a `tar.gz` file under the build directory.
+On Linux, run `build_linux.sh`, assuming the prerequisites accessible. This will create a build directory, run CMake to generate Unix Makefiles, run Linux Make to build DSM2 in the release mode, and package products into a `tar.gz` file under the build directory. You may need to load Intel oneAPI environment modules before running the script. For example, run following commands in the command line. The details such as the versions of the compilers may vary depending on your environment:
 
-On Window,s run `build_win.bat`, assuming the prerequisites accessible, similarly to Linux. This will build and package DSM2 under the build directory in a zip file.
+```
+$ module use /opt/intel/oneapi/modulefiles
+$ module load compiler/latest
+$ ./build_linux.sh
+```
+
+On Window,s run `build_win.bat`, assuming the prerequisites accessible, similarly to Linux. This will build and package DSM2 under the build directory in a zip file. You may need to set the environment variables for compilers. For Intel oneAPI, run following commands in the command line, assuming the default installation path:
+
+```
+> "C:\Program Files (x86)\Intel\oneAPI\setvars.bat" intel64 vs2022
+> build_win.bat
+```
+
