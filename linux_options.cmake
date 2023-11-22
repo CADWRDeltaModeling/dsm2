@@ -1,5 +1,5 @@
 set(JAVA_HOME
-    ${CMAKE_SOURCE_DIR}/deps/jdk/jdk-21.0.1
+    ${CMAKE_SOURCE_DIR}/deps/jdk-21.0.1
     CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
     icc
