@@ -1,0 +1,24 @@
+
+ENVVAR
+NAME                     VALUE                                 
+DSM2MODIFIER             ecoptm_regression_tests               #Study name used for DSM2 output                  
+PTM_START_DATE           15MAR2011
+END_DATE                 22AUG2011
+END_TIME                 0000
+TEMPDIR                  N/A           
+#Input envvars          
+STUDYDIR                 .
+TSINPUTDIR               N/A   
+#Output                 
+DSM2OUTPUTDIR            ${STUDYDIR}/output
+OUTPUTFILE               N/A                                                                       
+#hydro                  
+HYDROTIDEFILE            D:/QEDA/DWR/programs/test_ptm/data/hist_v822.h5
+#PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/ecoptm_regression_tests.pof
+#PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout_ecoptm_regression_tests.txt
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout_ecoptm_regression_tests.dss
+END
+
+
+
