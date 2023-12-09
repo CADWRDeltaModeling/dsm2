@@ -454,4 +454,5 @@ transProbs <- transProbs %>% filter(datetime>=minDatetime, datetime<=maxDatetime
 cat("Saving transition probabilities to", file.path(outputDir, "transProbs.csv"), "\n")
 transProbs <- transProbs %>% pivot_longer(cols=qUD:qTD, names_to="transition", values_to="transProb") %>%
     select(junction, datetime, transition, transProb) %>% arrange(datetime, junction, transition)
+transProbs$datetime <- format(transProbs$datetime, "%Y-%m-%d %H:%M:%S")
 write.csv(transProbs, file=file.path(outputDir, "transProbs.csv"), row.names=F, quote=F)
