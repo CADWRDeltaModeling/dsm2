@@ -132,7 +132,7 @@ set(GTM_CORE gtm_core)
 add_subdirectory(src/${GTM_CORE})
 
 # Build HYDRO
-set(HYDRO_BIN hydro_exe)
+set(HYDRO_BIN hydro)
 add_executable(${HYDRO_BIN} src/hydro/hydro_driver.f90)
 set_target_properties(${HYDRO_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
 add_dependencies(${HYDRO_BIN} fourpt)
@@ -239,7 +239,7 @@ add_jar(
 add_dependencies(ptm_jar ${PTM_DYNLIB})
 
 # Build GTM
-set(GTM_BIN gtm_exe)
+set(GTM_BIN gtm)
 set(GTM_MAIN gtm_main)
 set(GTM_PROCESS_IO process_io)
 set(GTM_SEDIMENT_BED_CORE sediment_bed_core)
