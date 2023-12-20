@@ -22,7 +22,7 @@ done
 # Download the Boost source package
 # # Replace dots with underscores
 if [ -z "$BOOST_VERSION" ]; then
-    $BOOST_VERSION=1.83.0
+    BOOST_VERSION=1.83.0
 fi
 echo "Installing ${BOOST_VERSION}."
 
@@ -52,7 +52,7 @@ pushd ${BOOST_NAME}
 
 ./bootstrap.sh
 ./b2 --clean
-./b2 install --prefix=${CUR_DIR}/${BOOST_NAME} --with-filesystem --with-regex --with-test --with-system cxxstd=11 toolset=intel-linux
+./b2 install --prefix=${CUR_DIR}/${BOOST_NAME} --with-filesystem --with-regex --with-test --with-system toolset=intel-linux
 
 popd
 popd

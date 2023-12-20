@@ -10,7 +10,7 @@ set(CMAKE_CXX_COMPILER
 set(CMAKE_Fortran_COMPILER
     ifort
     CACHE STRING "Fortran compiler")
-set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard")
+# set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard")
 set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")
@@ -19,7 +19,7 @@ set(CMAKE_Fortran_FLAGS_INIT
     CACHE STRING "Fortran flags to use a large array for the dense dx")
 
 set(BOOST_ROOT
-    ${CMAKE_SOURCE_DIR}/deps/boost-1.83.0
+    ${CMAKE_SOURCE_DIR}/deps/boost_1_83_0
     CACHE PATH "Boost root directory")
 set(HDF5_ROOT
     ${CMAKE_SOURCE_DIR}/deps/hdf5-1.14.2
