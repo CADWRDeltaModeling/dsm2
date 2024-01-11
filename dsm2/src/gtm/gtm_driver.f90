@@ -4,7 +4,7 @@ program dsm2gtm_driver
     implicit none
 
     call gtm_prepare1()
-    call get_command_args(init_input_file)
+    call get_command_args(gtm_init_input_file)
     call gtm_prepare2()
     call gtm_prepare_loop()
 

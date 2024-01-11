@@ -136,7 +136,7 @@ module dsm2gtm
     logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
 
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
-    character(len=130) :: init_input_file                     ! initial input file on command line [optional]
+    character(len=130) :: gtm_init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name, restart_outfn
     character(len=14) :: cdt
     character(len=9) :: prev_day
@@ -163,9 +163,21 @@ subroutine gtm_prepare1()
         ) !! <NT>
 end subroutine
 
-subroutine gtm_prepare2()
-!-----get optional starting input file from command line and
-!-----simulation name for Database read
+subroutine gtm_prepare2(tidefile_id)
+    !-----get optional starting input file from command line and
+    !-----simulation name for Database read
+    use hdf_util, only : hydro_file_id, hydro_id
+    use common_variables, only : get_dsm2_network_info, assign_segment
+
+    integer(HID_T), intent(in), optional :: tidefile_id
+    integer(HID_T) :: tidefile_id_
+
+    ! Set a default value for the optional argument
+    if (present(tidefile_id)) then
+        tidefile_id_ = tidefile_id
+    else
+        tidefile_id_ = -1
+    end if
 
 !----- Start of DSM2-GTM Program  -----
     call cpu_time(start)
@@ -173,13 +185,33 @@ subroutine gtm_prepare2()
     call verify_error(ierror, "opening hdf interface")
 
 !----- Read input specification from *.inp text file -----
-    call read_input_text(init_input_file)                  ! read input specification text
+    call read_input_text(gtm_init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
     call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files
 
     write(*,*) "Process DSM2 geometry info...."
-    call hdf5_init(hydro_hdf5)
-    call dsm2_hdf_geom
+    if (tidefile_id_ .eq. -1) then
+        call hdf5_init(hydro_hdf5)
+        call dsm2_hdf_geom
+    else
+        hydro_file_id = tidefile_id_
+        call h5gopen_f(hydro_file_id, "hydro", hydro_id, ierror)
+        call get_hydro_attr
+        call read_channel_tbl(.false.)
+        call find_non_sequential
+        call read_comp_tbl
+        call read_channel_bottom_tbl
+        call assign_chan_comppt
+        call assign_segment
+        call read_reservoir_tbl
+        call read_qext_tbl
+        call read_tran_tbl
+        call read_xsect_tbl
+        call read_gate_tbl
+        call read_source_flow_tbl
+        call read_boundary_tbl
+        call get_dsm2_network_info
+    end if
 
     call check_runtime(num_blocks, memlen,                     &
                        memory_buffer, hydro_time_interval,     &
@@ -271,7 +303,7 @@ subroutine gtm_prepare_loop()
         if (run_mercury) then
             call allocate_mercury(n_sediment,n_cell, n_resv)
         end if
-        call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+        call set_up_sediment_bed(n_cell, n_chan, gtm_init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf, dx_arr)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
     end if
 
@@ -481,7 +513,7 @@ subroutine gtm_loop()
                                     n_cell,                            &
                                     n_ts_var)
             if (initialize_bed_mercury) then        !added dhh 20171114
-                call hg_init_sediment_bed(n_cell, n_chan, n_resv, init_input_file, int(gtm_start_jmin),  &
+                call hg_init_sediment_bed(n_cell, n_chan, n_resv, gtm_init_input_file, int(gtm_start_jmin),  &
                       int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
                 initialize_bed_mercury = .false.
             endif

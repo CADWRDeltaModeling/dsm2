@@ -237,6 +237,9 @@ target_link_libraries(
 set(GTM_SEDIMENT_BED_SETUP sediment_bed_setup)
 add_subdirectory(src/${GTM_SEDIMENT_BED_SETUP})
 
+# Hydro-GTM
+add_subdirectory(src/hydro_gtm_driver)
+
 # INSTALL Section
 install(
   TARGETS ${HYDRO_BIN}
