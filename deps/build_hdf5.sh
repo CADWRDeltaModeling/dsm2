@@ -39,7 +39,7 @@ HDF5_NAME="CMake-hdf5-${HDF5_VERSION}"
 HDF5_ZIP="${HDF5_NAME}.tar.gz"
 URL_HDF5="https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJOR_VERSION}/hdf5-${HDF5_VERSION}/src/${HDF5_ZIP}"
 echo "Downloading from $URL_HDF5"
-# curl -L ${URL_HDF5} -o CMake-hdf5-${HDF5_VERSION}.tar.gz
+curl -L ${URL_HDF5} -o CMake-hdf5-${HDF5_VERSION}.tar.gz
 # Unpack the HDF5 source package
 # If the directory already exists, remove it
 if [ -d "${HDF5_NAME}" ]; then
@@ -47,7 +47,7 @@ if [ -d "${HDF5_NAME}" ]; then
     # rm -rf ${HDF5_NAME}
 fi
 echo "Unpacking HDF5 source package..."
-# tar -xzf ${HDF5_ZIP}
+tar -xzf ${HDF5_ZIP}
 cd CMake-hdf5-${HDF5_VERSION}
 
 # Start building HDF5

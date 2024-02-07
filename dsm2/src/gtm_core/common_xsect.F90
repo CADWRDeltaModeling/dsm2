@@ -66,7 +66,7 @@ module common_xsect
         ,max_layer_height=100.0 &
         ,min_layer_elev=-100.0 &
         ,max_virt_xsects=25000 &
-        ,max_dist_ratio=0.05 &
+        ,max_dist_ratio=0.025 &
         )
 #else
     parameter ( &
