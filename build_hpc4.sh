@@ -1,5 +1,6 @@
 #!/bin/bash
 module purge
+module load gcc/6.1.0
 module use /opt/intel/oneapi/modulefiles
 module load compiler/2022.1.0
 module load cmake/3.21.1
