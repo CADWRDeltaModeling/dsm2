@@ -57,10 +57,10 @@ module common_xsect
 
 #ifdef hydro_1000
     parameter ( &
-        max_elevations=300 &
-        ,max_assg_sec=22 &
+        max_elevations=1000 &
+        ,max_assg_sec=300 &
         ,max_assg_virtsec=15 &
-        ,max_irr_xsects=2000 &
+        ,max_irr_xsects=3000 &
         ,max_layers=1000000 &
         ,max_total_elevations=20000 &
         ,max_layer_height=100.0 &

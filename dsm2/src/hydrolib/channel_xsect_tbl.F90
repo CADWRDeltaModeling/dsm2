@@ -212,6 +212,10 @@ contains
         b1=virt_width(di)
         b2=ChannelWidth
         CxArea = a1+(0.5*(b1+b2))*(Z-x1)
+        if (vsecno>MaxCompPts) then
+            write(unit_error,*) 'Increase MaxCompPts. vsecno greater than MaxCompPts:', vsecno, '>', MaxCompPts
+            call exit(2)
+        end if
         AreaChannelComp(Branch,vsecno)=CxArea
 
         EffectiveN = OneOverManning(Branch)
