@@ -62,7 +62,7 @@ module common_xsect
         ,max_assg_virtsec=15 &
         ,max_irr_xsects=3000 &
         ,max_layers=1000000 &
-        ,max_total_elevations=20000 &
+        ,max_total_elevations=40000 &
         ,max_layer_height=100.0 &
         ,min_layer_elev=-100.0 &
         ,max_virt_xsects=25000 &
