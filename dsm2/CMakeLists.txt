@@ -11,18 +11,9 @@ if(MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY
       "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
       CACHE STRING "MSVC runtime library" FORCE)
-  set(CMAKE_CXX_FLAGS_DEBUG_INIT
-      /MDd
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_CXX_FLAGS_RELEASE_INIT
-      /MD
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_Fortran_FLAGS_DEBUG_INIT
-      /MDd
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_Fortran_FLAGS_RELEASE_INIT
-      /MD
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
+  add_compile_options(
+    $<$<CONFIG:Debug>:/MDd> $<$<CONFIG:Release>:/MD>
+  )
 endif()
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
