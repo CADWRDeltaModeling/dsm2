@@ -15,7 +15,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")
 set(CMAKE_Fortran_FLAGS_INIT
-    "-Dhydro_1000"
+    "-Dhydro_1000 -traceback"
     CACHE STRING "Fortran flags to use a large array for the dense dx")
 
 set(BOOST_ROOT
