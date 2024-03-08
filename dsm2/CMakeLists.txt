@@ -19,6 +19,7 @@ endif()
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # Find libraries
+set(Boost_USE_STATIC_LIBS ON CACHE BOOL "Use static Boost libraries")
 find_package(Boost REQUIRED COMPONENTS filesystem regex system)
 
 set(HDF5_USE_STATIC_LIBRARIES TRUE)
