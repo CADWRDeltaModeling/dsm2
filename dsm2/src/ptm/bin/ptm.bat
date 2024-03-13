@@ -22,7 +22,7 @@ rem ###################################
 rem Batch file for running PTM
 rem ###################################
 setlocal
-set ptm_home=%~dp0
+set ptm_home=%~dp0\..\lib
 if exist "%ptm_home%\ptm.jar" goto :valid
 
 :notfound

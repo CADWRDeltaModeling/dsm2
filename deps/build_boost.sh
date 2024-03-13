@@ -52,7 +52,7 @@ pushd ${BOOST_NAME}
 
 ./bootstrap.sh
 ./b2 --clean
-./b2 install --prefix=${CUR_DIR}/${BOOST_NAME} --with-filesystem --with-regex --with-test --with-system toolset=intel-linux link=static
+./b2 install --prefix=${CUR_DIR}/${BOOST_NAME} --with-filesystem --with-regex --with-test --with-system toolset=intel-linux
 
 popd
 popd
