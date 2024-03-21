@@ -146,6 +146,7 @@ end
 subroutine sort_assignments
 
 !-----sort assignments by dist from upstream end
+      use io_units
       use common_xsect
       implicit none
 
@@ -168,6 +169,10 @@ subroutine sort_assignments
       do i=1,nirg
          channo=irreg_geom(i).chan_no
          last=xsect_assg(channo).num_sec_orig
+         if (last>max_assg_sec) then
+            write(unit_error, *) 'Inrease max_assg_sec. last greater than max_assg_sec:', last, '>',  max_assg_sec
+            call exit(2)
+         end if
          do j=1,last-1
             ptr=j
             first=j+1

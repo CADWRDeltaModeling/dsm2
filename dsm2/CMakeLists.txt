@@ -11,23 +11,11 @@ if(MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY
       "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
       CACHE STRING "MSVC runtime library" FORCE)
-  set(CMAKE_CXX_FLAGS_DEBUG_INIT
-      /MDd
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_CXX_FLAGS_RELEASE_INIT
-      /MD
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_Fortran_FLAGS_DEBUG_INIT
-      /MDd
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
-  set(CMAKE_Fortran_FLAGS_RELEASE_INIT
-      /MD
-      CACHE STRING "Flags used by the compiler during all build types." FORCE)
+  add_compile_options($<$<CONFIG:Debug>:/MDd> $<$<CONFIG:Release>:/MD>)
 endif()
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
-# Find libraries
 find_package(Boost REQUIRED COMPONENTS filesystem regex system)
 
 set(HDF5_USE_STATIC_LIBRARIES TRUE)
@@ -45,6 +33,9 @@ set(MKL_THREADING sequential)
 set(MKL_INTERFACE lp64)
 find_package(MKL CONFIG REQUIRED)
 
+set(INTEL_ARCH ${MKL_ARCH})
+find_package(IntelRuntime REQUIRED)
+
 # Setting to find oprule and input_storage. These will be consolidated later.
 if(MSVC)
   set(STATIC_LIB_PREFIX "")
@@ -53,51 +44,6 @@ else(MSVC)
   set(STATIC_LIB_PREFIX "lib")
   set(STATIC_LIB_SUFFIX "a")
 endif(MSVC)
-
-# Oprule/Input storage. This will be consolidated later.
-# find_library(
-  # OPRULE_DEBUG
-  # NAMES
-    # ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  # PATH_SUFFIXES "Debug"
-  # NO_DEFAULT_PATH)
-# find_library(
-  # OPRULE_PARSER_DEBUG
-  # NAMES
-    # ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  # PATH_SUFFIXES "Debug"
-  # NO_DEFAULT_PATH)
-# find_library(
-  # OPRULE_RELEASE
-  # NAMES
-    # ${STATIC_LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  # PATH_SUFFIXES "Release"
-  # NO_DEFAULT_PATH)
-# find_library(
-  # OPRULE_PARSER_RELEASE
-  # NAMES
-    # ${STATIC_LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../oprule/build"
-  # PATH_SUFFIXES "Release"
-  # NO_DEFAULT_PATH)
-#
-# find_library(
-  # INPUT_STORAGE_DEBUG
-  # NAMES
-    # ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}${CMAKE_DEBUG_POSTFIX}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
-  # PATH_SUFFIXES "Debug"
-  # NO_DEFAULT_PATH)
-# find_library(
-  # INPUT_STORAGE_RELEASE
-  # NAMES
-    # ${STATIC_LIB_PREFIX}input_storage${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX}
-  # HINTS "${CMAKE_CURRENT_SOURCE_DIR}/../../input_storage/build"
-  # PATH_SUFFIXES "Release"
-  # NO_DEFAULT_PATH)
 
 # set(CMAKE_Fortran_FLAGS_INIT "/libs:dll /threads /MD")
 set(DSM2_COMMONS_DIR common)
@@ -125,16 +71,16 @@ add_subdirectory(src/${DSM2_KLU_FORTRAN})
 add_subdirectory(src/${DSM2_OPRULE_INTERFACE})
 add_subdirectory(src/${DSM2_SPARSE})
 add_subdirectory(src/${DSM2_PATTERN_MATCH})
-# add_subdirectory(${DSM2_TIMEVAR})
 
 # GTM
 set(GTM_CORE gtm_core)
 add_subdirectory(src/${GTM_CORE})
 
 # Build HYDRO
-set(HYDRO_BIN hydro_exe)
+set(HYDRO_BIN hydro)
 add_executable(${HYDRO_BIN} src/hydro/hydro_driver.f90)
-set_target_properties(${HYDRO_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
+set_target_properties(${HYDRO_BIN} PROPERTIES LINKER_LANGUAGE Fortran
+                                              INSTALL_RPATH "\${ORIGIN}/../lib")
 add_dependencies(${HYDRO_BIN} fourpt)
 target_link_libraries(
   ${HYDRO_BIN}
@@ -167,7 +113,11 @@ target_link_libraries(${HYDRO_BIN} PRIVATE "$<LINK_ONLY:MKL::MKL>")
 # Build Qual
 set(QUAL_BIN qual)
 add_executable(${QUAL_BIN})
-set_target_properties(${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
+if(NOT WIN32)
+  set_target_properties(
+    ${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran INSTALL_RPATH
+                                                   "\${ORIGIN}/../lib")
+endif()
 file(GLOB QUAL_SOURCES src/qual/*.f90)
 target_sources(${QUAL_BIN} PRIVATE ${QUAL_SOURCES})
 target_link_libraries(
@@ -200,6 +150,10 @@ target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
 set(PTM_DYNLIB ptm)
 file(GLOB PTM_JAVA_CPP_SOURCES src/ptm/native/*.cpp)
 add_library(${PTM_DYNLIB} SHARED ${PTM_JAVA_CPP_SOURCES})
+if(NOT WIN32)
+  set_target_properties(${PTM_DYNLIB} PROPERTIES INSTALL_RPATH
+                                                 "\${ORIGIN}/../lib")
+endif()
 target_link_libraries(
   ${PTM_DYNLIB}
   PRIVATE ${PTM_FORTRAN}
@@ -228,7 +182,8 @@ message(STATUS "Found Java version ${Java_VERSION}")
 # Need to include UseJava to use add_jar.
 include(UseJava)
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-file(GLOB PTM_JAVA_SOURCES src/ptm/DWR/DMS/PTM/*.java src/ptm/DWR/DMS/PTM/behave/*.java)
+file(GLOB PTM_JAVA_SOURCES src/ptm/DWR/DMS/PTM/*.java
+     src/ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS src/ptm/lib/*.jar)
 add_jar(
   ptm_jar
@@ -239,7 +194,7 @@ add_jar(
 add_dependencies(ptm_jar ${PTM_DYNLIB})
 
 # Build GTM
-set(GTM_BIN gtm_exe)
+set(GTM_BIN gtm)
 set(GTM_MAIN gtm_main)
 set(GTM_PROCESS_IO process_io)
 set(GTM_SEDIMENT_BED_CORE sediment_bed_core)
@@ -255,14 +210,14 @@ add_subdirectory(src/${GTM_SEDIMENT_BED_CORE})
 add_subdirectory(src/${GTM_SEDIMENT_BED})
 add_subdirectory(src/${GTM_MERCURY})
 add_subdirectory(src/${GTM_TRANSPORT})
-# add_subdirectory(${GTM_SEDIMENT_BED}) add_subdirectory(${GTM_DO_MODULE})
-# add_subdirectory(${GTM_MERCURY}) add_subdirectory(${GTM_TOOLS})
+# add_subdirectory(${GTM_DO_MODULE}) add_subdirectory(${GTM_TOOLS})
 
 add_executable(${GTM_BIN} src/gtm/gtm_driver.f90)
 add_dependencies(${GTM_BIN} ${GTM_MAIN})
-set_target_properties(${GTM_BIN} PROPERTIES LINKER_LANGUAGE Fortran)
+set_target_properties(${GTM_BIN} PROPERTIES LINKER_LANGUAGE Fortran
+                                            INSTALL_RPATH "\${ORIGIN}/../lib")
 if(WIN32)
-  target_link_options(${GTM_BIN} PRIVATE "/STACK:8000000")
+  target_link_options(${GTM_BIN} PRIVATE "/STACK:20000000")
 endif(WIN32)
 target_link_libraries(
   ${GTM_BIN}
@@ -288,11 +243,36 @@ add_subdirectory(src/${GTM_SEDIMENT_BED_SETUP})
 
 # INSTALL Section
 install(
-  TARGETS ${HYDRO_BIN} ${QUAL_BIN} ${PTM_DYNLIB} ${GTM_BIN} sed_bed_init
+  TARGETS ${HYDRO_BIN}
+          ${QUAL_BIN}
+          ${PTM_DYNLIB}
+          ${GTM_BIN}
+          sed_bed_init
+          RUNTIME_DEPENDENCY_SET
+          RUNTIME_LIB
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION bin)
-install_jar(ptm_jar DESTINATION bin)
-install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
+  LIBRARY DESTINATION lib)
+install_jar(ptm_jar DESTINATION lib)
+
+install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION lib)
+if(NOT WIN32)
+  # USing DIRECTORIES will raise CMake warnings, but no other way to grab Intel
+  # runtime is found.
+  install(
+    RUNTIME_DEPENDENCY_SET
+    RUNTIME_LIB
+    DIRECTORIES
+    ${INTELRUNTIME_DIR}
+    PRE_EXCLUDE_REGEXES
+    "ld.+"
+    "libc.+"
+    "libstdc.+"
+    "libgcc.+"
+    "libdl.+"
+    "libm.+"
+    "libpthread.+"
+    "librt.+")
+endif()
 if(WIN32)
   install(PROGRAMS src/ptm/bin/ptm.bat DESTINATION bin)
   message(
@@ -306,7 +286,7 @@ set(CPACK_PACKAGE_NAME "DSM2")
 set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
 set(CPACK_PACKAGE_VERSION_PATCH "${GIT_HASH}")
 set(CPACK_PACKAGE_VERSION
     "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"

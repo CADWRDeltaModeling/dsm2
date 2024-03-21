@@ -1,0 +1,11 @@
+# Source files
+*.tar.gz
+
+# Build aritfacts
+build/
+boost_1_*/
+hdf5-1*/
+heclib-*/
+suitesparse-*/
+loki-*/
+jdk-*/

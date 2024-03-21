@@ -22,7 +22,7 @@
 !   Version 93.01, January, 1993
 module chnlcomp
     !   Note: This include, when used, must follow  after "Network.inc".
-    use network, only: MaxChannels, MaxLocations
+    use network, only: MaxChannels, MaxLocations, MaxCompPts
     integer, save :: TotalCompLocations &
                      , NumberOfCompLocations(MaxChannels) &
                      , UpCompPointer(MaxChannels) &
@@ -31,7 +31,7 @@ module chnlcomp
                     , ChannelNo(MaxLocations) &
                     , DummyArray(MaxLocations) &
                     , DummyArray2(MaxLocations) &
-                    , AreaChannelComp(MaxChannels, 30) ! Assume max of 10 compute points in any channel
+                    , AreaChannelComp(MaxChannels, MaxCompPts) ! Assume max of 10 compute points in any channel
     character*16, save:: DummyCharArray(MaxLocations)
 
 !   Definitions:

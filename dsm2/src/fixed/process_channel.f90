@@ -114,6 +114,8 @@ end subroutine
 
 
 subroutine process_xsect_layer_full(chan_no,dist,elev,area,width,wetperim)
+      use common_xsect
+      use io_units
       implicit none
       integer :: chan_no
       integer :: xsectno
@@ -121,6 +123,10 @@ subroutine process_xsect_layer_full(chan_no,dist,elev,area,width,wetperim)
       integer :: nl
       real*8 ::  dist,elev,area,width,wetperim
       call process_xsect(chan_no,dist,dummy_id,xsectno)
+      if (xsectno>max_irr_xsects) then
+            write(unit_error,*) 'Increase max_irr_xsects. xsectno greater than max_irr_xsects:', xsectno,'>', max_irr_xsects
+            call exit(2)
+      end if
       call process_xsect_layer(xsectno,elev,area,width,wetperim)
       return
       end subroutine

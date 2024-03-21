@@ -32,6 +32,7 @@ module network
     integer, parameter :: MaxNodes = MaxChannels + 10  ! max number of nodes (junctions)
                                                        ! MaxResConnectChannel must be consistent with maxresnodes
     integer, parameter :: MaxResConnectChannel = 50  ! Maximum reservoir connections to channels/nodes
+    integer, parameter :: MaxCompPts = 100 ! Maximum computational points in a channel
 
     integer, save :: NumCh      ! actual number of channels
     integer, save :: Branch        ! internal chan number of currently selected channel

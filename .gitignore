@@ -91,6 +91,7 @@ input_storage/example/xsect_input_storage.fi
 *.mod
 
 # Build temp files
+*.log
 build.log
 build.out
 
