@@ -46,8 +46,10 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
 package DWR.DMS.PTM.behave;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.util.*;
 
@@ -79,15 +81,19 @@ public class FlowElement extends Behavior {
 
   public void xmlToVector(Element element, Vector vector, String name){
     Vector tmp;
-    TreeWalker walker = new TreeWalker(element);
+    Vector<Element> elements = Units.getElements(element, name);
+    Element el = null;
     for (int j = 0; j < NUM_ROWS; j++){
-      element = walker.getNextElement(name);
+      if (elements.size()==0)
+    	  el = null;
+      else
+    	  el = elements.get(j);	
       tmp = new Vector();
       for (int i = 0; i < headerData.length; i++){
-	if (element != null)
-	  tmp.addElement(element.getAttribute(headerData[i]));
-	else
-	  tmp.addElement("");
+		if (el != null)
+		  tmp.addElement(el.getAttribute(headerData[i]));
+		else
+		  tmp.addElement("");
       }
       vector.addElement(tmp);
     }
@@ -95,22 +101,16 @@ public class FlowElement extends Behavior {
 
   public void xmlToArray(Element element, int [][][] array, String name){
     Vector tmp;
-    TreeWalker walker = new TreeWalker(element);
     int count=0;
-    element = walker.getNextElement(name);
-
-    while (element != null){
-      element = walker.getNextElement(name);
-      count++;
-    }
-    walker.reset();
-
+    Vector<Element> elements = Units.getElements(element, name);
+    for (Element el: elements)
+    	count++;
+    
     array [0] = new int [count][];
     for (int i = 0; i < count; i++){
-      element = walker.getNextElement(name);
       array [0][i] = new int [headerData.length];
       for (int j = 0; j < headerData.length; j++){
-       	array [0][i][j] = (new Integer (element.getAttribute(headerData[j]))).intValue();
+       	array [0][i][j] = (new Integer (elements.get(i).getAttribute(headerData[j]))).intValue();
       }
     }
   }
@@ -137,23 +137,22 @@ public class FlowElement extends Behavior {
 
   public void fromXml(Element element){
     PosData = new int [1][][];
-    TreeWalker walker = new TreeWalker(element);
-    Element thisElement = walker.getNextElement("FLOW");
+    Element thisElement = Units.getElements(element,"FLOW").get(0);
 
-    if (thisElement != null){
+    if (thisElement != null && thisElement.hasAttributes()){
       xmlToVector(thisElement, pVector, "V-POSITION");
       xmlToArray(thisElement, PosData, "V-POSITION");
     }
   }
 
-  public void toXml(XmlDocument doc, Element element){
+  public void toXml(Document doc, Element element){
     Element thisElement = doc.createElement("FLOW");
 
     vectorToXml(doc, thisElement, pVector, "V-POSITION");
     element.appendChild(thisElement);
   }
 
-  public void vectorToXml(XmlDocument doc, Element parent, Vector vector, String name){
+  public void vectorToXml(Document doc, Element parent, Vector vector, String name){
     Element element;
     String stmp;
     Vector vtmp;

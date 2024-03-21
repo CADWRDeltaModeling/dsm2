@@ -45,9 +45,8 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM.behave;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
 import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 
 /**
  * This class contains Physical Behavior Properties.
@@ -222,36 +221,33 @@ public class StageElement extends Behavior{
 			zPosData[0][1][1] = Integer.parseInt(getUpperVerticalFalling());
 	}
 
-	public void fromXml(Element element){
-		TreeWalker walker = new TreeWalker(element);
-		Element thisElement = walker.getNextElement("STAGE");
-		walker = new TreeWalker(thisElement); // new
-		TreeWalker subWalker = new TreeWalker(walker.getNextElement("RISING"));
-
-		thisElement = subWalker.getNextElement("TRANSVERSE");
-		setLowerHorizontalRising(thisElement.getAttribute("lower_limit"));
-		setUpperHorizontalRising(thisElement.getAttribute("upper_limit"));
-
-		thisElement = subWalker.getNextElement("VERTICAL");
-		setLowerVerticalRising(thisElement.getAttribute("lower_limit"));
-		setUpperVerticalRising(thisElement.getAttribute("upper_limit"));
-
-		thisElement = subWalker.getNextElement("VELOCITY");
-		setVelocityRising(thisElement.getAttribute("value"),thisElement.getAttribute("units"));
-
-
-		subWalker = new TreeWalker(walker.getNextElement("FALLING"));
-
-		thisElement = subWalker.getNextElement("TRANSVERSE");
-		setLowerHorizontalFalling(thisElement.getAttribute("lower_limit"));
-		setUpperHorizontalFalling(thisElement.getAttribute("upper_limit"));
-
-		thisElement = subWalker.getNextElement("VERTICAL");
-		setLowerVerticalFalling(thisElement.getAttribute("lower_limit"));
-		setUpperVerticalFalling(thisElement.getAttribute("upper_limit"));
-
-		thisElement = subWalker.getNextElement("VELOCITY");
-		setVelocityFalling(thisElement.getAttribute("value"),thisElement.getAttribute("units"));
+	public void fromXml(Element element){		
+		Element sElement = Units.getElements(element,"STAGE").get(0);
+		Element rElement = Units.getElements(sElement, "RISING").get(0);
+		
+		Element tElement = Units.getElements(rElement,"TRANSVERSE").get(0);
+		setLowerHorizontalRising(tElement.getAttribute("lower_limit"));
+		setUpperHorizontalRising(tElement.getAttribute("upper_limit"));
+		
+		Element vElement = Units.getElements(rElement,"VERTICAL").get(0);
+		setLowerVerticalRising(vElement.getAttribute("lower_limit"));
+		setUpperVerticalRising(vElement.getAttribute("upper_limit"));
+		
+		Element velElement = Units.getElements(rElement,"VELOCITY").get(0);
+		setVelocityRising(velElement.getAttribute("value"),velElement.getAttribute("units"));
+		
+		Element fElement = Units.getElements(sElement, "FALLING").get(0);
+		
+		Element ftElement = Units.getElements(fElement,"TRANSVERSE").get(0);
+		setLowerHorizontalFalling(ftElement.getAttribute("lower_limit"));
+		setUpperHorizontalFalling(ftElement.getAttribute("upper_limit"));
+		
+		Element fvElement = Units.getElements(fElement,"VERTICAL").get(0);
+		setLowerVerticalFalling(fvElement.getAttribute("lower_limit"));
+		setUpperVerticalFalling(fvElement.getAttribute("upper_limit"));
+		
+		Element fvelElement = Units.getElements(fElement,"VELOCITY").get(0);
+		setVelocityFalling(fvelElement.getAttribute("value"),fvelElement.getAttribute("units"));
 
 		zPosData = new int [1][2][2];
 		yPosData = new int [1][2][2];
@@ -260,9 +256,9 @@ public class StageElement extends Behavior{
 	}
 
 	/**
-    * Sets parameter information in the XML file.
+    * Sets parameter information in the XML file
     */
-	public void toXml(XmlDocument doc, Element element){
+	public void toXml(Document doc, Element element){
 		Element thisElement = doc.createElement("STAGE");
 		Element subElement = doc.createElement("RISING");
 

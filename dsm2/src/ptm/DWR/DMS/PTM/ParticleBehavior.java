@@ -47,12 +47,19 @@
 
 package DWR.DMS.PTM;
 import DWR.DMS.PTM.behave.*;
-// import java.awt.event.*;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
+import javax.xml.parsers.*;
+//import java.awt.event.*;
+//TODO clean up
+//import com.sun.xml.tree.XmlDocument;
+//import com.sun.xml.tree.TreeWalker;
 import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 import java.io.*;
 import java.util.*;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
  * @author Aaron Miller
@@ -279,31 +286,32 @@ public class ParticleBehavior {
 
   public void load(String filename) throws IOException{
     try {
-      XmlDocument doc = XmlDocument.createXmlDocument(new FileInputStream(filename),false);
+      //XmlDocument doc = XmlDocument.createXmlDocument(new FileInputStream(filename),false);
+      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(filename));
       this.fromXml(doc.getDocumentElement());
     }catch(Exception e){ System.out.println(e); }
   }
 
-  public void fromXml(Element element){
-    TreeWalker walker = new TreeWalker(element);
+  public void fromXml(Element element){  
     setId (new Integer (element.getAttribute("id")).intValue());
-    int numBehaviors = new Integer (element.getAttribute("num_behaviors")).intValue();
-    walker.reset();
+    int numBehaviors = new Integer (element.getAttribute("num_behaviors")).intValue();    
+    //walker.reset();
     Phase newPhase;
     String phaseName;
+    Vector<Element> elements = Units.getElements(element,"PHASE");
     for ( int i=0; i<numBehaviors; i++){
-      Element phaseElement = walker.getNextElement("PHASE");
-      phaseName = phaseElement.getAttribute("name");
-      if ( phaseElement == null ) //break;
-	System.out.println("Error in fromXml");
-
-      newPhase = new Phase(phaseName);
-      // create vector name lookup
-      phaseId.insertElementAt(phaseName,i);
-      // fill new Phase will values
-      newPhase.fromXml(phaseElement);
-      // store in a Hashtable
-      phases.put(phaseId.elementAt(i),newPhase);
+		Element phaseElement = elements.get(i); 
+		phaseName = phaseElement.getAttribute("name");
+		if ( phaseElement == null ) //break;
+			//TODO need to raise an exception?
+			System.out.println("Error in fromXml");
+		newPhase = new Phase(phaseName);
+		// create vector name lookup
+		phaseId.insertElementAt(phaseName,i);
+		// fill new Phase will values
+		newPhase.fromXml(phaseElement);
+		// store in a Hashtable
+		phases.put(phaseId.elementAt(i),newPhase);    	
     }
   }
 }

@@ -46,9 +46,15 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
 package DWR.DMS.PTM.behave;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
 import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+
+import java.util.Map;
+import java.util.Vector;
+import java.util.Set;
 
 /**
  * This class contains Physical Behavior Properties.
@@ -185,24 +191,21 @@ public class PhysicalElement extends Behavior {
     * Gets parameter information from the XML file.
     */
   public void fromXml(Element element){
-    TreeWalker walker = new TreeWalker(element);
-    Element thisElement = walker.getNextElement("PHYSICAL");
-    walker = new TreeWalker(thisElement); // new
-
-    thisElement = walker.getNextElement("FALL_VELOCITY"); //new
-    setFallVel(thisElement.getAttribute("value"), thisElement.getAttribute("units"));
-
-    thisElement = walker.getNextElement("MORTALITY"); //new
-    setMortality(thisElement.getAttribute("value"), thisElement.getAttribute("units"));
-
-    thisElement = walker.getNextElement("DEVELOP_TIME"); //new
-    setDevelopTime(thisElement.getAttribute("value"), thisElement.getAttribute("units"));
+	//TODO may need to check nulls
+	Element pEl = Units.getElements(element, "PHYSICAL").get(0);
+	Element fvEl = Units.getElements(pEl, "FALL_VELOCITY").get(0);
+	Element mEl = Units.getElements(pEl, "MORTALITY").get(0);
+	Element dtEl = Units.getElements(pEl, "DEVELOP_TIME").get(0);
+	setFallVel(fvEl.getAttribute("value"), fvEl.getAttribute("units"));
+	setMortality(mEl.getAttribute("value"), mEl.getAttribute("units"));
+	setDevelopTime(dtEl.getAttribute("value"), dtEl.getAttribute("units"));
   }
+  
 
   /**
     * Sets parameter information in the XML file.
     */
-  public void toXml(XmlDocument doc, Element element){
+  public void toXml(Document doc, Element element){
     Element thisElement = doc.createElement("PHYSICAL");
 
     Element subElement = doc.createElement("FALL_VELOCITY");

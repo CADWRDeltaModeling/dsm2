@@ -46,8 +46,10 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
 package DWR.DMS.PTM.behave;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 /**
@@ -213,9 +215,7 @@ public class Phase {
     *  passes this Element to the specific behaviors
     */
   public void fromXml(Element phaseElement){
-    TreeWalker walker = new TreeWalker(phaseElement);
     _name = phaseElement.getAttribute("name");
-
     physical.fromXml(phaseElement);
     //    time.fromXml(phaseElement);
     position.fromXml(phaseElement);
@@ -230,7 +230,7 @@ public class Phase {
   /**
     *
     */
-  public void toXml(XmlDocument doc, Element element){
+  public void toXml(Document doc, Element element){
     Element phaseElement = doc.createElement("PHASE");
     phaseElement.setAttribute("name",_name);
 

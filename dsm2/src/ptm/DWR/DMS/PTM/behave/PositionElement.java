@@ -46,9 +46,10 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
 package DWR.DMS.PTM.behave;
-import com.sun.xml.tree.XmlDocument;
-import com.sun.xml.tree.TreeWalker;
+//import com.sun.xml.tree.XmlDocument;
+//import com.sun.xml.tree.TreeWalker;
 import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 import java.util.*;
 
 /**
@@ -94,49 +95,36 @@ public class PositionElement extends Behavior {
 
   public void xmlToVector(Element element, Vector vector, String name){
     Vector tmp;
-    TreeWalker walker = new TreeWalker(element);
+    Element el;
+    Vector<Element> elements = Units.getElements(element, name);
     for (int j = 0; j < NUM_ROWS; j++){
-      element = walker.getNextElement(name);
-      tmp = new Vector();
-      for (int i = 0; i < headerData.length; i++){
-	if (element != null)
-	  tmp.addElement(element.getAttribute(headerData[i]));
-	else
-	  tmp.addElement("");
-      }
-      vector.addElement(tmp);
+    	if (elements.size() == 0)
+    			el = null;
+    	else
+    		el = elements.get(j);
+        tmp = new Vector();
+        for (int i = 0; i < headerData.length; i++){
+		  	if (el != null)
+		  	  tmp.addElement(el.getAttribute(headerData[i]));
+		  	else
+		  	  tmp.addElement("");
+	    }
+	    vector.addElement(tmp);
     }
   }
 
   public void xmlToArray(Element element, int [][][] array, String name){
     Vector tmp;
-    TreeWalker walker = new TreeWalker(element);
-    //    int [][] array;
     int count=0;
-    element = walker.getNextElement(name);
-
-    while (element != null){
-      element = walker.getNextElement(name);
-      count++;
-    }
-    walker.reset();
-
-    //    if(name.equals("VERTICAL"))
-    //       zPosData [0]= new int [count][];
+    Vector<Element> elements = Units.getElements(element, name);
+    for (Element el: elements)
+        count++;
     array [0] = new int [count][];
     for (int i = 0; i < count; i++){
-      element = walker.getNextElement(name);
-      //    if(name.equals("VERTICAL"))
-      //      zPosData [0][i] = new int [headerData.length];
+      element = elements.get(i);
       array [0][i] = new int [headerData.length];
-      for (int j = 0; j < headerData.length; j++){
-// 	if(name.equals("VERTICAL")){
-
-// 	  zPosData [0][i][j] = (new Integer (element.getAttribute(headerData[j]))).intValue();
-// 	  System.out.println(headerData[j]+" "+element.getAttribute(headerData[j]));
-
+      for (int j = 0; j < headerData.length; j++)
        	array [0][i][j] = (new Integer (element.getAttribute(headerData[j]))).intValue();
-      }
     }
   }
 
@@ -163,9 +151,8 @@ public class PositionElement extends Behavior {
   public void fromXml(Element element){
     zPosData = new int [1][][];
     yPosData = new int [1][][];
-    TreeWalker walker = new TreeWalker(element);
-    Element thisElement = walker.getNextElement("POSITION");
-
+    Element thisElement = Units.getElements(element, "POSITION").get(0);
+    
     if (thisElement != null){
       xmlToVector(thisElement, zVector, "VERTICAL");
       xmlToArray(thisElement, zPosData, "VERTICAL");
@@ -175,7 +162,7 @@ public class PositionElement extends Behavior {
     }
   }
 
-  public void toXml(XmlDocument doc, Element element){
+  public void toXml(Document doc, Element element){
     Element thisElement = doc.createElement("POSITION");
 
     vectorToXml(doc, thisElement, zVector, "VERTICAL");
@@ -183,7 +170,7 @@ public class PositionElement extends Behavior {
     element.appendChild(thisElement);
   }
 
-  public void vectorToXml(XmlDocument doc, Element parent, Vector vector, String name){
+  public void vectorToXml(Document doc, Element parent, Vector vector, String name){
     Element element;
     String stmp;
     Vector vtmp;

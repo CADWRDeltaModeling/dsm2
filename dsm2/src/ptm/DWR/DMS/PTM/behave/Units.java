@@ -46,6 +46,13 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM.behave;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
+
 public class Units {
 
   public static int TIME = 1;
@@ -62,5 +69,16 @@ public class Units {
 
   public static String mortality [] = {"dth/sec","dth/min","dth/hour","dth/day","dth/month","dth/year"};
   public static float mortalConvert [] = {1.f, 0.01667f, 2.7777e-4f, 1.157e-5f, 1.653e-6f, 3.169e-8f};
+  //get elements from XML
+  public static Vector<Element> getElements(Element element, String tagName) {
+	    NodeList nodeList = element.getElementsByTagName(tagName);
+	    Vector<Element> els = new Vector<Element>(); 
+		for ( int i=0; i<nodeList.getLength(); i++){
+			Node node = nodeList.item(i);
+			if ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE)) 
+				els.add((Element) node);
+		}
+		return els;
+  }
 
 }
