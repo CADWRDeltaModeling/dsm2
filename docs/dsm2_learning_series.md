@@ -1,12 +1,12 @@
 # DSM2 Learning Series
 
 The DSM2 Learning Series is a series of hybrid live and online classes held by the Delta Modeling Section. 
-Videos for the Series are available on our [Youtube playlist](https://youtube.com/playlist?list=PL33EJkVWqElXUihYnGzA9E5BocWu-Deij&si=1oKHJvQpT6fLIW2C)
+Videos for the Series are available on our [Youtube playlist](https://youtube.com/playlist?list=PL33EJkVWqElXUihYnGzA9E5BocWu-Deij&si=1oKHJvQpT6fLIW2C).
 
 ## Quick Start
 
 The DSM2 Quick Start Training was held on June 23, 2023. 
-<BR><BR>
+<BR>
 The slides shown in the training are available on our [GitHub repository](https://github.com/CADWRDeltaModeling/DSM2LearningSeries/tree/main/quick_start).
 
 ## DSM2 Planning Studies
