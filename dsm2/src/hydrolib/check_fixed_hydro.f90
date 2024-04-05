@@ -659,6 +659,11 @@ subroutine check_fixed_hydro(istat)
     enddo
 enddo
 
+if (ninpaths .gt. max_qext) then
+	write(unit_error,*) "Maximum number of external flow exceeded: increase max_qext in grid_data.f90 to be greater than", ninpaths
+	call exit(-1)
+endif
+
 do pth=1,ninpaths
     !--------convert node flow and stage inputs to a hydro channel
     role = pathinput(pth)%data_type
