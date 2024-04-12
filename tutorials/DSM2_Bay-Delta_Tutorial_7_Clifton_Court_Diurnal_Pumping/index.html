@@ -1,0 +1,734 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal Pumping - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsm2-bay-delta-tutorial-7-clifton-court-diurnal-pumping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal Pumping
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-the-goal-of-this-tutorial-is-to-learn-how-to-implement-a-diurnal-pumping-quota-for-banks-pumping-state-water-project-in-the-process-you-will-learn-how-to-track-totals-using-the-accumulate-function" class="md-nav__link">
+    Purpose: The goal of this tutorial is to learn how to implement a diurnal pumping quota for Banks pumping (State Water Project). In the process you will learn how to track totals using the ACCUMULATE function.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#background-the-banks-pumping-facility-is-often-operated-on-a-diurnal-schedule-emphasizing-pumping-during-off-peak-electricity-hours-an-example-of-summer-electricity-prices-for-the-year-2005-is-shown-in-figure-1" class="md-nav__link">
+    Background: The Banks pumping facility is often operated on a diurnal schedule, emphasizing pumping during off-peak electricity hours. An example of summer electricity prices for the year 2005 is shown in Figure 1:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#an-idealized-schedule-from-the-point-of-view-of-electricity-would-be-to-pump-the-maximum-possible-amount-late-at-night-until-the-daily-pumping-needs-are-satisfied-actual-hourly-variations-in-pumping-are-shown-in-figure-2-numerous-other-factors-eg-ensuring-minimum-stage-requirements-in-the-forebay-can-affect-instantaneous-maximum-pumping-which-is-why-we-might-consider-an-operating-rule-instead-of-a-simple-time-series-to-model-diurnal-pumping" class="md-nav__link">
+    An idealized schedule from the point of view of electricity would be to pump the maximum possible amount late at night until the daily pumping needs are satisfied. Actual hourly variations in pumping are shown in Figure 2. Numerous other factors (e.g. ensuring minimum stage requirements in the Forebay) can affect instantaneous maximum pumping, which is why we might consider an operating rule instead of a simple time series to model diurnal pumping.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-planning-study-we-will-use-for-this-tutorial-is-ocap_sdip-provided-in-the-study_templates-directory-the-choice-between-temporary-and-permanent-barriers-is-not-central-to-the-material-though-the-sdip-project-did-propose-higher-pumping" class="md-nav__link">
+    The planning study we will use for this tutorial is ocap_sdip *provided in the study_templates directory. The choice between temporary and permanent barriers is not central to the material, though the SDIP project did propose higher pumping.*
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preparation" class="md-nav__link">
+    Preparation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diurnal-operating-rule" class="md-nav__link">
+    Diurnal Operating Rule
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="dsm2-bay-delta-tutorial-7-clifton-court-diurnal-pumping">DSM2 Bay-Delta Tutorial 7: Clifton Court Diurnal Pumping</h1>
+<h2 id="purpose-the-goal-of-this-tutorial-is-to-learn-how-to-implement-a-diurnal-pumping-quota-for-banks-pumping-state-water-project-in-the-process-you-will-learn-how-to-track-totals-using-the-accumulate-function">Purpose: <strong><em>The goal of this tutorial is to learn how to implement a diurnal pumping quota for Banks pumping (State Water Project). In the process you will learn how to</em></strong> <strong><em>track totals using the ACCUMULATE function.</em></strong></h2>
+<h2 id="background-the-banks-pumping-facility-is-often-operated-on-a-diurnal-schedule-emphasizing-pumping-during-off-peak-electricity-hours-an-example-of-summer-electricity-prices-for-the-year-2005-is-shown-in-figure-1">Background: <strong><em>The Banks pumping facility is often operated on a diurnal schedule, emphasizing pumping during off-peak electricity hours. An example of summer electricity prices for the year 2005 is shown in Figure</em></strong> <strong><em>1:</em></strong></h2>
+<p><img src="../../attachments/87228791/87228792.png" width="646" height="371" /><br />
+<strong>Figure 1: Example wholesale electricity prices in July 2005 (CWEMF, KT
+Shum)</strong></p>
+<h2 id="an-idealized-schedule-from-the-point-of-view-of-electricity-would-be-to-pump-the-maximum-possible-amount-late-at-night-until-the-daily-pumping-needs-are-satisfied-actual-hourly-variations-in-pumping-are-shown-in-figure-2-numerous-other-factors-eg-ensuring-minimum-stage-requirements-in-the-forebay-can-affect-instantaneous-maximum-pumping-which-is-why-we-might-consider-an-operating-rule-instead-of-a-simple-time-series-to-model-diurnal-pumping"><strong><em>An idealized schedule from the point of view of electricity would be to pump the maximum possible amount late at night until the daily pumping needs are satisfied. Actual hourly variations in pumping are shown in</em></strong> <strong><em>Figure 2.</em></strong> <strong><em>Numerous other factors (e.g. ensuring minimum stage requirements in the Forebay) can affect instantaneous maximum pumping, which is why we might consider an operating rule instead of a simple time series to model diurnal pumping.</em></strong></h2>
+<p>In this tutorial we will emulate the ideal pumping schedule by tracking
+the amount pumped since midnight and quitting once we have pumped a
+total that satisfies the daily average requested by CALSIM. We will use
+the ACCUMULATE function to track the total. In a later step we will
+attenuate pumping to avoid drawing Clifton Court Forebay below -2ft
+NGVD.<br />
+<img src="../../attachments/87228791/87228790.png" width="624" height="428" /><br />
+<strong>Figure 2: Diurnal Variation in Pumping, July-August 2004 (CWEMF, KT
+Shum)</strong></p>
+<h2 id="the-planning-study-we-will-use-for-this-tutorial-is-ocap_sdip-provided-in-the-study_templates-directory-the-choice-between-temporary-and-permanent-barriers-is-not-central-to-the-material-though-the-sdip-project-did-propose-higher-pumping"><strong><em>The planning study</em></strong> <strong><em>we will use</em></strong> <strong><em>for this tutorial is</em> ocap_sdip *provided in the study_templates directory.</strong><em> </em><strong>The choice between temporary and permanent barriers is not central to the material, though the SDIP project did propose higher pumping.</strong>*</h2>
+<h2 id="preparation">Preparation</h2>
+<p>We will begin by creating a study space to house the planning study.</p>
+<ol>
+<li>
+<p><strong>Copy the study template:</strong></p>
+<ol>
+<li>In windows, navigate to <em>\{DSM2_home}\study_templates.</em> Copy
+    and rename the <em>ocap_sdip</em> template to
+    <em>\{DSM2_home}\tutorial\ocap_sdip_diurnal_swp</em>.</li>
+<li>If you have not already done so for a previous tutorial, copy
+    the file <em>ocap_2005A01A_EWA2_71_novamp_DV.dss</em> (CALSIM output
+    file used for planning runs) from <em>\{DSM2_home}\timeseries</em> to
+    <em>\{DSM2_home}\tutorial\data\calsim.</em> Note that we just put this
+    file in timeseries as a sample – in practice CalSim output will
+    be exterior to the DSM2 distribution (or should go in the study
+    folder).</li>
+</ol>
+</li>
+<li>
+<p><strong>Preprocess for sdip barriers:</strong></p>
+<ol>
+<li>Rename <em>config_sdip_ocap.inp</em> to
+    <em>config_sdip_ocap_diurnal_ccfb.inp</em> and open the file.</li>
+<li>Make sure that the run dates are set to the full 1974-1991
+    (01OCT1974 0000 – 01OCT1991 0000) sixteen year planning period.
+    It is a good idea to preprocess the full period even if you want
+    to run a subset of these dates.</li>
+<li>Set the DSM2MODIFIER to <em>diurnal_pumping</em>.</li>
+<li>Make sure that the DICU version in the configuration file is
+    2005, representing a future (2005) level of development.</li>
+<li>Makes sure the STAGE_VERSION in the configuration file is
+    PLANNING-2-SL.</li>
+<li>Make sure the configuration file is pointing to the right
+    directory, file and DSS path to find the CalSim results. In this
+    case, set:<ol>
+<li>CALSIMNAME to ocap_2005A01A_EWA2_71_novamp_DV (CalSim output
+    file without the ".dss" extension)</li>
+<li>CALSIMSTUDY_ORIGINAL to 2005A01A</li>
+<li>CALSIMDIR to ../data/calsim</li>
+</ol>
+</li>
+<li>Save your data</li>
+<li>Launch the preprocessing system. Obtain a command prompt and
+    type:</li>
+</ol>
+</li>
+</ol>
+<p>> prepro config_sdip_ocap_diurnal_ccfb.inp</p>
+<ol>
+<li>
+<p><strong>Add output for Clifton Court Forebay:</strong></p>
+<ol>
+<li>In hydro.inp, add output that will allow you to more directly
+    track the operations. Create an OUTPUT_RESERVOIR table. Create a
+    15min instantaneous output request with <em>clfct</em> or
+    c<em>lifton_court</em> as the name, <em>clifton_court</em> as the reservoir,
+    <em>none</em> as the connecting node and <em>flow-source</em> as the variable.
+    The <em>flow-source</em> output will give the total source and sink
+    inflow to Clifton Court – it will differ from SWP pumping only
+    by a small amount (due to Byron-Bethany Irrigation District).</li>
+</ol>
+</li>
+<li>
+<p><strong>Run DSM2:</strong></p>
+<ol>
+<li>In the configuration file, set the dates 01JAN1975 to 25JAN1975
+    so that the run will take a short time. These dates will
+    generate the features we want for the tutorial, including a
+    period of low stage at Clifton Court Forebay under diurnal
+    operation. Note that we always preprocess the full period even
+    when we shorten the run.</li>
+<li>Open <em>hydro.inp</em> file and change the included configuration file
+    to config_sdip_ocap_diurnal_ccfb.inp and save it.</li>
+<li>Run the sdip simulation for HYDRO by typing:</li>
+</ol>
+</li>
+</ol>
+<p>> hydro hydro.inp</p>
+<ol>
+<li><strong>Examine the output:</strong></li>
+</ol>
+<p>Once you have run HYDRO, open the file and look at the flow-source
+output for Clifton Court. This variable represents exports out of
+Clifton Court Forebay, which are dominated by State Water Project
+pumping..</p>
+<h2 id="diurnal-operating-rule">Diurnal Operating Rule</h2>
+<p><strong>1.</strong> <strong>Create the diurnal rule with no Forebay stage protection:</strong></p>
+<ol>
+<li>
+<ol>
+<li>Create a file called <em>oprule_diurnal_swp.inp</em>. Create empty
+        OPERATING_RULE and OPRULE_EXPRESSION tables. Alternatively, do
+        this by copying, renaming and clearing the contents of another
+        operating rule input file.</li>
+<li>Create an expression to accumulate daily State Water Project
+    (SWP) pumping since midnight:<ol>
+<li>Name: daily_total_swp</li>
+<li>Definition: "ACCUMULATE(ext_flow(name=swp)*DT,0.0,HOUR==0)"</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>This reads "accumulate swp, starting at zero, resetting when the hour of
+the day is zero". We multiply by DT to get a volume (which makes the
+rule time step independent and allows comparison to a daily target). The
+time series reference comes from elsewhere in the input and is the daily
+average pumping rate. It is perfectly acceptable to use time series that
+are defined elsewhere in the DSM2 input without redefining it in the
+OPRULE_TIME_SERIES table – the latter is just there to allow you to
+define any additional time series you might need.</p>
+<ol>
+<li>
+<ol>
+<li>Create an expression to quantify the da.ily target. Note that we
+        are multiplying an average daily flow in cubic feet per second
+        by the number of seconds in the day to obtain a volume.
+        1.  Name: daily_target_swp
+        2.  Definition: ts(name=swp)*(60*60*24)</li>
+<li>Create an expression that defines maximum physical SWP pumping
+    as a magnitude:<ol>
+<li>Name: max_swp_pumping</li>
+<li>Definition: 9000.0</li>
+</ol>
+</li>
+<li>Now, in the OPERATING_RULE table create a rule that pumps the
+    maximum until the daily total is reached:<ol>
+<li>Name: swp_diurnal</li>
+<li>Action: "SET ext_flow(name=swp) TO
+    IFELSE(abs(daily_total_swp) > abs(daily_target_swp), 0.0,
+    -max_swp_pumping)". Note the quotes and the minus sign: SWP
+    is really a sink, not a source.</li>
+<li>Trigger: Use STARTUP or TRUE for the trigger (the two do the
+    same thing, and trigger exactly once at the beginning of the
+    run). The rule will be in use unless it is displaced by
+    another operating rule.</li>
+</ol>
+</li>
+<li>In hydro.inp, add the new <em>oprule_diurnal_swp.inp</em> file at the
+    bottom of the OPERATIONS include block..</li>
+<li>Run HYDRO on the simulation. Examine the output for HYDRO,
+    including Clifton Court reservoir water levels, flow through the
+    gates to node 72 and the "flow-source" output for the reservoir
+    (which will differ from SWP pumping by a small amount due to
+    Byron-Bethany Irrigation District). Are you getting the
+    fully-on-fully-off pumping pattern you expect? Could the same
+    schedule be prepared off-line in advance using a 15-min time
+    series for SWP pumping? Does Clifton Court water surface go
+    below the "warning" level of -2.0ft NGVD needed to maintain flow
+    in the fish facilities?</li>
+<li>Now create an expression identifying a low stage condition:<ol>
+<li>Name: ccfb_stage_low</li>
+<li>Definition: res_stage(res=clifton_court) \&lt; -2.0</li>
+</ol>
+</li>
+<li>Change the trigger for swp_diurnal to "NOT ccfb_stage_low",
+    including the quotes.</li>
+<li>Create an expression that describes inflow into Clifton Court
+    from the outside channel:<ol>
+<li>Name: ccfb_inflow</li>
+<li>Definition: res_flow(res=clifton_court,node=72)</li>
+</ol>
+</li>
+<li>Create a new operating rule that covers the critical case:<ol>
+<li>Name: swp_low_stage</li>
+<li>Action:</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>"SET ext_flow(name=swp) TO<br />
+-min2(abs(ccfb_inflow),max_swp_pumping)"<br />
+This rule sets exports equal to the inflow to Clifton Court, which
+allows some pumping to continue as long as it does not further draw down
+Clifton Court. A simple alternative would be just to set exports to
+zero.</p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Trigger: ccfb_stage_low</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>Note the minus sign, again because SWP exports are a sink rather than a
+source. The absolute sign is there to make sure the minimum function is
+not operating on any big transient negative flows.</p>
+<ol>
+<li>
+<ol>
+<li>Rerun HYDRO. Are you getting the results you expected? Does
+        Clifton Court stage go below -2.0? Are you still pumping
+        according to the expected pattern? Could you implement this
+        policy with a time series controlling SWP instead of an
+        operating rule?</li>
+</ol>
+</li>
+</ol>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

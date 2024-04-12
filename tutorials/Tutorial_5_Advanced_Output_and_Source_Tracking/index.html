@@ -1,0 +1,696 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Tutorial 5: Advanced Output and Source Tracking - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-5-advanced-output-and-source-tracking" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial 5: Advanced Output and Source Tracking
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        Manual (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          DSM2 Learning Series (new for 2023)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="DSM2 Learning Series (new for 2023)" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          DSM2 Learning Series (new for 2023)
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        Planning Studies
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        Tutorials (archive)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        FAQs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        Release Notes
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="tutorial-5-advanced-output-and-source-tracking">Tutorial 5: Advanced Output and Source Tracking</h1>
+<p><strong>Task</strong></p>
+<ul>
+<li>Create boundary and source groups</li>
+<li>Request output for constituent source tracking</li>
+</ul>
+<p><strong>Skills Gained</strong><br />
+Learn how to use advanced output options in DSM2 including source
+tracking</p>
+<p>The purpose of this tutorial is to provide instruction on advanced
+output options in DSM2. Basic outputs include flow, stage and
+constituent concentrations at nodes and channel locations. Advanced
+outputs include creating output groups and source tracking.<br />
+The first part of this tutorial involves modifications to the text input
+file, <em>hydro.inp</em>. We will add some outputs and also take a look at how
+data in <em>hydro.inp</em> is prioritized. The second part introduces the use
+of <em>groups</em> for source tracking. This tutorial uses the simple channel
+network shown in Figure 1.<br />
+<img alt="figure 1" src="../images/fig_res_conn_w_trans.png" />
+<strong>Figure 1:</strong> <strong>Simple channel with a reservoir, gate, flow transfer and
+dummy reservoir.</strong>  </p>
+<ol>
+<li><strong>Add Output Paths to <em>hydro.inp</em>:</strong></li>
+</ol>
+<p>In this step of the tutorial, we will request output upstream and
+downstream of the gate and reservoir 1.</p>
+<ol>
+<li>
+<ol>
+<li>In Windows Explorer, navigate to the directory,
+        <em>\{DSM2_home}\tutorial\simple\t5_output</em>.</li>
+<li>Open the file <em>addin.inp</em> and note the new output paths for the
+    channels and reservoir.</li>
+<li>Copy the entire file contents to the clipboard.</li>
+<li>Open the file <em>hydro.inp</em>.</li>
+<li>Navigate to the bottom of the file and paste the information.
+    Note that there are now two output requests for a location named
+    bnd_1. In <em>hydro.inp</em> bnd_1 is defined as channel1 location 0
+    and in <em>output_hydro_tutorial.inp</em> it has been defined as
+    channel 1 location 100.</li>
+</ol>
+</li>
+</ol>
+<p><img src=../../images/icon_question.png width="29" height="29"/> For
+flow data at bnd_1, will the output be written at the upstream end of
+the channel (location 0) or 100ft downstream?<br />
+<strong>Answer:</strong> The output will be for 100ft downstream because the output
+request in the launch file (e.g. <em>hydro.inp</em> or <em>qual.inp</em>) supersedes
+all other output requests that have the same identifier. In this case
+the identifier is the NAME and VARIABLE combination (e.g. bnd_1 and
+flow).<br />
+<img src="../../images/icon_question.png" width="29" height="29" />
+ How
+would you get output at channel 1 and both location 0 and location
+100?<br />
+<strong>Answer:</strong> Give each location a unique identifier, eg. bnd_1 and
+bnd_100.</p>
+<ol>
+<li><strong>Add <em>Boundary</em> and <em>Source Groups</em>:</strong></li>
+</ol>
+<p>GROUPS are user-defined groups of model objects, for instance groups of
+water bodies or groups of boundary inputs. Groups are used a number of
+places in DSM2, including: tracking of constituents originated from
+grouped sources, tracking of particles as they reside or move between
+groups of water bodies and/or boundaries, and assignment of rate
+coefficients in QUAL to groups of water bodies. In the output
+specifications, groups are used to define aggregate sources for source
+tracking. For example, output groups could be used to track mass
+originating from all the boundaries, or from all Delta Island
+Consumptive Use (DICU) diversions, etc. In this section, we will create
+two output groups: boundary locations and water quality constituent
+source locations.</p>
+<ol>
+<li>In the study directory, create a file called
+        <em>group_tutorial.inp</em>.</li>
+<li>In the <em>group_tutorial.inp</em> file, add a group table. Note that
+        this is a parent table for overwriting/layering purposes. Define
+        a boundary and a sources group:</li>
+</ol>
+<p>GROUP<br />
+NAME<br />
+boundary<br />
+sources<br />
+END</p>
+<ol>
+<li>Now define the group members. Create the GROUP_MEMBER table
+        below the GROUP table:</li>
+</ol>
+<p>GROUP_MEMBER<br />
+GROUP_NAME MEMBER_TYPE PATTERN<br />
+END</p>
+<ol>
+<li>In the <em>Group Members</em> <em>table</em>:<BR>
+        1.  Enter a row with the following values in the appropriate
+            fields:<BR>
+            1.  GROUP_NAME: <em>boundary</em><BR>
+            2.  MEMBER_TYPE: <em>stage</em><BR>
+            3.  PATTERN: <em>.</em><em>stream.</em>**<BR>
+            4.  Note that the dot-star .* in the above pattern is a
+                "regular expression" wildcard. You can use any standard
+                Perl-style regular expression in groups, but the html
+                documentation for GROUPS describes most of the patterns
+                you can put in a GROUP_MEMBER that are really useful.<BR></li>
+</ol>
+<p><img src="../../images/icon_question.png" width="29" height="29" />
+Look in the <em>input_boundary_hydro_tutorial.inp</em> file and determine what
+boundary conditions are part of the boundary group based on the member
+type "stage" and the pattern ".<strong>stream.</strong>".</p>
+<ol>
+<li>Enter another row with the following values in the
+        appropriate fields:<BR>
+        1.  GROUP_NAME: <em>boundary</em><BR>
+        2.  MEMBER_TYPE: <em>flow_boundary</em><BR>
+        3.  PATTERN: <em>.</em><em>stream.</em>**<BR></li>
+</ol>
+<p><img src="../../images/icon_question.png" width="29" height="29" />
+Look in the <em>input_boundary_hydro_tutorial.inp</em> file and determine what
+boundary conditions are part of the boundary group based on the member
+type "flow_boundary" and the pattern ".<strong>stream.</strong>".</p>
+<ol>
+<li>In the <em>Group Members</em> <em>table</em> insert another row with the
+        following values in the appropriate fields:<BR>
+        1.  GROUP_NAME: <em>sources</em><BR>
+        2.  MEMBER_TYPE: <em>source_sink</em><BR>
+        3.  PATTERN: <em>source1</em><BR></li>
+</ol>
+<p><img src="../../images/icon_question.png" width="29" height="29" />
+Look in the various qual input files and determine which inputs will
+make up the sources group defined above.</p>
+<ol>
+<li>In the <em>qual.inp</em> file, create the GROUPS (note the plural)
+        include block that will reference this file:</li>
+</ol>
+<p>GROUPS<br />
+group_tutorial.inp<br />
+END</p>
+<ol>
+<li>
+<p>Save the current settings.</p>
+</li>
+<li>
+<p><strong>Source Tracking:</strong></p>
+</li>
+</ol>
+<p>Source tracking (aka fingerprinting) determines the amount of water or
+of a constituent at one location that originated from a specified
+location. For constituent fingerprinting, 1) define a source group (e.g.
+boundaries or DICU locations), and then 2) request output for that
+group. For volumetric fingerprinting that indicates the percentage of
+flow that originated from each boundary location, 1) create a
+fingerprinting constituent and set its value equal to 100 at all
+boundaries, 2) define a source group for all boundaries, and 3) request
+output from that source group.  </p>
+<ol>
+<li><strong>Add Source Tracking Output for <em>Channel 5</em>:</strong></li>
+</ol>
+<p>To demonstrate source tracking, this part of the tutorial examines how
+much of the EC in channel 5 (see Figure 1) came from the boundaries and
+from other sources. For comparison purposes, the EC from all sources
+will also be output.<br />
+Create a new file called output_qual_sourcetrack.inp.</p>
+<ol>
+<li>
+<ol>
+<li>In this file, create an OUTPUT_CHANNEL_SOURCE_TRACK table. Refer
+        to the documentation to create the header.</li>
+<li>In the <em>Channel Output</em> table create 3 rows:<ol>
+<li>For the first new row, enter the following values into the
+    appropriate fields:<ol>
+<li>Name: <em>ch5</em></li>
+<li>Channel: <em>5</em></li>
+<li>Distance: <em>5000</em></li>
+<li>Variable: <em>ec</em></li>
+<li>Source Group: <em>all</em> (this will track ec from all
+    sources)</li>
+<li>Output File: <em>${QUALOUTDSSFILE}</em></li>
+<li>Time Interval: <em>15min</em></li>
+<li>Period Op: <em>inst</em></li>
+</ol>
+</li>
+<li>For the second new row, enter the following values into the
+    appropriate fields:<ol>
+<li>Name: <em>ch5</em></li>
+<li>Channel: <em>5</em></li>
+<li>Distance: <em>5000</em></li>
+<li>Variable: <em>ec</em></li>
+<li>Source Group: <em>boundary</em></li>
+<li>Output File: <em>${QUALOUTDSSFILE}</em></li>
+<li>Time Interval: <em>15min</em></li>
+<li>Period Op: <em>inst</em></li>
+</ol>
+</li>
+<li>For the third new row, enter the following values into the
+    appropriate fields:<ol>
+<li>Name: <em>ch5</em></li>
+<li>Channel: <em>5</em></li>
+<li>Distance: <em>5000</em></li>
+<li>Variable: <em>ec</em></li>
+<li>Source Group: <em>sources</em></li>
+<li>Output File: <em>${QUALOUTDSSFILE}</em></li>
+<li>Time Interval: <em>15min</em></li>
+<li>Period Op: <em>inst</em></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Save the current settings.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running HYDRO and QUAL</strong></p>
+<ol>
+<li>Open a command window for the <em>t5_output</em> directory.</li>
+<li>In the command window, type: <em>hydro hydro.inp</em>.</li>
+<li>In the command window, type: <em>qual qual.inp</em>.</li>
+<li>Open the hydro echo file output_tutorial_hydro_echo.inp. Which
+    version of bnd_1 got picked up by the model, the one in
+    hydro.inp or the one in output_hydro_tutorial.inp.</li>
+<li>Open the <em>output.dss</em> file in the <em>t5_output</em> directory, and
+    examine the results. Do a mass balance to make sure the source
+    tracking adds up.</li>
+</ol>
+</li>
+</ol>
+<p><img src="../../images/fig_einstein_idea.png" width="82" height="96" /></p>
+<ol>
+<li><strong>Brain Teaser</strong></li>
+</ol>
+<p>How would you set up a source tracking simulation to determine what
+percentage of water/flow at a given location originated from a specified
+boundary?</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
