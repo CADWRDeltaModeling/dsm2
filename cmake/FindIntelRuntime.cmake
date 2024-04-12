@@ -45,7 +45,7 @@ if(NOT INTELRUNTIME_LIBRARIES)
     endif()
   endif()
 
-  list(APPEND INTELRUNTIME_LIBS "irng" "intlc" "cilkrts")
+  list(APPEND INTELRUNTIME_LIBS "irng" "intlc")
 
   # Find the Intel runtime libraries
   foreach(lib ${INTELRUNTIME_LIBS})

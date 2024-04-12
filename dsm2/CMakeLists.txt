@@ -272,6 +272,10 @@ if(NOT WIN32)
     "libm.+"
     "libpthread.+"
     "librt.+")
+  # libcilkrts is not included automatically.
+  if(EXISTS ${INTELRUNTIME_DIR}/libcilkrts.so.5)
+    install(FILES ${INTELRUNTIME_DIR}/libcilkrts.so.5 TYPE LIB)
+  endif()
 endif()
 if(WIN32)
   install(PROGRAMS src/ptm/bin/ptm.bat DESTINATION bin)
