@@ -262,7 +262,7 @@ public class PTMUtil {
 		String[] items = line.split(":");
 		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
-		Pattern p = Pattern.compile("\\((\\s*\\t*\\w+\\d*\\s*\\t*),(\\s*\\t*\\d+\\s*\\t*)\\)");
+		Pattern p = Pattern.compile("\\((\\s*\\t*\\w+\\d*\\s*\\t*),(\\s*\\t*-*\\d+\\s*\\t*)\\)");
 		Matcher m = p.matcher(items[1]);
 		ArrayList<String[]> pairs = new ArrayList<String[]>();
 		while(m.find()){

@@ -19,8 +19,8 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	protected String decisionType;
 	final String[] transitions = new String[]{"qUD", "qDU", "qDU", "qDT", "qTU", "qTD"};
 
-	final static float GATECLOSEDFLOW = Float.MIN_VALUE;
-	final static int MISSING_VALUE = -999;
+	static final float GATECLOSEDFLOW = Float.MIN_VALUE;
+	static final int MISSING_VALUE = -999;
 
 	protected VelMethods velMethod;
 	public enum VelMethods {

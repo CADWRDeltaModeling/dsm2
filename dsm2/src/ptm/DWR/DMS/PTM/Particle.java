@@ -18,6 +18,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
+
 //import edu.cornell.RngPack.*;
 //TODO change the way random numbers are called
 import edu.cornell.RngPack.RandomElement;
@@ -206,6 +208,16 @@ public class Particle{
 	  private float _tStepInSecs = 0;
 	  // the particle holding status
 	  private boolean _isAHolder = false;
+	  
+	  // Variables to store route and fate information
+	  public List<SimpleEntry<String, Long>> arrivalDatetimes = null;
+	  public SimpleEntry<Integer, Long> deathDatetime = null;
+	  public SimpleEntry<Integer, Long> stuckDatetime = null;
+	  public SimpleEntry<Integer, Long> transportDatetime = null;
+	  
+	  // For testing
+	  public Map<Integer, Long> uniqueVisits = null;
+	  
 	  /**
 	   *  Creates a default Particle<br>
 	   *  The random number generator is initialized to random_seed<br>
@@ -225,6 +237,11 @@ public class Particle{
 		  _swimmingTime = 0;
 		  _timeUsedInSecond = 0.0f;
 		  _particleTrace = new BasicParticleTrace();
+		  
+		  arrivalDatetimes = new ArrayList<SimpleEntry<String, Long>>();
+		  
+		  // For testing
+		  uniqueVisits = new HashMap<Integer, Long>();
 	  }
 	  /**
 	   *  Sets the location of Particle by Node Id # and random positioning
@@ -564,5 +581,56 @@ public class Particle{
 	  boolean getReInsert() {return _reInsert;}
 	  void setReInsert(boolean reI) {_reInsert = reI; }
 
-
+	  // Methods to record route and fate
+	  public void recordArrival(String groupName) {
+		  arrivalDatetimes.add(new SimpleEntry<String, Long>(groupName, getCurrentParticleTimeExact()));
+ 		  //System.out.println("Particle " + this.Id + " recorded arrival: " + groupName + ", " + getCurrentParticleTimeExact());
+	  }
+	  
+	  public void removeLastArrivalRecord() {
+		  if (!arrivalDatetimes.isEmpty()) {
+			  //System.out.println("Removing record of station for particle " + this.Id +": " + arrivalDatetimes.get(arrivalDatetimes.size() - 1));
+			  //System.out.println("Particle " + this.Id + " recorded removedArrival: " + arrivalDatetimes.get(arrivalDatetimes.size() - 1).getKey() + ", " + getCurrentParticleTimeExact());
+			  arrivalDatetimes.remove(arrivalDatetimes.size() - 1);
+		  }
+		  
+	  }
+	  
+	  public List<SimpleEntry<String, Long>> getArrivalDatetimes() {
+		  return arrivalDatetimes;
+	  }
+	  
+	  public void recordDeath(Integer chanId) {
+		  deathDatetime = new SimpleEntry<Integer, Long>(chanId, getCurrentParticleTimeExact());
+		  //System.out.println("Particle " + this.Id + " recorded dead: " + chanId + ", " + getCurrentParticleTimeExact());
+	  }
+	  
+	  public SimpleEntry<Integer, Long> getDeathDatetime() {
+		  return deathDatetime;
+	  }
+	  
+	  public void recordStuck(Integer chanId) {
+		  stuckDatetime = new SimpleEntry<Integer, Long>(chanId, getCurrentParticleTimeExact());
+		  //System.out.println("Particle " + this.Id + " recorded stuck: " + chanId + ", " + getCurrentParticleTimeExact());
+	  }
+	  
+	  public void recordTransport(Integer wbId) {
+		  transportDatetime = new SimpleEntry<Integer, Long>(wbId, getCurrentParticleTimeExact());
+		  //System.out.println("Particle " + this.Id + " recorded transported: " + wbId + ", " + getCurrentParticleTimeExact());
+		  
+		  // Set eFish to dead so it is no longer active, but don't record the death in the observer
+		  isDead = true;
+	  }
+	  
+	  // For testing
+	  public void recordUniqueVisit(Integer wbId) {
+		  if(!uniqueVisits.containsKey(wbId)) {
+			  uniqueVisits.put(wbId, this.getCurrentParticleTimeExact());
+			//  System.out.println("Particle " + this.Id + " recorded inWaterbody: " + wbId + ", " + this.getCurrentParticleTimeExact());	
+		  }
+	  }
+	  
+	  public SimpleEntry<Integer, Long> getStuckDatetimes() {
+		  return stuckDatetime;
+	  }
 }

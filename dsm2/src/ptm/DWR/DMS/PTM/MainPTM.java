@@ -227,6 +227,10 @@ public class MainPTM {
             // write out restart file information
             if ( outRestart != null ) outRestart.output();
 
+            // FOR TESTING PURPOSES ONLY: run survival calculation and print results to console
+            SurvivalCalculation survCalc = new SurvivalCalculation(particleArray);
+            survCalc.run();
+                        			
             // clean up after run is over
             observer = null;
             particleArray = null;

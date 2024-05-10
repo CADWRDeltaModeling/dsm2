@@ -32,9 +32,12 @@ public class SurvivalInputs {
 			_startStas = new ArrayList<Integer>();
 			_branchList = new ArrayList<String>();
 			_pathList = new ArrayList<String>();
+			_survEqList = new ArrayList<String>();
+			_reachSurvMap = new HashMap<String, Float>();
+			survEqs = new HashMap<String, String>();
 			_groupSplitRatio = new HashMap<Integer, Float>();
 			_startStasDist = new HashMap<Integer, Integer>();
-			_groupParas = new HashMap<Integer, ArrayList<Double>>();
+			_groupParas = new HashMap<Integer, Map<Integer, ArrayList<Double>>>();
 			_endStasDist = new HashMap<Integer, Integer>();
 			_exchStasDist = new HashMap<Integer, Integer>();
 			_groupEndStas = new HashMap<Integer, ArrayList<Integer>>();
@@ -52,8 +55,14 @@ public class SurvivalInputs {
 					System.err.println("_startStas:"+PTMHydroInput.getExtFromIntChan(ss));
 				for (Map.Entry<Integer, Integer> entry: _startStasDist.entrySet())
 					System.err.println("_startStasDist:"+PTMHydroInput.getExtFromIntChan(entry.getKey()) + " "+ entry.getValue());
-				for (Map.Entry<Integer, ArrayList<Double>> entry: _groupParas.entrySet())
-					System.err.println("_groupParas:"+entry.getKey() + " "+ entry.getValue().get(0)+ " "+ entry.getValue().get(1)+ " "+ entry.getValue().get(2));
+				for (Map.Entry<Integer, Map<Integer, ArrayList<Double>>> outerEntry: _groupParas.entrySet()) {
+					Map<Integer, ArrayList<Double>> innerMap = outerEntry.getValue();					
+					for(Map.Entry<Integer, ArrayList<Double>> innerEntry : innerMap.entrySet()) {
+						System.err.println("_groupParas:" + innerEntry.getKey() + " " + innerEntry.getValue().get(0) + " " + 
+											innerEntry.getValue().get(1)+ " "+ innerEntry.getValue().get(2));	
+					}	
+				}
+					
 				for (Map.Entry<Integer, Integer> entry: _endStasDist.entrySet())
 					System.err.println("_endStasDist:"+PTMHydroInput.getExtFromIntChan(entry.getKey()) + " "+ entry.getValue());
 				for (Map.Entry<Integer, Integer> entry: _exchStasDist.entrySet())
@@ -77,8 +86,8 @@ public class SurvivalInputs {
 		}
 	}
 	public int getGroupNumber(int startStation){return _startStaGroup.get(startStation);}
-	public Map<Integer, ArrayList<Double>> getSurvivalParameterMap(){return _groupParas;}
-	public ArrayList<Double> getSurvivalParameters(int groupId){return _groupParas.get(groupId);}
+	public Map<Integer, Map<Integer, ArrayList<Double>>> getSurvivalParameterMap(){return _groupParas;}
+	public ArrayList<Double> getSurvivalParameters(int groupId, int endStation){return _groupParas.get(groupId).get(endStation);}
 	public ArrayList<Integer> getStartStations(){return _startStas;}
 	public ArrayList<Integer> getEndStations(int groupId){return _groupEndStas.get(groupId);}
 	public ArrayList<Integer> getExchangeableStations(int groupId){return _groupExchStas.get(groupId);}
@@ -86,6 +95,7 @@ public class SurvivalInputs {
 	public int getEndStationDistance(int chanNum){return _endStasDist.get(chanNum);}
 	public int getExchangeableStationDistance(int chanNum){return _exchStasDist.get(chanNum);}
 	public boolean isStartChan(int chanId){return _startStas.contains(chanId);}
+	public boolean isStartWB(int wbId) {return _startStas.contains(wbId);}
 	public boolean isEndChan(int groupId, int chanId){return _groupEndStas.get(groupId).contains(chanId);}
 	public boolean isExchangeChan(int groupId, int chanId){return _groupExchStas.get(groupId).contains(chanId);}
 	//public boolean fromUpstream(Particle p){return (p.nd.getEnvIndex() == ((Channel)p.wb).getUpNode().getEnvIndex());}
@@ -95,9 +105,10 @@ public class SurvivalInputs {
 	public boolean checkExchange(int chanId, float x, boolean fromUpstream){return staReached(chanId, x, _exchStasDist, fromUpstream);}
 	public boolean isStart(int chanId, float x, boolean fromUpstream){return isStartChan(chanId) && checkStart(chanId, x, fromUpstream);}
 	public boolean isEnd(int groupId, int chanId, float x, boolean fromUpstream){return isEndChan(groupId, chanId) && checkEnd(chanId, x, fromUpstream);}
-	public boolean isExchange(int groupId, int chanId, float x, boolean fromUpstream){return isExchangeChan(groupId, chanId)
+	public boolean isExchange(int groupId, int chanId, float x, boolean fromUpstream){return isExchangeChan(groupId, chanId) 
 																						&& checkExchange(chanId, x, fromUpstream); }
 
+	public String getGroupName(int groupId) {return _groupName.get(groupId);}
 	public int getGroupArrivals(int groupNumber){ return _groupArrivals.get(groupNumber);}
 	public int getGroupLost(int groupNumber){ return _groupLost.get(groupNumber);}
 	public boolean getDoSurvival(){return _doSurvival;}
@@ -109,16 +120,16 @@ public class SurvivalInputs {
 		int sign = fromUpstream? 1: -1;
 		dist = sign*dist;
 		x = sign*x;
-		return !(x < dist);
+		return !(x < dist);				
 	}
 	public void writeSurvivalRates(Map<Integer, IntBuffer> lastTraces){
 		try{
-			if (lastTraces !=null && _groupBarriers != null) {
+			if (lastTraces !=null && _groupBarriers != null) { 
 				for (int gid: _groupBarriers.keySet()){
 					IntBuffer nc = _groupBarriers.get(gid);
 					int stuck = 0;
 					for (Integer pid: lastTraces.keySet()) {
-						if(lastTraces.get(pid)!= null && lastTraces.get(pid).equals(nc))
+						if(lastTraces.get(pid)!= null && lastTraces.get(pid).equals(nc)) 
 							stuck++;
 					}
 					//System.err.println(_groupLost.get(gid));
@@ -137,7 +148,7 @@ public class SurvivalInputs {
 			if(_pathFileName != null){
 				if(SURVIVALALLWRITEOUT){
 					srWriter = PTMUtil.getOutputBuffer("survival_writes_all");
-					srWriter.write("Particles survived + lost at an end node are not necessary "
+					srWriter.write("Particles survived + lost at an end node are not necessary " 
 							+"equal to particle arrived at the beginning node because a particle can be lost at a boundary "
 							+"or wondering without reach an end node or an exchange node.  "
 							+"All particles not detected at an end node or an exchange node are assumed lost.");
@@ -150,11 +161,11 @@ public class SurvivalInputs {
 					srWriter.newLine();
 					//_ttHolder will never be null and there is at least one element
 					// if no particle arrives to a group, this group will not appear in the write out file
-					for (int id: _groupArrivals.keySet()){
+					for (int id: _groupArrivals.keySet()){						
 						Integer ar = _groupArrivals.get(id);
 						Integer lost = _groupLost.get(id);
 						Integer sur = _groupSurvival.get(id);
-
+						
 						if (ar == null){
 							PTMUtil.systemExit("error in writing survival output.  this particle has never arrived at the starting node of this channel group");;
 						}
@@ -162,7 +173,7 @@ public class SurvivalInputs {
 							lost = 0;
 						if (sur == null)
 							sur = 0;
-						//TODO
+						//TODO 
 						//survival rate = sur/ar (not (1-lost/ar) ) is to be consistent with Russ' XT model. if fish is not detected at the end node, it assumes that it is lost.
 						// not every fish arrived is detected at the end node.
 						int tot = sur + lost;
@@ -222,6 +233,7 @@ public class SurvivalInputs {
 				String suvl = _start_date + ","+_scenario;
 				checkTitle(_branchList.get(0));
 				checkTitle(_pathList.get(0));
+				checkTitle(_survEqList.get(0));
 				for (String line: _branchList.subList(1, _branchList.size())){
 					String [] items = line.trim().split("[,\\s\\t]+");
 					try{
@@ -255,10 +267,10 @@ public class SurvivalInputs {
 						for (int l: pList) {
 							if ( _groupSurvival.get(l) != null && _groupLost.get(l) != null) {
 								pSuv = pSuv * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
-								if (_groupSplitRatio.get(l) != null)
+								if (_groupSplitRatio.get(l) != null) 									
 									pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)))*_groupSplitRatio.get(l);
-								else
-									pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
+								else 
+									pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));								
 							}
 							else if (_groupSurvival.get(l) != null) {
 								pSuv = pSuv * 1.0f;
@@ -271,7 +283,7 @@ public class SurvivalInputs {
 							// in case _groupSurvival.get(l) == null, or both _groupSurvival.get(l) and _groupLost.get(l) == null
 							else {
 								pSuvT = 0.0f;
-								if (_groupSplitRatio.get(l) != null)
+								if (_groupSplitRatio.get(l) != null)								
 									pSuv = 0.0f;
 								else
 									pSuv = -99.0f;
@@ -282,12 +294,12 @@ public class SurvivalInputs {
 							suvl += "," + Float.toString(pSuv);
 							tSuv += pSuvT;
 						}
-						else
+						else 
 							suvl += "," + " ";
 					}catch(NumberFormatException e){
 						PTMUtil.systemExit("expect to read 2 Integers in the Branch_Groups line, but read: "+line+", System exit.");
 					}
-
+					
 				}
 				tl += "," + "Combined_suv";
 				//tl.concat(",").concat("Totol_suv");
@@ -297,14 +309,29 @@ public class SurvivalInputs {
 				srPathWriter.newLine();
 				srPathWriter.write(suvl);
 				srPathWriter.newLine();
+				
+				// Store equations for calculating route-specific survival
+				for (String line: _survEqList.subList(1, _survEqList.size())) {
+					String [] items = line.trim().split("[\\s\\t]+");
+					try {
+						if (items.length!=2) {
+							throw new IllegalArgumentException();
+						}
+						survEqs.put(items[0], items[1]);
+					} catch (IllegalArgumentException e) {
+						PTMUtil.systemExit("Expected to read a route-specific survival equation in the Route_Survival_Equation group, but read: " + line + ". System exit.");
+					}
+				}
 				PTMUtil.closeBuffer(srPathWriter);
-
-			} // if(_pathFileName != null)
+				
+			} // if(_pathFileName != null) 
 		}catch(IOException e){
 			System.err.println("error occured when writing out survival rates!");
 			e.printStackTrace();
 		}
 	}
+	
+	public Map<String, String> getSurvEqs() {return survEqs;}
 	public void addArrivalToGroup(int groupNumber){
 		addToGroup(groupNumber, _groupArrivals);
 	}
@@ -362,10 +389,12 @@ public class SurvivalInputs {
 	private void setOutput(ArrayList<String> survivalOutputIn) {
 		if ((_pathFileName!= null) && survivalOutputIn == null)
 			PTMUtil.systemExit("Please provide a Survival_Output section in the behavior input file.");
-		if (survivalOutputIn.size()<3)
+		if (survivalOutputIn.size()<3) 
 			PTMUtil.systemExit("Survival_Output section in the behavior input file is not correctly defined.");
 		_branchList = PTMUtil.getInputBlock(survivalOutputIn, "Particle_Flux", "END_Particle_Flux");
 		_pathList = PTMUtil.getInputBlock(survivalOutputIn, "Individual_Route_Survival", "End_Individual_Route_Survival");
+		_survEqList = PTMUtil.getInputBlock(survivalOutputIn, "Route_Survival_Equations", "End_Route_Survival_Equations");
+		setReachSurv(PTMUtil.getInputBlock(survivalOutputIn, "Individual_Reach_Survival", "End_Individual_Reach_Survival"));
 		_start_date = PTMUtil.getStringFromLine(survivalOutputIn.get(0), "Simulation_Start_Date");
 		_scenario = PTMUtil.getStringFromLine(survivalOutputIn.get(1), "Simulation_Scenario");
 		if (_start_date == null)
@@ -402,35 +431,69 @@ public class SurvivalInputs {
 				exStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(3), "EXCHANGEABLE_START_STATION");
 			ArrayList<Integer> enStasInt = new ArrayList<Integer>();
 			ArrayList<Integer> exStasInt = new ArrayList<Integer>();
-			//External channel numbers are converted to internal channel numbers
+			//External channel numbers are converted to internal channel numbers, unless this is a non-channel station
 			for(int[] stSt: stStas){
-				int stStaInternal = PTMHydroInput.getIntFromExtChan(stSt[0]);
+				int stStaInternal;
+				if(stSt[1]==MISSING) {
+					stStaInternal = stSt[0];
+				}
+				else {
+					stStaInternal = PTMHydroInput.getIntFromExtChan(stSt[0]);
+				}
+				
 				_startStas.add(stStaInternal);
 				_startStasDist.put(stStaInternal,stSt[1]);
 				_startStaGroup.put(stStaInternal,i);
 			}
 			for(int[] enst: enStas){
-				int enSta = PTMHydroInput.getIntFromExtChan(enst[0]);
+				int enSta;
+				if(enst[1]==MISSING) {
+					enSta = enst[0];
+				}
+				else {
+					enSta = PTMHydroInput.getIntFromExtChan(enst[0]);
+				}
+				
 				_endStasDist.put(enSta,enst[1]);
 				enStasInt.add(enSta);
 			}
 			if (exStas != null){
 				for(int[] exst: exStas){
-					int exSta = PTMHydroInput.getIntFromExtChan(exst[0]);
+					int exSta;
+					if(exst[1]==MISSING) {
+						exSta = exst[0];
+					}
+					else {
+						exSta = PTMHydroInput.getIntFromExtChan(exst[0]);
+					}
 					_exchStasDist.put(exSta,exst[1]);
 					exStasInt.add(exSta);
 				}
 			}
 			_groupName.put(i, name);
 			//Java pass by reference. changing enStasInt and exStasInt will change the maps.
-			//so don't change them once they are put into the maps unless you rewrite code here to make the map immutable
+			//so don't change them once they are put into the maps unless you rewrite code here to make the map immutable 
 			_groupEndStas.put(i,enStasInt);
 			_groupExchStas.put(i,exStasInt);
-			String [] paraTitle = {"LAMBDA","OMEGA","X"};
+			String [] paraTitle = {"END_STATION", "LAMBDA","OMEGA","X"};
 			if(!PTMUtil.check(survivalStrs.get(4).split("[,:\\s\\t]+"), paraTitle))
 				PTMUtil.systemExit("wrong survival input line:"+survivalStrs.get(4));
-			ArrayList<Double> paras = PTMUtil.getDoubles(survivalStrs.get(5));
-			_groupParas.put(i, paras);
+			
+			ArrayList<Double> endStationAndParas;
+			Integer endStationExt, endStationInt;
+			ArrayList<Double> paras = null;
+			Map<Integer, ArrayList<Double>> thisParasMap = new HashMap<Integer, ArrayList<Double>>();
+			for(int j=0; j<_groupEndStas.get(i).size(); j++) {
+				endStationAndParas = PTMUtil.getDoubles(survivalStrs.get(5+j));
+				endStationExt = endStationAndParas.get(0).intValue();
+				endStationInt = PTMHydroInput.getIntFromExtChan(endStationExt);
+				paras = new ArrayList<Double>(endStationAndParas.subList(1, 4));				
+				thisParasMap.put(endStationInt, paras);
+			}
+			
+			//ArrayList<Double> paras = PTMUtil.getDoubles(survivalStrs.get(5));
+			_groupParas.put(i, thisParasMap);
+			
 			ArrayList<String> barrierStrs = PTMUtil.getInputBlock(survivalStrs, "BARRIER", "END_BARRIER");
 			if( barrierStrs != null && barrierStrs.size() == 2) {
 				String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME"};
@@ -454,12 +517,25 @@ public class SurvivalInputs {
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
 	}
+	private void setReachSurv(ArrayList<String> reachSurvIn) {
+		String[] items; 
+		
+		for(int i=1; i<reachSurvIn.size(); i++) {
+			items = reachSurvIn.get(i).split("[,:\\s\\t]+");
+			System.out.println("reachSurvIn[0]: " + reachSurvIn.get(i));
+			_reachSurvMap.put(items[0], Float.parseFloat(items[1]));
+		}
+	}
+	public Map<String, Float> getReachSurvMap() {return _reachSurvMap;}
+	
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
-
-		if (((title.length == 2)&&title[0].equalsIgnoreCase("Name")&&title[1].equalsIgnoreCase("Route_Survival_Calculation_Group_List"))
-				|| ((title.length == 3)&&title[0].equalsIgnoreCase("Name")&&title[1].equalsIgnoreCase("From_Survival_Calculation_Group")
-						&&title[2].equalsIgnoreCase("To_Survival_Calculation_Group")))
+		
+		if (((title.length == 2)&&title[0].equalsIgnoreCase("Name")&&title[1].equalsIgnoreCase("Route_Survival_Calculation_Group_List")) ||
+				((title.length == 3)&&title[0].equalsIgnoreCase("Name")&&title[1].equalsIgnoreCase("From_Survival_Calculation_Group")
+						&&title[2].equalsIgnoreCase("To_Survival_Calculation_Group")) ||
+				(title.length==2 && title[0].equalsIgnoreCase("Name") && title[1].equalsIgnoreCase("Route_Survival_Equation")) ||
+				(title.length==2 && title[0].equalsIgnoreCase("fromStation_toStations") && title[1].equalsIgnoreCase("survival")))
 			return;
 		else
 			PTMUtil.systemExit("SYSTEM EXIT: expecting survival output definition ... but get:"+ inTitle);
@@ -471,29 +547,32 @@ public class SurvivalInputs {
 	private ArrayList<String> _branchList=null;
 	// <path name, path group list> for calculating survival rate for each path
 	private ArrayList<String> _pathList=null;
+	private ArrayList<String> _survEqList = null;
+	private Map<String, Float> _reachSurvMap;
+	private Map<String, String> survEqs = null;
 	// <group#, particle split ratio> group# is unique for each Calculation Group
 	private Map<Integer, Float> _groupSplitRatio=null;
 	// <start station chan#, start station distance> start chan# is unique for each Calculation Group
 	private Map<Integer, Integer> _startStasDist=null;
-	// <end station chan#, end station distance>
+	// <end station chan#, end station distance> 
 	private Map<Integer, Integer> _endStasDist=null;
-	// <exchangeable station chan#, exchangeable station distance>
+	// <exchangeable station chan#, exchangeable station distance> 
 	private Map<Integer, Integer> _exchStasDist=null;
 	// <group#, end station chan# list> group# is unique for each Calculation Group
 	private Map<Integer, ArrayList<Integer>> _groupEndStas=null;
 	// <group#, exchangeable station chan# list> group# is unique for each Calculation Group
 	private Map<Integer, ArrayList<Integer>> _groupExchStas=null;
 	// <group#, survival parameters lambda, omega, x list> group# is unique for each Calculation Group
-	private Map<Integer, ArrayList<Double>> _groupParas=null;
+	private Map<Integer, Map<Integer, ArrayList<Double>>> _groupParas=null;
 	// <group#, # of particles arrived in the reach group> group# is unique for each Calculation Group
 	private Map<Integer, Integer> _groupArrivals=null;
 	// <group#, # of particles survived in the reach group> group# is unique for each Calculation Group
 	private Map<Integer, Integer> _groupSurvival=null;
 	// <group#, group name> group# is unique for each Calculation Group
-	private Map<Integer, String> _groupName=null;
+	private Map<Integer, String> _groupName=null;	
 	// <group#, # of particles dead in the reach group> group# is unique for each Calculation Group
 	private Map<Integer, Integer> _groupLost=null;
-	// <start station chan#, survival calculation group number>
+	// <start station chan#, survival calculation group number> 
 	private Map<Integer,Integer> _startStaGroup = null;
 	//for output survival rate for each particle for each group
 	//Map<pid, Map<group#, survival probability>>
@@ -506,4 +585,6 @@ public class SurvivalInputs {
 	private String _start_date = null;
 	private String _scenario = null;
 	private Map<Integer, IntBuffer> _groupBarriers = null;
+	
+	static final int MISSING=-999;
 }

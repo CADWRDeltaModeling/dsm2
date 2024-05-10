@@ -117,9 +117,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 		 * check if a particle is stuck in or comes back to the same channel after a threshold time
 		 * the threshold time is user-defined
 		 */
-
+		p.recordUniqueVisit(p.wb.getEnvIndex());
 		 if (_si.checkStuck(p.Id, p.wb.getEnvIndex(),p.age)){
 			 p.setParticleDead();
+			 p.recordStuck(p.wb.getEnvIndex());
 			 return;
 		 }
 		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL)
@@ -142,6 +143,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				//if just exit from a reservoir or a conveyance, thus, p.x = 0 or length.
 				//there is no need to +/- time from p.age. if start a time step, no info about velocity.  So pass velocity = max_value so that
 				//(p.x- the check station channel distance)/velocity = 0
+			
 				 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age,
 						 IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()}), Float.MAX_VALUE, p.x, p.getFromUpstream());
 				 p.checkSurvival();
@@ -379,6 +381,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			}// end if(CHANNEL)
 
 			else if (p.wb.getPTMType() ==  Waterbody.RESERVOIR){
+				// Check if this is a reservoir with a terminal station, e.g., a transport station
+				p.checkSurvival();
+				if (p.isDead) return;
+				 
 			    p.nd = p.makeReservoirDecision(tmLeft);
 
 			    if (p.nd != null){

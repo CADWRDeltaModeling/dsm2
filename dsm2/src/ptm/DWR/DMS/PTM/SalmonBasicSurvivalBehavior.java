@@ -48,12 +48,24 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if(!_survivalIn.getDoSurvival())
 			return;
 		int pId = p.Id;
+		
+		// Non-channel waterbodies are only used for terminal events, e.g., transport
+		if(p.wb.getPTMType()!=Waterbody.CHANNEL) {
+			if(_survivalIn.isStartWB(p.wb.getEnvIndex())) {
+				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(p.wb.getEnvIndex())));
+				p.recordTransport(p.wb.getEnvIndex());
+			}
+			return;
+		}
+		
 		Channel ch = (Channel)p.wb;
 		int chanId = ch.getEnvIndex();
 		if (_pGroupUsed.get(pId) == null)
 			_pGroupUsed.put(pId, new HashSet<Integer>());
+
 		boolean isStart = _survivalIn.isStart(chanId, p.x, p.getFromUpstream());
-		Integer sSta = _pStartSta.get(pId);
+
+ 		Integer sSta = _pStartSta.get(pId);
 		// sSta == null means the particle doesn't know its survival start station.
 		// need only to search for a start station.  no need to search for an end or exchange station
 		if (sSta == null){
@@ -61,6 +73,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 				_pStartSta.put(pId, chanId);
 				_pStartAge.put(pId, p.age);
 				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
+				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(chanId)));
 				_pGroupUsed.get(pId).add(_survivalIn.getGroupNumber(chanId));
 				if(DEBUG){
 					System.err.println("pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" pAge:"+p.age+" p.x:"+p.x+" start null ");
@@ -79,12 +92,15 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		Integer groupId = _survivalIn.getGroupNumber(sSta);
 		boolean isEnd = _survivalIn.isEnd(groupId, chanId, p.x, p.getFromUpstream());
 		boolean isExchange = _survivalIn.isExchange(groupId, chanId, p.x, p.getFromUpstream());
+		
 		if (isExchange){
 			// subtract 1 from the group that this particle leaves,
 			// and add one to the group currently entered
 			int newGroupId = _survivalIn.getGroupNumber(chanId);
 			_survivalIn.minusArrivalToGroup(groupId);
+			p.removeLastArrivalRecord();
 			_survivalIn.addArrivalToGroup(newGroupId);
+			p.recordArrival(_survivalIn.getGroupName(newGroupId));
 			_pStartSta.put(pId, chanId);
 			_pGroupUsed.get(pId).add(newGroupId);
 			_pGroupUsed.get(pId).remove(sSta);
@@ -93,7 +109,14 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			return;
 		}
 		if (isEnd){
-			ArrayList<Double> paras = _survivalIn.getSurvivalParameters(groupId);
+			
+			// Record arrival. Note that this doesn't mean that the eFish actually survived to the station, but rather
+			// that it arrived so its survival could be assessed.
+			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
+				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(chanId)));
+			}
+			 
+			ArrayList<Double> paras = _survivalIn.getSurvivalParameters(groupId, chanId);
 			double lam = paras.get(0), om = paras.get(1), X = paras.get(2);
 			if(DEBUG){
 				int chanExt = PTMHydroInput.getExtFromIntChan(chanId);
@@ -124,6 +147,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			_survivalIn.addSurvivalRate(pId, groupId, survival);
 			if (survival < po){
 				p.setParticleDead();
+				p.recordDeath(chanId);
 				_survivalIn.addLostToGroup(groupId);
 				if(DEBUG)
 					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(chanId)
@@ -157,7 +181,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			//else
 				//System.err.println("Warnning: the end channel:" +PTMHydroInput.getExtFromIntChan(chanId)+" is not a next start channel, could miss travel time.");
 			//only possible to come here if it is the last end station.  After the last station, pass the last station, the particle is taken out of the system
-			else
+			else 
 				p.setParticleDead();
 
 			return;
