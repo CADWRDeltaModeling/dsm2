@@ -30,7 +30,7 @@ if(NOT INTELRUNTIME_LIBRARIES)
     set(LINK_PREFIX "-l")
     set(LINK_SUFFIX "")
   else()
-    set(LIB_PREFIX "")
+    set(LIB_PREFIX "lib")
     set(LIB_EXT ".lib")
     set(DLL_EXT "_dll.lib")
     set(LINK_PREFIX "")
@@ -45,14 +45,18 @@ if(NOT INTELRUNTIME_LIBRARIES)
     endif()
   endif()
 
-  list(APPEND INTELRUNTIME_LIBS "irng" "intlc")
+  if(UNIX)
+    list(APPEND INTELRUNTIME_LIBS "irng" "intlc")
+  else()
+    list(APPEND INTELRUNTIME_LIBS "irng")
+  endif()
 
   # Find the Intel runtime libraries
   foreach(lib ${INTELRUNTIME_LIBS})
     unset(${lib}_file CACHE)
     find_library(
       ${lib}_file
-      NAMES ${LIB_PREFIX}${lib}${DLL_EXT} ${lib}
+      NAMES ${LIB_PREFIX}${lib}${DLL_EXT} ${LIB_PREFIX}${lib}${LIB_EXT}
       HINTS ${CMPLR_ROOT}
       PATH_SUFFIXES
         "lib"
