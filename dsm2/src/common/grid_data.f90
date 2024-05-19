@@ -97,7 +97,7 @@ module grid_data
     integer :: nqext                 ! number of actual external flows
 
     parameter( &
-        max_qext=5000 &
+        max_qext=1100 &
         )
 
     type(qext_t) :: qext(max_qext)

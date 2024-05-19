@@ -21,7 +21,7 @@
       module ptm_local
       use grid_data
       integer max_wbs, max_nodes_per_wb, max_groups
-      parameter ( max_wbs = 2000 &
+      parameter ( max_wbs = 2100 &
            , max_nodes_per_wb = 10 &
            , max_groups = 25 &
            )
