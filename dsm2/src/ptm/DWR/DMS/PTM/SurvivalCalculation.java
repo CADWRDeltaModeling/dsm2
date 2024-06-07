@@ -109,7 +109,7 @@ public class SurvivalCalculation {
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
-			thisDeathDatetime = p.getDeathDatetime();;
+			thisDeathDatetime = p.getDeathDatetime();
 
 			if(thisDeathDatetime!=null) {particleDied = true;}
 			else {particleDied = false;}
@@ -164,10 +164,8 @@ public class SurvivalCalculation {
 	public double calcFraction(String fromStation, String toStation, String[] possibleToStations) {
 		double fraction;
 		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
-		SimpleEntry<Integer, Long> thisDeathDatetime;
 		int arrivalCount, possibleArrivalCount;
 		Particle p;
-		boolean particleDied;
 		SimpleEntry<String, Long> thisArrivalDatetime;
 		
 		fraction = 0;
@@ -179,10 +177,6 @@ public class SurvivalCalculation {
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
-			thisDeathDatetime = p.getDeathDatetime();
-
-			if(thisDeathDatetime!=null) {particleDied = true;}
-			else {particleDied = false;}
 
 			// Loop over the eFish's arrival history
 			for(int j=0; j<thisArrivalDatetimes.size()-1; j++) {		
@@ -191,18 +185,15 @@ public class SurvivalCalculation {
 				// Check to see if the eFish arrived at fromStation
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
 																				
-					// Check to see if the particle survived to any possibleToStations
+					// Check to see if the eFish arrived at any possibleToStations
 					for(int k=0; k<possibleToStations.length; k++) {
 						
 						if(checkEqual(possibleToStations[k], thisArrivalDatetimes.get(j+1).getKey())) {
-							if(!particleDied || 
-									(particleDied && thisDeathDatetime.getValue()>thisArrivalDatetimes.get(j+1).getValue())) {
-								possibleArrivalCount++;
-								
-								// Check to see if this is toStation
-								if(checkEqual(toStation, thisArrivalDatetimes.get(j+1).getKey())) {
-									arrivalCount++;
-								}
+							possibleArrivalCount++;
+							
+							// Check to see if this is toStation
+							if(checkEqual(toStation, thisArrivalDatetimes.get(j+1).getKey())) {
+								arrivalCount++;
 							}
 							
 							// No need to check other possibleToStations if we've found a match
