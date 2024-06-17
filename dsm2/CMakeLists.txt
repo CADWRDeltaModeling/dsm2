@@ -217,7 +217,7 @@ add_dependencies(${GTM_BIN} ${GTM_MAIN})
 set_target_properties(${GTM_BIN} PROPERTIES LINKER_LANGUAGE Fortran
                                             INSTALL_RPATH "\${ORIGIN}/../lib")
 if(WIN32)
-  target_link_options(${GTM_BIN} PRIVATE "/STACK:30000000")
+  target_link_options(${GTM_BIN} PRIVATE "/STACK:90000000")
 endif(WIN32)
 target_link_libraries(
   ${GTM_BIN}
