@@ -56,7 +56,6 @@ set(DSM2_KLU_FORTRAN klu_fortran)
 set(DSM2_OPRULE_INTERFACE oprule_interface)
 set(DSM2_PATTERN_MATCH pattern_match)
 set(DSM2_PTM ptm)
-set(DSM2_SPARSE sparse)
 
 set(DSM2_TIMEVAR timevar)
 set(DSM2_PYTHON python)
@@ -69,7 +68,6 @@ add_subdirectory(src/${DSM2_HYDRO})
 add_subdirectory(src/${DSM2_HYDROLIB})
 add_subdirectory(src/${DSM2_KLU_FORTRAN})
 add_subdirectory(src/${DSM2_OPRULE_INTERFACE})
-add_subdirectory(src/${DSM2_SPARSE})
 add_subdirectory(src/${DSM2_PATTERN_MATCH})
 
 # GTM
@@ -97,7 +95,6 @@ target_link_libraries(
           klu_fortran
           common
           pattern_match
-          sparse
           input_storage
           oprule_parser
           oprule
@@ -131,7 +128,6 @@ target_link_libraries(
           dsm2_input_storage_cpp
           common
           pattern_match
-          sparse
           input_storage
           ${Boost_LIBRARIES}
           ${HDF5_HL_LIBRARIES}

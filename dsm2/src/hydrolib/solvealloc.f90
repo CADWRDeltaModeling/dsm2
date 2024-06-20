@@ -73,10 +73,6 @@ contains
         integer rowcounter        ! counter for reservoir rows and gate rows
         integer i                 ! loop index
 
-        !   Routines:
-
-        integer, external :: sfcreate
-
         !-----Implementation -----------------------------------------------------
 
         InitializeSolver = .false.
@@ -93,11 +89,7 @@ contains
         end do
 
         Equations = TotalChanResRows + rowcounter
-        if (use_klu) then
-            k_common=klu_fortran_init()
-        else
-            Matrix = sfCreate(Equations,Zero,Error)
-        endif
+        k_common=klu_fortran_init()
         RowScale=1.D0
 
         !-----Initialize Matrix Scale Factors
@@ -916,15 +908,13 @@ contains
 
         !-----End of allocation. Check for error and exit.
         if( I== Equations ) then
-            if (use_klu) then
-                call done_adding_to_coo()
-                call coo2csc(Equations)
-                call update_pointers_dim4(masseq,nmasseq)
-                call update_pointers_dim4(dynmeq,ndynmeq)
-                call update_pointers(ConstraintPointers, ncptrs)
-                call update_pointers(ResEqPointer, nreseq)
-                call update_pointers(GateEqPointer, ngateeq)
-            end if
+            call done_adding_to_coo()
+            call coo2csc(Equations)
+            call update_pointers_dim4(masseq,nmasseq)
+            call update_pointers_dim4(dynmeq,ndynmeq)
+            call update_pointers(ConstraintPointers, ncptrs)
+            call update_pointers(ResEqPointer, nreseq)
+            call update_pointers(GateEqPointer, ngateeq)
             ReserveMatrix = .true.
 
         else
@@ -955,11 +945,7 @@ contains
 
         val = (row-1)*equations+(column-1) ! unique value encoded for each i,j
         call add_nonzero_to_coo(row, column, val)
-        if (use_klu) then
-            set_position_in_matrix=val
-        else
-            set_position_in_matrix=sfGetElement(matrix,row,column)
-        end if
+        set_position_in_matrix=val
 
     end function
 

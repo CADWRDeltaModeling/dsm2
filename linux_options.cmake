@@ -2,15 +2,15 @@ set(JAVA_HOME
     ${CMAKE_SOURCE_DIR}/deps/jdk-21.0.1
     CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
-    icc
+    icx
     CACHE STRING "C compiler")
 set(CMAKE_CXX_COMPILER
-    icpc
+    icpx
     CACHE STRING "C++ compiler")
 set(CMAKE_Fortran_COMPILER
-    ifort
+    ifx
     CACHE STRING "Fortran compiler")
-# set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ standard")
+set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
 set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")

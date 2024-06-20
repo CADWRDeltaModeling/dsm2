@@ -40,7 +40,7 @@ int64_t klu_fortran_init()
 	Common.scale=-1; // no scaling
 	Common.btf=0; // no btf reordering
 	Common.tol=1e-13; // pivot tolerance
-	return &Common;
+	return (int64_t)&Common;
 }
 
 
@@ -50,7 +50,7 @@ int64_t klu_fortran_init()
 int64_t klu_fortran_analyze(int *n, int *Ap, int *Ai, int64_t* common){
 	klu_common* Common = (klu_common*) *common;
 	klu_symbolic* Symbolic = klu_analyze (*n, Ap, Ai, Common);
-	return Symbolic;
+	return (int64_t)Symbolic;
 }
 
 /**
@@ -60,7 +60,7 @@ int64_t klu_fortran_factor(int *Ap, int *Ai, double *Ax, int64_t *symbolic, int6
 	klu_common* Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = klu_factor (Ap, Ai, Ax, Symbolic, Common) ;
-	return Numeric;
+	return (int64_t)Numeric;
 }
 
 /**

@@ -27,7 +27,7 @@ cd build
 CMAKE_GENERATOR="Unix Makefiles"
 cmake -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_INSTALL_PREFIX=${CUR_DIR}/heclib-6 \
--DCMAKE_C_COMPILER=icc -DCMAKE_Fortran_COMPILER=ifort ..
+-DCMAKE_C_COMPILER=icx -DCMAKE_Fortran_COMPILER=ifx ..
 cmake --build . --target install -j $(nproc)
 
 # cmake -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE:STRING=Debug \

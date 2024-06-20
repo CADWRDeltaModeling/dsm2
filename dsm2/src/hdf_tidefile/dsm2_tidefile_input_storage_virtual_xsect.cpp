@@ -243,15 +243,15 @@ TableDescription virtual_xsect_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.chan_no - (char*)&default_struct),
-             ((char*)&default_struct.num_virt_sec - (char*)&default_struct),
-             ((char*)&default_struct.vsecno - (char*)&default_struct),
-             ((char*)&default_struct.num_elev - (char*)&default_struct),
-             ((char*)&default_struct.min_elev - (char*)&default_struct),
-             ((char*)&default_struct.elevation - (char*)&default_struct),
-             ((char*)&default_struct.area - (char*)&default_struct),
-             ((char*)&default_struct.wet_p - (char*)&default_struct),
-             ((char*)&default_struct.width - (char*)&default_struct)
+             (size_t)((char*)&default_struct.chan_no - (char*)&default_struct),
+             (size_t)((char*)&default_struct.num_virt_sec - (char*)&default_struct),
+             (size_t)((char*)&default_struct.vsecno - (char*)&default_struct),
+             (size_t)((char*)&default_struct.num_elev - (char*)&default_struct),
+             (size_t)((char*)&default_struct.min_elev - (char*)&default_struct),
+             (size_t)((char*)&default_struct.elevation - (char*)&default_struct),
+             (size_t)((char*)&default_struct.area - (char*)&default_struct),
+             (size_t)((char*)&default_struct.wet_p - (char*)&default_struct),
+             (size_t)((char*)&default_struct.width - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {

@@ -64,7 +64,7 @@ CMAKE_GENERATOR="Unix Makefiles"
 
 cmake -G "$CMAKE_GENERATOR" \
 -DCMAKE_INSTALL_PREFIX=${CUR_DIR}/suitesparse-${SUITESPARSE_VERSION} \
--DCMAKE_C_COMPILER=icc \
+-DCMAKE_C_COMPILER=icx \
 -DCMAKE_BUILD_TYPE:STRING=Release ../
 cmake --build . --target install -j $(nproc)
 

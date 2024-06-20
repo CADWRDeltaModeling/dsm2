@@ -182,10 +182,10 @@ TableDescription qext_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.name - (char*)&default_struct),
-             ((char*)&default_struct.attach_obj_name - (char*)&default_struct),
-             ((char*)&default_struct.attached_obj_type - (char*)&default_struct),
-             ((char*)&default_struct.attached_obj_no - (char*)&default_struct)
+             (size_t)((char*)&default_struct.name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.attach_obj_name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.attached_obj_type - (char*)&default_struct),
+             (size_t)((char*)&default_struct.attached_obj_no - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {

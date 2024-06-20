@@ -103,11 +103,7 @@ contains
         !-----Implementation -----------------------------------------------------
 
         CloseSolver = .false.
-        if (use_klu) then
-            call close_solver()
-        else
-            call sfDestroy(Matrix)
-        end if
+        call close_solver()
         CloseSolver = .true.
 
         return
@@ -143,11 +139,7 @@ contains
         InitializeMatrix = .false.
 
         if( ForwardElim() ) then
-            if (use_klu) then
-                call clear_matrix()
-            else
-                call sfClear(Matrix)
-            end if
+            call clear_matrix()
 100     continue
     end if
 
@@ -195,11 +187,7 @@ logical function StoreAtLocation(Location, Val)
     Value=0
     if( ForwardElim() ) then
         Value=Val
-        if (use_klu) then
-            call add_to_matrix(Location,Val)
-        else
-            call sfAdd1Real(Location,Value)
-        end if
+        call add_to_matrix(Location,Val)
     end if
 
     StoreAtLocation = .true.
@@ -245,11 +233,7 @@ logical function AddAtLocation(Location, Val)
 
     if (ForwardElim()) then
         Value = Val
-        if (use_klu) then
-            call add_to_matrix(Location,Val)
-        else
-            call sfAdd1Real(Location,Value)
-        end if
+        call add_to_matrix(Location,Val)
     end if
     AddAtLocation = .true.
 
@@ -288,9 +272,6 @@ logical function SolveFourPt()
     logical lasttime
     integer Error
 
-    integer sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector,sfPrint
-    external sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector, sfPrint
-
     integer netIteration
 
     !      Argument definitions:
@@ -305,10 +286,8 @@ logical function SolveFourPt()
 
     !-----Create RHS vector of proper size and precision
     if ( FirstTime ) then ! .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
-        if (use_klu) then
-           !-- done only once as non-zeros pattern do not change after this point
-            k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
-        end if
+        !-- done only once as non-zeros pattern do not change after this point
+        k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
         Scaled = .true.
         FirstTime = .false.
     else
@@ -325,9 +304,7 @@ logical function SolveFourPt()
         Rescale=1.
     end if
     XX(1:equations)=(XOld(1:equations)+XAdj(1:equations))*RowScale(1:equations)
-    if (use_klu) then
-        b(1:equations)=xx(1:equations)
-    end if
+    b(1:equations)=xx(1:equations)
     L2Norm=DOT_PRODUCT(XX,XX)
     maxNormLoc=maxloc(abs(XX),1)
     LInfNorm=abs(XX(maxNormLoc))
@@ -338,26 +315,15 @@ logical function SolveFourPt()
         ) then
 
         if( ForwardElim() ) then
-            if( Scaled ) then
-                if (use_klu) then
-                    call scale_coo(RowScale, ColumnScale)
-                    if ( resetSolver ) then !refactorize for new pattern
-                        call klu_fortran_free_numeric(k_numeric, k_common)
-                        k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)
-                        resetSolver=.false.
-                    else
-                        call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
-                    end if
-                    error=0
-                else
-                    call sfScale(Matrix,RowScale,ColumnScale)
-                    Error=sfOrderAndFactor(Matrix,XX,1.D-7,0.D0,1)
-                end if
+            call scale_coo(RowScale, ColumnScale)
+            if ( resetSolver ) then !refactorize for new pattern
+                call klu_fortran_free_numeric(k_numeric, k_common)
+                k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)
+                resetSolver=.false.
             else
-                if (use_klu) then
-                    Error=sfFactor(Matrix)
-                end if
+                call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
             end if
+            error=0
             if(error /= 0) then
                 write(unit_error, &
                     "('Error in linear algebra. SPARSE returned error code: ',i5)") &
@@ -365,12 +331,8 @@ logical function SolveFourPt()
                 call exit(3)
             end if
         end if
-        if (use_klu) then
-            call klu_fortran_solve(k_symbolic, k_numeric, matrix_size, 1, b, k_common)
-            x(1:equations)=b(1:equations)
-        else
-            call sfSolve(Matrix,XX,X)
-        end if
+        call klu_fortran_solve(k_symbolic, k_numeric, matrix_size, 1, b, k_common)
+        x(1:equations)=b(1:equations)
 
         X=X*Rescale
         Rescale=min(1.,Rescale*2)

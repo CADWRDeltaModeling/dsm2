@@ -236,13 +236,13 @@ TableDescription reservoir_node_connect_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.res_node_index - (char*)&default_struct),
-             ((char*)&default_struct.res_name - (char*)&default_struct),
-             ((char*)&default_struct.res_index - (char*)&default_struct),
-             ((char*)&default_struct.connect_index - (char*)&default_struct),
-             ((char*)&default_struct.node_no - (char*)&default_struct),
-             ((char*)&default_struct.ext_node_no - (char*)&default_struct),
-             ((char*)&default_struct.connection_type - (char*)&default_struct)
+             (size_t)((char*)&default_struct.res_node_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.res_name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.res_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.connect_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.node_no - (char*)&default_struct),
+             (size_t)((char*)&default_struct.ext_node_no - (char*)&default_struct),
+             (size_t)((char*)&default_struct.connection_type - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {

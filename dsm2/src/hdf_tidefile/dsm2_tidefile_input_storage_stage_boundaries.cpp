@@ -162,9 +162,9 @@ TableDescription stage_boundaries_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.name - (char*)&default_struct),
-             ((char*)&default_struct.int_node_no - (char*)&default_struct),
-             ((char*)&default_struct.ext_node_no - (char*)&default_struct)
+             (size_t)((char*)&default_struct.name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.int_node_no - (char*)&default_struct),
+             (size_t)((char*)&default_struct.ext_node_no - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {

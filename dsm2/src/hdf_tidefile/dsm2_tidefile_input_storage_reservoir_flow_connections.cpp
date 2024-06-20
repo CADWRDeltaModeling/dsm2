@@ -238,13 +238,13 @@ TableDescription reservoir_flow_connections_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.connection_index - (char*)&default_struct),
-             ((char*)&default_struct.res_name - (char*)&default_struct),
-             ((char*)&default_struct.res_index - (char*)&default_struct),
-             ((char*)&default_struct.res_flow_index - (char*)&default_struct),
-             ((char*)&default_struct.flow_index - (char*)&default_struct),
-             ((char*)&default_struct.flow_name - (char*)&default_struct),
-             ((char*)&default_struct.flow_type - (char*)&default_struct)
+             (size_t)((char*)&default_struct.connection_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.res_name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.res_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.res_flow_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.flow_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.flow_name - (char*)&default_struct),
+             (size_t)((char*)&default_struct.flow_type - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {

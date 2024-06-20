@@ -328,17 +328,12 @@ contains
         !-----Store computed coefficients.
 
         if( Forward ) then
-            if (use_klu) then
-                do ii=1,4
-                    call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
-                end do
-                do ii=1,4
-                    call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
-                end do
-            else
-                call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
-                call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
-            end if
+            do ii=1,4
+                call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
+            end do
+            do ii=1,4
+                call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
+            end do
         end if
 
         OK = StoreMassAdjust( Up, CoefMassAdjust )
@@ -671,17 +666,12 @@ contains
         !-----Store computed coefficients.
 
         if( Forward ) then
-            if (use_klu) then
-                do ii=1,4
-                    call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
-                end do
-                do ii=1,4
-                    call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
-                end do
-            else
-                call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
-                call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
-            end if
+            do ii=1,4
+                call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
+            end do
+            do ii=1,4
+                call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
+            end do
         end if
 
         OK = StoreMassAdjust( Up, CoefMassAdjust )

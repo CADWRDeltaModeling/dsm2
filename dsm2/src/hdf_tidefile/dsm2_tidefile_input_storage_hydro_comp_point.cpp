@@ -155,9 +155,9 @@ TableDescription hydro_comp_point_table_description(){
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.comp_index - (char*)&default_struct),
-             ((char*)&default_struct.channel - (char*)&default_struct),
-             ((char*)&default_struct.distance - (char*)&default_struct)
+             (size_t)((char*)&default_struct.comp_index - (char*)&default_struct),
+             (size_t)((char*)&default_struct.channel - (char*)&default_struct),
+             (size_t)((char*)&default_struct.distance - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {
