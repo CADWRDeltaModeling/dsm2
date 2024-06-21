@@ -154,7 +154,7 @@ def prep_component(component,outdir):
     buffer_query =  "\n    ".join([x.assign(x.fortran_pointer()+"a_","obj.") for x in component.members])+"\n    "
     buffer_query += "\n    ".join([x.pad("a_"+x.name) for x in component.members if x.pad()])
     #offsets = ",\n            ".join(["HOFFSET( %s, %s)" % (component.name, x.name) for x in component.members])
-    offsets =",\n            ".join([" ((char*)&default_struct.%s - (char*)&default_struct)" \
+    offsets =",\n            ".join([" (size_t)((char*)&default_struct.%s - (char*)&default_struct)" \
                           % x.name for x in component.members])
     default_member_data =",".join( ["%s" % x.default() for x in component.members])
     default_member_init =",\n    ".join( [x.initializer("default") for x in component.members if x.initializer("default")]).strip("\n, ")
