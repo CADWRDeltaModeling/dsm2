@@ -241,7 +241,7 @@ contains
         OK = InitNetBalance()
         call init_store_outpaths(istat)
 
-        if (io_files(hydro, io_hdf5, io_write) .use) then ! hydro binary file output
+        if (io_files(hydro, io_hdf5, io_write)%use) then ! hydro binary file output
             call DetermineFirstTidefileInterval()
             OK = InitHydroTidefile()
             !--special treatment to avoid averaging in the begining
@@ -258,9 +258,9 @@ contains
         call store_outpaths(.false.)
         next_display = incr_intvl(start_julmin, display_intvl, TO_BOUNDARY)
         next_output_flush = incr_intvl(start_julmin, flush_intvl, TO_BOUNDARY)
-        if (io_files(hydro, io_restart, io_write) .use) then
+        if (io_files(hydro, io_restart, io_write)%use) then
             next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
-                                                                    io_restart, io_write) .interval, TO_BOUNDARY)
+                                                                    io_restart, io_write)%interval, TO_BOUNDARY)
         end if
 
         prev_julmin = julmin
@@ -314,25 +314,25 @@ contains
             call store_outpaths(.false.)
         end if
 
-        if (io_files(hydro, io_hdf5, io_write) .use) then
+        if (io_files(hydro, io_hdf5, io_write)%use) then
             OK = AverageFlow()
             OK = WriteHydroToTidefile(.FALSE.)
         end if
 
-        if (io_files(hydro, io_restart, io_write) .use) then
+        if (io_files(hydro, io_restart, io_write)%use) then
             if (Restart_Write .and. julmin .ge. next_restart_output) then
                 ! Write the hydrodynamic information at the end of
                 ! every interval to ascii file in case of any
                 ! interruptions to the model
                 next_restart_output = incr_intvl(next_restart_output, &
-                                                 io_files(hydro, io_restart, io_write) .interval, &
+                                                 io_files(hydro, io_restart, io_write)%interval, &
                                                  TO_BOUNDARY)
                 OK = WriteNetworkRestartFile()
             end if
 
             if (.not. restart_write) then
                 next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
-                                                                        io_restart, io_write) .interval, TO_BOUNDARY)
+                                                                        io_restart, io_write)%interval, TO_BOUNDARY)
                 restart_write = .true.
                 !  todo: if the model is working, this next line should be removed
                 !io_files(hydro,io_hdf5,io_write).use=.true.
@@ -369,25 +369,25 @@ contains
                 call store_outpaths(.false.)
             end if
 
-            if (io_files(hydro, io_hdf5, io_write) .use) then
+            if (io_files(hydro, io_hdf5, io_write)%use) then
                 OK = AverageFlow()
                 OK = WriteHydroToTidefile(.FALSE.)
             end if
 
-            if (io_files(hydro, io_restart, io_write) .use) then
+            if (io_files(hydro, io_restart, io_write)%use) then
                 if (Restart_Write .and. julmin .ge. next_restart_output) then
                     ! Write the hydrodynamic information at the end of
                     ! every interval to ascii file in case of any
                     ! interruptions to the model
                     next_restart_output = incr_intvl(next_restart_output, &
-                                                     io_files(hydro, io_restart, io_write) .interval, &
+                                                     io_files(hydro, io_restart, io_write)%interval, &
                                                      TO_BOUNDARY)
                     OK = WriteNetworkRestartFile()
                 end if
 
                 if (.not. restart_write) then
                     next_restart_output = incr_intvl(start_julmin, io_files(hydro, &
-                                                                            io_restart, io_write) .interval, TO_BOUNDARY)
+                                                                            io_restart, io_write)%interval, TO_BOUNDARY)
                     restart_write = .true.
                     !  todo: if the model is working, this next line should be removed
                     !io_files(hydro,io_hdf5,io_write).use=.true.
@@ -408,7 +408,7 @@ contains
         end if
 
         if (.not. check_input_data) then
-            if (io_files(hydro, io_restart, io_write) .use) then
+            if (io_files(hydro, io_restart, io_write)%use) then
                 !-----------Write network restart file.
                 OK = WriteNetworkRestartFile()
             end if
@@ -420,7 +420,7 @@ contains
         end if
 
         !--------close HDF5
-        if (io_files(hydro, io_hdf5, io_write) .use) then
+        if (io_files(hydro, io_hdf5, io_write)%use) then
             call CloseHDF5()
         end if
 

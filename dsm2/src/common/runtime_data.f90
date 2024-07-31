@@ -169,8 +169,8 @@ contains
 
         !-----local variables
         logical &
-            exst &                 ! true if file exists
-            , echo_only
+            exst, &                 ! true if file exists
+            echo_only
 
         integer &
             iarg                 ! argument index

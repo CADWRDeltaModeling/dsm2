@@ -38,20 +38,20 @@ subroutine process_input_reservoir(Name, &
 
 
       character &
-          InPath*392 &
-          ,FileName*128 &
-          ,Param*16 &
-          ,LocName*32 &
-          ,Name*32 &
-          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 &
-          ,ctmp*200 &
-          ,fillin*8
+          InPath*392, &
+          FileName*128, &
+          Param*16, &
+          LocName*32, &
+          Name*32, &
+          ca*32, cb*32, cc*32, cd*32, ce*32, cf*32, &
+          ctmp*200, &
+          fillin*8
 
       integer*4 &
-          sign &                ! sign restriction on input
-          ,npath,na,nb,nc,nd,ne,nf &
-          ,itmp &
-          ,istat
+          sign, &                ! sign restriction on input
+          npath,na,nb,nc,nd,ne,nf, &
+          itmp, &
+          istat
 
       integer, external :: name_to_objno
       integer, external :: data_types
@@ -70,8 +70,8 @@ subroutine process_input_reservoir(Name, &
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630) &
-               'Too many input paths specified; max allowed is:' &
-               ,max_inputpaths
+               'Too many input paths specified; max allowed is:', &
+               max_inputpaths
           call exit(-1)
       endif
 

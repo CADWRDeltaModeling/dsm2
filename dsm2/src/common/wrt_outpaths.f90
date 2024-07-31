@@ -32,37 +32,37 @@
 !-----local variables
 
       logical &
-          text_file &           ! true if output for path is to text (not DSS) file &
-          ,generic &            ! true if date is generic &
-          ,lopen               ! true if scratch file is already open
+          text_file, &           ! true if output for path is to text (not DSS) file &
+          generic, &            ! true if date is generic &
+          lopen               ! true if scratch file is already open
 
       integer &
-          npaths &              ! number of output paths for this interval &
-          ,file &               ! scratch file number &
-          ,unit_scratch &       ! temp file unit number &
-          ,i,j,k,p &            ! loop index &
-          ,ptr &                ! global pointer to pathoutput &
-          ,ios &                ! status &
-          ,nvals &              ! number of values written in each block &
-          ,nv &                 ! number of values in data block &
-          ,ndays,nhours,nmins & ! number of days,hours for generic date &
-          ,path_ptr(max(max_out_min,max_out_hour,max_out_day,max_out_month)) & ! output path pointers &
-          ,itemp
+          npaths, &              ! number of output paths for this interval &
+          file, &               ! scratch file number &
+          unit_scratch, &       ! temp file unit number &
+          i,j,k,p, &            ! loop index &
+          ptr, &                ! global pointer to pathoutput &
+          ios, &                ! status &
+          nvals, &              ! number of values written in each block &
+          nv, &                 ! number of values in data block &
+          ndays,nhours,nmins, & ! number of days,hours for generic date &
+          path_ptr(max(max_out_min,max_out_hour,max_out_day,max_out_month)), & ! output path pointers &
+          itemp
 
       integer*4 &
-          dmins &              ! delta minutes &
-          ,jdt                 ! julian minutes
+          dmins, &              ! delta minutes &
+          jdt                 ! julian minutes
 
       REAL*8 &
           outdata_arr(maxinpsize) ! output data array: dimension to the largest
                                 ! time block (mins15, dys, wks ...) in dss.inc
 
       character &
-          date_time*14 &        ! char date/time of start of block &
-          ,dt*25 &              ! char date/time of each value &
-          ,e_part*10 &          ! DSS interval &
-          ,ctype*8 &            ! DSS types, e.g. 'PER-AVER' &
-          ,ctemp*392            ! scratch
+          date_time*14, &        ! char date/time of start of block &
+          dt*25, &              ! char date/time of each value &
+          e_part*10, &          ! DSS interval &
+          ctype*8, &            ! DSS types, e.g. 'PER-AVER' &
+          ctemp*392            ! scratch
 
  610  format('Writing data for ',a/a)
 
@@ -71,20 +71,20 @@
          if (scratch_file_array(file)(1:1) .ne. miss_val_c) then
 
             inquire( &
-                file=scratch_file_array(file) &
-                ,opened=lopen &
-                ,number=unit_scratch &
+                file=scratch_file_array(file), &
+                opened=lopen, &
+                number=unit_scratch &
                 )
 
             if (lopen) close(unit_scratch)
             unit_scratch=unit_year1
             open ( &
-                unit=unit_scratch &
-                ,file=scratch_file_array(file) &
-                ,form='unformatted' &
-                ,action='READ' &
-                ,buffercount=50 &
-                ,err=902 &
+                unit=unit_scratch, &
+                file=scratch_file_array(file), &
+                form='unformatted', &
+                action='READ', &
+                buffercount=50, &
+                err=902 &
                 )
 
 !-----------for each data interval, process the data for one path, then
@@ -109,14 +109,14 @@
                if (index(pathoutput(ptr)%filename,'.dss') .eq. 0) then
                   text_file=.true.
                   open (  &      ! text output file &
-                      unit=unit_text &
-                      ,file=pathoutput(ptr)%filename &
-                      ,form='formatted' &
-                      ,access='append' &
-                      ,status='unknown' &
-                      ,buffered='yes' &
-                      ,iostat=ios &
-                      ,err=901 &
+                      unit=unit_text, &
+                      file=pathoutput(ptr)%filename, &
+                      form='formatted', &
+                      access='append', &
+                      status='unknown', &
+                      buffered='yes', &
+                      iostat=ios, &
+                      err=901 &
                       )
                else
                   text_file=.false.

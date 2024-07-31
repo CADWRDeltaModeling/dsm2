@@ -43,20 +43,20 @@
       logical, save :: err_node(max_nodes) ! nodal error counter
 
       integer &
-          intnode &              ! internal node number [INPUT]
-          ,direction &           ! either FROM_OBJ or TO_OBJ [INPUT]
-          ,group_ndx &           ! group index, if 0 ignore [INPUT]
-          ,qndx &                ! external and internal flow index
-          ,pndx &                ! pathname index
-          ,res &                 ! reservoir number
-          ,conndx &              ! reservoir connection index
-          ,i,j,k               ! loop indices
+          intnode, &              ! internal node number [INPUT]
+          direction, &           ! either FROM_OBJ or TO_OBJ [INPUT]
+          group_ndx, &           ! group index, if 0 ignore [INPUT]
+          qndx, &                ! external and internal flow index
+          pndx, &                ! pathname index
+          res, &                 ! reservoir number
+          conndx, &              ! reservoir connection index
+          i,j,k               ! loop indices
 
       real*8 &
-          objflow &              ! total external and internal flow at node [OUTPUT]
-          ,massrate(max_constituent) & ! total external and internal massrate at node [OUTPUT]
-          ,conc &                ! flow concentration
-          ,node_qual           ! node quality function
+          objflow, &              ! total external and internal flow at node [OUTPUT]
+          massrate(max_constituent), & ! total external and internal massrate at node [OUTPUT]
+          conc, &                ! flow concentration
+          node_qual           ! node quality function
       real*8 :: tol	= 1.0D-8    ! error tolerance
 
       type(from_to_t) from,to ! from and to objects

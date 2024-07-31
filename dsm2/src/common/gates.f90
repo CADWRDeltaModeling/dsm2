@@ -227,20 +227,20 @@ contains  !!========================================================!
         use grid_data
         implicit none
         integer &
-            ID &
-            , ObjConnType &       ! connected to channel, reservoir, etc.
-            , NodeConn &          ! node connected to
-            , name_to_objno &      ! function to get object number
-            , channo &
-            , resno &
-            , counter &
-            , i
+            ID, &
+            ObjConnType, &       ! connected to channel, reservoir, etc.
+            NodeConn, &          ! node connected to
+            name_to_objno, &      ! function to get object number
+            channo, &
+            resno, &
+            counter, &
+            i
 
         character &
-            name*32 &
-            , prev_name*32 &
-            , ObjConnID*32 &       ! name of reservoir, number of channel
-            , channoStr*10
+            name*32, &
+            prev_name*32, &
+            ObjConnID*32, &       ! name of reservoir, number of channel
+            channoStr*10
         character(len=16) :: ObjConnTypeName
 
         logical :: useObj
@@ -325,29 +325,29 @@ contains  !!========================================================!
         !-----local variables
 
         integer &
-            gateID &              ! gate ID
-            , gateno &             ! counter for gates
-            , devno &
-            , nduplicate &          ! number of dublicate structures
-            , struct_type &         ! type of structure (weir,pipe)
-            , control_type &        ! flow control device (type of gate)
-            , count &
-            , ndx, i, nw &
-            , nout &
-            , default_op &
-            , get_objnumber       ! function to get object number
+            gateID, &              ! gate ID
+            gateno, &             ! counter for gates
+            devno, &
+            nduplicate, &          ! number of dublicate structures
+            struct_type, &         ! type of structure (weir,pipe)
+            control_type, &        ! flow control device (type of gate)
+            count, &
+            ndx, i, nw, &
+            nout, &
+            default_op, &
+            get_objnumber       ! function to get object number
 
         integer, external :: name_to_objno
 
         real*8 &
-            max_width &
-            , base_elev, height &
-            , CFfrom, CFto &
-            , from_op, to_op
+            max_width, &
+            base_elev, height, &
+            CFfrom, CFto, &
+            from_op, to_op
 
         character*32 &
-            name &
-            , gatename
+            name, &
+            gatename
         character*8 structure_name
         character*16 default_op_name
 

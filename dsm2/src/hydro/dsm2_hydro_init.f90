@@ -83,10 +83,10 @@ subroutine dsm2_hydro_init
     do i = 1, max_iogroups
         do j = 1, max_file_types
             do k = 1, 2
-                io_files(i, j, k) .use = .false.
-                io_files(i, j, k) .filename = ' '
-                io_files(i, j, k) .interval = ' '
-                io_files(i, j, k) .unit = iu ! fill in file unit numbers
+                io_files(i, j, k)%use = .false.
+                io_files(i, j, k)%filename = ' '
+                io_files(i, j, k)%interval = ' '
+                io_files(i, j, k)%unit = iu ! fill in file unit numbers
                 iu = iu + 1
             end do
         end do
@@ -99,17 +99,17 @@ subroutine dsm2_hydro_init
     call initialize_rate_coefficient
 
 !-----default checkpoint intervals
-    io_files(hydro, io_restart, io_write) .interval = '1HOUR'
+    io_files(hydro, io_restart, io_write)%interval = '1HOUR'
 !-----default binary output intervals
-    io_files(hydro, io_echo, io_write) .interval = miss_val_c
+    io_files(hydro, io_echo, io_write)%interval = miss_val_c
 !-----default HDF5 output intervals
-    io_files(hydro, io_hdf5, io_write) .interval = '15MIN'
+    io_files(hydro, io_hdf5, io_write)%interval = '15MIN'
 
     current_tidefile = miss_val_i
     do i = 1, max_tide_files
-        tide_files(i) .start_date = ' '
-        tide_files(i) .end_date = ' '
-        tide_files(i) .filename = ' '
+        tide_files(i)%start_date = ' '
+        tide_files(i)%end_date = ' '
+        tide_files(i)%filename = ' '
     end do
 
     ntitles = 0

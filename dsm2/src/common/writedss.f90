@@ -23,69 +23,69 @@ module mod_writedss
     use dss
 !-----scratch file unit numbers
       integer, parameter::&
-          unit_min15=31 &
-          ,unit_hour1=32 &
-          ,unit_day1=33 &
-          ,unit_week1=34 &
-          ,unit_month1=35 &
-          ,unit_year1=36
+          unit_min15=31, &
+          unit_hour1=32, &
+          unit_day1=33, &
+          unit_week1=34, &
+          unit_month1=35, &
+          unit_year1=36
 
 !-----output data buffers
 !-----the zero'th location is used to store the value from the
 !-----previous model time step, for interpolation with odd time steps
       real*8 &
-          dataout_minutes15(0:mins15,max_out_min) & ! 15 minute data for one day &
-          ,dataout_hours(0:hrs,max_out_hour) & ! hourly data for one month &
-          ,dataout_days(0:dys,max_out_day) & ! daily data for one year &
-          ,dataout_weeks(0:wks,max_out_week) & ! weekly data for one decade &
-          ,dataout_months(0:mths,max_out_month) & ! monthly data for one decade &
-          ,dataout_years(0:yrs,max_out_year)  ! yearly data for one century
+          dataout_minutes15(0:mins15,max_out_min), & ! 15 minute data for one day &
+          dataout_hours(0:hrs,max_out_hour), & ! hourly data for one month &
+          dataout_days(0:dys,max_out_day), & ! daily data for one year &
+          dataout_weeks(0:wks,max_out_week), & ! weekly data for one decade &
+          dataout_months(0:mths,max_out_month), & ! monthly data for one decade &
+          dataout_years(0:yrs,max_out_year)  ! yearly data for one century
 
 !-----pointer back to location in pathoutput structure
       integer*4 &
-          ptout_min15(max_out_min) &
-          ,ptout_hour1(max_out_hour) &
-          ,ptout_day1(max_out_day) &
-          ,ptout_week1(max_out_week) &
-          ,ptout_month1(max_out_month) &
-          ,ptout_year1(max_out_year)
+          ptout_min15(max_out_min), &
+          ptout_hour1(max_out_hour), &
+          ptout_day1(max_out_day), &
+          ptout_week1(max_out_week), &
+          ptout_month1(max_out_month), &
+          ptout_year1(max_out_year)
 
 !-----the starting date/time of each block of data, in julian minutes
       integer*4 &
-          julstout_minutes15 &
-          ,julstout_hours1 &
-          ,julstout_days1 &
-          ,julstout_weeks1 &
-          ,julstout_months1 &
-          ,julstout_years1
+          julstout_minutes15, &
+          julstout_hours1, &
+          julstout_days1, &
+          julstout_weeks1, &
+          julstout_months1, &
+          julstout_years1
 
 !-----the number of values that went into an average value over the
 !-----time interval
       integer &
-          nave_min15(max_out_min) &
-          ,nave_hour1(max_out_hour) &
-          ,nave_day1(max_out_day) &
-          ,nave_week1(max_out_week) &
-          ,nave_month1(max_out_month) &
-          ,nave_year1(max_out_year)
+          nave_min15(max_out_min), &
+          nave_hour1(max_out_hour), &
+          nave_day1(max_out_day), &
+          nave_week1(max_out_week), &
+          nave_month1(max_out_month), &
+          nave_year1(max_out_year)
 
 !-----number of paths in each buffer group
       integer &
-          npthsout_min15 &
-          ,npthsout_hour1 &
-          ,npthsout_day1 &
-          ,npthsout_week1 &
-          ,npthsout_month1 &
-          ,npthsout_year1
+          npthsout_min15, &
+          npthsout_hour1, &
+          npthsout_day1, &
+          npthsout_week1, &
+          npthsout_month1, &
+          npthsout_year1
 
 !-----whether each buffer group needs to write to a tmp binary file
       logical &
-          need_tmpfile_min15 &
-          ,need_tmpfile_hour1 &
-          ,need_tmpfile_day1 &
-          ,need_tmpfile_week1 &
-          ,need_tmpfile_month1 &
-          ,need_tmpfile_year1
+          need_tmpfile_min15, &
+          need_tmpfile_hour1, &
+          need_tmpfile_day1, &
+          need_tmpfile_week1, &
+          need_tmpfile_month1, &
+          need_tmpfile_year1
 
 !-----scratch output filenames
       character &
@@ -104,16 +104,16 @@ contains
 
       logical,dimension(max_dssoutfiles) :: isopen = .false.
       character &
-          cdt*(*) &              ! date/time for start of data &
-          ,cdatx*9 &            ! date &
-          ,ctimx*4 &            ! time &
-          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 &
-          ,cunits*8            ! units (e.g. FEET, CFS)
+          cdt*(*), &              ! date/time for start of data &
+          cdatx*9, &            ! date &
+          ctimx*4, &            ! time &
+          ca*32, cb*32, cc*32, cd*32, ce*32, cf*32, &
+          cunits*8            ! units (e.g. FEET, CFS)
 
       integer &
-          nvals ,istat, iostat &
-          ,pathnumber &         ! global pathnumber &
-          ,npath,na,nb,nc,nd,ne,nf
+          nvals ,istat, iostat, &
+          pathnumber, &         ! global pathnumber &
+          npath,na,nb,nc,nd,ne,nf
 
       integer i
       real*8 in_values(nvals)

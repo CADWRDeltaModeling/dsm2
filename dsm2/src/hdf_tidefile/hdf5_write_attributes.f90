@@ -194,7 +194,7 @@ subroutine hdf5_write_attributes()
     allocate (names(max(1, nreser)))
     names = ' '
     do i = 1, max(1, nreser)
-        names(i) = res_geom(i) .name
+        names(i) = res_geom(i)%name
     end do
     call Write1DStringArray(geom_id, "reservoir_names", names, &
                             name_len, max(1, nreser))
@@ -205,7 +205,7 @@ subroutine hdf5_write_attributes()
     allocate (names(max(1, nobj2obj)))
     names = ' '
     do i = 1, max(1, nobj2obj)
-        names(i) = obj2obj(i) .name
+        names(i) = obj2obj(i)%name
     end do
     call Write1DStringArray(geom_id, "transfer_names", names, &
                             name_len, max(1, nobj2obj))
@@ -216,7 +216,7 @@ subroutine hdf5_write_attributes()
     allocate (names(max(1, nqext)))
     names = ' '
     do i = 1, max(1, nqext)
-        names(i) = qext(i) .name
+        names(i) = qext(i)%name
     end do
     call Write1DStringArray(geom_id, "external_flow_names", names, &
                             name_len, max(1, nqext))
@@ -231,8 +231,8 @@ subroutine hdf5_write_attributes()
     call h5dcreate_f(geom_id, "channel_bottom", H5T_NATIVE_REAL, &
                      cg_dspace_id, cg_dset_id, error, cparms)
     Do i = 1, nchans
-        bottom_el1(i) = chan_geom(i) .bottomelev(1)
-        bottom_el2(i) = chan_geom(i) .bottomelev(2)
+        bottom_el1(i) = chan_geom(i)%bottomelev(1)
+        bottom_el2(i) = chan_geom(i)%bottomelev(2)
     end do
     h_offset(1) = 0
     h_offset(2) = bottom_elIdx
@@ -289,10 +289,10 @@ subroutine WriteQExt()
     end if
     call qext_clear_buffer()
     do i = 1, nqext
-        call qext_append_to_buffer(qext(i) .name, &
-                                   qext(i) .attach_obj_name, &
-                                   qext(i) .attach_obj_type, &
-                                   qext(i) .attach_obj_no, error)
+        call qext_append_to_buffer(qext(i)%name, &
+                                   qext(i)%attach_obj_name, &
+                                   qext(i)%attach_obj_type, &
+                                   qext(i)%attach_obj_no, error)
     end do
     call qext_write_buffer_to_hdf5(geom_id, error)
     call qext_clear_buffer()
@@ -319,9 +319,9 @@ subroutine WriteStageBoundariesHDF5()
     end if
     call stage_boundaries_clear_buffer()
     do i = 1, nstgbnd
-        call stage_boundaries_append_to_buffer(stgbnd(i) .name, &
-                                               stgbnd(i) .node, &
-                                               node_geom(stgbnd(i) .node) .node_id, &
+        call stage_boundaries_append_to_buffer(stgbnd(i)%name, &
+                                               stgbnd(i)%node, &
+                                               node_geom(stgbnd(i)%node)%node_id, &
                                                error)
     end do
     if (nstgbnd .gt. 0) call stage_boundaries_write_buffer_to_hdf5(geom_id, error)
@@ -391,8 +391,8 @@ subroutine WriteReservoirNodeConnectionsHDF5
     call reservoir_node_connect_clear_buffer()
     icount = 0
     do ires = 1, nreser
-        do inode = 1, res_geom(ires) .nnodes
-            if (res_geom(ires) .isNodeGated(inode)) then
+        do inode = 1, res_geom(ires)%nnodes
+            if (res_geom(ires)%isNodeGated(inode)) then
                 node_type = " "
                 node_type = "gate"
             else
@@ -401,15 +401,15 @@ subroutine WriteReservoirNodeConnectionsHDF5
             end if
             icount = icount + 1
             resname = " "
-            resname = res_geom(ires) .name
+            resname = res_geom(ires)%name
 
             call reservoir_node_connect_append_to_buffer( &
                 icount, &
                 resname, &
                 ires, &
                 inode, &
-                res_geom(ires) .node_no(inode), &
-                node_geom(res_geom(ires) .node_no(inode)) .node_id, &
+                res_geom(ires)%node_no(inode), &
+                node_geom(res_geom(ires)%node_no(inode))%node_id, &
                 node_type, &
                 error)
         end do
@@ -445,13 +445,13 @@ subroutine WriteNodeFlowConnectionsHDF5
     icount = 0
     do inode = 1, nnodes
         iflow = 1
-        do while (node_geom(inode) .qext(iflow) .gt. 0)
+        do while (node_geom(inode)%qext(iflow) .gt. 0)
             icount = icount + 1
             call node_flow_connections_append_to_buffer(icount, &
                                                         inode, &
-                                                        node_geom(inode) .node_id, iflow, &
-                                                        node_geom(inode) .qext(iflow), &
-                                                        qext(node_geom(inode) .qext(iflow)) .name, &
+                                                        node_geom(inode)%node_id, iflow, &
+                                                        node_geom(inode)%qext(iflow), &
+                                                        qext(node_geom(inode)%qext(iflow))%name, &
                                                         connect_type, &
                                                         error)
             iflow = iflow + 1
@@ -460,13 +460,13 @@ subroutine WriteNodeFlowConnectionsHDF5
     connect_type = "transfer"
     do inode = 1, nnodes
         iflow = 1
-        do while (node_geom(inode) .qinternal(iflow) .gt. 0)
+        do while (node_geom(inode)%qinternal(iflow) .gt. 0)
             icount = icount + 1
             call node_flow_connections_append_to_buffer(icount, &
                                                         inode, &
-                                                        node_geom(inode) .node_id, iflow, &
-                                                        node_geom(inode) .qinternal(iflow), &
-                                                        obj2obj(node_geom(inode) .qinternal(iflow)) .name, &
+                                                        node_geom(inode)%node_id, iflow, &
+                                                        node_geom(inode)%qinternal(iflow), &
+                                                        obj2obj(node_geom(inode)%qinternal(iflow))%name, &
                                                         connect_type, &
                                                         error)
             iflow = iflow + 1
@@ -500,14 +500,14 @@ subroutine WriteReservoirFlowConnectionsHDF5
     icount = 0
     do inode = 1, nreser
         iflow = 1
-        do while (res_geom(inode) .qext(iflow) .gt. 0)
+        do while (res_geom(inode)%qext(iflow) .gt. 0)
             icount = icount + 1
             call reservoir_flow_connections_append_to_buffer(icount, &
-                                                             res_geom(inode) .name, &
+                                                             res_geom(inode)%name, &
                                                              inode, &
                                                              iflow, &
-                                                             res_geom(inode) .qext(iflow), &
-                                                             qext(res_geom(inode) .qext(iflow)) .name, &
+                                                             res_geom(inode)%qext(iflow), &
+                                                             qext(res_geom(inode)%qext(iflow))%name, &
                                                              connect_type, &
                                                              error)
             iflow = iflow + 1
@@ -516,13 +516,13 @@ subroutine WriteReservoirFlowConnectionsHDF5
     connect_type = "transfer"
     do inode = 1, nreser
         iflow = 1
-        do while (res_geom(inode) .qinternal(iflow) .gt. 0)
+        do while (res_geom(inode)%qinternal(iflow) .gt. 0)
             icount = icount + 1
             call reservoir_flow_connections_append_to_buffer(icount, &
-                                                             res_geom(inode) .name, &
+                                                             res_geom(inode)%name, &
                                                              inode, iflow, &
-                                                             res_geom(inode) .qinternal(iflow), &
-                                                             obj2obj(res_geom(inode) .qinternal(iflow)) .name, &
+                                                             res_geom(inode)%qinternal(iflow), &
+                                                             obj2obj(res_geom(inode)%qinternal(iflow))%name, &
                                                              connect_type, &
                                                              error)
             iflow = iflow + 1

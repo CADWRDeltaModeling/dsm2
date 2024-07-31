@@ -55,42 +55,42 @@ contains
         implicit none
 
         logical &
-            on_boundary &          ! true if already on interval boundary
-            , keepit              ! statement function
+            on_boundary, &          ! true if already on interval boundary
+            keepit              ! statement function
 
         character &
-            e_part*(*) &           ! DSS style interval [INPUT]
-            , e_part_tmp*80 &       ! temporary e_part
-            , interval*80         ! DSS interval (e.g. HOUR)
+            e_part*(*), &           ! DSS style interval [INPUT]
+            e_part_tmp*80, &       ! temporary e_part
+            interval*80         ! DSS interval (e.g. HOUR)
 
         integer*4 &
-            jmins &                ! starting julian minute [INPUT]
-            , iymdjl &              ! DSS function
-            , nom_mins            ! nominal number of minutes in an interval
+            jmins, &                ! starting julian minute [INPUT]
+            iymdjl, &              ! DSS function
+            nom_mins            ! nominal number of minutes in an interval
 
         integer &
-            boundary &             ! how to handle boundary [INPUT]
-            , number &              ! number (e.g. 1, 15)
-            , juls, jule &           ! starting and ending julian day
-            , istime, ietime &       ! starting and ending minutes past midnight
-            , jliymd &              ! convert julian day to year,month,day DSS function
-            , inctim &              ! DSS function to increment time
-            , idaywk &              ! DSS function to return day of week
-            , dayofweek &           ! day of week index
-            , istat &               ! return status
-            , iy, imon, id, ih, imin &  ! integer year, month, day, hour, minute
-            , i &                   ! loop index
-            , ibegf(10) &           ! beginning position of each field in line
-            , ilenf(10) &           ! length of each field in line
-            , idelmt(10) &          ! type of delimiter for each field
-            , idelmp(10) &          ! position in delimiter string of delimiter
-            , itbl(128) &           ! needed by findlm routine
-            , nfields &             ! number of fields found
-            , len &                 ! returns declared length of string
-            , lens &                ! length of string
-            , number_sign &         ! sign of number of units (+ or -)
-            , sign &                ! intrinsic
-            , nvals               ! number of values in DSS data block
+            boundary, &             ! how to handle boundary [INPUT]
+            number, &              ! number (e.g. 1, 15)
+            juls, jule, &           ! starting and ending julian day
+            istime, ietime, &       ! starting and ending minutes past midnight
+            jliymd, &              ! convert julian day to year,month,day DSS function
+            inctim, &              ! DSS function to increment time
+            idaywk, &              ! DSS function to return day of week
+            dayofweek, &           ! day of week index
+            istat, &               ! return status
+            iy, imon, id, ih, imin, &  ! integer year, month, day, hour, minute
+            i, &                   ! loop index
+            ibegf(10), &           ! beginning position of each field in line
+            ilenf(10), &           ! length of each field in line
+            idelmt(10), &          ! type of delimiter for each field
+            idelmp(10), &          ! position in delimiter string of delimiter
+            itbl(128), &           ! needed by findlm routine
+            nfields, &             ! number of fields found
+            len, &                 ! returns declared length of string
+            lens, &                ! length of string
+            number_sign, &         ! sign of number of units (+ or -)
+            sign, &                ! intrinsic
+            nvals               ! number of values in DSS data block
 
 !-----statement function to see whether to keep this new date,
 !-----or to increment further
@@ -284,16 +284,16 @@ contains
         use constants
         implicit none
 
-        character e_part*(*) &      ! DSS E part [INPUT]
-            , interval*(*) &        ! DSS interval [RETURN]
-            , e_part_tmp*80 &       ! temporary e part
-            , char_list*12        ! list of chars to scan
+        character e_part*(*), &      ! DSS E part [INPUT]
+            interval*(*), &        ! DSS interval [RETURN]
+            e_part_tmp*80, &       ! temporary e part
+            char_list*12        ! list of chars to scan
 
-        integer number &            ! number of intervals [RETURN]
-            , ielen &               ! length of e_part
-            , ipos2 &               ! which char found in iscan
-            , ilast &               ! position of last digit in e_part
-            , iscan               ! DSS char scan function
+        integer number, &            ! number of intervals [RETURN]
+            ielen, &               ! length of e_part
+            ipos2, &               ! which char found in iscan
+            ilast, &               ! position of last digit in e_part
+            iscan               ! DSS char scan function
 
         data char_list/'0123456789+-'/
 
@@ -354,9 +354,9 @@ contains
 !-----subroutine arguments
 
         character*(*) &
-            cdatx &                ! date/time string [IN]
-            , e_part &              ! DSS E part interval [IN]
-            , cdate_intvl         ! date/time portion corresponding to interval [OUT]
+            cdatx, &                ! date/time string [IN]
+            e_part, &              ! DSS E part interval [IN]
+            cdate_intvl         ! date/time portion corresponding to interval [OUT]
 
 !-----local variables
 
@@ -399,10 +399,10 @@ contains
         character*(*) cdatx       ! character date/time (e.g. 05JUN1983 0510) (input)
 
         integer*4 &
-            julday &               ! days since 31dec1899
-            , minute &              ! minutes past midnight
-            , ihm2m &               ! DSS function
-            , ierror              ! error flag
+            julday, &               ! days since 31dec1899
+            minute, &              ! minutes past midnight
+            ihm2m, &               ! DSS function
+            ierror              ! error flag
 
         call datjul(cdatx(1:9), julday, ierror)
         if (cdatx(11:14) .eq. ' ') then ! assume empty time means 0000
@@ -432,12 +432,12 @@ contains
         integer*4 julmin          ! minutes since 31dec1899 2400
 
         integer*4 &
-            julday &               ! days since 31dec1899
-            , minute &              ! minutes past midnight
-            , ndate &               ! number of characters in date
-            , m2ihm &               ! DSS function
-            , itime &               ! integer time
-            , jtmp, itmp           ! temporary julday & minutes
+            julday, &               ! days since 31dec1899
+            minute, &              ! minutes past midnight
+            ndate, &               ! number of characters in date
+            m2ihm, &               ! DSS function
+            itime, &               ! integer time
+            jtmp, itmp           ! temporary julday & minutes
 
         jmin2cdt = '              '
         jtmp = julmin/(24*60)       ! julday
@@ -489,20 +489,20 @@ contains
             cdate1, cdate2        ! earliest and latest date/time pair
 
         character*3 &
-            cyears &               ! number of years difference
-            , cdays &               ! number of days difference
-            , chours &              ! number of hours difference
-            , cmins               ! number of minutes difference
+            cyears, &               ! number of years difference
+            cdays, &               ! number of days difference
+            chours, &              ! number of hours difference
+            cmins               ! number of minutes difference
 
         integer*4 &
-            jmin1, jmin2 &          ! julian minute for cdate1 and cdate2
-            , jdiff                 ! difference
+            jmin1, jmin2, &          ! julian minute for cdate1 and cdate2
+            jdiff                 ! difference
 
         integer &
-            nyears &               ! number of years difference
-            , ndays &               ! number of days difference
-            , nhours &              ! number of hours difference
-            , nmins               ! number of minutes difference
+            nyears, &               ! number of years difference
+            ndays, &               ! number of days difference
+            nhours, &              ! number of hours difference
+            nmins               ! number of minutes difference
 
         jmin1 = cdt2jmin(cdate1)
         jmin2 = cdt2jmin(cdate2)
@@ -538,8 +538,8 @@ contains
         implicit none
 
         character*(*) &
-            start_date &           ! DSS start date
-            , cintvls             ! list of intervals (e.g. 1DAY 2HOUR 15MIN)
+            start_date, &           ! DSS start date
+            cintvls             ! list of intervals (e.g. 1DAY 2HOUR 15MIN)
 
         diff2dates = jmin2cdt(incr_intvl(cdt2jmin(start_date), cintvls, &
                                          IGNORE_BOUNDARY))
@@ -561,12 +561,12 @@ contains
         integer dim_carr          ! dimension of carr
 
         character*(*) &
-            cstring &              ! input string
-            , carr(dim_carr)      ! input character array
+            cstring, &              ! input string
+            carr(dim_carr)      ! input character array
 
-        integer i &                 ! loop index
-            , lstring &             ! length of nonblank part of cstring
-            , lnblnk              ! last nonblank function
+        integer i, &                 ! loop index
+            lstring, &             ! length of nonblank part of cstring
+            lnblnk              ! last nonblank function
 
         i = 1
         if (exact) then           ! exact match
@@ -604,11 +604,11 @@ contains
 
         implicit none
 
-        integer ndx1, ndx2 &         ! delimiter indices
-            , lnblnk              ! last non-blank intrinsic
+        integer ndx1, ndx2, &         ! delimiter indices
+            lnblnk              ! last non-blank intrinsic
 
-        character*(*) cstring &     ! main string [INPUT and OUTPUT]
-            , delimiter*1         ! single character delimiter [INPUT]
+        character*(*) cstring, &     ! main string [INPUT and OUTPUT]
+            delimiter*1         ! single character delimiter [INPUT]
 
         if (delimiter .eq. ' ') then
 !--------delimiter is blank: look for and discard multiple blanks
@@ -642,8 +642,8 @@ contains
         implicit none
 
         character*(*) &
-            string &               ! string to search in [INPUT]
-            , chars               ! single characters to look for [INPUT]
+            string, &               ! string to search in [INPUT]
+            chars               ! single characters to look for [INPUT]
 
         integer &
             i                    ! loop index
@@ -698,13 +698,13 @@ contains
 !-----arguments
 
         character*(*) &
-            current_version &      ! current version number string
-            , test_version        ! test version number string
+            current_version, &      ! current version number string
+            test_version        ! test version number string
 
-        integer dot_group &         ! index of which dot group we're testing
-            , current_dot_number &  ! dot number of current version
-            , test_dot_number &     ! dot number of test version
-            , lnblnk              ! intrinsic
+        integer dot_group, &         ! index of which dot group we're testing
+            current_dot_number, &  ! dot number of current version
+            test_dot_number, &     ! dot number of test version
+            lnblnk              ! intrinsic
 
 !-----test for empty version numbers
         version_fn = .false.
@@ -765,8 +765,8 @@ contains
 !-----local variables
 
         integer &
-            version_len &          ! length of version char string
-            , max_fields          ! max dot fields
+            version_len, &          ! length of version char string
+            max_fields          ! max dot fields
 
         parameter( &
             max_fields=10 &
@@ -776,12 +776,12 @@ contains
 
 !-----DSS subroutine variables
         integer &
-            ibegf(max_fields) &    ! beginning position of each field in line
-            , ilenf(max_fields) &   ! length of each field in line
-            , idelmt(max_fields) &  ! type of delimiter for each field
-            , idelmp(max_fields) &  ! position in delimiter string of delimiter
-            , itbl(128) &           ! needed by findlm routine; for most inputs
-            , nfields             ! number of delimited fields found
+            ibegf(max_fields), &    ! beginning position of each field in line
+            ilenf(max_fields), &   ! length of each field in line
+            idelmt(max_fields), &  ! type of delimiter for each field
+            idelmp(max_fields), &  ! position in delimiter string of delimiter
+            itbl(128), &           ! needed by findlm routine; for most inputs
+            nfields             ! number of delimited fields found
 
 !-----use dot as delimiter
         call setdlm(3, ' ', 1, 0, itbl) ! don't use string delimiters

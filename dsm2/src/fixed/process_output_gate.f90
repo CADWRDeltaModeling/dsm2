@@ -36,18 +36,18 @@ subroutine process_output_gate(name, &
       implicit none
 
       character &
-          FileName*128 &
-          ,Name*32 &
-          ,Param*16 &
-          ,Interval*16 &
-          ,PerOp*8 &
-          ,LocName*32 &
-          ,SubLoc*32 &           ! Object-dependent sublocation (gate device, reservoir node connect..)
-          ,ctmp*200
+          FileName*128, &
+          Name*32, &
+          Param*16, &
+          Interval*16, &
+          PerOp*8, &
+          LocName*32, &
+          SubLoc*32, &           ! Object-dependent sublocation (gate device, reservoir node connect..)
+          ctmp*200
 
       integer*4 &
-          itmp &
-          ,gateNo,devNo
+          itmp, &
+          gateNo,devNo
 
       integer, external :: name_to_objno
       integer, external :: ext2int
@@ -69,8 +69,8 @@ subroutine process_output_gate(name, &
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630) &
-             'Too many pathoutput paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many pathoutput paths specified; max allowed is:', &
+             max_outputpaths
          call exit(-1)
       endif
 

@@ -58,17 +58,17 @@ contains
         logical OK
 
         integer &
-            intchan &            ! internal channel numbers &
-            , nodeup, nodedown     ! Hydro upstream and downstream 'node' number &
+            intchan, &            ! internal channel numbers &
+             nodeup, nodedown     ! Hydro upstream and downstream 'node' number &
 
         !   Routines by module:
 
         integer node1, node2    !up and down global comp. node
         real*8 &
-            val_x &              ! interpolated value statement function &
-            , val_up, val_down &    ! value at upstream and downstream end of chan &
-            , reach_dist &          ! distance in a reach (not channel) &
-            , reach_len            ! reach length
+            val_x, &              ! interpolated value statement function &
+             val_up, val_down, &    ! value at upstream and downstream end of chan &
+             reach_dist, &          ! distance in a reach (not channel) &
+             reach_len            ! reach length
 
         !-----statement function to interpolate value along channel
         val_x(val_up, val_down, reach_dist, reach_len) = val_up - (val_up &

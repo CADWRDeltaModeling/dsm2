@@ -175,7 +175,7 @@ module gtm_dss
                pathinput(p).intvl_path = npthsin_irr
             else                   ! unrecognized interval
                write(unit_error,650) 'input', pathinput(p).no_intervals, trim(pathinput(p).interval)
-               write(*,*) "Error in get_dss_each_npath() .intvl_path"
+               write(*,*) "Error in get_dss_each_npath()%intvl_path"
             endif
             call upcase(pathinput(p).path) ! convert to upper case
          end do

@@ -64,8 +64,8 @@ contains
                 do  i=1,max_constituent
                     if (rate_var_require_flag (i,j)) then
                         if(rcoef_res(i,j,k)==miss_val_r) then
-                            write(funit,4000) trim(name)//" missing ",trim(constituent_name(i))//" " &
-                                ,trim(rate_name(j))//" coefficient value "
+                            write(funit,4000) trim(name)//" missing ",trim(constituent_name(i))//" ", &
+                                trim(rate_name(j))//" coefficient value "
                         else
                             write(funit,3000) trim(name), trim(constituent_name(i)),trim(rate_name(j)),rcoef_res(i,j,k)*HOUR_TO_DAY
                         endif
@@ -82,8 +82,8 @@ contains
                 do  i=1,max_constituent
                     if (rate_var_require_flag(i,j)) then
                         if(rcoef_chan(i,j,k)==miss_val_r) then
-                            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" "&
-                                ,trim(rate_name(j))//" coefficient value "
+                            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" ",&
+                                trim(rate_name(j))//" coefficient value "
                         else
                             write(funit,3000) trim(name), trim(constituent_name(i)),trim(rate_name(j)),rcoef_chan(i,j,k)*HOUR_TO_DAY
                         endif
@@ -130,8 +130,8 @@ contains
                             call objno_to_name(obj_reservoir,k,name)
                             write(funit,*) "fatal error:"
                             write(funit,4000) trim(name)//" missing ", &
-                                trim(constituent_name(i))//" " &
-                                ,trim(rate_name(j))//" coefficient value "
+                                trim(constituent_name(i))//" ", &
+                                trim(rate_name(j))//" coefficient value "
                             check_rate_for_waterbody=.false.
                             return
                         endif
@@ -149,8 +149,8 @@ contains
                     if (rate_var_require_flag(i,j)) then
                         if(rcoef_chan(i,j,k)==miss_val_r) then
                             call objno_to_name(obj_channel,k,name)
-                            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" " &
-                                ,trim(rate_name(j))//" coefficient value "
+                            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" ", &
+                                trim(rate_name(j))//" coefficient value "
                             check_rate_for_waterbody=.false.
                             return
                         endif

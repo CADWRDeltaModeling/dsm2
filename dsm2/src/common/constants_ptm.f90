@@ -30,14 +30,14 @@ module constants_ptm
     integer :: b_part
     integer :: ptm_group
 
-    parameter ( &
-        ptm_from_wb=1 &
-        ,ptm_to_wb=2 &
-        ,ptm_interval=3 &
-        ,ptm_filename=4 &
-        ,ptm_modifier=5 &
-        ,b_part=6 &
-        ,ptm_group=7 &
+    parameter( &
+        ptm_from_wb=1, &
+        ptm_to_wb=2, &
+        ptm_interval=3, &
+        ptm_filename=4, &
+        ptm_modifier=5, &
+        b_part=6, &
+        ptm_group=7 &
         )
 
     !-----magic numbers for particle injection
@@ -52,18 +52,17 @@ module constants_ptm
     integer :: partno_etime
     integer :: partno_type
 
-    parameter ( &
-        partno_node=1 &
-        ,partno_nparts=2 &
-        ,partno_slength=3 &
-        ,partno_length=4 &
-        ,partno_sdate=5 &
-        ,partno_stime=6 &
-        ,partno_edate=7 &
-        ,partno_etime=8 &
-        ,partno_type=9 &
+    parameter( &
+        partno_node=1, &
+        partno_nparts=2, &
+        partno_slength=3, &
+        partno_length=4, &
+        partno_sdate=5, &
+        partno_stime=6, &
+        partno_edate=7, &
+        partno_etime=8, &
+        partno_type=9 &
         )
-
 
     !-----magic numbers for particle output groups
     integer :: &
@@ -71,15 +70,15 @@ module constants_ptm
     integer :: group_memtype
     integer :: group_memid
 
-    parameter ( &
-        group_name=1 &
-        ,group_memtype=2 &
-        ,group_memid=3 &
+    parameter( &
+        group_name=1, &
+        group_memtype=2, &
+        group_memid=3 &
         )
 
     !-----magic number for 'all' keyword in flux output
     integer :: alltypes
-    parameter (alltypes = -100)
+    parameter(alltypes=-100)
 
     !-----magic numbers for profile of particle distribution option
 
@@ -89,17 +88,17 @@ module constants_ptm
     integer :: partdist_sdate
     integer :: partdist_stime
 
-    parameter ( &
-        partdist_chan=1 &
-        ,partdist_slength=2 &
-        ,partdist_sdate=3 &
-        ,partdist_stime=4 &
+    parameter( &
+        partdist_chan=1, &
+        partdist_slength=2, &
+        partdist_sdate=3, &
+        partdist_stime=4 &
         )
 
     integer :: &
         unit_binary
 
-    parameter ( &
+    parameter( &
         unit_binary=3 &
         )
 

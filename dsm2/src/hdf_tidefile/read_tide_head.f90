@@ -35,12 +35,12 @@ subroutine read_tide_head(filenm, check_headers)
 
 !-----local variables
 
-      integer unit_tide &        ! binary tide file unit number
-          ,lnblnk &              ! intrisic last non blank function
-          ,i,j,n,p               ! loop indices
+      integer unit_tide, &        ! binary tide file unit number
+          lnblnk, &              ! intrisic last non blank function
+          i,j,n,p               ! loop indices
 
-      logical check_headers &    ! [INPUT]
-          ,file_exists		      ! TRUE if file exists
+      logical check_headers, &    ! [INPUT]
+          file_exists		      ! TRUE if file exists
 
       character(LEN=*) :: filenm ! [INPUT]
 
@@ -50,8 +50,8 @@ subroutine read_tide_head(filenm, check_headers)
       integer aIndex
       character*130 ctmp         ! temporary storage for string
 !      character*21 chead        ! header (same length as 'hydro version '+dsm2_version)
-      logical updated_pathoutput &
-          ,constituent_found     ! true if this constituent found for qext
+      logical updated_pathoutput, &
+          constituent_found     ! true if this constituent found for qext
       data updated_pathoutput /.false./
       common /tide_l/ updated_pathoutput
 

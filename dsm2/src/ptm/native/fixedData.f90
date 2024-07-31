@@ -81,8 +81,8 @@
       function get_unique_id_for_stage_boundary(localIndex)
       implicit none
       integer localIndex, get_unique_id_for_stage_boundary
-      integer get_maximum_number_of_channels &
-           , get_maximum_number_of_reservoirs
+      integer get_maximum_number_of_channels, &
+            get_maximum_number_of_reservoirs
        get_unique_id_for_stage_boundary = localIndex &
            + get_maximum_number_of_channels() &
            + get_maximum_number_of_reservoirs()
@@ -92,9 +92,9 @@
       function get_unique_id_for_boundary(localIndex)
       implicit none
       integer localIndex, get_unique_id_for_boundary
-      integer get_maximum_number_of_channels &
-           , get_maximum_number_of_reservoirs &
-           , get_maximum_number_of_stage_boundaries
+      integer get_maximum_number_of_channels, &
+            get_maximum_number_of_reservoirs, &
+            get_maximum_number_of_stage_boundaries
       get_unique_id_for_boundary  = localIndex &
            + get_maximum_number_of_channels() &
            + get_maximum_number_of_reservoirs() &
@@ -105,10 +105,10 @@
       function get_unique_id_for_conveyor(localIndex)
       implicit none
       integer localIndex, get_unique_id_for_conveyor
-      integer get_maximum_number_of_channels &
-           , get_maximum_number_of_reservoirs &
-           , get_maximum_number_of_stage_boundaries &
-           , get_maximum_number_of_boundary_waterbodies
+      integer get_maximum_number_of_channels, &
+            get_maximum_number_of_reservoirs, &
+            get_maximum_number_of_stage_boundaries, &
+            get_maximum_number_of_boundary_waterbodies
       get_unique_id_for_conveyor  = localIndex &
            + get_maximum_number_of_channels() &
            + get_maximum_number_of_reservoirs() &
@@ -172,17 +172,17 @@
 
 
 !----- functions
-      integer get_unique_id_for_channel &
-           , get_unique_id_for_reservoir &
-           , get_unique_id_for_stage_boundary &
-           , get_unique_id_for_boundary &
-           , get_unique_id_for_conveyor
+      integer get_unique_id_for_channel, &
+            get_unique_id_for_reservoir, &
+            get_unique_id_for_stage_boundary, &
+            get_unique_id_for_boundary, &
+            get_unique_id_for_conveyor
 
-      integer get_maximum_number_of_channels &
-           , get_maximum_number_of_reservoirs &
-           , get_maximum_number_of_stage_boundaries &
-           , get_maximum_number_of_boundary_waterbodies &
-           , get_maximum_number_of_conveyors
+      integer get_maximum_number_of_channels, &
+            get_maximum_number_of_reservoirs, &
+            get_maximum_number_of_stage_boundaries, &
+            get_maximum_number_of_boundary_waterbodies, &
+            get_maximum_number_of_conveyors
       integer get_internal_node_id_for_unique_ids
 !----- locals
       integer i,j,id, numNodes, objId
@@ -267,8 +267,8 @@
             objId = qext(i).attach_obj_no
             objId = get_unique_id_for_reservoir( objId )
             wb(id).node(1) = get_internal_node_id_for_unique_ids( &
-                 objId &
-                 , id )
+                 objId, &
+                  id )
          else
 !-----------write(*,*) ' External types connection to type: ' ,
 !-----------&           qext(i).obj_type, ' not handled '
@@ -293,8 +293,8 @@
             objId = obj2obj(i).from_obj.obj_no
             objId = get_unique_id_for_reservoir(objId)
             wb(id).node(1) = get_internal_node_id_for_unique_ids( &
-                 objId &
-                 , id )
+                 objId, &
+                  id )
          else
 !-----------write(*,*) ' Internal types connection from type: ' ,
 !-----------&           obj2obj(i).from.obj_type, ' not handled '
@@ -305,8 +305,8 @@
             objId = obj2obj(i).to_obj.obj_no
             objId = get_unique_id_for_reservoir(objId)
             wb(id).node(2) = get_internal_node_id_for_unique_ids( &
-                 objId &
-                 , id )
+                 objId, &
+                  id )
          else
 !-----------write(*,*) ' Internal types connection to type: ' ,
 !-----------&           obj2obj(i).to.obj_type, ' not handled '
@@ -1861,11 +1861,11 @@
 
 !-----
       integer getWaterbodyUniqueId
-      integer get_unique_id_for_channel &
-           , get_unique_id_for_reservoir &
-           , get_unique_id_for_stage_boundary &
-           , get_unique_id_for_boundary &
-           , get_unique_id_for_conveyor
+      integer get_unique_id_for_channel, &
+            get_unique_id_for_reservoir, &
+            get_unique_id_for_stage_boundary, &
+            get_unique_id_for_boundary, &
+            get_unique_id_for_conveyor
       integer wbId, posId,id
       integer wbtype
       posId = abs(id)
@@ -1979,12 +1979,12 @@
 
 
       subroutine find_layer_index( &
-           X &
-           ,Z &
-           ,Branch &
-           ,vsecno &
-           ,virtelev &
-           ,veindex &
+           X, &
+           Z, &
+           Branch, &
+           vsecno, &
+           virtelev, &
+           veindex &
            )
       use IO_Units
       use common_xsect
@@ -1993,14 +1993,14 @@
 
 
       integer &
-           Branch &                ! hydro channel number
-           ,virtelev &             ! virtual elevation number (within channel)
-           ,vsecno &               ! virtual xsect number (within channel)
-           ,veindex &              ! virtual elevation index
-           ,previous_elev_index(max_virt_xsects) ! used to store elevation index
+           Branch, &                ! hydro channel number
+           virtelev, &             ! virtual elevation number (within channel)
+           vsecno, &               ! virtual xsect number (within channel)
+           veindex, &              ! virtual elevation index
+           previous_elev_index(max_virt_xsects) ! used to store elevation index
       real*8 &
-           X &                     ! distance along channel (from FourPt)
-          ,Z                   ! distance above channel bottom (from FourPt)
+           X, &                     ! distance along channel (from FourPt)
+          Z                   ! distance above channel bottom (from FourPt)
 
       save previous_elev_index
 
@@ -2086,17 +2086,17 @@
 
 !-----local variables
       REAL*8 &
-           x1 &                    ! interpolation variables
-           ,x2 &
-           ,y1 &
-           ,y2 &
-           ,interp              ! interpolation function
+           x1, &                    ! interpolation variables
+           x2, &
+           y1, &
+           y2, &
+           interp              ! interpolation function
       integer &
-           vsecno &                ! number of virtual section (within channel)
-           ,virtelev &             ! number of virtual elevation (within channel)
-           ,veindex &              ! index of virtual elevation array
-           ,dindex &               ! function to calculate xsect prop. array index
-           ,di                  ! stores value of dindex
+           vsecno, &                ! number of virtual section (within channel)
+           virtelev, &             ! number of virtual elevation (within channel)
+           veindex, &              ! index of virtual elevation array
+           dindex, &               ! function to calculate xsect prop. array index
+           di                  ! stores value of dindex
 
 !-----statement function to calculate indices of virtual data arrays
       dindex(Branch,vsecno,virtelev) &
@@ -2105,12 +2105,12 @@
       interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2
 
       call find_layer_index( &
-           X &
-           ,Z &
-           ,Branch &
-           ,vsecno &
-           ,virtelev &
-           ,veindex &
+           X, &
+           Z, &
+           Branch, &
+           vsecno, &
+           virtelev, &
+           veindex &
            )
 
 
@@ -2155,19 +2155,19 @@
 !   Routines by module:
 
       REAL*8 &
-           x1 &                    ! interpolation variables
-           ,x2
+           x1, &                    ! interpolation variables
+           x2
 
       integer &
-           vsecno &                ! number of virtual section (within channel)
-           ,virtelev &             ! number of virtual elevation (within channel)
-           ,veindex &              ! index of virtual elevation array
-           ,dindex &               ! function to calculate xsect prop. array index
-           ,di                  ! stores value of dindex
+           vsecno, &                ! number of virtual section (within channel)
+           virtelev, &             ! number of virtual elevation (within channel)
+           veindex, &              ! index of virtual elevation array
+           dindex, &               ! function to calculate xsect prop. array index
+           di                  ! stores value of dindex
       REAL*8 &
-           a1 &                    ! area of lower layer
-           ,b1 &                   ! width of lower layer (base of trapezoid)
-           ,b2                  ! interpolated width (trapezoid top width)
+           a1, &                    ! area of lower layer
+           b1, &                   ! width of lower layer (base of trapezoid)
+           b2                  ! interpolated width (trapezoid top width)
 
 !   Intrinsics:
       REAL*8 ChannelWidth
@@ -2185,12 +2185,12 @@
            =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 
       call find_layer_index( &
-           X &
-           ,Z &
-           ,Branch &
-           ,vsecno &
-           ,virtelev &
-           ,veindex &
+           X, &
+           Z, &
+           Branch, &
+           vsecno, &
+           virtelev, &
+           veindex &
            )
 
          di=dindex(branch,vsecno,virtelev)

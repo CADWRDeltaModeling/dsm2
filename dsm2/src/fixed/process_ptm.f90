@@ -46,8 +46,8 @@ subroutine process_particle_flux_output(name, from_wb, to_wb,interval,filename)
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,"(a,i)") &
-             'Too many group output paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many group output paths specified; max allowed is:', &
+             max_outputpaths
          call exit(1)
       endif
       pathoutput(noutpaths).obj_type=obj_flux
@@ -154,8 +154,8 @@ subroutine process_particle_group_output(name, groupname,interval,filename)
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,"(a,i)") &
-             'Too many group output paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many group output paths specified; max allowed is:', &
+             max_outputpaths
          call exit(1)
       endif
       pathoutput(noutpaths).obj_type=obj_group
@@ -231,8 +231,8 @@ subroutine process_particle_injection(node,nparts,delay,duration)
       npartno = npartno+1
       if (npartno .gt. max_injection) then
          write(unit_error,"(a,i)") &
-             'Too many input paths specified; max allowed is:' &
-             ,max_injection
+             'Too many input paths specified; max allowed is:', &
+             max_injection
          call exit(-1)
       endif
 
@@ -260,12 +260,12 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       implicit none
 
       character &
-          name*32 &
-          ,resname*32 &
-          ,at_wb*32 &
-          ,filename*128 &
-          ,inpath*392 &
-          ,fillin*8
+          name*32, &
+          resname*32, &
+          at_wb*32, &
+          filename*128, &
+          inpath*392, &
+          fillin*8
       integer node
 
       character*32  objtmp
@@ -274,14 +274,14 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       integer getWaterbodyUniqueId
 
       character &
-          LocName*32 &
-          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 &
-          ,ctmp*200
+          LocName*32, &
+          ca*32, cb*32, cc*32, cd*32, ce*32, cf*32, &
+          ctmp*200
 
       integer*4 &
-          npath,na,nb,nc,nd,ne,nf &
-          ,itmp &
-          ,istat
+          npath,na,nb,nc,nd,ne,nf, &
+          itmp, &
+          istat
 
       integer, external :: ext2intnode
       real*8 ftmp
@@ -294,8 +294,8 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       nfilter = nfilter+1
       if (nfilter .gt. max_filter) then
          write(unit_error,"(a,i)") &
-             'Too many input paths specified; max allowed is:' &
-             ,max_filter
+             'Too many input paths specified; max allowed is:', &
+             max_filter
          call exit(-1)
       endif
 
@@ -332,8 +332,8 @@ subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630) &
-             'Too many input paths specified; max allowed is:' &
-             ,max_inputpaths
+             'Too many input paths specified; max allowed is:', &
+             max_inputpaths
            call exit(-1)
       endif
 
@@ -424,12 +424,12 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       implicit none
 
       character &
-          name*32 &
-          ,resname*32 &
-          ,at_wb*32 &
-          ,fillin*8 &
-          ,filename*128 &
-          ,inpath*392
+          name*32, &
+          resname*32, &
+          at_wb*32, &
+          fillin*8, &
+          filename*128, &
+          inpath*392
       integer node
 
       character*32  objtmp
@@ -438,14 +438,14 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       integer getWaterbodyUniqueId
 
       character &
-          LocName*32 &
-          ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 &
-          ,ctmp*200
+          LocName*32, &
+          ca*32, cb*32, cc*32, cd*32, ce*32, cf*32, &
+          ctmp*200
 
       integer*4 &
-          npath,na,nb,nc,nd,ne,nf &
-          ,itmp &
-          ,istat
+          npath,na,nb,nc,nd,ne,nf, &
+          itmp, &
+          istat
 
       integer, external :: ext2intnode
       real*8 ftmp
@@ -458,8 +458,8 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       nfilter = nfilter+1
       if (nfilter .gt. max_filter) then
          write(unit_error,"(a,i)") &
-             'Too many input paths specified; max allowed is:' &
-             ,max_filter
+             'Too many input paths specified; max allowed is:', &
+             max_filter
          call exit(-1)
       endif
 
@@ -496,8 +496,8 @@ subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630) &
-             'Too many input paths specified; max allowed is:' &
-             ,max_inputpaths
+             'Too many input paths specified; max allowed is:', &
+             max_inputpaths
            call exit(-1)
       endif
 

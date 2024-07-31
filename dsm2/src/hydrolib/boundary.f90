@@ -352,8 +352,8 @@ contains
     end subroutine
 
     real*8 function reservoir_source_sink_prev( &
-        reservoir_no &
-        , acct_ndx &
+        reservoir_no, &
+         acct_ndx &
         )
 
         !-----Given a reservoir number, add the sources and sinks
@@ -414,8 +414,8 @@ contains
     end function
 
     real*8 function reservoir_source_sink( &
-        reservoir_no &
-        , acct_ndx &
+        reservoir_no, &
+         acct_ndx &
         )
 
         !-----Given a reservoir number, add the sources and sinks

@@ -44,11 +44,11 @@ subroutine check_fixed_qual(istat)
         reorder              ! true if reordering for obj2obj occurred
 
     integer &
-        istat &! status of call (returned)
-        , i, j, ij &! indices
-        , k, l &! indices
-        , ires &! reservoir index
-        , chan, intnode        ! channel, node, xsect numbers
+        istat, &! status of call (returned)
+        i, j, ij, &! indices
+        k, l, &! indices
+        ires, &! reservoir index
+        chan, intnode        ! channel, node, xsect numbers
 
     character &
         ctemp(max_reservoirs)*20 ! scratch array
@@ -68,7 +68,7 @@ subroutine check_fixed_qual(istat)
 
     if (.not. dispersion) then
         do chan = 1, max_channels
-            chan_geom(chan) .disp = 0
+            chan_geom(chan)%disp = 0
         end do
     end if
 
@@ -78,21 +78,21 @@ subroutine check_fixed_qual(istat)
 
     do i = 1, nbrch
         nxsec(i) = 2
-        dqq(i) = chan_geom(i) .disp
+        dqq(i) = chan_geom(i)%disp
     end do
 
 !-----flag qual internal (not on boundary) nodes
     do intnode = 1, nnodes
-        if (node_geom(intnode) .nup + node_geom(intnode) .ndown .gt. 1) then
-            node_geom(intnode) .qual_int = .true.
+        if (node_geom(intnode)%nup + node_geom(intnode)%ndown .gt. 1) then
+            node_geom(intnode)%qual_int = .true.
         end if
-        do i = 1, node_geom(intnode) .nup
-            chan = node_geom(intnode) .upstream(i)
+        do i = 1, node_geom(intnode)%nup
+            chan = node_geom(intnode)%upstream(i)
             jncu(chan) = intnode
         end do
 
-        do i = 1, node_geom(intnode) .ndown
-            chan = node_geom(intnode) .downstream(i)
+        do i = 1, node_geom(intnode)%ndown
+            chan = node_geom(intnode)%downstream(i)
             jncd(chan) = intnode
         end do
     end do
@@ -104,10 +104,10 @@ subroutine check_fixed_qual(istat)
 !--------channel connections to this reservoir
         !ares(ires)=res_geom(ires).toparea
         !hres(ires)=res_geom(ires).botelv
-        nresjunc(ires) = res_geom(ires) .nnodes
-        do j = 1, res_geom(ires) .nnodes
-            reschjunc(ires, j) = res_geom(ires) .node_no(j)
-            lresjunc(ires, j) = res_geom(ires) .node_no(j)
+        nresjunc(ires) = res_geom(ires)%nnodes
+        do j = 1, res_geom(ires)%nnodes
+            reschjunc(ires, j) = res_geom(ires)%node_no(j)
+            lresjunc(ires, j) = res_geom(ires)%node_no(j)
             ij = lresjunc(ires, j)
 
             nconres(ij) = nconres(ij) + 1 ! Number of reservoirs connected to node ij
@@ -149,54 +149,54 @@ subroutine check_fixed_qual(istat)
 !-----Loop through list mapping constituent locations
     do i = 1, no_of_constituent
 !--------check that group is given
-        if (constituents(i) .conservative) then
-            if (constituents(i) .group_ndx .eq. miss_val_i) then
-                write (unit_error, 620) trim(constituents(i) .name)
+        if (constituents(i)%conservative) then
+            if (constituents(i)%group_ndx .eq. miss_val_i) then
+                write (unit_error, 620) trim(constituents(i)%name)
                 goto 900
 620             format(/'Error: the constituent ', a, ' must have specified a group')
             end if
         end if
-        if (constituents(i) .name .eq. 'tds') then
+        if (constituents(i)%name .eq. 'tds') then
             mtds = i
-        elseif (constituents(i) .name .eq. 'ec') then
+        elseif (constituents(i)%name .eq. 'ec') then
             mec = i
-        elseif (constituents(i) .name .eq. 'cl') then
+        elseif (constituents(i)%name .eq. 'cl') then
             mcl = i
 !-----------now nonconservative constituents
-        elseif (constituents(i) .name .eq. 'do') then
+        elseif (constituents(i)%name .eq. 'do') then
             mdo = i
             constituent_ptr(mdo) = ncc_do
-        elseif (constituents(i) .name .eq. 'organic_n') then
+        elseif (constituents(i)%name .eq. 'organic_n') then
             morgn = i
             constituent_ptr(morgn) = ncc_organic_n
-        elseif (constituents(i) .name .eq. 'nh3') then
+        elseif (constituents(i)%name .eq. 'nh3') then
             mnh3 = i
             constituent_ptr(mnh3) = ncc_nh3
-        elseif (constituents(i) .name .eq. 'no2') then
+        elseif (constituents(i)%name .eq. 'no2') then
             mno2 = i
             constituent_ptr(mno2) = ncc_no2
-        elseif (constituents(i) .name .eq. 'no3') then
+        elseif (constituents(i)%name .eq. 'no3') then
             mno3 = i
             constituent_ptr(mno3) = ncc_no3
-        elseif (constituents(i) .name .eq. 'organic_p') then
+        elseif (constituents(i)%name .eq. 'organic_p') then
             morgp = i
             constituent_ptr(morgp) = ncc_organic_p
-        elseif (constituents(i) .name .eq. 'po4') then
+        elseif (constituents(i)%name .eq. 'po4') then
             mpo4 = i
             constituent_ptr(mpo4) = ncc_po4
-        elseif (constituents(i) .name .eq. 'algae') then
+        elseif (constituents(i)%name .eq. 'algae') then
             malg = i
             constituent_ptr(malg) = ncc_algae
-        elseif (constituents(i) .name .eq. 'bod') then
+        elseif (constituents(i)%name .eq. 'bod') then
             mbod = i
             constituent_ptr(mbod) = ncc_bod
-        elseif (index(constituents(i) .name, 'temp') .gt. 0) then
-            constituents(i) .name = 'temp'
+        elseif (index(constituents(i)%name, 'temp') .gt. 0) then
+            constituents(i)%name = 'temp'
             mtemp = i
             constituent_ptr(mtemp) = ncc_temp
         else
-            if (.not. constituents(i) .conservative) then
-                write (unit_error, 610) trim(constituents(i) .name)
+            if (.not. constituents(i)%conservative) then
+                write (unit_error, 610) trim(constituents(i)%name)
 610             format('Error:  Not one of the expected nonconservative constituents,'/ &
                        ' so can not be simulated: Constituent name is: ', a/)
                 goto 900

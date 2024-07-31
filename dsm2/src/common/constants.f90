@@ -298,9 +298,9 @@ module constants
     character, parameter :: &
         delimiter = '|', &
         empty_field = ' ', &
-        iep_sep = '+' &
+        iep_sep = '+', &
         !          ,backslash='\\' &      !! <UNIX>
-        , backslash = '\'       !! <NT>
+        backslash = '\'       !! <NT>
 
     character*14, parameter :: generic_date = '01JAN3001 0000' ! generic date/time start
 

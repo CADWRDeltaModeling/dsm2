@@ -30,8 +30,8 @@ real*8 function get_output(ptr)
     use netbnd, only: reservoir_source_sink
     use channel_schematic, only: StreamEndNode
     use chstatus, only: &
-        GlobalStreamFlow &  ! Hydro function to return flow &
-        , GlobalStreamSurfaceElevation! Hydro function to return stage &
+        GlobalStreamFlow, &  ! Hydro function to return flow &
+        GlobalStreamSurfaceElevation! Hydro function to return stage &
     use tidefile, only: ChannelVelocity     ! Hydro function to return velocity
     implicit none
 
@@ -45,20 +45,20 @@ real*8 function get_output(ptr)
     !-----local variables
 
     integer &
-        intchan &            ! internal channel numbers &
-        , nodeup, nodedown &    ! Hydro upstream and downstream 'node' number &
-        , hydrores &          ! Hydro reservoir number
-        , ngpoints &
-        , i                   ! loop index
+        intchan, &            ! internal channel numbers &
+        nodeup, nodedown, &    ! Hydro upstream and downstream 'node' number &
+        hydrores, &          ! Hydro reservoir number
+        ngpoints, &
+        i                   ! loop index
 
     integer node1, node2    !up and down global comp. node
     real*8 &
-        val_x &              ! interpolated value statement function &
-        , val_up, val_down &    ! value at upstream and downstream end of chan &
-        , reach_dist &          ! distance in a reach (not channel) &
-        , reach_len &          ! reach length &
-        , Q_interp &         !interpolated discharge &
-        , Z_interp            !interpolated stage
+        val_x, &              ! interpolated value statement function &
+        val_up, val_down, &    ! value at upstream and downstream end of chan &
+        reach_dist, &          ! distance in a reach (not channel) &
+        reach_len, &          ! reach length &
+        Q_interp, &         !interpolated discharge &
+        Z_interp            !interpolated stage
     !-----statement function to interpolate value along channel
     val_x(val_up, val_down, reach_dist, reach_len) = val_up - (val_up &
                                                                - val_down)*(reach_dist/reach_len)

@@ -50,8 +50,8 @@ subroutine process_transfer(ID, &
       nobj2obj=nobj2obj+1
       if (nobj2obj .gt. max_obj2obj) then
          write(unit_error,630) &
-         'Too many object connections specified; max allowed is:' &
-         ,max_obj2obj
+         'Too many object connections specified; max allowed is:', &
+         max_obj2obj
           call exit(-1)
       endif
       obj2obj(nobj2obj).Use=.true.

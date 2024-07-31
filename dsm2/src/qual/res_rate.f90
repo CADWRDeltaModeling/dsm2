@@ -47,20 +47,20 @@
       logical, save :: err_res(max_reservoirs) ! nodal error counter
 
       integer &
-          res &                  ! qual reservoir number [INPUT]
-          ,direction &           ! either FROM_OBJ or TO_OBJ [INPUT]
-          ,group_ndx &           ! group index, if 0 ignore [INPUT]
-          ,qndx &                ! external and internal flow index
-          ,pndx &                ! pathname index
-          ,intnode &             ! int node number
-          ,i,j,k &               ! loop indices
-          ,ich                 ! channel number
+          res, &                  ! qual reservoir number [INPUT]
+          direction, &           ! either FROM_OBJ or TO_OBJ [INPUT]
+          group_ndx, &           ! group index, if 0 ignore [INPUT]
+          qndx, &                ! external and internal flow index
+          pndx, &                ! pathname index
+          intnode, &             ! int node number
+          i,j,k, &               ! loop indices
+          ich                 ! channel number
 
       real*8 &
-          objflow &              ! total external and internal flow at reservoir [OUTPUT]
-          ,massrate(max_constituent) & ! total external and internal massrate at reservoir [OUTPUT]
-          ,conc &                ! flow concentration
-          ,node_qual           ! node quality function
+          objflow, &              ! total external and internal flow at reservoir [OUTPUT]
+          massrate(max_constituent), & ! total external and internal massrate at reservoir [OUTPUT]
+          conc, &                ! flow concentration
+          node_qual           ! node quality function
 
 
       type(from_to_t) from,to ! from and to objects

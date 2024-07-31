@@ -68,8 +68,8 @@ subroutine process_tidefile(start_date, end_date, filename)
       nintides = nintides + 1
       if (nintides .gt. max_tide_files) then
          write(unit_error,630) &
-             'Too many tidefiles specified; max allowed is:' &
-             ,max_tide_files
+             'Too many tidefiles specified; max allowed is:', &
+             max_tide_files
  630     format(/a,i5)
          call exit(-1)
       endif

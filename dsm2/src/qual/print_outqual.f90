@@ -40,10 +40,10 @@
 !-----Local variables
 
       integer &
-          istat &                ! status of call (returned)
-          ,i &                   ! index
-          ,chan &                ! channel numbers
-          ,l                   ! constituent no.
+          istat, &                ! status of call (returned)
+          i, &                   ! index
+          chan, &                ! channel numbers
+          l                   ! constituent no.
 
 !-----copyright notices
       write(unit_output, 805)
@@ -149,12 +149,12 @@
 
       do i=1,ninpaths
          if (pathinput(i).constant_value .ne. miss_val_r)then
-           write(unit_output,1615)pathinput(i).name &
-             ,pathinput(i).variable,'constant' &
-             ,pathinput(i).constant_value
+           write(unit_output,1615)pathinput(i).name, &
+             pathinput(i).variable,'constant', &
+             pathinput(i).constant_value
          else
-           write(unit_output,1620)pathinput(i).name,pathinput(i).variable &
-             ,pathinput(i).filename,pathinput(i).path
+           write(unit_output,1620)pathinput(i).name,pathinput(i).variable, &
+             pathinput(i).filename,pathinput(i).path
          end if
  1615    format(a32,1x,a16,1x,a12,1x,f10.4)
  1620    format(a32,1x,a16,1x,a80,1x,a50)
