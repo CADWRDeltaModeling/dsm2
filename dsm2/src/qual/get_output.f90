@@ -44,51 +44,51 @@ real*8 function get_output(ptr)
     byte object               ! object type (node, channel, ...)
 
     integer &
-        qualchan &             ! dsm and bltm channel numbers
-        , object_no &           ! object number
-        , hydro_res_no &        ! hydro reservoir number
-        , hydro_node_no &       ! hydro node number
-        , nx &                  ! number of cross sections for channel
-        , i &                   ! loop index
-        , lnblnk              ! last non blank intrinsic function
+        qualchan, &             ! dsm and bltm channel numbers
+         object_no, &           ! object number
+         hydro_res_no, &        ! hydro reservoir number
+         hydro_node_no, &       ! hydro node number
+         nx, &                  ! number of cross sections for channel
+         i, &                   ! loop index
+         lnblnk              ! last non blank intrinsic function
 
     integer &
         const_no             ! constituent number
 
     real*8 &
-        chan_qual &            ! Qual function to return channel concentration
-        , node_qual &           ! Qual function to return node concentration
-        , val_x &               ! interpolated value statement function
-        , val_up, val_down &     ! value at upstream and downstream end of chan
-        , chan_dist &           ! distance along channel
-        , chan_len &            ! channel length
-        , objflow, massrate(max_constituent) ! flow and massrate at an object
+        chan_qual, &            ! Qual function to return channel concentration
+         node_qual, &           ! Qual function to return node concentration
+         val_x, &               ! interpolated value statement function
+         val_up, val_down, &     ! value at upstream and downstream end of chan
+         chan_dist, &           ! distance along channel
+         chan_len, &            ! channel length
+         objflow, massrate(max_constituent) ! flow and massrate at an object
 
 !-----statement function to interpolate value along channel
     val_x(val_up, val_down, chan_dist, chan_len) = val_up - (val_up &
                                                              - val_down)*(chan_dist/chan_len)
 
-    object = pathoutput(ptr) .obj_type
-    object_no = pathoutput(ptr) .obj_no
+    object = pathoutput(ptr)%obj_type
+    object_no = pathoutput(ptr)%obj_no
     if (object .eq. obj_channel) then ! output at channel requested
         qualchan = object_no
     end if
-    const_no = pathoutput(ptr) .const_ndx
+    const_no = pathoutput(ptr)%const_ndx
     if (const_no .gt. 0) then ! water quality constituent requested
         if (object .eq. obj_channel) then ! output at channel requested
-            get_output = chan_qual(qualchan, pathoutput(ptr) .chan_dist, const_no)
+            get_output = chan_qual(qualchan, pathoutput(ptr)%chan_dist, const_no)
         else if (object .eq. obj_node) then ! output at node requested
             get_output = node_qual(object_no, const_no)
         else if (object .eq. obj_reservoir) then ! output in reservoir requested
             get_output = cres(object_no, const_no)
-        elseif (index(pathoutput(ptr) .meas_type, 'mass') .gt. 0) then
+        elseif (index(pathoutput(ptr)%meas_type, 'mass') .gt. 0) then
         else                   ! error, can't figure out where this output is
             write (unit_error, '(a/a/a)') 'Unable to produce output for path:', &
-                '  '//pathoutput(ptr) .path(:lnblnk(pathoutput(ptr) .path)), &
+                '  '//pathoutput(ptr)%path(:lnblnk(pathoutput(ptr)%path)), &
                 '  No location given.'
             call exit(2)
         end if
-    elseif (pathoutput(ptr) .meas_type .eq. 'stage') then
+    elseif (pathoutput(ptr)%meas_type .eq. 'stage') then
         if (object .eq. obj_channel) then ! channel output
             nx = chan_geom(object_no) .nxsect ! last X-Section (i.e. downstream)
             nx = 2 !  fixme: the whole chan_geom(..).nxsect and .bottomelev is bogus and
@@ -96,30 +96,30 @@ real*8 function get_output(ptr)
             get_output = val_x( &
                          zchan(1, qualchan), &
                          zchan(2, qualchan), &
-                         dble(pathoutput(ptr) .chan_dist), &
+                         dble(pathoutput(ptr)%chan_dist), &
                          dble(chan_geom(object_no) .length))
         else if (object .eq. obj_reservoir) then ! reservoir output
-            hydro_res_no = pathoutput(ptr) .obj_no
+            hydro_res_no = pathoutput(ptr)%obj_no
             get_output = eresv(hydro_res_no)
         end if
-    elseif (pathoutput(ptr) .meas_type .eq. 'flow') then
+    elseif (pathoutput(ptr)%meas_type .eq. 'flow') then
         if (object .eq. obj_channel) then
             get_output = val_x(qchan(1, qualchan), qchan(2, qualchan), &
-                               dble(pathoutput(ptr) .chan_dist), &
+                               dble(pathoutput(ptr)%chan_dist), &
                                dble(chan_geom(object_no) .length))
         else if (object .eq. obj_reservoir) then
-            hydro_res_no = pathoutput(ptr) .obj_no
-            hydro_node_no = pathoutput(ptr) .res_node_no
+            hydro_res_no = pathoutput(ptr)%obj_no
+            hydro_node_no = pathoutput(ptr)%res_node_no
             get_output = -qres(hydro_res_no, hydro_node_no) ! + qres: flow from res to chan
         end if
-    elseif (pathoutput(ptr) .meas_type .eq. 'pump') then ! all reservoir pumping
+    elseif (pathoutput(ptr)%meas_type .eq. 'pump') then ! all reservoir pumping
         call res_rate(object_no, FROM_OBJ, NO_CONNECT, objflow, massrate)
         get_output = objflow
-    elseif (pathoutput(ptr) .meas_type .eq. 'flow-net') then ! net reservoir pump+gate flow
+    elseif (pathoutput(ptr)%meas_type .eq. 'flow-net') then ! net reservoir pump+gate flow
         if (object .eq. obj_reservoir) then
             get_output = 0.0
-            do i = 1, res_geom(pathoutput(ptr) .obj_no) .nnodes
-                hydro_node_no = res_geom(pathoutput(ptr) .obj_no) .node_no(i)
+            do i = 1, res_geom(pathoutput(ptr)%obj_no)%nnodes
+                hydro_node_no = res_geom(pathoutput(ptr)%obj_no)%node_no(i)
                 get_output = get_output - qres(hydro_res_no, i) ! + qres: flow from res to chan
             end do
 
@@ -128,8 +128,8 @@ real*8 function get_output(ptr)
         end if
     else
         write (unit_error, 600) &
-            trim(pathoutput(ptr) .meas_type), &
-            trim(groupArray(pathoutput(ptr) .source_group_ndx) .name)
+            trim(pathoutput(ptr)%meas_type), &
+            trim(groupArray(pathoutput(ptr)%source_group_ndx)%name)
 600     format('Error: The following constituent' &
                ' is not simulated in this run; run stopped' &
                /'Constituent name: ', a &
@@ -152,8 +152,8 @@ real*8 function chan_qual(qualchan, chan_distance, const_no)
 !-----subroutine arguments
 
     integer &
-        qualchan &             ! channel no.
-        , chan_distance       ! location within a channel
+        qualchan, &             ! channel no.
+         chan_distance       ! location within a channel
 
     integer &
         const_no             ! constituent number
@@ -222,18 +222,18 @@ real*8 function node_qual(intnode, const_no)
     include 'bltm2.inc'
     include 'bltm3.inc'
 
-    if (node_geom(intnode) .boundary_type .NE. stage_boundary) then  ! all nodes except stage BC nodes
+    if (node_geom(intnode)%boundary_type .NE. stage_boundary) then  ! all nodes except stage BC nodes
         node_qual = cj(const_no, intnode)
     else    ! external node that has stage BC
-        if ((node_geom(intnode) .nup .eq. 1) .and. (node_geom(intnode) .ndown .eq. 0)) then
-            Nbranch = node_geom(intnode) .upstream(1)
+        if ((node_geom(intnode)%nup .eq. 1) .and. (node_geom(intnode)%ndown .eq. 0)) then
+            Nbranch = node_geom(intnode)%upstream(1)
             node_qual = gpt(const_no, 1, Nbranch)
 
-        else if ((node_geom(intnode) .nup .eq. 0) .and. (node_geom(intnode) .ndown .eq. 1)) then
-            Nbranch = node_geom(intnode) .downstream(1)
+        else if ((node_geom(intnode)%nup .eq. 0) .and. (node_geom(intnode)%ndown .eq. 1)) then
+            Nbranch = node_geom(intnode)%downstream(1)
             node_qual = gpt(const_no, NS(Nbranch), Nbranch)
         else
-            write (unit_error, 610) node_geom(intnode) .node_ID
+            write (unit_error, 610) node_geom(intnode)%node_ID
 610         format(/'Error in node_qual, DSM2 node number ', i3)
             call exit(1)
         end if

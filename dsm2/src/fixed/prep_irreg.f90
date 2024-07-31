@@ -29,9 +29,7 @@ subroutine prep_irreg
 !-----local variables
       integer maxf              ! maximum number of fields in data files
       parameter (maxf=7)
-      integer &
-          i &
-          ,j                   ! do loop counters
+      integer i, j                   ! do loop counters
 
 !-----initialize variables
       do i=1,max_irr_xsects

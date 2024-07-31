@@ -49,30 +49,30 @@ subroutine check_fixed_hydro(istat)
     !-----Local variables
 
     integer &
-        istat                &! status of call (returned)
-        ,i,j,kk,pth          &! indices
-        ,intchan,intchan2    &! internal/external channels
-        ,node,xs             &! node, xsect numbers
-        ,neqstage            &! number of equal-stage boundaries
-        ,nsumq               &! number of sum-of-flow boundaries
-        ,channo              &! channel number--do loop counter
-        ,vsecno              &! number of virt section within channel
-        ,nsec                &! number of sections based on deltax_requested
-        ,loc,loccarr         &! character array string locator
-        ,node2hydrochan      &! function to convert node to hydro channel
-        ,nintnode(max_nodes) &! number of internal and external flows at nodes and reservoirs
-        ,nintres(max_reservoirs) &
-        ,nextnode(max_nodes) &
-        ,nextres(max_reservoirs) &
-        ,flowdone &
-        ,role
+        istat               , &! status of call (returned)
+        i,j,kk,pth         , &! indices
+        intchan,intchan2   , &! internal/external channels
+        node,xs            , &! node, xsect numbers
+        neqstage           , &! number of equal-stage boundaries
+        nsumq              , &! number of sum-of-flow boundaries
+        channo             , &! channel number--do loop counter
+        vsecno             , &! number of virt section within channel
+        nsec               , &! number of sections based on deltax_requested
+        loc,loccarr        , &! character array string locator
+        node2hydrochan     , &! function to convert node to hydro channel
+        nintnode(max_nodes), &! number of internal and external flows at nodes and reservoirs
+        nintres(max_reservoirs), &
+        nextnode(max_nodes), &
+        nextres(max_reservoirs), &
+        flowdone, &
+        role
 
     integer*2 number          ! object number
 
     real*8 &
-        totalweight          &! check quadrature weighting
-        ,delx                &! actual distance between xsect
-        ,dx_r                ! stores value of deltax_requested
+        totalweight         , &! check quadrature weighting
+        delx               , &! actual distance between xsect
+        dx_r                ! stores value of deltax_requested
 
     character cresnames(max_reservoirs)*20 ! reservoir names array
     character cinputnames(max_inputpaths)*20 ! input names array
@@ -728,8 +728,8 @@ do pth=1,ninpaths
 
         if (obj2obj(i)%datasource%indx_ptr == miss_val_i) then
             write(unit_error,'(a/,a)') &
-                'No input path found for transfer: ' &
-                ,obj2obj(i)%name
+                'No input path found for transfer: ', &
+                obj2obj(i)%name
             goto 900
         end if
 

@@ -25,8 +25,8 @@ subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
       implicit none
       integer id
       real*8 &               !todo: this should be real*8
-          reser_area &
-          ,reser_botelv
+          reser_area, &
+          reser_botelv
 
       character &
           reser_name*32

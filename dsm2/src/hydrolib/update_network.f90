@@ -14,8 +14,8 @@ contains
         use solver
         use chstatus
         use netbnd, only: SetBoundaryValuesFromData, ApplyBoundaryValues
-        use channel_schematic &
-            , only: NumberOfChannels, OpenChannel, CloseChannel
+        use channel_schematic, &
+             only: NumberOfChannels, OpenChannel, CloseChannel
         use gate_calc, only: CalculateGateFlow
         use reservoirs, only: CalculateReservoirFlow
 
@@ -30,8 +30,8 @@ contains
 
         !   Local variables:
         integer ChannelNumber
-        logical OK &
-            , ClosedIteration     ! indicator that iteration has been closed
+        logical OK, &
+             ClosedIteration     ! indicator that iteration has been closed
         real*8 increment
         !   Routines by module:
 
@@ -165,8 +165,8 @@ contains
         use netcntrl, only: Iteration, IncrementNetworkIteration
         use solver ! , only: Rescale, XOld
         use grid_data, only: chan_geom, nreser
-        use channel_schematic &
-            , only: NumberOfChannels, OpenChannel, CloseChannel
+        use channel_schematic, &
+             only: NumberOfChannels, OpenChannel, CloseChannel
         use Gates, only: NGate
         use gate_calc, only: CalculateGateFlow
         use reservoirs, only: CalculateReservoirFlow

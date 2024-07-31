@@ -38,10 +38,10 @@ subroutine print_output(istat)
     !-----Local variables
 
     integer &
-        istat &               ! status of call (returned) &
-        ,i,j &                ! indices &
-        ,chan &               ! channel numbers &
-        ,objConnectedID_external_number  ! external number for either reservoir or channel
+        istat, &               ! status of call (returned) &
+        i,j, &                ! indices &
+        chan, &               ! channel numbers &
+        objConnectedID_external_number  ! external number for either reservoir or channel
 
     character &
         objtype*4, &            ! string representing object type (reservoir, channel) &
@@ -108,10 +108,10 @@ subroutine print_output(istat)
 
     if (repl) then
         write(unit_output,*) &
-            'repl=true:  If two different cross-sections are' &
-            ,'assigned to two channels such that both cross-sections are adjacent' &
-            ,'to the same node and there are no other channels connected to the' &
-            ,' node, then one cross-section will be replaced with the other.'
+            'repl=true:  If two different cross-sections are', &
+            'assigned to two channels such that both cross-sections are adjacent', &
+            'to the same node and there are no other channels connected to the', &
+            ' node, then one cross-section will be replaced with the other.'
     else
         write(unit_output,*) &
             'repl=false:  Cross-section replacement is turned off.'
@@ -165,10 +165,10 @@ subroutine print_output(istat)
 
         if (gateArray(i)%inUse) then
             write(unit_output,1160) &
-                gateArray(i)%name,objtype &
-                ,objConnectedID_external_number &
-                ,node_geom(gateArray(i)%node)%node_id &
-                ,gateArray(i)%nDevice
+                gateArray(i)%name,objtype, &
+                objConnectedID_external_number, &
+                node_geom(gateArray(i)%node)%node_id, &
+                gateArray(i)%nDevice
 1160        format(a19,1x,a4,2x,i7,4x,i5,2x,i5,2x,i5)
         end if
     end do
@@ -177,8 +177,8 @@ subroutine print_output(istat)
     write(unit_output,1200)
 1200 format(///,8x,'GATE DEVICES'/ &
         8x,'------------'/// &
-        8x,'(initial installations)    '// &
-        ,73x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/ &
+        8x,'(initial installations)    '//, &
+        73x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/ &
         ' GATE',60x,                    '        DUPLICATE  WIDTH OR   BASE               FROM    TO  '/ &
         ' NAME(DEVICE)',44x, 'TYPE            DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/ &
         '------------',41x,  '-----           -----    ----------  -------  -------    ------  ---------')

@@ -177,7 +177,7 @@ integer function resNdx(name)
     resNdx = miss_val_i
     call locase(name)
     do i = 1, nreser
-        if (res_geom(i) .name .eq. trim(name)) then
+        if (res_geom(i)%name .eq. trim(name)) then
             resNdx = i
             exit
         end if
@@ -192,8 +192,8 @@ integer function resConnectNdx(res_ndx, internal_node_no)
     integer :: res_ndx
     integer :: internal_node_no
     resConnectNdx = miss_val_i
-    do i = 1, res_geom(res_ndx) .nnodes
-        if (res_geom(res_ndx) .node_no(i) .eq. internal_node_no) then
+    do i = 1, res_geom(res_ndx)%nnodes
+        if (res_geom(res_ndx)%node_no(i) .eq. internal_node_no) then
             resConnectNdx = i
             exit
         end if
@@ -211,7 +211,7 @@ integer function gateNdx(name)
     gateNdx = miss_val_i
     call locase(name)
     do i = 1, nGate
-        if (name .eq. GateArray(i) .name) then
+        if (name .eq. GateArray(i)%name) then
             gateNdx = i
             exit
         end if
@@ -260,7 +260,7 @@ real*8 function get_external_flow(ndx)
     implicit none
 
     integer ndx
-    get_external_flow = qext(ndx) .flow
+    get_external_flow = qext(ndx)%flow
     return
 end function
 
@@ -270,7 +270,7 @@ subroutine set_external_flow(ndx, val)
 
     integer ndx
     real*8 val
-    qext(ndx) .flow = val
+    qext(ndx)%flow = val
     return
 end subroutine
 
@@ -280,7 +280,7 @@ subroutine set_external_flow_datasource(ndx, expr, val, timedep)
     integer ndx, expr
     real*8 val
     logical timedep
-    call set_datasource(qext(ndx) .datasource, expr, val, timedep)
+    call set_datasource(qext(ndx)%datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -288,7 +288,7 @@ real*8 function get_transfer_flow(ndx)
     use grid_data
     implicit none
     integer ndx
-    get_transfer_flow = obj2obj(ndx) .flow
+    get_transfer_flow = obj2obj(ndx)%flow
     return
 end function
 
@@ -297,7 +297,7 @@ subroutine set_transfer_flow(ndx, val)
     implicit none
     integer ndx
     real*8 val
-    obj2obj(ndx) .flow = val
+    obj2obj(ndx)%flow = val
     return
 end subroutine
 
@@ -307,7 +307,7 @@ subroutine set_transfer_flow_datasource(ndx, expr, val, timedep)
     integer ndx, expr
     real*8 val
     logical timedep
-    call set_datasource(obj2obj(ndx) .datasource, expr, val, timedep)
+    call set_datasource(obj2obj(ndx)%datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -332,7 +332,7 @@ subroutine set_gate_install_datasource(gndx, expr, val, timedep)
     real*8 val
     logical timedep
     call set_datasource( &
-        GateArray(gndx) .install_datasource, expr, val, timedep)
+        GateArray(gndx)%install_datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -340,7 +340,7 @@ real*8 function is_gate_install(ndx)
     use Gates, only: GateArray
     implicit none
     integer ndx
-    if (GateArray(ndx) .free) then
+    if (GateArray(ndx)%free) then
         is_gate_install = 0.0
     else
         is_gate_install = 1.0
@@ -355,13 +355,13 @@ real(8) function get_device_op_coef(gndx, devndx, direction)
     integer direct_to_node, direct_from_node, direct_to_from_node
     get_device_op_coef = -901.0
     if (direction .eq. direct_to_node()) then
-        get_device_op_coef = GateArray(gndx) .Devices(devndx) .opCoefToNode
+        get_device_op_coef = GateArray(gndx)%Devices(devndx)%opCoefToNode
     else if (direction .eq. direct_from_node()) then
-        get_device_op_coef = GateArray(gndx) .Devices(devndx) .opCoefFromNode
+        get_device_op_coef = GateArray(gndx)%Devices(devndx)%opCoefFromNode
     else
         if (direction .eq. direct_to_from_node()) then
-            get_device_op_coef = (GateArray(gndx) .Devices(devndx) .opCoefFromNode + &
-                                  GateArray(gndx) .Devices(devndx) .opCoefFromNode)/2.D0
+            get_device_op_coef = (GateArray(gndx)%Devices(devndx)%opCoefFromNode + &
+                                  GateArray(gndx)%Devices(devndx)%opCoefFromNode)/2.D0
         end if
     end if
     return
@@ -374,12 +374,12 @@ subroutine set_device_op_coef(gndx, devndx, direction, val)
     integer direct_to_node, direct_from_node, direct_to_from_node
     real(8) val
     if (direction .eq. direct_to_node()) then
-        GateArray(gndx) .Devices(devndx) .opCoefToNode = val
+        GateArray(gndx)%Devices(devndx)%opCoefToNode = val
     else if (direction .eq. direct_from_node()) then
-        GateArray(gndx) .Devices(devndx) .opCoefFromNode = val
+        GateArray(gndx)%Devices(devndx)%opCoefFromNode = val
     else if (direction .eq. direct_to_from_node()) then
-        GateArray(gndx) .Devices(devndx) .opCoefToNode = val
-        GateArray(gndx) .Devices(devndx) .opCoefFromNode = val
+        GateArray(gndx)%Devices(devndx)%opCoefToNode = val
+        GateArray(gndx)%Devices(devndx)%opCoefFromNode = val
     end if
     return
 end subroutine
@@ -394,15 +394,15 @@ subroutine set_device_op_datasource(gndx, devndx, direction, expr, val, timedep)
     logical timedep
     if (direction .eq. direct_to_node()) then
         call set_datasource( &
-            GateArray(gndx) .Devices(devndx) .op_to_node_datasource, expr, val, timedep)
+            GateArray(gndx)%Devices(devndx)%op_to_node_datasource, expr, val, timedep)
     else if (direction .eq. direct_from_node()) then
         call set_datasource( &
-            GateArray(gndx) .Devices(devndx) .op_from_node_datasource, expr, val, timedep)
+            GateArray(gndx)%Devices(devndx)%op_from_node_datasource, expr, val, timedep)
     else if (direction .eq. direct_to_from_node()) then
         call set_datasource( &
-            GateArray(gndx) .Devices(devndx) .op_from_node_datasource, expr, val, timedep)
+            GateArray(gndx)%Devices(devndx)%op_from_node_datasource, expr, val, timedep)
         call set_datasource( &
-            GateArray(gndx) .Devices(devndx) .op_to_node_datasource, expr, val, timedep)
+            GateArray(gndx)%Devices(devndx)%op_to_node_datasource, expr, val, timedep)
     end if
     return
 end subroutine
@@ -411,7 +411,7 @@ real(8) function get_device_height(gndx, devndx)
     use Gates, only: GateArray
     implicit none
     integer gndx, devndx
-    get_device_height = GateArray(gndx) .Devices(devndx) .height
+    get_device_height = GateArray(gndx)%Devices(devndx)%height
     return
 end function
 
@@ -420,7 +420,7 @@ subroutine set_device_height(gndx, devndx, val)
     implicit none
     integer gndx, devndx
     real(8) val
-    GateArray(gndx) .Devices(devndx) .height = val
+    GateArray(gndx)%Devices(devndx)%height = val
 end subroutine
 
 subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep)
@@ -431,7 +431,7 @@ subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep)
     real*8 val
     logical timedep
     call set_datasource( &
-        GateArray(gndx) .Devices(devndx) .height_datasource, expr, val, timedep)
+        GateArray(gndx)%Devices(devndx)%height_datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -439,7 +439,7 @@ real(8) function get_device_width(gndx, devndx)
     use Gates, only: GateArray
     implicit none
     integer gndx, devndx
-    get_device_width = GateArray(gndx) .Devices(devndx) .maxWidth
+    get_device_width = GateArray(gndx)%Devices(devndx)%maxWidth
     return
 end function
 
@@ -448,7 +448,7 @@ subroutine set_device_width(gndx, devndx, val)
     implicit none
     integer gndx, devndx
     real(8) val
-    GateArray(gndx) .Devices(devndx) .maxWidth = val
+    GateArray(gndx)%Devices(devndx)%maxWidth = val
     return
 end subroutine
 
@@ -460,7 +460,7 @@ subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep)
     real*8 val
     logical timedep
     call set_datasource( &
-        GateArray(gndx) .Devices(devndx) .width_datasource, expr, val, timedep)
+        GateArray(gndx)%Devices(devndx)%width_datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -468,7 +468,7 @@ real(8) function get_device_nduplicate(gndx, devndx)
     use Gates, only: GateArray
     implicit none
     integer gndx, devndx
-    get_device_nduplicate = GateArray(gndx) .Devices(devndx) .nduplicate
+    get_device_nduplicate = GateArray(gndx)%Devices(devndx)%nduplicate
     return
 end function
 
@@ -477,7 +477,7 @@ subroutine set_device_nduplicate(gndx, devndx, val)
     implicit none
     integer gndx, devndx
     real(8) val
-    GateArray(gndx) .Devices(devndx) .nduplicate = nint(val)
+    GateArray(gndx)%Devices(devndx)%nduplicate = nint(val)
     return
 end subroutine
 
@@ -485,7 +485,7 @@ real(8) function get_device_elev(gndx, devndx)
     use Gates, only: GateArray
     implicit none
     integer gndx, devndx
-    get_device_elev = GateArray(gndx) .Devices(devndx) .baseElev
+    get_device_elev = GateArray(gndx)%Devices(devndx)%baseElev
     return
 end function
 
@@ -494,7 +494,7 @@ subroutine set_device_elev(gndx, devndx, val)
     implicit none
     integer gndx, devndx
     real(8) val
-    GateArray(gndx) .Devices(devndx) .baseElev = val
+    GateArray(gndx)%Devices(devndx)%baseElev = val
     return
 end subroutine
 
@@ -506,7 +506,7 @@ subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep)
     real*8 val
     logical timedep
     call set_datasource( &
-        GateArray(gndx) .Devices(devndx) .elev_datasource, expr, val, timedep)
+        GateArray(gndx)%Devices(devndx)%elev_datasource, expr, val, timedep)
     return
 end subroutine
 
@@ -517,9 +517,9 @@ real(8) function get_device_flow_coef(gndx, devndx, direct)
     integer gndx, devndx, direct
     integer direct_to_node, direct_from_node
     if (direct .eq. direct_to_node()) then
-        get_device_flow_coef = GateArray(gndx) .Devices(devndx) .flowCoefToNode
+        get_device_flow_coef = GateArray(gndx)%Devices(devndx)%flowCoefToNode
     else if (direct .eq. direct_from_node()) then
-        get_device_flow_coef = GateArray(gndx) .Devices(devndx) .flowCoefFromNode
+        get_device_flow_coef = GateArray(gndx)%Devices(devndx)%flowCoefFromNode
     else
         write (unit_error, *) "Flow direction not recognized in get_device_flow_coef"
         call exit(3)
@@ -535,9 +535,9 @@ subroutine set_device_flow_coef(gndx, devndx, direct, val)
     integer direct_to_node, direct_from_node
     real(8) val
     if (direct .eq. direct_to_node()) then
-        GateArray(gndx) .Devices(devndx) .flowCoefToNode = val
+        GateArray(gndx)%Devices(devndx)%flowCoefToNode = val
     else if (direct .eq. direct_from_node()) then
-        GateArray(gndx) .Devices(devndx) .flowCoefFromNode = val
+        GateArray(gndx)%Devices(devndx)%flowCoefFromNode = val
     else
         write (unit_error, *) "Flow direction not recognized in set_device_flow_coef"
         call exit(3)
@@ -549,7 +549,7 @@ real*8 function value_from_inputpath(i)
     use iopath_data
     implicit none
     integer i
-    value_from_inputpath = pathinput(i) .value
+    value_from_inputpath = pathinput(i)%value
     return
 end function
 
@@ -560,7 +560,7 @@ integer function ts_index(name)
     integer i
     ts_index = -1
     do i = 1, ninpaths
-        if (trim(pathinput(i) .name) .eq. trim(name)) then
+        if (trim(pathinput(i)%name) .eq. trim(name)) then
             ts_index = i
             return
         end if
@@ -576,7 +576,7 @@ integer function qext_index(name)
     integer i
     qext_index = miss_val_i
     do i = 1, nqext
-        if (qext(i) .name .eq. name) then
+        if (qext(i)%name .eq. name) then
             qext_index = i
             return
         end if
@@ -592,7 +592,7 @@ integer function transfer_index(name)
     integer i
     transfer_index = miss_val_i
     do i = 1, nobj2obj
-        if (obj2obj(i) .name .eq. name) then
+        if (obj2obj(i)%name .eq. name) then
             transfer_index = i
             return
         end if

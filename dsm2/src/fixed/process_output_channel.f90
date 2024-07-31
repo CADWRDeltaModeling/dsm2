@@ -61,8 +61,8 @@ subroutine process_output_channel(name, &
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630) &
-             'Too many pathoutput paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many pathoutput paths specified; max allowed is:', &
+             max_outputpaths
          call exit(-1)
       endif
 

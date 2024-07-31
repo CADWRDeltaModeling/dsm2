@@ -36,13 +36,13 @@
       include 'bltm3.inc'
 
 
-      integer istat &             ! return status
-          ,iyr,imon &            ! year, month
-          ,iymdjl              ! HEC function to return day of year
+      integer istat, &             ! return status
+          iyr,imon, &            ! year, month
+          iymdjl              ! HEC function to return day of year
 
       integer*4 &
-          dayof_year &           ! julian day of year (1-366)
-          ,timeof_day          ! minute of day (0-1440)
+          dayof_year, &           ! julian day of year (1-366)
+          timeof_day          ! minute of day (0-1440)
 
       real*8 rearth, declon, tana, tanb, acs, xx, ste, vpwb, dewpt
       real*8 cnl, tb, te, alpha, talt, y, pwc, a1, a2, ar, br, rs

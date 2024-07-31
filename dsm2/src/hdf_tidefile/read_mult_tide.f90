@@ -34,8 +34,8 @@ subroutine read_mult_tide
 
 !-----local variables
       character &
-          filenm*150 &           ! current tidefile name
-          ,jmin2cdt*14         ! julian minute to char function
+          filenm*150, &           ! current tidefile name
+          jmin2cdt*14         ! julian minute to char function
 
       integer &
           i                    ! loop indices
@@ -46,8 +46,8 @@ subroutine read_mult_tide
       integer, save :: prev_tidefile = miss_val_i
 
       logical &
-          new_tidefile &         ! true if new tidefile
-          ,foundtime
+          new_tidefile, &         ! true if new tidefile
+          foundtime
 
 
       integer, external :: GetCurrentTideTime

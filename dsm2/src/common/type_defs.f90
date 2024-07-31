@@ -213,8 +213,8 @@ module type_defs
         max_ft_flux                  ! maximum number of group residence outputs
     integer :: max_group_out                  ! maximum number of group residence outputs
     parameter( &
-        max_ft_flux=100 &
-        , max_group_out=100 &
+        max_ft_flux=100, &
+         max_group_out=100 &
         )
 
     type pathoutput_t
@@ -296,8 +296,8 @@ module type_defs
     integer :: max_conqext          ! Maximum number of constituents for an external flow
 
     parameter( &
-        max_constituent=24 &
-        , max_conqext=12 &
+        max_constituent=24, &
+         max_conqext=12 &
         )
 
     !-----external flows

@@ -28,19 +28,19 @@
 
 
 !----- functions
-      integer get_unique_id_for_channel &
-           , get_unique_id_for_reservoir &
-           , get_unique_id_for_stage_boundary &
-           , get_unique_id_for_boundary &
-           , get_unique_id_for_conveyor
+      integer get_unique_id_for_channel, &
+            get_unique_id_for_reservoir, &
+            get_unique_id_for_stage_boundary, &
+            get_unique_id_for_boundary, &
+            get_unique_id_for_conveyor
 
-      integer get_maximum_number_of_channels &
-           , get_maximum_number_of_reservoirs &
-           , get_number_of_reservoirs &
-           , get_number_of_channels &
-           , get_maximum_number_of_stage_boundaries &
-           , get_maximum_number_of_boundary_waterbodies &
-           , get_maximum_number_of_conveyors
+      integer get_maximum_number_of_channels, &
+            get_maximum_number_of_reservoirs, &
+            get_number_of_reservoirs, &
+            get_number_of_channels, &
+            get_maximum_number_of_stage_boundaries, &
+            get_maximum_number_of_boundary_waterbodies, &
+            get_maximum_number_of_conveyors
 
       real get_flow_balance_at_node,fb
       real*8 :: FLOW_BALANCE_TOL = 2.
@@ -370,8 +370,8 @@
            connection)
       use ptm_local
       implicit none
-      integer get_node_number_for_connection &
-           , get_unique_id_for_reservoir
+      integer get_node_number_for_connection, &
+            get_unique_id_for_reservoir
       integer reservoirNumber, connection, uniqId
       uniqId = get_unique_id_for_reservoir(reservoirNumber)
       get_node_number_for_connection= wb(uniqId).node(connection)

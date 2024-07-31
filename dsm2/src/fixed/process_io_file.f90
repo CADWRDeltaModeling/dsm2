@@ -33,10 +33,10 @@ subroutine process_io_file(model,filetype,io,interval,filename)
           i,i1,i2,i3           ! indices
 
       character*8 &
-          model &              ! string for model
-          ,filetype &          ! string for type
-          ,io &                ! string for io
-          ,interval            ! string for interval
+          model, &              ! string for model
+          filetype, &          ! string for type
+          io, &                ! string for io
+          interval            ! string for interval
       character*128 &
           filename            ! string for filename
 

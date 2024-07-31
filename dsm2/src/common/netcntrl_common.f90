@@ -39,11 +39,11 @@ module netcntrl_common
     !c-----defaults
 
     data &
-        variabledensity /.false./ &
-        ,variablesinuosity /.false./ &
-        ,theta /0.6D0/ &
-        ,maxiterations /50/ &
-        ,luinc /1/ &
-        ,toleranceq /0.0005/ &
-        ,tolerancez /0.0005/
+        variabledensity/.false./, &
+        variablesinuosity/.false./, &
+        theta/0.6D0/, &
+        maxiterations/50/, &
+        luinc/1/, &
+        toleranceq/0.0005/, &
+        tolerancez/0.0005/
 end module netcntrl_common

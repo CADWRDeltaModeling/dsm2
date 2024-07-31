@@ -23,15 +23,15 @@
 module chnlcomp
     !   Note: This include, when used, must follow  after "Network.inc".
     use network, only: MaxChannels, MaxLocations, MaxCompPts
-    integer, save :: TotalCompLocations &
-                     , NumberOfCompLocations(MaxChannels) &
-                     , UpCompPointer(MaxChannels) &
-                     , DownCompPointer(MaxChannels)
-    real*8, save ::    CompLocation(MaxLocations) &
-                    , ChannelNo(MaxLocations) &
-                    , DummyArray(MaxLocations) &
-                    , DummyArray2(MaxLocations) &
-                    , AreaChannelComp(MaxChannels, MaxCompPts) ! Assume max of 10 compute points in any channel
+    integer, save :: TotalCompLocations, &
+                     NumberOfCompLocations(MaxChannels), &
+                     UpCompPointer(MaxChannels), &
+                     DownCompPointer(MaxChannels)
+    real*8, save :: CompLocation(MaxLocations), &
+                    ChannelNo(MaxLocations), &
+                    DummyArray(MaxLocations), &
+                    DummyArray2(MaxLocations), &
+                    AreaChannelComp(MaxChannels, MaxCompPts) ! Assume max of 10 compute points in any channel
     character*16, save:: DummyCharArray(MaxLocations)
 
 !   Definitions:

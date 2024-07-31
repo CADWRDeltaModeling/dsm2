@@ -39,31 +39,31 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat &               ! conversion status of this line (output)
-          ,loccarr             ! function to return array location of string
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat, &               ! conversion status of this line (output)
+          loccarr             ! function to return array location of string
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
 
       integer &
-          itmp &                 ! index
-          ,i &                   ! index
-          ,ext2int &             ! function converting ext chan number to internal
-          ,ext2intnode &         ! function converting ext node number to internal
-          ,name_to_objno &       ! function converting an object name to object number
-          ,gateno,devno
+          itmp, &                 ! index
+          i, &                   ! index
+          ext2int, &             ! function converting ext chan number to internal
+          ext2intnode, &         ! function converting ext node number to internal
+          name_to_objno, &       ! function converting an object name to object number
+          gateno,devno
 
 
       character &
-          cstring*392 &           ! string field
-          ,ctmp*392             ! temporary char variable
+          cstring*392, &           ! string field
+          ctmp*392             ! temporary char variable
 
       character &
           input_line*250       ! raw input line
@@ -83,8 +83,8 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630) &
-             'Too many pathoutput paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many pathoutput paths specified; max allowed is:', &
+             max_outputpaths
          istat=-1
          goto 900
       endif
@@ -104,8 +104,8 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
                 input_line(ibegf(i):ibegf(i)+ilenf(i)-1) ! use raw input to preserve case
             if (index(pathoutput(noutpaths).filename, '.dss') .gt. 0) then
 !--------------accumulate unique dss output filenames
-               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames &
-                   ,max_dssoutfiles, EXACT_MATCH)
+               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames, &
+                   max_dssoutfiles, EXACT_MATCH)
                if (itmp .lt. 0) then
                   if (abs(itmp) .le. max_dssoutfiles) then
                      outfilenames(abs(itmp))=pathoutput(noutpaths).filename
@@ -281,14 +281,14 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat               ! conversion status of this line (output)
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat               ! conversion status of this line (output)
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -297,10 +297,10 @@ subroutine input_outputpath(field_names, mxflds, nfields, nflds, &
           i,i1,i2,i3           ! indices
 
       character*10 &
-          cstring1 &             ! string for model
-          ,cstring2 &            ! string for type
-          ,cstring3 &            ! string for io
-          ,cstring4            ! string for interval
+          cstring1, &             ! string for model
+          cstring2, &            ! string for type
+          cstring3, &            ! string for io
+          cstring4            ! string for interval
       character*392 &
           cstring5             ! string for filename
 
@@ -444,15 +444,15 @@ subroutine input_quadrature(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat &               ! conversion status of this line (output)
-          ,i                   ! array index
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat, &               ! conversion status of this line (output)
+          i                   ! array index
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -491,8 +491,8 @@ subroutine input_quadrature(field_names, mxflds, nfields, nflds, &
       nquadpts=nquadpts+1
       if (nquadpts .gt. maxquadpts) then
          write(unit_error,630) &
-             'Too many quadpts specified; max allowed is:' &
-             ,maxquadpts
+             'Too many quadpts specified; max allowed is:', &
+             maxquadpts
          istat=-1
          goto 900
       endif
@@ -530,15 +530,15 @@ subroutine input_envvar(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat &               ! conversion status of this line (output)
-          ,i,j                 ! array indices
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat, &               ! conversion status of this line (output)
+          i,j                 ! array indices
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -576,8 +576,8 @@ subroutine input_envvar(field_names, mxflds, nfields, nflds, &
       nenvvars=nenvvars+1
       if (nenvvars .gt. max_envvars) then
          write(unit_error,630) &
-             'Too many envvars specified; max allowed is:' &
-             ,max_envvars
+             'Too many envvars specified; max allowed is:', &
+             max_envvars
          istat=-1
          goto 900
       endif
@@ -618,14 +618,14 @@ subroutine input_scalar(field_names, mxflds, nfields, nflds, ifld, &
 !c-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat               ! conversion status of this line (output)
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat               ! conversion status of this line (output)
 
       integer                  :: itmp   !kc
 
@@ -633,9 +633,9 @@ subroutine input_scalar(field_names, mxflds, nfields, nflds, ifld, &
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
 
       character &
-          Param*48 &          ! string field for keyword or value
-          ,Value*48 &         ! string field for keyword or value
-          ,ctmp*48             ! scratch character variable
+          Param*48, &          ! string field for keyword or value
+          Value*48, &         ! string field for keyword or value
+          ctmp*48             ! scratch character variable
 
 
 
@@ -676,23 +676,23 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
           new_object           ! true if a new waterbody object type is being processed
 
       integer &
-          objtype &              ! type of waterbody object
-          ,mxflds &              ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,idelmt(mxflds) &      ! type of delimiter for each field
-          ,istat &               ! conversion status of this line (output)
-          ,lfldndx &             ! array index for line fields
-          ,objndx &              ! array index for object IDs
-          ,kfldndx &             ! array index for field keywords
-          ,i &                   ! array index
-          ,loc &                 ! array location number
-          ,loccarr &             ! function to return array location of string
-          ,itmp                ! index
+          objtype, &              ! type of waterbody object
+          mxflds, &              ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          idelmt(mxflds), &      ! type of delimiter for each field
+          istat, &               ! conversion status of this line (output)
+          lfldndx, &             ! array index for line fields
+          objndx, &              ! array index for object IDs
+          kfldndx, &             ! array index for field keywords
+          i, &                   ! array index
+          loc, &                 ! array location number
+          loccarr, &             ! function to return array location of string
+          itmp                ! index
 
       integer,external :: name_to_objno,obj_type_code
 
@@ -701,9 +701,9 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
 
       character &
-          cstring*40 &           ! string field
-          ,ctmp*392 &             ! temporary char variable
-          ,objtmp*32
+          cstring*40, &           ! string field
+          ctmp*392, &             ! temporary char variable
+          objtmp*32
 
       character &
           input_line*250       ! raw input line
@@ -744,8 +744,8 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
                 input_line(ibegf(lfldndx):ibegf(lfldndx)+ilenf(lfldndx)-1) ! use raw input to preserve case
             if (index(pathoutput(noutpaths).filename, '.dss') .gt. 0) then
 !--------------accumulate unique dss output filenames
-               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames &
-                   ,max_dssoutfiles, EXACT_MATCH)
+               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames, &
+                   max_dssoutfiles, EXACT_MATCH)
                if (itmp .lt. 0) then
                   if (abs(itmp) .le. max_dssoutfiles) then
                      outfilenames(abs(itmp))=pathoutput(noutpaths).filename
@@ -830,8 +830,8 @@ subroutine input_particle_flux(field_names, mxflds, nfields, nflds, &
 !      noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
       write(unit_error,630) &
-                  'Too many particle_flux paths specified; max allowed is:' &
-                  ,max_outputpaths
+                  'Too many particle_flux paths specified; max allowed is:', &
+                  max_outputpaths
               istat=-1
       endif
 
@@ -868,27 +868,27 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,idelmt(mxflds) &      ! type of delimiter for each field
-          ,istat &               ! conversion status of this line (output)
-          ,i &                   ! array index
-          ,loc &                 ! array location number
-          ,loccarr &             ! function to return array location of string
-          ,itmp                ! index
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          idelmt(mxflds), &      ! type of delimiter for each field
+          istat, &               ! conversion status of this line (output)
+          i, &                   ! array index
+          loc, &                 ! array location number
+          loccarr, &             ! function to return array location of string
+          itmp                ! index
 
       integer,external :: name_to_objno
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
 
       character &
-          cstring*32 &           ! string field
-          ,ctmp*392            ! temporary char variable
+          cstring*32, &           ! string field
+          ctmp*392            ! temporary char variable
 
       character &
           input_line*250       ! raw input line
@@ -929,8 +929,8 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
                 input_line(ibegf(i):ibegf(i)+ilenf(i)-1) ! use raw input to preserve case
             if (index(pathoutput(noutpaths).filename, '.dss') .gt. 0) then
 !--------------accumulate unique dss output filenames
-               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames &
-                   ,max_dssoutfiles, EXACT_MATCH)
+               itmp=loccarr(pathoutput(noutpaths).filename,outfilenames, &
+                   max_dssoutfiles, EXACT_MATCH)
                if (itmp .lt. 0) then
                   if (abs(itmp) .le. max_dssoutfiles) then
                      outfilenames(abs(itmp))=pathoutput(noutpaths).filename
@@ -965,8 +965,8 @@ subroutine input_group_output(field_names, mxflds, nfields, nflds, &
 
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630) &
-             'Too many group output paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many group output paths specified; max allowed is:', &
+             max_outputpaths
          istat=-1
       endif
 
@@ -1002,14 +1002,14 @@ subroutine input_partno(field_names, mxflds, nfields, nflds, ifld, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat               ! conversion status of this line (output)
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat               ! conversion status of this line (output)
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -1061,8 +1061,8 @@ subroutine input_partno(field_names, mxflds, nfields, nflds, ifld, &
       npartno=npartno+1
       if (npartno .gt. max_injection) then
          write(unit_error,630) &
-             'Too many input paths specified; max allowed is:' &
-             ,max_injection
+             'Too many input paths specified; max allowed is:', &
+             max_injection
          istat=-1
          goto 900
       endif
@@ -1104,14 +1104,14 @@ subroutine input_groups(field_names, mxflds, nfields, nflds, ifld, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat               ! conversion status of this line (output)
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat               ! conversion status of this line (output)
 
 
       character line*(*)        ! line from file (input)
@@ -1119,18 +1119,18 @@ subroutine input_groups(field_names, mxflds, nfields, nflds, ifld, &
       Type(GroupMember), pointer :: newmembers(:)
 
       integer &
-          i &                    ! index
-          ,alloc_stat &
-          ,groupno &
-          ,objtype &
-          ,npattern
+          i, &                    ! index
+          alloc_stat, &
+          groupno, &
+          objtype, &
+          npattern
 
       integer, external :: name_to_objno,obj_type_code
 
       character &
-          cstring*392 &          ! string field
-         ,groupname*32 &         ! name of group
-         ,pattern*100          !pattern for matching the identifier of objects
+          cstring*392, &          ! string field
+         groupname*32, &         ! name of group
+         pattern*100          !pattern for matching the identifier of objects
 
 
  610  format(/a)
@@ -1195,35 +1195,35 @@ subroutine input_rate_coeffs(field_names, mxflds, nfields, nflds, &
 !-----local variables
 
       integer &
-          mxflds &               ! maximum number of fields
-          ,nfields &             ! number of fields in data line (input)
-          ,nflds &               ! number of fields in headers (input)
-          ,ifld(mxflds) &        ! ifld(i)=order header keyword i occurs in file (input)
-          ,rifld(mxflds) &       ! reverse ifld
-          ,ibegf(mxflds) &       ! beginning position of each field in line (input)
-          ,ilenf(mxflds) &       ! length of each field in line (input)
-          ,istat &               ! conversion status of this line (output)
-          ,loccarr             ! function to return array location of string
+          mxflds, &               ! maximum number of fields
+          nfields, &             ! number of fields in data line (input)
+          nflds, &               ! number of fields in headers (input)
+          ifld(mxflds), &        ! ifld(i)=order header keyword i occurs in file (input)
+          rifld(mxflds), &       ! reverse ifld
+          ibegf(mxflds), &       ! beginning position of each field in line (input)
+          ilenf(mxflds), &       ! length of each field in line (input)
+          istat, &               ! conversion status of this line (output)
+          loccarr             ! function to return array location of string
 
-      character line*(*) &        ! line from file (input)
-          ,field_names(mxflds)*15 & ! copy of hdr_form.fld(*)
-          ,get_substring*200 &   ! get substring function
-          ,cnext*128 &           ! next channel name
-          ,next_res*128 &        ! next reservoir name
-          ,cchan*128           ! channel start and end numbers
+      character line*(*), &        ! line from file (input)
+          field_names(mxflds)*15, & ! copy of hdr_form.fld(*)
+          get_substring*200, &   ! get substring function
+          cnext*128, &           ! next channel name
+          next_res*128, &        ! next reservoir name
+          cchan*128           ! channel start and end numbers
 
       integer &
-          i &                    ! index
-          ,j                   ! index
+          i, &                    ! index
+          j                   ! index
 
 !-----channel coefficients
 
       integer &
-          type &                 ! coefficient type codes
-          ,ncc &                 ! non-conservative constituent index
-          ,chan_start &
-          ,chan_end &
-          ,res_num             ! reservoir numbering order in rate coeff. input
+          type, &                 ! coefficient type codes
+          ncc, &                 ! non-conservative constituent index
+          chan_start, &
+          chan_end, &
+          res_num             ! reservoir numbering order in rate coeff. input
 
       real*8 &
           value

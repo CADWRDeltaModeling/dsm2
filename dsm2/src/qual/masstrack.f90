@@ -43,9 +43,9 @@
       INCLUDE 'bltm2.inc'
 
 !-----LOCAL VARIABLES
-      INTEGER  I,K, CONS_NO &
-          ,intnode &             ! int node number
-          ,branch              ! qual branch (channel) number
+      INTEGER  I,K, CONS_NO, &
+          intnode, &             ! int node number
+          branch              ! qual branch (channel) number
 
       real*8 objflow, massrate(max_constituent) ! flow and massrate at object
 

@@ -152,14 +152,14 @@ subroutine gtm_prepare1()
     dsm2_name = 'GTM'
 
     open ( &
-        unit_screen &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_screen, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
     open ( &
-        unit_error &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_error, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
 end subroutine
 

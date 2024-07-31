@@ -32,10 +32,10 @@ subroutine process_irreg
       parameter (maxf=7)
 
       integer &
-          h &                    ! do loop counters
-          ,j &
-          ,m &
-          ,channo              ! DSM channel number
+          h, &                    ! do loop counters
+          j, &
+          m, &
+          channo              ! DSM channel number
 
 
 !-----arguments for DSS function FINDLM
@@ -118,8 +118,8 @@ subroutine assign_sections
 !-----local variables
 
       integer &
-          i &                    ! do loop counters
-          ,channo              ! current channel number
+          i, &                    ! do loop counters
+          channo              ! current channel number
 
 
 !-----Loop through sections, count sections assigned to channels.
@@ -154,15 +154,15 @@ subroutine sort_assignments
 !-----local variables
 !-----do loop counters
       integer &
-          i &
-          ,j &
-          ,k &
-          ,channo
+          i, &
+          j, &
+          k, &
+          channo
 !-----sorting variables
       integer &
-          first &
-          ,last &
-          ,ptr
+          first, &
+          last, &
+          ptr
       real*8 &
           hold
 
@@ -207,33 +207,33 @@ subroutine move_xsects
 
 
       integer &
-          i &
-          ,channo &              ! do loop counters
-          ,upstream_sec &        ! number of upstream xsect
-          ,downstream_sec &      ! number of downstream xsect
-          ,upstream_index &      ! index of upstream irregular xsect
-          ,downstream_index &    ! index of downstream irregular xsect
-          ,upstream_node &       ! node at upstream end of chan
-          ,downstream_node &     ! node at downstream end of chan
-          ,upstream_chan &       ! upstream channel
-          ,downstream_chan &     ! downstream channel
-          ,upstr_adj_near_end &  ! end of the adj. channel that is adj.
+          i, &
+          channo, &              ! do loop counters
+          upstream_sec, &        ! number of upstream xsect
+          downstream_sec, &      ! number of downstream xsect
+          upstream_index, &      ! index of upstream irregular xsect
+          downstream_index, &    ! index of downstream irregular xsect
+          upstream_node, &       ! node at upstream end of chan
+          downstream_node, &     ! node at downstream end of chan
+          upstream_chan, &       ! upstream channel
+          downstream_chan, &     ! downstream channel
+          upstr_adj_near_end &  ! end of the adj. channel that is adj.
                                  ! to the upstream end of the current channel
-          ,downstr_adj_near_end &! same for downstream
-          ,nupstream &           ! # of channels connected to the upstream node
-          ,ndownstream           ! # of channels connected to downstream node
+          ,downstr_adj_near_end, &! same for downstream
+          nupstream, &           ! # of channels connected to the upstream node
+          ndownstream           ! # of channels connected to downstream node
       real*8 &
           channel_length        ! length of current channel
 
       common /com_xsect_numbers/ &
-          upstream_node &
-          ,downstream_node &
-          ,upstream_chan &
-          ,downstream_chan &
-          ,upstr_adj_near_end &
-          ,downstr_adj_near_end &
-          ,nupstream &
-          ,ndownstream
+          upstream_node, &
+          downstream_node, &
+          upstream_chan, &
+          downstream_chan, &
+          upstr_adj_near_end, &
+          downstr_adj_near_end, &
+          nupstream, &
+          ndownstream
 
       do channo=1,nchans
 !--------if distance of first and last sec is with specified percentage of channel
@@ -283,33 +283,33 @@ subroutine copy_xsects
 
 
       integer &
-          i &
-          ,channo &              ! do loop counters
-          ,upstream_sec &        ! number (within chan) of upstream xsect
-          ,downstream_sec &      ! number (within chan) of downstream xsect
-          ,upstream_index &      ! index of upstream irregular xsect
-          ,downstream_index &    ! index of downstream irregular xsect
-          ,upstream_node &       ! node at upstream end of chan
-          ,downstream_node &     ! node at downstream end of chan
-          ,upstream_chan &       ! upstream channel
-          ,downstream_chan &     ! downstream channel
-          ,upstr_adj_near_end &  ! end of the adj. channel that is adj.
+          i, &
+          channo, &              ! do loop counters
+          upstream_sec, &        ! number (within chan) of upstream xsect
+          downstream_sec, &      ! number (within chan) of downstream xsect
+          upstream_index, &      ! index of upstream irregular xsect
+          downstream_index, &    ! index of downstream irregular xsect
+          upstream_node, &       ! node at upstream end of chan
+          downstream_node, &     ! node at downstream end of chan
+          upstream_chan, &       ! upstream channel
+          downstream_chan, &     ! downstream channel
+          upstr_adj_near_end &  ! end of the adj. channel that is adj.
                                  ! to the upstream end of the current channel
-          ,downstr_adj_near_end &! same for downstream
-          ,nupstream &           ! # of channels connected the upstream node
-          ,ndownstream           ! # of channels connected to the downstream node
+          ,downstr_adj_near_end, &! same for downstream
+          nupstream, &           ! # of channels connected the upstream node
+          ndownstream           ! # of channels connected to the downstream node
       real*8 &
           channel_length        ! length of current channel
 
       common /com_xsect_numbers/ &
-          upstream_node &
-          ,downstream_node &
-          ,upstream_chan &
-          ,downstream_chan &
-          ,upstr_adj_near_end &
-          ,downstr_adj_near_end &
-          ,nupstream &
-          ,ndownstream
+          upstream_node, &
+          downstream_node, &
+          upstream_chan, &
+          downstream_chan, &
+          upstr_adj_near_end, &
+          downstr_adj_near_end, &
+          nupstream, &
+          ndownstream
 
 
       do channo=1,nchans
@@ -385,34 +385,34 @@ subroutine assign_adjacent_xsects
 
 
       integer &
-          i &
-          ,channo &              ! do loop counters
-          ,upstream_sec &        ! number (within chan) of upstream xsect
-          ,downstream_sec &      ! number (within chan) of downstream xsect
-          ,upstream_index &      ! index of upstream irregular xsect
-          ,downstream_index &    ! index of downstream irregular xsect
-          ,upstream_node &       ! node at upstream end of chan
-          ,downstream_node &     ! node at downstream end of chan
-          ,upstream_chan &       ! upstream channel
-          ,downstream_chan &     ! downstream channel
-          ,upstr_adj_near_end &  ! end of the adj. channel that is adj.
+          i, &
+          channo, &              ! do loop counters
+          upstream_sec, &        ! number (within chan) of upstream xsect
+          downstream_sec, &      ! number (within chan) of downstream xsect
+          upstream_index, &      ! index of upstream irregular xsect
+          downstream_index, &    ! index of downstream irregular xsect
+          upstream_node, &       ! node at upstream end of chan
+          downstream_node, &     ! node at downstream end of chan
+          upstream_chan, &       ! upstream channel
+          downstream_chan, &     ! downstream channel
+          upstr_adj_near_end &  ! end of the adj. channel that is adj.
                                  ! to the upstream end of the current channel
-          ,downstr_adj_near_end &! same for downstream
-          ,nupstream &           ! # of channels connected to upstream node
-          ,ndownstream &         ! # of channels connected to downstream node
-          ,oindex                ! index of nearest original (not copied) irr. xsect
+          ,downstr_adj_near_end, &! same for downstream
+          nupstream, &           ! # of channels connected to upstream node
+          ndownstream, &         ! # of channels connected to downstream node
+          oindex                ! index of nearest original (not copied) irr. xsect
       real*8 &
            channel_length        ! length of current channel
 
       common /com_xsect_numbers/ &
-          upstream_node &
-          ,downstream_node &
-          ,upstream_chan &
-          ,downstream_chan &
-          ,upstr_adj_near_end &
-          ,downstr_adj_near_end &
-          ,nupstream &
-          ,ndownstream
+          upstream_node, &
+          downstream_node, &
+          upstream_chan, &
+          downstream_chan, &
+          upstr_adj_near_end, &
+          downstr_adj_near_end, &
+          nupstream, &
+          ndownstream
 
       do channo=1,max_channels
          if ( chan_geom(channo).length .gt. 0 .and. &
@@ -547,11 +547,11 @@ subroutine assign_adjacent_xsects
 end
 
 subroutine errmsg( &
-          channo &
-          ,adj_chan &
-          ,adj_end &
-          ,adj_near_end &
-          ,subname &
+          channo, &
+          adj_chan, &
+          adj_end, &
+          adj_near_end, &
+          subname &
           )
 
 !-----This subroutine prints an error message when the rectangular cross-sections
@@ -564,16 +564,16 @@ subroutine errmsg( &
 
 
       integer &
-          channo &               ! current channel number
-          ,adj_chan &            ! number of adjacent channel
-          ,adj_end &             ! current end of current channel
-          ,adj_near_end          ! end of adjacent channel that is adjacent to
+          channo, &               ! current channel number
+          adj_chan, &            ! number of adjacent channel
+          adj_end, &             ! current end of current channel
+          adj_near_end          ! end of adjacent channel that is adjacent to
                                  ! the current end of the current channel
 
       character &
-          location1*10 &         ! location in current channel
-          ,location2*10 &        ! location in adjacent channel
-          ,subname*30            ! name of subroutine that found error
+          location1*10, &         ! location in current channel
+          location2*10, &        ! location in adjacent channel
+          subname*30            ! name of subroutine that found error
 
       if(adj_end .eq. 1) then
          location1='upstream'
@@ -599,11 +599,11 @@ subroutine errmsg( &
           ((adj_end .eq. 1) .and. (adj_near_end .gt. 1)) .or. &
           ((adj_end .gt. 1) .and. (adj_near_end .gt. 1)) ) then
          write(unit_output,'(2(i8,3x,a,2x),a)') &
-             channo &
-             ,trim(location1) &
-             ,adj_chan &
-             ,trim(location2) &
-             ,trim(subname)
+             channo, &
+             trim(location1), &
+             adj_chan, &
+             trim(location2), &
+             trim(subname)
       endif
 
       return
@@ -620,12 +620,12 @@ subroutine geom_output
 
 
       integer &
-          j &
-          ,i &
-          ,channo              ! do loop counters
+          j, &
+          i, &
+          channo              ! do loop counters
       character &
-          all_xsect_indices*(5+max_assg_sec*5) & ! stores all assigned xsect indices
-          ,xsect_index*5       ! index of current xsect
+          all_xsect_indices*(5+max_assg_sec*5), & ! stores all assigned xsect indices
+          xsect_index*5       ! index of current xsect
 
       do j=1,nirg
          write(unit_output,*)
@@ -640,11 +640,11 @@ subroutine geom_output
 
          do i=1,irreg_geom(j).num_elev
             write(unit_output,15) &
-                irreg_geom(j).elevation(i) &
-                ,irreg_geom(j).area(i) &
-                ,irreg_geom(j).wet_p(i) &
-                ,irreg_geom(j).width(i) &
-                ,irreg_geom(j).h_radius(i)
+                irreg_geom(j).elevation(i), &
+                irreg_geom(j).area(i), &
+                irreg_geom(j).wet_p(i), &
+                irreg_geom(j).width(i), &
+                irreg_geom(j).h_radius(i)
 !     &           ,irreg_geom(j).x_centroid(i)
 !     &           ,irreg_geom(j).z_centroid(i)
  15         format(f10.2,1x,4(f10.1,1x))
@@ -654,9 +654,9 @@ subroutine geom_output
       write(unit_output,*)
       write(unit_output,*) 'CROSS-SECTION ASSIGNMENTS'
       write(unit_output,*) &
-          'Chan  Cross-section indices: "O" means original, "C" means copy' &
-          ,'A cross-section number of zero means that a rectangular sec was used' &
-          ,'--------------------------------------------------------------------'
+          'Chan  Cross-section indices: "O" means original, "C" means copy', &
+          'A cross-section number of zero means that a rectangular sec was used', &
+          '--------------------------------------------------------------------'
 !-----this will only work for channel numbers <= 999.  If >=1000, 1st digit will
 !-----be overwritten
       do channo=1,nchans
@@ -697,26 +697,26 @@ subroutine xsect_numbers(channo)
 !-----local variables
 
       integer &
-          channo &               ! current channel number
-          ,upstream_node &       ! the upstream node in the current channel
-          ,downstream_node &     ! the downstream node in the current channel
-          ,upstream_chan &       ! the upstream channel from the current channel
-          ,downstream_chan &     ! the downstream channel from the current channel
-          ,upstr_adj_near_end &  ! end of the adj. channel that is adj.
+          channo, &               ! current channel number
+          upstream_node, &       ! the upstream node in the current channel
+          downstream_node, &     ! the downstream node in the current channel
+          upstream_chan, &       ! the upstream channel from the current channel
+          downstream_chan, &     ! the downstream channel from the current channel
+          upstr_adj_near_end &  ! end of the adj. channel that is adj.
                                  ! to the upstream end of the current channel
-          ,downstr_adj_near_end &! same for downstream
-          ,nupstream &           ! # of channels connected the upstream node
-          ,ndownstream           ! # of channels connected to downstream node
+          ,downstr_adj_near_end, &! same for downstream
+          nupstream, &           ! # of channels connected the upstream node
+          ndownstream           ! # of channels connected to downstream node
 
       common /com_xsect_numbers/ &
-          upstream_node &
-          ,downstream_node &
-          ,upstream_chan &
-          ,downstream_chan &
-          ,upstr_adj_near_end &
-          ,downstr_adj_near_end &
-          ,nupstream &
-          ,ndownstream
+          upstream_node, &
+          downstream_node, &
+          upstream_chan, &
+          downstream_chan, &
+          upstr_adj_near_end, &
+          downstr_adj_near_end, &
+          nupstream, &
+          ndownstream
 
       upstream_node = chan_geom(channo).upnode
       downstream_node = chan_geom(channo).downnode

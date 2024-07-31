@@ -422,8 +422,8 @@ contains
         use IO_Units
         use network
         use netcntrl
-        use channel_schematic &
-            ,only: DownstreamPointer, UpstreamPointer, NumberOfStreamLocations, &
+        use channel_schematic, &
+            only: DownstreamPointer, UpstreamPointer, NumberOfStreamLocations, &
             CurrentChannel, StreamDistance
         use chinitcd
         use channel_xsect_tbl, only: btmelev
@@ -604,8 +604,8 @@ contains
 
     real*8 function StreamFlow(LocationNumber)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
+        use channel_schematic, &
+            only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
         implicit none
 
         !   Purpose:  Return current value of stream flow in the current channel
@@ -690,8 +690,8 @@ contains
 
     logical function SetStreamFlow(LocationNumber, Value)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        use channel_schematic, &
+            only: UpstreamPointer, CheckChannelCompLocationRange
         implicit none
 
         !   Purpose:  Set current value of stream flow in the current channel
@@ -740,8 +740,8 @@ contains
 
     real*8 function StreamDepth(LocationNumber)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        use channel_schematic, &
+            only: UpstreamPointer, CheckChannelCompLocationRange
         implicit none
 
         !   Purpose:  Return current value of depth of flow in the current
@@ -820,8 +820,8 @@ contains
 
     logical function SetStreamDepth(LocationNumber, Value)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        use channel_schematic, &
+            only: UpstreamPointer, CheckChannelCompLocationRange
         implicit none
 
         !   Purpose:  Set current value of depth of flow in the current
@@ -868,8 +868,8 @@ contains
 
     real*8 function StreamSurfaceElevation(LocationNumber)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
+        use channel_schematic, &
+            only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
         implicit none
 
         !   Purpose:  Return current value of water-surface elevation in the
@@ -949,10 +949,10 @@ contains
     logical function SetStreamSurfaceElevation &
         (LocationNumber, Value)
         use IO_Units
-        use channel_schematic &
-            ,only: UpstreamPointer, StreamDistance, CheckChannelCompLocationRange
-        use channel_xsect_tbl &
-            , only: BtmElev, BtmElevAtLocationNumber
+        use channel_schematic, &
+            only: UpstreamPointer, StreamDistance, CheckChannelCompLocationRange
+        use channel_xsect_tbl, &
+             only: BtmElev, BtmElevAtLocationNumber
         implicit none
 
         !   Purpose:  Set current value of water-surface elevation in the
@@ -1010,16 +1010,16 @@ contains
         use chnluser
         use chconnec
 
-        use channel_schematic &
-            ,only :  NumberOfStreamLocations, &
+        use channel_schematic, &
+            only :  NumberOfStreamLocations, &
             UpstreamPointer, DownstreamPointer, &
             StreamDistance, &
             NumberOfChannels, &
             OpenChannel, CloseChannel, &
             GetUserStreamflow, GetUserStreamSurfaceElevation
 
-        use channel_xsect_tbl &
-            ,only: BtmElev, CxArea, ChannelWidth, &
+        use channel_xsect_tbl, &
+            only: BtmElev, CxArea, ChannelWidth, &
             Conveyance, dConveyance
         implicit none
 
@@ -1604,8 +1604,8 @@ end function
 
 logical function SetConstantStreamDensity()
     use IO_Units
-    use channel_schematic, only: UpstreamPointer, DownstreamPointer, NumberOfChannels &
-        , OpenChannel, CloseChannel
+    use channel_schematic, only: UpstreamPointer, DownstreamPointer, NumberOfChannels, &
+         OpenChannel, CloseChannel
 
     implicit none
 

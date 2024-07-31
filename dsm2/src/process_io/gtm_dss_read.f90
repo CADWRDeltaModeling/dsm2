@@ -75,8 +75,8 @@ module gtm_dss_read
                     flags(maxinpsize)        ! 32-bit data flags
        integer :: jmin2                      ! test used for jmin
 
-       real*4 :: values(maxinpsize)        & ! data values
-                 ,headu                      ! data headers
+       real*4 :: values(maxinpsize)       , & ! data values
+                 headu                      ! data headers
 
        character :: csdt*14,     &           ! date/time for start of data
                     csdate*9,    &           ! starting date of data block
@@ -85,10 +85,10 @@ module gtm_dss_read
                     cunits*8,    &
                     ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 !
 
-       data lflags /.true./ &     ! get data flags
-           ,kheadu /0/ &         ! don't get data headers
-           ,inflag /3/ &         ! retrieve values before & after time block
-           ,icomp /-1/          ! no compression
+       data lflags /.true./, &     ! get data flags
+           kheadu /0/, &         ! don't get data headers
+           inflag /3/, &         ! retrieve values before & after time block
+           icomp /-1/          ! no compression
 
  610   format(/'Error on data read: ',a &
            /' ',a,' to ',a,' istat=',i8)

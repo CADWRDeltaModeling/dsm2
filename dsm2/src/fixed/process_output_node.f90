@@ -38,20 +38,20 @@ subroutine process_output_node(name, &
       implicit none
 
       character &
-          FileName*128 &
-          ,Name*32 &
-          ,Param*16 &
-          ,Interval*32 &
-          ,PerOp*8 &
-          ,LocName*32 &
-          ,ctmp*200 &
-          ,SourceGroup*32
+          FileName*128, &
+          Name*32, &
+          Param*16, &
+          Interval*32, &
+          PerOp*8, &
+          LocName*32, &
+          ctmp*200, &
+          SourceGroup*32
 
 
       integer*4 &
-          ID &                   ! transfer ID
-          ,LocNum &
-          ,itmp
+          ID, &                   ! transfer ID
+          LocNum, &
+          itmp
 
 
       integer, external :: name_to_objno
@@ -66,8 +66,8 @@ subroutine process_output_node(name, &
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630) &
-             'Too many pathoutput paths specified; max allowed is:' &
-             ,max_outputpaths
+             'Too many pathoutput paths specified; max allowed is:', &
+             max_outputpaths
          call exit(-1)
          return
       endif

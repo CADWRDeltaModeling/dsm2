@@ -136,18 +136,18 @@ module dsm2qual
 
     real*8 HR, SVOL, tTIME, VJ, VOL
     real*8 TOTFLO
-    real*8 C(MAX_CONSTITUENT) &
-        , objflow, massrate(max_constituent) ! flow and massrate at object
+    real*8 C(MAX_CONSTITUENT), &
+         objflow, massrate(max_constituent) ! flow and massrate at object
 
     integer*4 &
-        next_output_flush &! next time to flush output
-        , next_display &! next time to display model time
-        , next_restart_output ! next time to write restart file
+        next_output_flush, &! next time to flush output
+         next_display, &! next time to display model time
+         next_restart_output ! next time to write restart file
 
     integer &
         istat                ! status of fixed input
-    integer ierror &
-        , ibound
+    integer ierror, &
+         ibound
     character &
         init_input_file*128  ! initial input file on command line [optional]
 
@@ -167,14 +167,14 @@ subroutine qual_prepare1()
     dsm2_name = 'Qual'
 
     open ( &
-        unit_screen &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_screen, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
     open ( &
-        unit_error &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_error, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
 end subroutine
 
@@ -206,10 +206,10 @@ subroutine qual_prepare2()
     end if
 !----- load header information from the first hydro tidefile
 !      this assures that names of qext and stage boundaries are available
-    call read_tide_head(tide_files(1) .filename, .false.)
+    call read_tide_head(tide_files(1)%filename, .false.)
     ! Loop through number of stage boudnaries and set node_geom
     do ibound = 1, nstgbnd
-        node_geom(stgbnd(ibound) .node) .boundary_type = stage_boundary
+        node_geom(stgbnd(ibound) .node)%boundary_type = stage_boundary
     end do
 
 !------ process input that is in buffers
@@ -235,15 +235,15 @@ subroutine qual_prepare2()
         call exit(1)
     end if
 
-    if (io_files(qual, io_hdf5, io_write) .use) then
+    if (io_files(qual, io_hdf5, io_write)%use) then
         call InitQualHdf(qual_hdf, &
-                            io_files(qual, io_hdf5, io_write) .filename(1:128), &
+                            io_files(qual, io_hdf5, io_write)%filename(1:128), &
                             nchans, &
                             nreser, &
                             no_of_constituent, &
                             start_julmin, &
                             end_julmin, &
-                            io_files(qual, io_hdf5, io_write) .interval)
+                            io_files(qual, io_hdf5, io_write)%interval)
     end if
 
     prev_julmin = 0
@@ -311,9 +311,9 @@ subroutine qual_prepare2()
 
     next_display = incr_intvl(start_julmin, display_intvl, TO_BOUNDARY)
     next_output_flush = incr_intvl(start_julmin, flush_intvl, TO_BOUNDARY)
-    if (io_files(qual, io_restart, io_write) .use) then
+    if (io_files(qual, io_restart, io_write)%use) then
         next_restart_output = incr_intvl(start_julmin, io_files(qual, &
-                                                                io_restart, io_write) .interval, TO_BOUNDARY)
+                                                                io_restart, io_write)%interval, TO_BOUNDARY)
     end if
 
     !-----###################################################################
@@ -400,7 +400,7 @@ subroutine qual_check_input_data()
     DO N = 1, NBRCH
         Diff(N) = Achan_AvgP(N) - Achan_Avg(N)
         PercentDiff(N) = Diff(N)/Achan_Avg(N)*100.
-        NN = chan_geom(N) .chan_no
+        NN = chan_geom(N)%chan_no
         write (unit_output, '(I4,3f10.1,E14.2)') NN, Achan_Avg(N), Achan_AvgP(N), Diff(N), PercentDiff(N)
         if (abs(PercentDiff(N)) .gt. PDiffMax) then
             PDiffMax = abs(PercentDiff(N))
@@ -434,7 +434,7 @@ subroutine qual_wrapup1()
     DO N = 1, NBRCH
         Diff(N) = Achan_AvgP(N) - Achan_Avg(N)
         PercentDiff(N) = Diff(N)/Achan_Avg(N)*100.
-        NN = chan_geom(N) .chan_no
+        NN = chan_geom(N)%chan_no
         write (unit_output, '(I4,3f10.1,E14.2)') NN, Achan_Avg(N), Achan_AvgP(N), Diff(N), PercentDiff(N)
         if (abs(PercentDiff(N)) .gt. PDiffMax) then
             PDiffMax = abs(PercentDiff(N))
@@ -623,7 +623,7 @@ subroutine qual_loop()
 
     ! set cj(cons_no,jn) to zero for internal nodes and non-stage-boundary nodes
     DO JN = 1, NNODES
-        if (node_geom(JN) .boundary_type .NE. stage_boundary) then
+        if (node_geom(JN)%boundary_type .NE. stage_boundary) then
             DO CONS_NO = 1, NEQ
                 cj_prev(CONS_NO, JN) = cj(CONS_NO, JN)
                 cj(cons_no, jn) = 0.0 ! for masstracking
@@ -637,7 +637,7 @@ subroutine qual_loop()
     NotMixed_prev = -1
     do while (.not. AllJunctionsMixed)
         DO 640 JN = 1, NNODES
-            if (node_geom(JN) .boundary_type .NE. stage_boundary) then
+            if (node_geom(JN)%boundary_type .NE. stage_boundary) then
                 TOTFLO = 0.
                 IF (JCD(JN) .EQ. MIXED) GOTO 640
 
@@ -646,12 +646,12 @@ subroutine qual_loop()
                 i_node_flow = 1
                 do while (node_geom(JN) .qinternal(i_node_flow) .ne. 0)
                     qndx = node_geom(JN) .qinternal(i_node_flow)
-                    if (obj2obj(qndx) .flow_avg > 0) then
-                        from_obj_type = obj2obj(qndx) .from_obj.obj_type
-                        from_obj_no = obj2obj(qndx) .from_obj.obj_no
-                    else if (obj2obj(qndx) .flow_avg < 0) then
-                        from_obj_type = obj2obj(qndx) .to_obj.obj_type
-                        from_obj_no = obj2obj(qndx) .to_obj.obj_no
+                    if (obj2obj(qndx)%flow_avg > 0) then
+                        from_obj_type = obj2obj(qndx)%from_obj%obj_type
+                        from_obj_no = obj2obj(qndx)%from_obj%obj_no
+                    else if (obj2obj(qndx)%flow_avg < 0) then
+                        from_obj_type = obj2obj(qndx)%to_obj%obj_type
+                        from_obj_no = obj2obj(qndx)%to_obj%obj_no
                     else  ! obj2obj(qndx).flow_avg == 0
                         goto 747 ! next node_flow. don't wait if flow_avg is 0
                     end if
@@ -793,7 +793,7 @@ subroutine qual_loop()
         AllJunctionsMixed = .true.
         NotMixed = 0
         DO JN = 1, NNODES
-            if (node_geom(JN) .boundary_type .ne. stage_boundary) then
+            if (node_geom(JN)%boundary_type .ne. stage_boundary) then
                 IF (JCD(JN) .NE. MIXED) THEN
 !--------------------This JUNCTION NOT MIXED YET. Have to go back
                     AllJunctionsMixed = .false.
@@ -837,10 +837,10 @@ subroutine qual_loop()
 
 !--------write results
 
-    if (io_files(qual, io_restart, io_write) .use .and. &
+    if (io_files(qual, io_restart, io_write)%use .and. &
         julmin .ge. next_restart_output) then ! restart file requested
         next_restart_output = incr_intvl(next_restart_output, &
-                                            io_files(qual, io_restart, io_write) .interval, &
+                                            io_files(qual, io_restart, io_write)%interval, &
                                             TO_BOUNDARY)
         call restart_file(IO_WRITE)
     END IF
@@ -932,21 +932,21 @@ subroutine qual_loop()
         NSN = NS(N)
         if (NSN .le. 0) then
             WRITE (UNIT_ERROR, *) ' ERROR... 0 PARCEL in CHANNEL: ', &
-                chan_geom(N) .chan_no
+                chan_geom(N)%chan_no
             call exit(2)
         end if
 
         DO K = 1, NSN
             if (GPV(N, K) .lt. 0) then
                 WRITE (UNIT_ERROR, *) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ', &
-                    chan_geom(N) .chan_no
+                    chan_geom(N)%chan_no
                 call exit(2)
             end if
 
             DO CONS_NO = 1, NEQ
                 if (GPT(CONS_NO, K, N) .lt. 0) then
                     WRITE (UNIT_ERROR, *) ' ERROR... PARCEL HAVING NEGATIVE CONSTITUENT in CHANNEL: ', &
-                        chan_geom(N) .chan_no
+                        chan_geom(N)%chan_no
                     call exit(2)
                 end if
             end do
@@ -1001,14 +1001,14 @@ subroutine qual_main()
     dsm2_name = 'Qual'
 
     open ( &
-        unit_screen &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_screen, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
     open ( &
-        unit_error &
-        , carriagecontrol='list' &
-        , buffered='NO' &
+        unit_error, &
+         carriagecontrol='list', &
+         buffered='NO' &
         ) !! <NT>
 
 !-----get optional starting input file from command line and
@@ -1038,10 +1038,10 @@ subroutine qual_main()
     end if
 !----- load header information from the first hydro tidefile
 !      this assures that names of qext and stage boundaries are available
-    call read_tide_head(tide_files(1) .filename, .false.)
+    call read_tide_head(tide_files(1)%filename, .false.)
     ! Loop through number of stage boudnaries and set node_geom
     do ibound = 1, nstgbnd
-        node_geom(stgbnd(ibound) .node) .boundary_type = stage_boundary
+        node_geom(stgbnd(ibound) .node)%boundary_type = stage_boundary
     end do
 
 !------ process input that is in buffers
@@ -1067,15 +1067,15 @@ subroutine qual_main()
         call exit(1)
     end if
 
-    if (io_files(qual, io_hdf5, io_write) .use) then
+    if (io_files(qual, io_hdf5, io_write)%use) then
         call InitQualHdf(qual_hdf, &
-                            io_files(qual, io_hdf5, io_write) .filename(1:128), &
+                            io_files(qual, io_hdf5, io_write)%filename(1:128), &
                             nchans, &
                             nreser, &
                             no_of_constituent, &
                             start_julmin, &
                             end_julmin, &
-                            io_files(qual, io_hdf5, io_write) .interval)
+                            io_files(qual, io_hdf5, io_write)%interval)
     end if
 
     prev_julmin = 0
@@ -1143,9 +1143,9 @@ subroutine qual_main()
 
     next_display = incr_intvl(start_julmin, display_intvl, TO_BOUNDARY)
     next_output_flush = incr_intvl(start_julmin, flush_intvl, TO_BOUNDARY)
-    if (io_files(qual, io_restart, io_write) .use) then
+    if (io_files(qual, io_restart, io_write)%use) then
         next_restart_output = incr_intvl(start_julmin, io_files(qual, &
-                                                                io_restart, io_write) .interval, TO_BOUNDARY)
+                                                                io_restart, io_write)%interval, TO_BOUNDARY)
     end if
 
 !-----###################################################################
@@ -1196,7 +1196,7 @@ subroutine qual_main()
         DO N = 1, NBRCH
             Diff(N) = Achan_AvgP(N) - Achan_Avg(N)
             PercentDiff(N) = Diff(N)/Achan_Avg(N)*100.
-            NN = chan_geom(N) .chan_no
+            NN = chan_geom(N)%chan_no
             write (unit_output, '(I4,3f10.1,E14.2)') NN, Achan_Avg(N), Achan_AvgP(N), Diff(N), PercentDiff(N)
             if (abs(PercentDiff(N)) .gt. PDiffMax) then
                 PDiffMax = abs(PercentDiff(N))
@@ -1265,7 +1265,7 @@ subroutine qual_main()
         ! todo: how to deal with stage boundaries?
         DO N = 1, NNODES
 
-            if (node_geom(N) .boundary_type .ne. stage_boundary) then
+            if (node_geom(N)%boundary_type .ne. stage_boundary) then
                 JCD(N) = NOT_MIXED
             end if
         END DO
@@ -1318,7 +1318,7 @@ subroutine qual_main()
 
         ! set cj(cons_no,jn) to zero for internal nodes and non-stage-boundary nodes
         DO JN = 1, NNODES
-            if (node_geom(JN) .boundary_type .NE. stage_boundary) then
+            if (node_geom(JN)%boundary_type .NE. stage_boundary) then
                 DO CONS_NO = 1, NEQ
                     cj_prev(CONS_NO, JN) = cj(CONS_NO, JN)
                     cj(cons_no, jn) = 0.0 ! for masstracking
@@ -1332,7 +1332,7 @@ subroutine qual_main()
         NotMixed_prev = -1
         do while (.not. AllJunctionsMixed)
             DO 640 JN = 1, NNODES
-                if (node_geom(JN) .boundary_type .NE. stage_boundary) then
+                if (node_geom(JN)%boundary_type .NE. stage_boundary) then
                     TOTFLO = 0.
                     IF (JCD(JN) .EQ. MIXED) GOTO 640
 
@@ -1341,12 +1341,12 @@ subroutine qual_main()
                     i_node_flow = 1
                     do while (node_geom(JN) .qinternal(i_node_flow) .ne. 0)
                         qndx = node_geom(JN) .qinternal(i_node_flow)
-                        if (obj2obj(qndx) .flow_avg > 0) then
-                            from_obj_type = obj2obj(qndx) .from_obj.obj_type
-                            from_obj_no = obj2obj(qndx) .from_obj.obj_no
-                        else if (obj2obj(qndx) .flow_avg < 0) then
-                            from_obj_type = obj2obj(qndx) .to_obj.obj_type
-                            from_obj_no = obj2obj(qndx) .to_obj.obj_no
+                        if (obj2obj(qndx)%flow_avg > 0) then
+                            from_obj_type = obj2obj(qndx)%from_obj%obj_type
+                            from_obj_no = obj2obj(qndx)%from_obj%obj_no
+                        else if (obj2obj(qndx)%flow_avg < 0) then
+                            from_obj_type = obj2obj(qndx)%to_obj%obj_type
+                            from_obj_no = obj2obj(qndx)%to_obj%obj_no
                         else  ! obj2obj(qndx).flow_avg == 0
                             goto 747 ! next node_flow. don't wait if flow_avg is 0
                         end if
@@ -1488,7 +1488,7 @@ subroutine qual_main()
             AllJunctionsMixed = .true.
             NotMixed = 0
             DO JN = 1, NNODES
-                if (node_geom(JN) .boundary_type .ne. stage_boundary) then
+                if (node_geom(JN)%boundary_type .ne. stage_boundary) then
                     IF (JCD(JN) .NE. MIXED) THEN
 !--------------------This JUNCTION NOT MIXED YET. Have to go back
                         AllJunctionsMixed = .false.
@@ -1532,10 +1532,10 @@ subroutine qual_main()
 
 !--------write results
 
-        if (io_files(qual, io_restart, io_write) .use .and. &
+        if (io_files(qual, io_restart, io_write)%use .and. &
             julmin .ge. next_restart_output) then ! restart file requested
             next_restart_output = incr_intvl(next_restart_output, &
-                                                io_files(qual, io_restart, io_write) .interval, &
+                                                io_files(qual, io_restart, io_write)%interval, &
                                                 TO_BOUNDARY)
             call restart_file(IO_WRITE)
         END IF
@@ -1627,21 +1627,21 @@ subroutine qual_main()
             NSN = NS(N)
             if (NSN .le. 0) then
                 WRITE (UNIT_ERROR, *) ' ERROR... 0 PARCEL in CHANNEL: ', &
-                    chan_geom(N) .chan_no
+                    chan_geom(N)%chan_no
                 call exit(2)
             end if
 
             DO K = 1, NSN
                 if (GPV(N, K) .lt. 0) then
                     WRITE (UNIT_ERROR, *) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ', &
-                        chan_geom(N) .chan_no
+                        chan_geom(N)%chan_no
                     call exit(2)
                 end if
 
                 DO CONS_NO = 1, NEQ
                     if (GPT(CONS_NO, K, N) .lt. 0) then
                         WRITE (UNIT_ERROR, *) ' ERROR... PARCEL HAVING NEGATIVE CONSTITUENT in CHANNEL: ', &
-                            chan_geom(N) .chan_no
+                            chan_geom(N)%chan_no
                         call exit(2)
                     end if
                 end do
@@ -1661,7 +1661,7 @@ subroutine qual_main()
     DO N = 1, NBRCH
         Diff(N) = Achan_AvgP(N) - Achan_Avg(N)
         PercentDiff(N) = Diff(N)/Achan_Avg(N)*100.
-        NN = chan_geom(N) .chan_no
+        NN = chan_geom(N)%chan_no
         write (unit_output, '(I4,3f10.1,E14.2)') NN, Achan_Avg(N), Achan_AvgP(N), Diff(N), PercentDiff(N)
         if (abs(PercentDiff(N)) .gt. PDiffMax) then
             PDiffMax = abs(PercentDiff(N))

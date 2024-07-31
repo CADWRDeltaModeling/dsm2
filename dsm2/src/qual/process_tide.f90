@@ -45,8 +45,8 @@
       logical &
           new_tidefile         ! true if new tidefile (INPUT)
       integer &
-          first_used_tidefile &  ! first used tidefile number (INPUT)
-          ,tidefile_ndx    ! current tidefile number (INPUT)
+          first_used_tidefile, &  ! first used tidefile number (INPUT)
+          tidefile_ndx    ! current tidefile number (INPUT)
       integer :: iconnect
 
 !-----local variables
@@ -58,9 +58,9 @@
           smoothing_needed     ! smoothing needed between tidefiles
 
       real*8 &
-          correct_fact,totv,totnewv &
-          ,totsysv &
-          ,totsysnewv
+          correct_fact,totv,totnewv, &
+          totsysv, &
+          totsysnewv
       real*8 reser_area, reser_vol, reser_elv
 
       real*8 mass_before(MAX_CONSTITUENT),mass_after(MAX_CONSTITUENT)
@@ -181,8 +181,8 @@
       return
       end
 
-      subroutine check_tidefile(dim_res,dim_chan,n_res,n_chan &
-          ,tidefile)
+      subroutine check_tidefile(dim_res,dim_chan,n_res,n_chan, &
+          tidefile)
 
 !-----Check Hydro tidefile for size compatibility with Qual.
       use io_units
@@ -196,8 +196,8 @@
 
 !-----arguments
       integer &
-          dim_res,dim_chan &     ! reservoir and channel array dimensions
-          ,n_res,n_chan        ! reservoir and channels used in tidefile
+          dim_res,dim_chan, &     ! reservoir and channel array dimensions
+          n_res,n_chan        ! reservoir and channels used in tidefile
 
       character*(*) tidefile    ! tidefile name
 

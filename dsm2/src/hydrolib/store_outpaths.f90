@@ -18,20 +18,20 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 subroutine store_outpaths_gen( &
-    outpaths_dim &
-    , block_dim &
-    , npaths &
-    , outpath_ptr &
-    , jul_start &
-    , store_ndx &
-    , jmin_eop &
-    , jmin_eop_prev &
-    , nave_intvl &
-    , outdata_arr &
-    , unit &
-    , lflush &
-    , lupdate &
-    , need_tmpfile &
+    outpaths_dim, &
+    block_dim, &
+    npaths, &
+    outpath_ptr, &
+    jul_start, &
+    store_ndx, &
+    jmin_eop, &
+    jmin_eop_prev, &
+    nave_intvl, &
+    outdata_arr, &
+    unit, &
+    lflush, &
+    lupdate, &
+    need_tmpfile &
     )
 
 !-----General store outpaths.  This fills output buffer arrays and
@@ -45,43 +45,43 @@ subroutine store_outpaths_gen( &
 !-----subroutine arguments
 
     integer &
-        outpaths_dim &        ! output paths array dimension &
-        , block_dim           ! data block array dimension
+        outpaths_dim, &        ! output paths array dimension &
+        block_dim           ! data block array dimension
 
     integer &
-        npaths &              ! number of output paths for this interval &
-        , outpath_ptr(outpaths_dim) & ! pointer array to output pathnames &
-        , store_ndx &          ! end array index for output buffers (data blocks) &
-        , nave_intvl(outpaths_dim) & ! number of values in the interval average &
-        , unit                ! write unit number
+        npaths, &              ! number of output paths for this interval &
+        outpath_ptr(outpaths_dim), & ! pointer array to output pathnames &
+        store_ndx, &          ! end array index for output buffers (data blocks) &
+        nave_intvl(outpaths_dim), & ! number of values in the interval average &
+        unit                ! write unit number
 
     integer*4 &
-        jul_start &           ! julian minute of start of data for this path &
-        , jmin_eop &           ! julian minute of end-of-period for this interval &
-        , jmin_eop_prev       ! previous value of jmin_eop
+        jul_start, &           ! julian minute of start of data for this path &
+        jmin_eop, &           ! julian minute of end-of-period for this interval &
+        jmin_eop_prev       ! previous value of jmin_eop
 
     REAL*8 &
         outdata_arr(0:block_dim, outpaths_dim) ! output data array
 
     logical &
-        lflush &              ! true to force data flush to scratch files &
-        , lupdate &            ! true to update value arrays &
-        , need_tmpfile        ! true if tmp file is needed for this group
+        lflush, &              ! true to force data flush to scratch files &
+        lupdate, &            ! true to update value arrays &
+        need_tmpfile        ! true if tmp file is needed for this group
 
 !-----local variables
 
     logical &
-        lnewndx &             ! this julmin first one in time interval &
-        , lendndx             ! this julmin last one in time interval
+        lnewndx, &             ! this julmin first one in time interval &
+        lendndx             ! this julmin last one in time interval
 
     integer &
-        i, j &                 ! array indices &
-        , ptr &                ! array pointer &
-        , nvals               ! number of values to write to disk
+        i, j, &                 ! array indices &
+        ptr, &                ! array pointer &
+        nvals               ! number of values to write to disk
 
     REAL*8 &
         value               ! output value &
-        ! , get_output          ! function to get the output value for each DSM2 module
+    ! , get_output          ! function to get the output value for each DSM2 module
     REAL*8, external :: get_output
 
     character &
@@ -193,28 +193,28 @@ subroutine store_outpaths(lflush)
     implicit none
 
     logical &
-        lflush &              ! true to force data flush to scratch files &
-        , lupdate             ! true to update value arrays
+        lflush, &              ! true to force data flush to scratch files &
+        lupdate             ! true to update value arrays
 
     integer*4 &
         last_update          ! julian minute of last update
 
 !-----the storage index pointer for each block of data
     integer &
-        ndx_minutes15 &
-        , ndx_hours1 &
-        , ndx_days1 &
-        , ndx_weeks1 &
-        , ndx_months1 &
-        , ndx_years1
+        ndx_minutes15, &
+        ndx_hours1, &
+        ndx_days1, &
+        ndx_weeks1, &
+        ndx_months1, &
+        ndx_years1
 
     save ndx_minutes15, ndx_hours1, ndx_days1, &
         ndx_weeks1, ndx_months1, ndx_years1, &
         last_update
 
-    data ndx_minutes15/1/, ndx_hours1/1/, ndx_days1/1/ &
-        , ndx_weeks1/1/, ndx_months1/1/, ndx_years1/1/ &
-        , last_update/0/
+    data ndx_minutes15/1/, ndx_hours1/1/, ndx_days1/1/, &
+        ndx_weeks1/1/, ndx_months1/1/, ndx_years1/1/, &
+        last_update/0/
 
     lupdate = .not. (julmin .eq. last_update)
 

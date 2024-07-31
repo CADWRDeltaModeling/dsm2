@@ -34,11 +34,11 @@ module grid_data
     integer :: nnodes                ! actual number of total nodes (interior + boundary)
     integer :: nxsects               ! actual number of cross sections
     parameter( &
-        max_channels=800 &           ! MaxChannels should equal this
-        , max_xsects_tot=5*max_channels &
-        , max_nodes=max_channels + 10 &
-        , max_obj2obj=50 &
-        , max_stgbnd=5 &
+        max_channels=800, &           ! MaxChannels should equal this
+        max_xsects_tot=5*max_channels, &
+        max_nodes=max_channels + 10, &
+        max_obj2obj=50, &
+        max_stgbnd=5 &
         )
 
     !@#type(channel_t) :: chan_geom(0:max_channels)

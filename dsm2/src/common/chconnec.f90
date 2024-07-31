@@ -23,24 +23,24 @@
 module chconnec
     use network
     !   Note: This include, when used, must appear after "Network.inc".
-    real*8, save::    Ares(MaxNres), &
-        Yres(MaxNres), &
-        Dres(MaxNres), &
-        ReservoirCoeff(MaxNres,MaxResConnectChannel,2), &
-        QRes(MaxNres,MaxResConnectChannel),      &
-        YResOld(MaxNres), &
-        QResOld(MaxNres,MaxResConnectChannel), &
-        VResOld(MaxNres)
+    real*8, save:: Ares(MaxNres), &
+                   Yres(MaxNres), &
+                   Dres(MaxNres), &
+                   ReservoirCoeff(MaxNres, MaxResConnectChannel, 2), &
+                   QRes(MaxNres, MaxResConnectChannel), &
+                   YResOld(MaxNres), &
+                   QResOld(MaxNres, MaxResConnectChannel), &
+                   VResOld(MaxNres)
     integer, save::  ResConnectingChannels(MaxNres, MaxResConnectChannel)
 
-    integer, save:: UpBoundaryCode(MaxChannels) &
-        ,UpNumberOfConnections(MaxChannels) &
-        ,UpConnection(MaxChannels*MaxConnectingChannels) &
-        ,DownBoundaryCode(MaxChannels) &
-        ,DownNumberOfConnections(MaxChannels) &
-        ,DownConnection(MaxChannels*MaxConnectingChannels) &
-        ,nodeSumQChan(MaxNodes)
-    real*8,save::   dX(MaxChannels)
+    integer, save:: UpBoundaryCode(MaxChannels), &
+                    UpNumberOfConnections(MaxChannels), &
+                    UpConnection(MaxChannels*MaxConnectingChannels), &
+                    DownBoundaryCode(MaxChannels), &
+                    DownNumberOfConnections(MaxChannels), &
+                    DownConnection(MaxChannels*MaxConnectingChannels), &
+                    nodeSumQChan(MaxNodes)
+    real*8, save::   dX(MaxChannels)
 
 end module
 

@@ -345,16 +345,16 @@ contains
         use IO_Units
         use chconnec
         use solver
-        use solveutil &
-            , only: UpstreamConstraintRow, DownstreamConstraintRow &
-            , StoreAtLocation, StoreAtRow
-        use chstatus &
-            , only: GlobalStreamSurfaceElevation
-        use channel_schematic &
-            , only: UpstreamPointer, DownstreamPointer, CurrentChannel &
-            , UpstreamConnect, UpstreamConnections &
-            , DownstreamConnect, DownstreamConnections &
-            , StreamEndNode
+        use solveutil, &
+             only: UpstreamConstraintRow, DownstreamConstraintRow, &
+             StoreAtLocation, StoreAtRow
+        use chstatus, &
+             only: GlobalStreamSurfaceElevation
+        use channel_schematic, &
+             only: UpstreamPointer, DownstreamPointer, CurrentChannel, &
+             UpstreamConnect, UpstreamConnections, &
+             DownstreamConnect, DownstreamConnections, &
+             StreamEndNode
         use netcntrl
         use netbnd, only: UpstreamBoundaryValue, DownstreamBoundaryValue
         implicit none
@@ -481,13 +481,13 @@ contains
     logical function SetStreamConstraintVariables(Extremity)
         use IO_Units
         use strmcnst
-        use channel_schematic &
-            , only: UpstreamPointer, DownstreamPointer, CurrentChannel &
-            , UpstreamConnect, UpstreamConnections &
-            , DownstreamConnect, DownstreamConnections &
-            , StreamEndNode, UpstreamCode, DownstreamCode
-        use chstatus &
-            , only: GlobalStreamSurfaceElevation, GlobalStreamFlow
+        use channel_schematic, &
+             only: UpstreamPointer, DownstreamPointer, CurrentChannel, &
+             UpstreamConnect, UpstreamConnections, &
+             DownstreamConnect, DownstreamConnections, &
+             StreamEndNode, UpstreamCode, DownstreamCode
+        use chstatus, &
+             only: GlobalStreamSurfaceElevation, GlobalStreamFlow
         implicit none
 
         !   Purpose:  Set value of variables that may be used by

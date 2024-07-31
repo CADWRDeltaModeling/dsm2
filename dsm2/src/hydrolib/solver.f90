@@ -33,32 +33,32 @@ module solver
 	real*8, parameter :: DynScaleFactor=1.D0/(1024.D0)
 	real*8, parameter :: ResScaleFactor=1.D0
 	real*8, parameter :: ResConnectScaleFactor=128.D0
-    integer, save::  Matrix &
-        ,MassEq(4,MaxLocations) &
-        ,DynmEq(4,MaxLocations) &
-        ,MassEqRow(MaxLocations) &
-        ,DynmEqRow(MaxLocations) &
-        ,TotalChanRows & ! Total number of rows (equations) dedicated to channels. &
-        ,TotalChanResRows &  ! Total number of rows (equations) dedicated to channels and reservoirs
+    integer, save::  Matrix, &
+        MassEq(4,MaxLocations), &
+        DynmEq(4,MaxLocations), &
+        MassEqRow(MaxLocations), &
+        DynmEqRow(MaxLocations), &
+        TotalChanRows, & ! Total number of rows (equations) dedicated to channels. &
+        TotalChanResRows &  ! Total number of rows (equations) dedicated to channels and reservoirs
         !-------fixme: make the following limits better
-        ,ConstraintPointers(7*MaxChannels) &
-        ,ResEqPointer(6*MaxResConnectChannel*MaxNRes + MaxNRes) &
-        ,Obj2objEqPointer(100) & !   based on reservoir gate with 5 pipes and 5 weirs per gate &
-        ,GateEqPointer(MaxGatePtr) &
-        ,ResEqIndex(MaxNRes),ResEqRow(MaxNRes), obj2objEqIndex(20) &
-        ,GateEqIndex(MaxNGate),GateEqRow(MaxNGate),GateNodeRow(MaxNGate)
+        ,ConstraintPointers(7*MaxChannels), &
+        ResEqPointer(6*MaxResConnectChannel*MaxNRes + MaxNRes), &
+        Obj2objEqPointer(100), & !   based on reservoir gate with 5 pipes and 5 weirs per gate &
+        GateEqPointer(MaxGatePtr), &
+        ResEqIndex(MaxNRes),ResEqRow(MaxNRes), obj2objEqIndex(20), &
+        GateEqIndex(MaxNGate),GateEqRow(MaxNGate),GateNodeRow(MaxNGate)
     integer, save::   UpConstraintEq(MaxChannels), DownConstraintEq(MaxChannels)
     integer, save::   UpConstraintIndex(MaxChannels), DownConstraintIndex(MaxChannels), EqPointer(MaxChannels)
 
     logical*4,save:: NormClose
     real*8,save :: LInfNorm,LastLInfNorm,L2Norm,LastL2Norm
     !-------Don't change the size of these variables!!!!
-    real*8, save ::  XX(2*MaxLocations+MaxNRes*(1+MaxResConnectChannel)) &
-        , X(MAX_EQUATION) &
-        , XOld(MAX_EQUATION) &
-        , XAdj(MAX_EQUATION) &
-        , ColumnScale(MAX_EQUATION),RowScale(MAX_EQUATION) &
-        , Rescale
+    real*8, save ::  XX(2*MaxLocations+MaxNRes*(1+MaxResConnectChannel)), &
+         X(MAX_EQUATION), &
+         XOld(MAX_EQUATION), &
+         XAdj(MAX_EQUATION), &
+         ColumnScale(MAX_EQUATION),RowScale(MAX_EQUATION), &
+         Rescale
 
     integer, save:: Equations, ErrUnit
 

@@ -36,27 +36,27 @@
 !-----arguments and local variables
 
       integer &
-          action &               ! whether to read or write the restart file
-          ,i,k,l,n &             ! loop indices
-          ,unit_restart &        ! output unit
-          ,n_all &               ! number of incoming chemical constituents
-          ,ext2int
+          action, &               ! whether to read or write the restart file
+          i,k,l,n, &             ! loop indices
+          unit_restart, &        ! output unit
+          n_all, &               ! number of incoming chemical constituents
+          ext2int
 
       external ext2int
 
       real &
-          salavg(max_constituent) &
-          ,vol
+          salavg(max_constituent), &
+          vol
 
       character &
-          header*150 &           ! header line
-          ,cchem*20(max_constituent) ! incoming chemical constituent names
+          header*150, &           ! header line
+          cchem*20(max_constituent) ! incoming chemical constituent names
 
       if (action .eq. io_write) then
 !--------write restart file
          unit_restart=io_files(qual,io_restart,io_write).unit
-         open(unit=unit_restart,file=io_files(qual,io_restart &
-             ,io_write).filename,status='unknown',err=901)
+         open(unit=unit_restart,file=io_files(qual,io_restart, &
+             io_write).filename,status='unknown',err=901)
 
          write(unit_restart,900) dsm2_version, current_date
  900     format('Qual Version ',a &

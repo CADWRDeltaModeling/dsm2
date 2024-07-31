@@ -22,10 +22,10 @@ module tvd
     implicit none
 contains
     subroutine readtvd( &
-        inpaths_dim, block_dim &
-        , npaths &
-        , inpath_ptr &
-        , indata &
+        inpaths_dim, block_dim, &
+        npaths, &
+        inpath_ptr, &
+        indata &
         )
         use io_units
         use type_defs

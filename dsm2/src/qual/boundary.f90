@@ -80,10 +80,10 @@ subroutine store_values
 !-----local variables
 
     integer &
-        ptr, i, ic &! array indices
-        , intchan &! internal channel numbering
-        , intnode &!  node numbering
-        , constituent_no      ! constituent number
+        ptr, i, ic, &! array indices
+         intchan, &! internal channel numbering
+         intnode, &!  node numbering
+         constituent_no      ! constituent number
 
     do ptr = 1, ninpaths
 
@@ -93,20 +93,20 @@ subroutine store_values
         call get_inp_data(ptr) ! get input data from buffers
 
 !--------meteorological values
-        if (pathinput(ptr) .variable .eq. 'cloud') then
-            cloud = pathinput(ptr) .value
-        else if (pathinput(ptr) .variable .eq. 'dry_bulb') then
-            dryblb = pathinput(ptr) .value
-        else if (pathinput(ptr) .variable .eq. 'wet_bulb') then
-            wetblb = pathinput(ptr) .value
-        else if (pathinput(ptr) .variable .eq. 'wind') then
-            wind = pathinput(ptr) .value
-        else if (pathinput(ptr) .variable .eq. 'atm_pressure') then
-            atmpr = pathinput(ptr) .value
+        if (pathinput(ptr)%variable .eq. 'cloud') then
+            cloud = pathinput(ptr)%value
+        else if (pathinput(ptr)%variable .eq. 'dry_bulb') then
+            dryblb = pathinput(ptr)%value
+        else if (pathinput(ptr)%variable .eq. 'wet_bulb') then
+            wetblb = pathinput(ptr)%value
+        else if (pathinput(ptr)%variable .eq. 'wind') then
+            wind = pathinput(ptr)%value
+        else if (pathinput(ptr)%variable .eq. 'atm_pressure') then
+            atmpr = pathinput(ptr)%value
         else
 !-----------water quality constituent
-            if (pathinput(ptr) .obj_type .eq. obj_node) then
-                intnode = pathinput(ptr) .obj_no
+            if (pathinput(ptr)%obj_type .eq. obj_node) then
+                intnode = pathinput(ptr)%obj_no
 !--------------only the stage type boundary concentration is used later from this section;
 !--------------flow BCs are handled in node_rate and res_rate
                 do i = 1, nstgbnd
@@ -114,18 +114,18 @@ subroutine store_values
                         !downstream stage boundary node
                         if ((node_geom(intnode) .Nup .eq. 0) .and. (node_geom(intnode) .Ndown .eq. 1)) then
                             intchan = node_geom(intnode) .downstream(1)
-                            do ic = 1, pathinput(ptr) .n_consts
-                                constituent_no = pathinput(ptr) .const_ndx(ic)
+                            do ic = 1, pathinput(ptr)%n_consts
+                                constituent_no = pathinput(ptr)%const_ndx(ic)
                                 gtrib(constituent_no, nxsec(intchan), intchan) = &
-                                    pathinput(ptr) .value
+                                    pathinput(ptr)%value
                             end do
                             !upstream stage boundary node
                         elseif ((node_geom(intnode) .Nup .eq. 1) .and. (node_geom(intnode) .Ndown .eq. 0)) then
-                            intchan = node_geom(intnode) .upstream(1)
-                            do ic = 1, pathinput(ptr) .n_consts
-                                constituent_no = pathinput(ptr) .const_ndx(ic)
+                            intchan = node_geom(intnode)%upstream(1)
+                            do ic = 1, pathinput(ptr)%n_consts
+                                constituent_no = pathinput(ptr)%const_ndx(ic)
                                 gtrib(constituent_no, 1, intchan) = &
-                                    pathinput(ptr) .value
+                                    pathinput(ptr)%value
                             end do
                         end if
                     end if

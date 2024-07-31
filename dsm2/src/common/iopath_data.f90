@@ -71,8 +71,8 @@ module iopath_data
     integer:: max_file_types       ! number of types of files (restart, tide, animation,...)
 
     parameter ( &
-        max_iogroups=3 &          ! one per model
-        ,max_file_types=7 &       ! named in constants with names like io_restart
+        max_iogroups=3, &          ! one per model
+        max_file_types=7 &       ! named in constants with names like io_restart
         )
 
     character(len=130)::output_filename      ! output filename

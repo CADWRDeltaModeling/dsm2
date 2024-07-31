@@ -82,10 +82,10 @@ subroutine dsm2_init
     do i = 1, max_iogroups
         do j = 1, max_file_types
             do k = 1, 2
-                io_files(i, j, k) .use = .false.
-                io_files(i, j, k) .filename = ' '
-                io_files(i, j, k) .interval = ' '
-                io_files(i, j, k) .unit = iu ! fill in file unit numbers
+                io_files(i, j, k)%use = .false.
+                io_files(i, j, k)%filename = ' '
+                io_files(i, j, k)%interval = ' '
+                io_files(i, j, k)%unit = iu ! fill in file unit numbers
                 iu = iu + 1
             end do
         end do
@@ -98,47 +98,47 @@ subroutine dsm2_init
     call initialize_rate_coefficient
 
 !-----default checkpoint intervals
-    io_files(hydro, io_restart, io_write) .interval = '1HOUR'
-    io_files(qual, io_restart, io_write) .interval = '1HOUR'
-    io_files(ptm, io_restart, io_write) .interval = '1HOUR'
+    io_files(hydro, io_restart, io_write)%interval = '1HOUR'
+    io_files(qual, io_restart, io_write)%interval = '1HOUR'
+    io_files(ptm, io_restart, io_write)%interval = '1HOUR'
 !-----default binary output intervals
-    io_files(hydro, io_echo, io_write) .interval = miss_val_c
-    io_files(qual, io_echo, io_write) .interval = miss_val_c
-    io_files(ptm, io_echo, io_write) .interval = miss_val_c
+    io_files(hydro, io_echo, io_write)%interval = miss_val_c
+    io_files(qual, io_echo, io_write)%interval = miss_val_c
+    io_files(ptm, io_echo, io_write)%interval = miss_val_c
 !-----default HDF5 output intervals
-    io_files(hydro, io_hdf5, io_write) .interval = '15MIN'
-    io_files(qual, io_hdf5, io_write) .interval = '15MIN'
-    io_files(ptm, io_hdf5, io_write) .interval = '15MIN'
+    io_files(hydro, io_hdf5, io_write)%interval = '15MIN'
+    io_files(qual, io_hdf5, io_write)%interval = '15MIN'
+    io_files(ptm, io_hdf5, io_write)%interval = '15MIN'
 
     current_tidefile = miss_val_i
     do i = 1, max_tide_files
-        tide_files(i) .start_date = ' '
-        tide_files(i) .end_date = ' '
-        tide_files(i) .filename = ' '
+        tide_files(i)%start_date = ' '
+        tide_files(i)%end_date = ' '
+        tide_files(i)%filename = ' '
     end do
 
     do i = 1, max_injection
-        part_injection(i) .slength = ' '
-        part_injection(i) .length = ' '
-        part_injection(i) .start_date = ' '
-        part_injection(i) .end_date = ' '
-        part_injection(i) .type = ' '
+        part_injection(i)%slength = ' '
+        part_injection(i)%length = ' '
+        part_injection(i)%start_date = ' '
+        part_injection(i)%end_date = ' '
+        part_injection(i)%type = ' '
     end do
 
     do i = 1, max_filter
-        part_filter(i) .type_f = miss_val_c
-        part_filter(i) .name = miss_val_c
-        part_filter(i) .ndx = miss_val_i
-        part_filter(i) .node = miss_val_i
-        part_filter(i) .resname = miss_val_c
-        part_filter(i) .at_wb = miss_val_c
-        part_filter(i) .at_wb_type = miss_val_i
-        part_filter(i) .at_wb_ndx = miss_val_i
-        part_filter(i) .at_wb_id = miss_val_i
-        part_filter(i) .op = 0.0
-        part_filter(i) .fillin = miss_val_c
-        part_filter(i) .filename = miss_val_c
-        part_filter(i) .path = miss_val_c
+        part_filter(i)%type_f = miss_val_c
+        part_filter(i)%name = miss_val_c
+        part_filter(i)%ndx = miss_val_i
+        part_filter(i)%node = miss_val_i
+        part_filter(i)%resname = miss_val_c
+        part_filter(i)%at_wb = miss_val_c
+        part_filter(i)%at_wb_type = miss_val_i
+        part_filter(i)%at_wb_ndx = miss_val_i
+        part_filter(i)%at_wb_id = miss_val_i
+        part_filter(i)%op = 0.0
+        part_filter(i)%fillin = miss_val_c
+        part_filter(i)%filename = miss_val_c
+        part_filter(i)%path = miss_val_c
     end do
 
 !-----set non-conservative constituent names for DSS C part

@@ -92,10 +92,10 @@
       logical &
            new_tidefile         ! true if new tidefile
       integer &
-           first_used_tidefile &   ! first used tidefile number (INPUT)
-           ,curr_tidefile &        ! current tidefile number
-           ,old_tide_block_no &    ! old tide block number
-           ,tide_block_no       ! tide block number within tidefile
+           first_used_tidefile, &   ! first used tidefile number (INPUT)
+           curr_tidefile, &        ! current tidefile number
+           old_tide_block_no, &    ! old tide block number
+           tide_block_no       ! tide block number within tidefile
       logical &
            recycle_tidefile    ! true if tidefile should be recycled (rewound)
 
@@ -138,15 +138,15 @@
 
 !-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !-----Check Hydro tidefile for size compatibility with PTM.
-      subroutine check_tidefile(dim_res,dim_chan,n_res,n_chan &
-           ,tidefile)
+      subroutine check_tidefile(dim_res,dim_chan,n_res,n_chan, &
+           tidefile)
       implicit none
 
 
 ! !-----argumnents
       integer &
-           dim_res,dim_chan &      ! reservoir and channel array dimensions
-           ,n_res,n_chan        ! reservoir and channels used in tidefile
+           dim_res,dim_chan, &      ! reservoir and channel array dimensions
+           n_res,n_chan        ! reservoir and channels used in tidefile
 
       character*(*) tidefile    ! tidefile name
 
@@ -396,8 +396,8 @@
       if ( npartno .gt. 0) then
          write(unit_output,1000) npartno
  1000    format(//,1x,'Number of particle injections',i6)
-         write(unit_output,1010) 'Node', 'NParts' &
-              , 'Start date & time', 'End date & time'
+         write(unit_output,1010) 'Node', 'NParts', &
+               'Start date & time', 'End date & time'
  1010    format(//1x,'Particle Insertions'/ &
               '----------------------'/// &
               a6,1x,a6,1x,a30,1x,a30/ &
@@ -406,10 +406,10 @@
          do i=1,npartno
             call upcase(part_injection(i).start_date)
             call upcase(part_injection(i).end_date)
-            write(unit_output,1020) part_injection(i).node &
-                 , part_injection(i).nparts &
-                 , part_injection(i).start_date &
-                 , part_injection(i).end_date
+            write(unit_output,1020) part_injection(i).node, &
+                  part_injection(i).nparts, &
+                  part_injection(i).start_date, &
+                  part_injection(i).end_date
          enddo
 
  1020    format(i6,1x,i6,1x,a30,1x,a30)
@@ -418,8 +418,8 @@
          if (nfilter .gt. 0) then
             write(unit_output,1200) nfilter
  1200       format(//,1x,'Number of particle filters',i6)
-            write(unit_output,1210) 'Name', 'Node' &
-                 , 'at Waterbody', 'Pass Efficiency'
+            write(unit_output,1210) 'Name', 'Node', &
+                  'at Waterbody', 'Pass Efficiency'
  1210       format(//1x,'Particle Filters'/ &
                  '----------------------'/// &
                  a30,1x,a6,1x,a30,1x,a12/ &
@@ -427,15 +427,15 @@
                  '------------------------------')
             do i=1,nfilter
                if (part_filter(i).node .ne. miss_val_i) then
-                   write(unit_output,1220) part_filter(i).name &
-                    , part_filter(i).node &
-                    , part_filter(i).at_wb &
-                    , part_filter(i).op
+                   write(unit_output,1220) part_filter(i).name, &
+                     part_filter(i).node, &
+                     part_filter(i).at_wb, &
+                     part_filter(i).op
                elseif (part_filter(i).node .eq. miss_val_i) then
-                   write(unit_output,1221) part_filter(i).name &
-                    , part_filter(i).resname &
-                    , part_filter(i).at_wb &
-                    , part_filter(i).op
+                   write(unit_output,1221) part_filter(i).name, &
+                     part_filter(i).resname, &
+                     part_filter(i).at_wb, &
+                     part_filter(i).op
                endif
             enddo
  1220       format(a30,1x,i6,1x,a30,1x,f12.2)
@@ -451,16 +451,16 @@
          if (ptm_iez .eq. .FALSE.) write(unit_output,1100) 'Vertical movement disabled'
          if (ptm_iey .eq. .FALSE.) write(unit_output,1100) 'Transverse movement disabled'
          if (ptm_random_seed .gt. 0) write(unit_output,1120) 'Random seed initialization: ', ptm_random_seed
-         write(unit_output,1110) 'Transverse mixing constant: ' &
-              , ptm_trans_constant
-         write(unit_output,1110) 'Vertical mixing constant: ' &
-              , ptm_vert_constant
-         write(unit_output,1110) 'Transverse velocity A coef: ' &
-              , ptm_trans_a_coef
-         write(unit_output,1110) 'Transverse velocity B coef: ' &
-              , ptm_trans_b_coef
-         write(unit_output,1110) 'Transverse velocity ! coef: ' &
-              , ptm_trans_c_coef
+         write(unit_output,1110) 'Transverse mixing constant: ', &
+               ptm_trans_constant
+         write(unit_output,1110) 'Vertical mixing constant: ', &
+               ptm_vert_constant
+         write(unit_output,1110) 'Transverse velocity A coef: ', &
+               ptm_trans_a_coef
+         write(unit_output,1110) 'Transverse velocity B coef: ', &
+               ptm_trans_b_coef
+         write(unit_output,1110) 'Transverse velocity ! coef: ', &
+               ptm_trans_c_coef
 
 !     an output of imported group memebers Jon 4/5/06
       call WriteGroupMembers2File(unit_output)

@@ -48,8 +48,8 @@ contains
         !   Purpose:  Compute and store coefficients of an integral form
         !             of the dynamic-wave equation (for computing
         !             1-D unsteady flow in open channels).
-        use channel_schematic &
-            ,only: UpstreamPointer
+        use channel_schematic, &
+            only: UpstreamPointer
 
         !   Program notes:
         !     Variables are integrated over time using an average weighted
