@@ -39,6 +39,8 @@ public class SurvivalCalculation {
 		Map<String, String> survEqs;
 		
         survEqs = Globals.Environment.getBehaviorInputs().getSurvivalInputs().getSurvEqs();
+        
+        if(survEqs==null) {return;}
                
 		// Build GraalJS engine
         Engine engine1 = Engine.newBuilder()
