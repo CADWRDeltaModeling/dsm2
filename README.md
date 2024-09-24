@@ -3,7 +3,11 @@ DSM2 is a one-dimensional mathematical model for dynamic simulation of tidal hyd
 water quality, and particle tracking in a network of riverine or estuarine channels. DSM2 can
 calculate stages, flows, velocities, transport of individual particles, and mass transport processes
 for conservative and non-conservative constituents, including salts, water temperature, dissolved
-oxygen (DO), and dissolved organic carbon (DOC)
+oxygen (DO), and dissolved organic carbon (DOC).
+
+## Documentation
+The DSM2 online documentation is available at the following link:
+[DSM2 Documentation](https://cadwrdeltamodeling.github.io/dsm2/).
 
 ## HYDRO
 The partial differential equations of mass and momentum in the DSM2 hydrodynamic model
