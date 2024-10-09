@@ -1,9 +1,7 @@
 #!/bin/bash
 module purge
-module load gcc/6.1.0
-module use /opt/intel/oneapi/modulefiles
-module load compiler/2022.1.0
-module load cmake/3.21.1
+module load intel/2022.1.2
+module load cmake/3.29.3
 cmake -E remove_directory build
 cmake -E make_directory build
 pushd build
