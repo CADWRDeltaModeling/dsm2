@@ -567,46 +567,8 @@
 
       integer        :: error	! HDF5 Error flag
 
+      call h5fflush_f(hdf_file.file_id, H5F_SCOPE_GLOBAL_F, error)
       call h5close_f(error)
-      return
-!-------Close the datasets corresponding to model states
-      if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data sets"
-
-      call h5dclose_f(hdf_file.chan_conc_id,error)
-      if (error .ne. 0) then
-         write(unit_error,*)"HDF5 error closing channel stage data set: ",error
-      end if
-
-      call h5dclose_f(hdf_file.chan_ave_conc_id,error)
-      if (error .ne. 0) then
-         write(unit_error,*)"HDF5 error closing channel avg area data set: ",error
-      end if
-
-      call h5dclose_f(hdf_file.res_conc_id,error)
-      if (error .ne. 0) then
-         write(unit_error,*)"HDF5 error closing channel flow data set: ",error
-      end if
-
-!-----Close the groups in the dataset. Only the data group should be open
-!     on an ongoing basis
-      call h5gclose_f(hdf_file.data_id, error)
-      if (error .ne. 0) then
-        write(unit_error,*)"HDF5 error closing data group: ",error
-      end if
-
-!-------Close the file
- 333  if (print_level .gt.1) write(unit_screen,*)"Closing HDF5 file"
-      call h5fclose_f(hdf_file.file_id, error)
-      if (error .ne. 0) then
-        write(unit_error,*)"HDF5 error closing hdf file: ",error
-      end if
-
-      if (print_level .gt.2) write(unit_screen,*)"Closing HDF5"
-      call h5close_f(error)
-      if (error .ne. 0) then
-         write(unit_error,*)"HDF5 error closing hdf5: ",error
-      end if
-      if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"
       return
       end subroutine
 
