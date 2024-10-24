@@ -4,6 +4,8 @@
 package DWR.DMS.PTM;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -23,6 +25,8 @@ public class SurvivalCalculation {
 	
 	private Particle [] particleArray;
 	private Map<String, Float> reachSurvMap;
+	private List<String> survGroups;
+	private Map<String, Float> surv;
 
 	public SurvivalCalculation(Particle [] particleArray) {
 		this.particleArray = particleArray;
@@ -36,12 +40,17 @@ public class SurvivalCalculation {
 	public void run() {
 		String thisSurvEq;
 		Object thisSurv;
-		Map<String, String> survEqs;
+		Map<String, String> survEqs, dependentSurvEqs;
+		Pattern p;
+		Matcher m;
 		
         survEqs = Globals.Environment.getBehaviorInputs().getSurvivalInputs().getSurvEqs();
         
         if(survEqs==null) {return;}
                
+        survGroups = new ArrayList<>();
+        surv = new HashMap<>();
+        
 		// Build GraalJS engine
         Engine engine1 = Engine.newBuilder()
                 .option("engine.WarnInterpreterOnly", "false")
@@ -51,28 +60,63 @@ public class SurvivalCalculation {
         ctx.getBindings("js").putMember("survCalc", new SurvivalCalculation(particleArray));
         ctx.eval("js", "var StringClass = Java.type('java.lang.String[]');");      
         
-        // Create and display translated equations
-        for (String key: survEqs.keySet()) {
-        	System.out.println("===================================================================");
-        	System.out.println("Survival equations for " + key);        	
-        	thisSurvEq = survEqs.get(key);
-        	// Remove # wildcards in equation with WILDCARD, which is an allowable component of a variable name
-        	thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
-        	thisSurvEq = translateEquation(thisSurvEq);
-        	System.out.println("translated equation: " + thisSurvEq);
-        	System.out.println("===================================================================");
+        // Gather names of survival groups
+        for(String key: survEqs.keySet()) {
+        	survGroups.add(key);
         }
         
+        // Identify equations that are a function of another survival group
+        dependentSurvEqs = new HashMap<>();
+        for(String key: survEqs.keySet()) {
+        	thisSurvEq = survEqs.get(key);
+        	
+        	for(String survGroup : survGroups) {
+                p = Pattern.compile("S\\(" + survGroup + "\\)");
+                m = p.matcher(thisSurvEq);
+                while(m.find()) {
+                	dependentSurvEqs.put(key, thisSurvEq);
+                }
+        	}
+        }
+        
+        // Remove dependent equations from survEqs
+        for(String key : dependentSurvEqs.keySet()) {
+        	survEqs.remove(key);
+        }
+                
         // Calculate survivals
+        System.out.println("===================================================================");
         for (String key: survEqs.keySet()) {
         	thisSurvEq = survEqs.get(key);
-        	// Remove # wildcards in equation with WILDCARD, which is an allowable component of a variable name
+        	// Replace # wildcards in equation with WILDCARD, which is an allowable component of a variable name
         	thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
         	thisSurvEq = translateEquation(thisSurvEq);
         	thisSurv = ctx.eval("js", thisSurvEq);
         	System.out.println("Survival for route " + key + ": " + thisSurv);
         	System.out.println("===================================================================");
-        }        
+        	       	
+        	surv.put(key, Float.parseFloat(thisSurv.toString()));
+        }
+        
+        // Calculate dependent survivals after inserting the appropriate survival values calculated above
+        System.out.println("===================================================================");
+        for(String key: dependentSurvEqs.keySet()) {
+        	thisSurvEq = dependentSurvEqs.get(key);
+        	
+        	for(String survGroup : survEqs.keySet()) {
+        		thisSurvEq = thisSurvEq.replaceAll("S\\(" + survGroup + "\\)", surv.get(survGroup).toString());        		
+        	}
+        	dependentSurvEqs.put(key, thisSurvEq);
+        	
+        	// Replace # wildcards in equation with WILDCARD, which is an allowable component of a variable name
+        	thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
+        	thisSurvEq = translateEquation(thisSurvEq);
+        	thisSurv = ctx.eval("js", thisSurvEq);
+        	System.out.println("Survival for route " + key + ": " + thisSurv);
+        	System.out.println("===================================================================");
+        	       	
+        	surv.put(key, Float.parseFloat(thisSurv.toString()));
+        }
 	}
 	
 	/**
@@ -242,6 +286,7 @@ public class SurvivalCalculation {
         // Replace survivals
         survStrNum = 0;
         defStr = "";
+        // Find up to 10 to stations
         for(int i=0; i<10; i++) {
         	
             pattern = "S\\((\\w*)_";
@@ -270,6 +315,7 @@ public class SurvivalCalculation {
         
         // Replace fractions
         fracStrNum = 0;
+        // Find up to 10 to stations
         for(int i=0; i<10; i++) {
         	pattern = "frac\\((\\w*)_(\\w*?)/\\w*_";
         	for(int j=0; j<i; j++) {
