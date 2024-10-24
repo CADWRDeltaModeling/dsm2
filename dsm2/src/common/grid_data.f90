@@ -69,8 +69,7 @@ module grid_data
     integer :: &
         nchan_list                   ! actual number of channel sequences
 
-    integer :: &
-        int2ext(0:max_channels)
+    integer, allocatable :: int2ext(:)
     integer :: resext2int(0:max_reservoirs)
     integer :: resint2ext(0:max_reservoirs)
     integer :: nodelist(0:max_nodes*2 + 1)

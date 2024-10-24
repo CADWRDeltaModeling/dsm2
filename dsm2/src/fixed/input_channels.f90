@@ -1,6 +1,6 @@
-subroutine input_channels(field_names, mxflds, nfields, nflds, &
+subroutine input_channels(field_names, mxflds, nfields, nflds, &     
                           ifld, rifld, line, ibegf, ilenf, istat)
-
+! NOTE This function may not be used
 !-----process a character line into data arrays for channel info
     use io_units
     use constants

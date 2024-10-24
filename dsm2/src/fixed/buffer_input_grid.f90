@@ -25,7 +25,7 @@ subroutine buffer_input_grid() !process_text_grid_input()
       use hdf5, only: hid_t
       use gates, only: process_gate, process_gate_device
       !@# For dynamic allocation
-      use common_variables, only: allocate_chan_geom_hq
+      use common_variables, only: allocate_chan_var
       implicit none
 
       integer :: node
@@ -71,6 +71,8 @@ subroutine buffer_input_grid() !process_text_grid_input()
 
 
       nitem = channel_buffer_size()
+      call allocate_chan_var(nitem)
+      
       do icount = 1,nitem
          call channel_query_from_buffer(icount, &
                                         chan_no, &
@@ -82,8 +84,6 @@ subroutine buffer_input_grid() !process_text_grid_input()
                                         ierror)
 
       nitem = channel_buffer_size()
-      !@# Dynamic allocation for chan_geom
-      call allocate_chan_geom_hq
           call process_channel(idummy,0,chan_no, &
                                length, &
                                manning, &
