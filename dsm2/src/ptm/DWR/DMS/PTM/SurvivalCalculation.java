@@ -4,6 +4,11 @@
 package DWR.DMS.PTM;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -117,6 +122,8 @@ public class SurvivalCalculation {
         	       	
         	surv.put(key, Float.parseFloat(thisSurv.toString()));
         }
+        
+        writeOutputCSV();
 	}
 	
 	/**
@@ -360,5 +367,39 @@ public class SurvivalCalculation {
 		matches = testString.matches(targetString);
 		
 		return matches;
+	}
+	
+	/** Write route-specific survival to a CSV file
+	 */
+	public void writeOutputCSV() {
+		String survOutputPathCSV, line;
+
+		// Write survival outputs to route survival outputs CSV file
+		survOutputPathCSV = "routeSurvival.csv"; 
+		if(survOutputPathCSV!=null && (!survOutputPathCSV.equals(""))) {
+			
+			survOutputPathCSV = Paths.get(survOutputPathCSV).toAbsolutePath().normalize().toString();
+			
+			try(BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(survOutputPathCSV)))) {
+
+				line = "route";
+				for(String g : survGroups) {
+					line = line + "," + g;
+				}
+				buffer.write(line);
+				buffer.newLine();
+				
+				line = "survivalFraction";
+				for(String g : survGroups) {
+					line = line + "," + surv.get(g).toString();
+				}
+				buffer.write(line);
+				buffer.newLine();					
+
+			} catch (IOException e) {
+				PTMUtil.systemExit("Failed to write to CSV route-specific survival output file, " + survOutputPathCSV + ": " + e);
+			}
+		}
+		System.out.println("Saved route-specific survival fractions to " + survOutputPathCSV);
 	}
 }
