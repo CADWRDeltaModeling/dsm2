@@ -33,6 +33,11 @@ public class SurvivalCalculation {
 	private List<String> survGroups;
 	private Map<String, Float> surv;
 
+	private Map<Integer, SimpleEntry<String, Long>> lastStationDatetimes;
+	private Map<Integer, String> fates;
+
+	static final int MISSING=-999;
+	
 	public SurvivalCalculation(Particle [] particleArray) {
 		this.particleArray = particleArray;
 		
@@ -123,7 +128,11 @@ public class SurvivalCalculation {
         	surv.put(key, Float.parseFloat(thisSurv.toString()));
         }
         
-        writeOutputCSV();
+        // Categorize final fates (passed Chipps, died, lost or entrained in pumps, etc.)
+        categorizeFates();
+        System.out.println("===================================================================");
+
+		writeOutputCSV();
 	}
 	
 	/**
@@ -157,7 +166,7 @@ public class SurvivalCalculation {
 		survivalCount = 0;
 		arrivalCount = 0;
 
-		// Loop over eFish
+		// Loop over vFish
 		for(int i=0; i<particleArray.length; i++) {
 
 			p = particleArray[i];
@@ -167,11 +176,11 @@ public class SurvivalCalculation {
 			if(thisDeathDatetime!=null) {particleDied = true;}
 			else {particleDied = false;}
 
-			// Loop over the eFish's arrival history
+			// Loop over the vFish's arrival history
 			for(int j=0; j<thisArrivalDatetimes.size()-1; j++) {		
 				thisArrivalDatetime = thisArrivalDatetimes.get(j);
 
-				// If the eFish passed the start station, check to see if it survived to each of the end stations
+				// If the vFish passed the start station, check to see if it survived to each of the end stations
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
 					
 					for(int k=0; k<toStations.length; k++) {
@@ -225,20 +234,20 @@ public class SurvivalCalculation {
 		arrivalCount = 0;
 		possibleArrivalCount = 0;
 		
-		// Loop over eFish
+		// Loop over vFish
 		for(int i=0; i<particleArray.length; i++) {
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
 
-			// Loop over the eFish's arrival history
+			// Loop over the vFish's arrival history
 			for(int j=0; j<thisArrivalDatetimes.size()-1; j++) {		
 				thisArrivalDatetime = thisArrivalDatetimes.get(j);
 				
-				// Check to see if the eFish arrived at fromStation
+				// Check to see if the vFish arrived at fromStation
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
 																				
-					// Check to see if the eFish arrived at any possibleToStations
+					// Check to see if the vFish arrived at any possibleToStations
 					for(int k=0; k<possibleToStations.length; k++) {
 						
 						if(checkEqual(possibleToStations[k], thisArrivalDatetimes.get(j+1).getKey())) {
@@ -369,10 +378,65 @@ public class SurvivalCalculation {
 		return matches;
 	}
 	
+	/**
+	 * Categorize final fates (passed Chipps, died, lost, etc.)
+	 */
+	private void categorizeFates() {
+		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
+		SimpleEntry<Integer, Long> thisDeathDatetime;
+		Particle p;
+		boolean particleDied;
+		int numDied, numExited, numLost;
+		
+		lastStationDatetimes = new HashMap<>();
+		fates = new HashMap<>();
+		
+		numDied = 0;
+		numExited = 0;
+		numLost = 0;
+		
+		// Loop over vFish
+		for(int i=0; i<particleArray.length; i++) {
+
+			p = particleArray[i];
+			thisArrivalDatetimes = p.getArrivalDatetimes();
+			if(thisArrivalDatetimes!=null) {
+				lastStationDatetimes.put(p.getId(), thisArrivalDatetimes.getLast());
+			}
+			else {
+				lastStationDatetimes.put(p.getId(), new SimpleEntry<String, Long>("", (long) MISSING));
+			}
+
+			thisDeathDatetime = p.getDeathDatetime();
+			if(thisDeathDatetime!=null) {particleDied = true;}
+			else {particleDied = false;}
+			
+			if(particleDied) {
+				fates.put(p.getId(), "died");
+				numDied++;
+			}
+			else if(thisArrivalDatetimes!=null && thisArrivalDatetimes.getLast().getKey().equals("MAL")
+					&& !particleDied) {
+				fates.put(p.getId(), "exited");
+				numExited++;
+			}
+			else {
+				fates.put(p.getId(), "lost or entrained in pumping facilities");
+				numLost++;
+			}
+		}
+		
+		System.out.println("Total number of vFish with recorded fates: " + (numDied + numExited + numLost));
+		System.out.println("Number of vFish that died: " + numDied);
+		System.out.println("Number of vFish that exited: " + numExited);
+		System.out.println("Number of vFish that were lost or entrained in pumping facilities: " + numLost);
+	}
+	
 	/** Write route-specific survival to a CSV file
 	 */
 	public void writeOutputCSV() {
-		String survOutputPathCSV, line;
+		String survOutputPathCSV, fatesOutputPathCSV, line;
+		Particle p;
 
 		// Write survival outputs to route survival outputs CSV file
 		survOutputPathCSV = "routeSurvival.csv"; 
@@ -394,12 +458,39 @@ public class SurvivalCalculation {
 					line = line + "," + surv.get(g).toString();
 				}
 				buffer.write(line);
-				buffer.newLine();					
+				buffer.newLine();	
 
 			} catch (IOException e) {
-				PTMUtil.systemExit("Failed to write to CSV route-specific survival output file, " + survOutputPathCSV + ": " + e);
+				PTMUtil.systemExit("Failed to write to route-specific survival output file, " + survOutputPathCSV + ": " + e);
 			}
 		}
 		System.out.println("Saved route-specific survival fractions to " + survOutputPathCSV);
+		
+		// Write fates to fates outputs CSV files
+		fatesOutputPathCSV = "fates.csv";
+		if(fatesOutputPathCSV!=null && (!fatesOutputPathCSV.equals(""))) {
+			
+			fatesOutputPathCSV = Paths.get(fatesOutputPathCSV).toAbsolutePath().normalize().toString();
+			
+			try(BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fatesOutputPathCSV)))) {
+
+				line = "particleID,lastStation,fate";
+				buffer.write(line);
+				buffer.newLine();
+				
+				for(int i=0; i<particleArray.length; i++) {
+
+					p = particleArray[i];
+					
+					line = p.getId() + "," + lastStationDatetimes.get(p.getId()).getKey() + "," + fates.get(p.getId());
+					buffer.write(line);
+					buffer.newLine();
+				}
+			} catch (IOException e) {
+				PTMUtil.systemExit("Failed to write to fates output file, " + fatesOutputPathCSV + ": " + e);
+			}
+		}
+		System.out.println("Saved vFish fates to " + fatesOutputPathCSV);
+		
 	}
 }
