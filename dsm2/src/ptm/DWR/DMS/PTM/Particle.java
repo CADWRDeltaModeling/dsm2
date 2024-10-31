@@ -614,6 +614,10 @@ public class Particle{
 		  //System.out.println("Particle " + this.Id + " recorded stuck: " + chanId + ", " + getCurrentParticleTimeExact());
 	  }
 	  
+	  public SimpleEntry<Integer, Long> getStuckDatetime() {
+		  return stuckDatetime;
+	  }
+	  
 	  public void recordTransport(Integer wbId) {
 		  transportDatetime = new SimpleEntry<Integer, Long>(wbId, getCurrentParticleTimeExact());
 		  //System.out.println("Particle " + this.Id + " recorded transported: " + wbId + ", " + getCurrentParticleTimeExact());
@@ -628,9 +632,5 @@ public class Particle{
 			  uniqueVisits.put(wbId, this.getCurrentParticleTimeExact());
 			//  System.out.println("Particle " + this.Id + " recorded inWaterbody: " + wbId + ", " + this.getCurrentParticleTimeExact());	
 		  }
-	  }
-	  
-	  public SimpleEntry<Integer, Long> getStuckDatetimes() {
-		  return stuckDatetime;
 	  }
 }

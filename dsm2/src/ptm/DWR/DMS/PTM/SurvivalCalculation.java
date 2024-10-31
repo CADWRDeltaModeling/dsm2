@@ -68,7 +68,7 @@ public class SurvivalCalculation {
 
 		Context ctx = Context.newBuilder("js").engine(engine1).allowAllAccess(true).build();
 		ctx.getBindings("js").putMember("survCalc", new SurvivalCalculation(particleArray));
-		ctx.eval("js", "var StringClass = Java.type('java.lang.String[]');");      
+		ctx.eval("js", "var StringClass = Java.type('java.lang.String[]');");
 
 		// Gather names of survival groups
 		for(String key: survEqs.keySet()) {
@@ -383,15 +383,16 @@ public class SurvivalCalculation {
 	 */
 	private void categorizeFates() {
 		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
-		SimpleEntry<Integer, Long> thisDeathDatetime;
+		SimpleEntry<Integer, Long> thisDeathDatetime, thisStuckDatetime;
 		Particle p;
-		boolean particleDied;
-		int numDied, numExited, numLost;
+		boolean particleDied, particleStuck;
+		int numDied, numStuck, numExited, numLost;
 
 		lastStationDatetimes = new HashMap<>();
 		fates = new HashMap<>();
 
 		numDied = 0;
+		numStuck = 0;
 		numExited = 0;
 		numLost = 0;
 
@@ -408,12 +409,18 @@ public class SurvivalCalculation {
 			}
 
 			thisDeathDatetime = p.getDeathDatetime();
-			if(thisDeathDatetime!=null) {particleDied = true;}
-			else {particleDied = false;}
+			particleDied = thisDeathDatetime!=null;
+
+			thisStuckDatetime = p.getStuckDatetime();
+			particleStuck = thisStuckDatetime!=null;
 
 			if(particleDied) {
 				fates.put(p.getId(), "died");
 				numDied++;
+			}
+			else if(particleStuck) {
+				fates.put(p.getId(), "stuck");
+				numStuck++;
 			}
 			else if(thisArrivalDatetimes!=null && thisArrivalDatetimes.getLast().getKey().equals("MAL")
 					&& !particleDied) {
@@ -428,6 +435,7 @@ public class SurvivalCalculation {
 
 		System.out.println("Total number of vFish with recorded fates: " + (numDied + numExited + numLost));
 		System.out.println("Number of vFish that died: " + numDied);
+		System.out.println("Number of vFish that got stuck: " + numStuck);
 		System.out.println("Number of vFish that exited: " + numExited);
 		System.out.println("Number of vFish that were lost or entrained in pumping facilities: " + numLost);
 	}
