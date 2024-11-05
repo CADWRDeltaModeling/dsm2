@@ -22,9 +22,9 @@
 !   Version 93.01, January, 1993
 module chinitcd
     use network
-    integer, save:: ChannelNumber(MaxChannels), Locations(MaxChannels)
+    integer, save, allocatable:: Locations(:), InitialConditionIndex(:)
+    integer, save:: ChannelNumber(MaxChannels)
     integer, save:: FirstLocation(MaxChannels),NUserInitLocations(MaxChannels)
-    integer, save:: InitialConditionIndex(MaxChannels)
     real*8, save:: InitialX(MaxLocations)
     real*8, save:: InitialWS(MaxLocations), InitialQ(MaxLocations)
     logical, save:: InitCndInitialized

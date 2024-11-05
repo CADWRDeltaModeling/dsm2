@@ -67,7 +67,7 @@ subroutine check_fixed_qual(istat)
     end if
 
     if (.not. dispersion) then
-        do chan = 1, max_channels
+        do chan = 1, nchans
             chan_geom(chan)%disp = 0
         end do
     end if

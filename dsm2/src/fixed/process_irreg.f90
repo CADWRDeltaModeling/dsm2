@@ -414,7 +414,7 @@ subroutine assign_adjacent_xsects
           nupstream, &
           ndownstream
 
-      do channo=1,max_channels
+      do channo=1,nchans
          if ( chan_geom(channo).length .gt. 0 .and. &
              xsect_assg(channo).num_sec_assg .ge. 1 ) then
             call xsect_numbers(channo)

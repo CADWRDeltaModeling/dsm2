@@ -33,13 +33,15 @@ module chconnec
                    VResOld(MaxNres)
     integer, save::  ResConnectingChannels(MaxNres, MaxResConnectChannel)
 
-    integer, save:: UpBoundaryCode(MaxChannels), &
-                    UpNumberOfConnections(MaxChannels), &
-                    UpConnection(MaxChannels*MaxConnectingChannels), &
+    integer, save, allocatable:: UpNumberOfConnections(:), &
+                                 DownNumberOfConnections(:), &
+                                 UpBoundaryCode(:)
+                                 
+    integer, save:: UpConnection(MaxChannels*MaxConnectingChannels), &
                     DownBoundaryCode(MaxChannels), &
-                    DownNumberOfConnections(MaxChannels), &
                     DownConnection(MaxChannels*MaxConnectingChannels), &
                     nodeSumQChan(MaxNodes)
+
     real*8, save::   dX(MaxChannels)
 
 end module

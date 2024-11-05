@@ -326,6 +326,9 @@ contains
             return
         end if
 
+        if(not(allocated(Locations)))allocate(Locations(Channels+1))
+        if(not(allocated(InitialConditionIndex)))allocate(InitialConditionIndex(Channels+1))
+
         K = 0
         do 200 I=1,Channels
 

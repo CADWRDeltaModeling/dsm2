@@ -297,7 +297,8 @@ subroutine check_fixed_hydro(istat)
     !-----convention for gate flow (water body to node) aligns with the flow
     !-----direction in the water body (e.g., upstream to downstream) flowDirect =1.D0
     !-----if the direction is the same (gate at downstream end of channel), -1.D0 otherwise
-
+    if(not(allocated(upboundarycode))) allocate (upboundarycode(nchans+1))
+    upboundarycode=0
     !     add gate codes
     do i = 1,ngate
         if (gateArray(i)%inUse .and. (gateArray(i)%objConnectedType &
@@ -439,6 +440,11 @@ subroutine check_fixed_hydro(istat)
     enddo
 
     !-----fill FourPt connection arrays
+    if(not(allocated(upnumberofconnections))) allocate (upnumberofconnections(nchans+1))
+    if(not(allocated(downnumberofconnections))) allocate (downnumberofconnections(nchans+1))
+
+
+
     do intchan=1,nchans
         firsttime(intchan)=.true.
         upnumberofconnections(intchan)=0
