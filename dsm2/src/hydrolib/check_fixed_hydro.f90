@@ -539,6 +539,9 @@ subroutine check_fixed_hydro(istat)
     !    write(unit_error,*) "Delta x not specified"
     !    call exit(3)
     !end if
+
+    if(not(allocated(dx))) allocate (dx(nchans+1))
+
     do intchan=1,nchans
         Lines(intchan)=2       ! means values given at two depths
         FirstTable(intchan) = USR+1

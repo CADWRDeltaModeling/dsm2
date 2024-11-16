@@ -1138,6 +1138,8 @@ contains
             YResOld(i)=YRes(i)
         end do
 
+
+
         do 200 I = 1, NumberOfChannels()
 
             Channelnumber_L = I
@@ -1198,7 +1200,7 @@ contains
                 K = K + 1
                 J = DownstreamPointer()
                 Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
-                dX = CompLocation_lcl(J) - CompLocation_lcl(J-1)
+                !dX = CompLocation_lcl(J) - CompLocation_lcl(J-1)
                 FrNo = Velocity / SQRT( G * H(J) )
                 CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
                 WSSlope = ( WS(J) - WS(J-1) ) / delX

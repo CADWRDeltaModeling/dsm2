@@ -243,7 +243,10 @@ contains
         ModelIndex = 1
         MaxCx = MaxLocations
         TotalCompLocations = 0
-
+        
+        if(not(allocated(NumberOfCompLocations)))allocate(NumberOfCompLocations(Numch))
+        if(not(allocated(UpCompPointer)))allocate(UpCompPointer(Numch))
+        if(not(allocated(DownCompPointer)))allocate(DownCompPointer(Numch))
         !-----Begin channel loop.
         do I = 1, NumCh
             ChNum = I

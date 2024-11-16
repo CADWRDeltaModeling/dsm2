@@ -437,6 +437,8 @@ contains
 
         !-----Implementation -------------------------------------------------
 
+        if(not(allocated(AreaChannelComp)))allocate(AreaChannelComp(NumberOfChannels(), MaxCompPts))
+        
         Compute_ChArea = .false.
         do Branch = 1, NumberofChannels()
             Up = UpCompPointer(Branch)

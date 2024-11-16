@@ -50,7 +50,7 @@ subroutine hdf5_write_attributes()
     integer     :: arank = 1  ! Attribute rank
     integer     :: error      ! HDF5 Error flag
     integer(HSIZE_T), dimension(1) :: a_data_dims
-    real(kind=4), dimension(MaxChannels) :: bottom_el1, bottom_el2
+    real(kind=4), allocatable :: bottom_el1(:), bottom_el2(:)
     integer :: i
     integer calcHDF5NumberOfTimeIntervals
 
@@ -222,6 +222,8 @@ subroutine hdf5_write_attributes()
                             name_len, max(1, nqext))
     deallocate (names)
 
+    if(not(allocated(bottom_el1)))allocate(bottom_el1(nchans))
+    if(not(allocated(bottom_el2)))allocate(bottom_el2(nchans))
     ! Write out bottom_el
     cg_dims(1) = nchans
     cg_dims(2) = 2            ! bottom_el:2
@@ -247,7 +249,8 @@ subroutine hdf5_write_attributes()
     call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
     call h5dwrite_f(cg_dset_id, H5T_NATIVE_REAL, bottom_el2, cg_data_dims, &
                     error, mem_space_id=memspace, file_space_id=cg_dspace_id)
-
+                    
+    deallocate (bottom_el1, bottom_el2)
     ! Write out chan_dx
     cx_dims(1) = nchans
     call h5screate_simple_f(cx_rank, cx_dims, cx_dspace_id, error)

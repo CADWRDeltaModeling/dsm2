@@ -63,7 +63,7 @@ subroutine hdf5_read_attributes()
       integer     ::    cg_rank = 2 ! Dataset rank
       integer(HSIZE_T), dimension(7) :: cg_data_dims ! = (/4,6,2/) ! Dataset dimensions
 
-      real*4, dimension(MaxChannels) :: bottom_el1,bottom_el2
+      real(kind=4), allocatable :: bottom_el1(:), bottom_el2(:)
 
       real*4, dimension(max_nodes) :: inodeidx,enodeidx
       real*4, dimension(max_reservoirs) :: iresidx,eresidx
@@ -174,6 +174,8 @@ subroutine hdf5_read_attributes()
           error, memspace, filespace)
 
 
+      if(not(allocated(bottom_el1)))allocate(bottom_el1(n_chan_tf))
+      if(not(allocated(bottom_el2)))allocate(bottom_el2(n_chan_tf))
 
       h_offset(2) = bottom_elIdx + 1
       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -186,6 +188,8 @@ subroutine hdf5_read_attributes()
          chan_geom(i).bottomelev(1) = bottom_el1(i)
          chan_geom(i).bottomelev(2) = bottom_el2(i)
       end do
+      
+      deallocate (bottom_el1, bottom_el2)
 
       call reservoir_flow_connections_clear_buffer()
       call node_flow_connections_clear_buffer()

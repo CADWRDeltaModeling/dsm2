@@ -21,6 +21,8 @@
 subroutine buffer_input_hydro()
       use input_storage_fortran
       use constants
+      use chinitcd, only: FirstLocation, NUserInitLocations
+      use grid_data, only: nchans
 
       implicit none
       integer :: nitem
@@ -72,6 +74,10 @@ subroutine buffer_input_hydro()
 
 !=======================  Initial conditions
       nitem = channel_ic_buffer_size()
+
+      if(not(allocated(FirstLocation))) allocate(FirstLocation(nitem))
+      if(not(allocated(NUserInitLocations))) allocate(NUserInitLocations(nitem))
+
       do icount = 1,nitem
          call channel_ic_query_from_buffer(icount, &
                                           channel, &
@@ -85,6 +91,7 @@ subroutine buffer_input_hydro()
       print *,"Number of channel initial conditions processed: ", nitem
 
       nitem = reservoir_ic_buffer_size()
+
       do icount = 1,nitem
          call reservoir_ic_query_from_buffer(icount,resname,stage,ierror)
          call process_reservoir_ic(resname,stage)
