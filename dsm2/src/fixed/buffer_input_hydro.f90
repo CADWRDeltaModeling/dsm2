@@ -75,8 +75,10 @@ subroutine buffer_input_hydro()
 !=======================  Initial conditions
       nitem = channel_ic_buffer_size()
 
-      if(not(allocated(FirstLocation))) allocate(FirstLocation(nitem))
-      if(not(allocated(NUserInitLocations))) allocate(NUserInitLocations(nitem))
+      if(not(allocated(FirstLocation))) allocate(FirstLocation(nchans))
+      if(not(allocated(NUserInitLocations))) allocate(NUserInitLocations(nchans))
+
+      NUserInitLocations = 0
 
       do icount = 1,nitem
          call channel_ic_query_from_buffer(icount, &
