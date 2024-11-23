@@ -417,8 +417,8 @@ public class SurvivalInputs {
 				PTMUtil.systemExit("errors in the survival parameter input line group:"+i);
 			String name = PTMUtil.getNameFromLine(survivalStrs.get(0), ':');
 			//stSta only has one pair, but enStas and exStas can have many pairs.
-			ArrayList<int[]> stStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(1), "START_STATION");
-			ArrayList<int[]> enStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(2), "END_STATION");
+			ArrayList<int[]> stStas = getStationsFromLine(survivalStrs.get(1), "START_STATION");
+			ArrayList<int[]> enStas = getStationsFromLine(survivalStrs.get(2), "END_STATION");
 			ArrayList<int[]> exStas = null;
 			//exchangeable start station often empty
 			//TODO clean up no need to give warning
@@ -427,8 +427,9 @@ public class SurvivalInputs {
 				System.err.println("Warning: EXCHANGEABLE_START_STATION line is empty!");
 			else
 			*/
-			if (survivalStrs.get(3).split(":").length >= 2)
-				exStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(3), "EXCHANGEABLE_START_STATION");
+			if (survivalStrs.get(3).split(":").length >= 2) {
+				exStas = getStationsFromLine(survivalStrs.get(3), "EXCHANGEABLE_START_STATION");
+			}
 			ArrayList<Integer> enStasInt = new ArrayList<Integer>();
 			ArrayList<Integer> exStasInt = new ArrayList<Integer>();
 			//External channel numbers are converted to internal channel numbers, unless this is a non-channel station
@@ -484,9 +485,10 @@ public class SurvivalInputs {
 			ArrayList<Double> paras = null;
 			Map<Integer, ArrayList<Double>> thisParasMap = new HashMap<Integer, ArrayList<Double>>();
 			for(int j=0; j<_groupEndStas.get(i).size(); j++) {
-				endStationAndParas = PTMUtil.getDoubles(survivalStrs.get(5+j));
+				endStationAndParas = getXTparameters(survivalStrs.get(5+j));
 				endStationExt = endStationAndParas.get(0).intValue();
-				endStationInt = PTMHydroInput.getIntFromExtChan(endStationExt);
+				// Use _groupEndStas.get(i).get(j) instead of PTMHydroInput.getIntFromExtChan(endStationExt) so non-channel waterbodies are handled properly.
+				endStationInt = _groupEndStas.get(i).get(j);
 				paras = new ArrayList<Double>(endStationAndParas.subList(1, 4));				
 				thisParasMap.put(endStationInt, paras);
 			}
@@ -523,7 +525,7 @@ public class SurvivalInputs {
 		for(int i=1; i<reachSurvIn.size(); i++) {
 			items = reachSurvIn.get(i).split("[,:\\s\\t]+");
 			System.out.println("reachSurvIn[0]: " + reachSurvIn.get(i));
-			_reachSurvMap.put(items[0], Float.parseFloat(items[1]));
+			_reachSurvMap.put(items[0].replaceAll("#", SurvivalCalculation.WILDCARD), Float.parseFloat(items[1]));
 		}
 	}
 	public Map<String, Float> getReachSurvMap() {return _reachSurvMap;}
@@ -540,6 +542,84 @@ public class SurvivalInputs {
 		else
 			PTMUtil.systemExit("SYSTEM EXIT: expecting survival output definition ... but get:"+ inTitle);
 	}
+	
+	private ArrayList<int[]> getStationsFromLine(String line, String lineName) throws NumberFormatException{
+		int[] intPair;
+		ArrayList<String[]> strs;
+		ArrayList<int[]> pairs;
+
+		
+
+		strs = PTMUtil.getStringPairsFromLine(line, lineName);
+		pairs = new ArrayList<int[]>();
+		for (String[] pair: strs) {
+			intPair = new int[2];
+			
+			if (pair.length<2) {
+				throw new NumberFormatException("pair length < 2:" + pair);
+			}
+
+			intPair[0] = getStationFromString(pair[0]);
+
+			try {
+				intPair[1] = Integer.parseInt(pair[1].trim());
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				PTMUtil.systemExit("number format is wrong in the input file! Should be integers. The line input:" + line);
+			}
+			
+			pairs.add(intPair);
+		}
+		return pairs;
+	}
+	
+	private ArrayList<Double> getXTparameters(String paramLine) {
+		ArrayList<String> stringList;
+		ArrayList<Double> doubleList;
+		double thisDouble;
+		
+		doubleList = new ArrayList<>();
+		
+		stringList = PTMUtil.getStrings(paramLine);
+		for(String str : stringList) {
+			thisDouble = MISSING;
+			try {
+				thisDouble = Double.parseDouble(str);
+			} catch (NumberFormatException e) {
+				if (PTMEnv.getReservoirObj2ObjEnvId(str) == null){
+					PTMUtil.systemExit(str + " in the Survival_Inputs output line is wrong, please check");
+				}
+				else {
+					thisDouble = Double.valueOf(PTMEnv.getReservoirObj2ObjEnvId(str));
+				}
+			}
+			doubleList.add(thisDouble);
+		}
+		
+		return doubleList;
+		
+	}
+	
+	private int getStationFromString(String stationStr) {
+		int stationInt;
+		
+		stationStr = stationStr.trim();
+		
+		stationInt = MISSING;
+		try {
+			stationInt = Integer.parseInt(stationStr);
+		} catch(NumberFormatException e) {
+			if (PTMEnv.getReservoirObj2ObjEnvId(stationStr) == null){
+				PTMUtil.systemExit("station:" + stationStr + " in the Survival_Inputs output line is wrong, please check");
+			}
+			else {
+				stationInt = PTMEnv.getReservoirObj2ObjEnvId(stationStr);
+			}
+		}
+	
+		return stationInt;
+	}
+	
 	private String _pathFileName = null;
 	// <start station chan#> start chan# is unique for each Calculation Group
 	private ArrayList<Integer> _startStas=null;

@@ -258,7 +258,7 @@ public class PTMUtil {
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
 
-	private static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
+	public static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
 		String[] items = line.split(":");
 		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
@@ -408,6 +408,14 @@ public class PTMUtil {
 			PTMUtil.systemExit("expect Doubles but get:"+numberLine);
 		}
 		return dbls;
+	}
+	public static ArrayList<String> getStrings(String stringLine) {
+		ArrayList<String> strs = new ArrayList<String>();
+		String[] items = stringLine.split("[,:\\s\\t]+");
+		for(String item: items) {
+			strs.add(item);
+		}
+		return strs;		
 	}
 	public static boolean check(String[] listToCheck, String[] standards){
 		int length = listToCheck.length;

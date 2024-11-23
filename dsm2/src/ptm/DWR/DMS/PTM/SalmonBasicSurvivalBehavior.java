@@ -45,83 +45,94 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
 	public void isSurvived(Particle p) {
+		boolean isChannel, isStart, isEnd, isExchange, recordedArrival;
+		int wbId; 
+		
 		if(!_survivalIn.getDoSurvival())
 			return;
 		int pId = p.Id;
 		
-		// Non-channel waterbodies are only used for terminal events, e.g., transport
-		if(p.wb.getPTMType()!=Waterbody.CHANNEL) {
-			if(_survivalIn.isStartWB(p.wb.getEnvIndex())) {
-				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(p.wb.getEnvIndex())));
-				p.recordTransport(p.wb.getEnvIndex());
-			}
-			return;
-		}
+		isChannel = p.wb.getPTMType()==Waterbody.CHANNEL;
+		wbId = p.wb.getEnvIndex();
+		recordedArrival = false;
 		
-		Channel ch = (Channel)p.wb;
-		int chanId = ch.getEnvIndex();
+		if(isChannel) {
+			isStart = _survivalIn.isStart(wbId, p.x, p.getFromUpstream());
+		}
+		else {
+			isStart = _survivalIn.isStartWB(wbId);
+		}
+
 		if (_pGroupUsed.get(pId) == null)
 			_pGroupUsed.put(pId, new HashSet<Integer>());
-
-		boolean isStart = _survivalIn.isStart(chanId, p.x, p.getFromUpstream());
 
  		Integer sSta = _pStartSta.get(pId);
 		// sSta == null means the particle doesn't know its survival start station.
 		// need only to search for a start station.  no need to search for an end or exchange station
 		if (sSta == null){
 			if (isStart){
-				_pStartSta.put(pId, chanId);
+				_pStartSta.put(pId, wbId);
 				_pStartAge.put(pId, p.age);
-				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
-				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(chanId)));
-				_pGroupUsed.get(pId).add(_survivalIn.getGroupNumber(chanId));
+				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(wbId));
+				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(wbId)));
+				recordedArrival = true;
+				_pGroupUsed.get(pId).add(_survivalIn.getGroupNumber(wbId));
 				if(DEBUG){
-					System.err.println("pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" pAge:"+p.age+" p.x:"+p.x+" start null ");
+					System.err.println("pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(wbId)+" pAge:"+p.age+" p.x:"+p.x+" start null ");
 				}
 			}
 			return;
 		}
 		// if the particle is in a start channel, impossible to be also in an end or exchange channel.
 		// so do nothing.
-		if (sSta == chanId)
+		if (sSta == wbId)
 			return;
 		/*
 		 * no need to check isStart here because sSta != null.
 		 * only need to check if isExchange or isEnd
 		 */
 		Integer groupId = _survivalIn.getGroupNumber(sSta);
-		boolean isEnd = _survivalIn.isEnd(groupId, chanId, p.x, p.getFromUpstream());
-		boolean isExchange = _survivalIn.isExchange(groupId, chanId, p.x, p.getFromUpstream());
+		
+		if(isChannel) {
+			isEnd = _survivalIn.isEnd(groupId, wbId, p.x, p.getFromUpstream());
+			isExchange = _survivalIn.isExchange(groupId, wbId, p.x, p.getFromUpstream());
+		}
+		else {
+			isEnd = _survivalIn.isEndChan(groupId, wbId);
+			isExchange = _survivalIn.isExchangeChan(groupId, wbId);
+		}
 		
 		if (isExchange){
 			// subtract 1 from the group that this particle leaves,
 			// and add one to the group currently entered
-			int newGroupId = _survivalIn.getGroupNumber(chanId);
+			int newGroupId = _survivalIn.getGroupNumber(wbId);
 			_survivalIn.minusArrivalToGroup(groupId);
 			p.removeLastArrivalRecord();
 			_survivalIn.addArrivalToGroup(newGroupId);
 			p.recordArrival(_survivalIn.getGroupName(newGroupId));
-			_pStartSta.put(pId, chanId);
+			recordedArrival = true;
+			_pStartSta.put(pId, wbId);
 			_pGroupUsed.get(pId).add(newGroupId);
 			_pGroupUsed.get(pId).remove(sSta);
 			if(DEBUG)
-				System.err.println(PTMHydroInput.getExtFromIntChan(chanId)+ ","+"pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" isExchange ");
+				System.err.println(PTMHydroInput.getExtFromIntChan(wbId)+ ","+"pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(wbId)+" isExchange ");
 			return;
 		}
 		if (isEnd){
 			
-			// Record arrival. Note that this doesn't mean that the eFish actually survived to the station, but rather
+			// Record arrival. Note that this doesn't mean that the vFish actually survived to the station, but rather
 			// that it arrived so its survival could be assessed.
-			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
-				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(chanId)));
+			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(wbId))){
+				p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(wbId)));
+				recordedArrival = true;
 			}
 			 
-			ArrayList<Double> paras = _survivalIn.getSurvivalParameters(groupId, chanId);
+			ArrayList<Double> paras = _survivalIn.getSurvivalParameters(groupId, wbId);
 			double lam = paras.get(0), om = paras.get(1), X = paras.get(2);
 			if(DEBUG){
-				int chanExt = PTMHydroInput.getExtFromIntChan(chanId);
+				int chanExt = PTMHydroInput.getExtFromIntChan(wbId);
 				double start = _pStartAge.get(pId);
-				System.err.println(PTMHydroInput.getExtFromIntChan(chanId)+ ","+"pId:"+pId+" chan:"+chanExt+" p.x:"+p.x+" p.age:"+p.age+" p.StartAge:"+start+ "  Group:"+groupId+" Lamda:"
+				System.err.println(PTMHydroInput.getExtFromIntChan(wbId)+ ","+"pId:"+pId+" chan:"+chanExt+" p.x:"+p.x+" p.age:"+p.age+" p.StartAge:"+start+ "  Group:"+groupId+" Lamda:"
 						+lam+" omaga:"+om+" X:"+X+" isEnd");
 			}
 			double t = p.age - _pStartAge.get(pId);
@@ -147,10 +158,10 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			_survivalIn.addSurvivalRate(pId, groupId, survival);
 			if (survival < po){
 				p.setParticleDead();
-				p.recordDeath(chanId);
+				p.recordDeath(wbId);
 				_survivalIn.addLostToGroup(groupId);
 				if(DEBUG)
-					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(chanId)
+					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(wbId)
 					+"  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");
 				return;
 			}
@@ -158,7 +169,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 				_survivalIn.addSurvivalToGroup(groupId);
 			if(DEBUG){
 				System.err.println("pId:" + pId +" node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
-							+"  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
+							+"  channel:"+PTMHydroInput.getExtFromIntChan(wbId)
 						+ "  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead
 						+ " rand:" + po +" X:" + X+"  isEnd");
 			}
@@ -171,11 +182,11 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			 *
 			 * isStart has to be checked after all other checks (i.e., isExchange, isEnd) done to avoid exit prematurely.
 			 * */
-			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
-				_pStartSta.put(pId, chanId);
+			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(wbId))){
+				_pStartSta.put(pId, wbId);
 				_pStartAge.put(pId, p.age);
-				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
-				_pGroupUsed.get(pId).add(_survivalIn.getGroupNumber(chanId));
+				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(wbId));
+				_pGroupUsed.get(pId).add(_survivalIn.getGroupNumber(wbId));
 			}
 			//TODO really need a warning?
 			//else
@@ -183,9 +194,18 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			//only possible to come here if it is the last end station.  After the last station, pass the last station, the particle is taken out of the system
 			else 
 				p.setParticleDead();
-
-			return;
-		} //isEnd
+			
+		} 
+		
+		// Currently, stations in non-channel waterbodies are only used for transport
+		if(!isChannel && (isStart || isEnd)) {
+			if(!recordedArrival) {p.recordArrival(_survivalIn.getGroupName(_survivalIn.getGroupNumber(wbId)));}
+			p.recordTransport(wbId);
+		}		
+		
+		return;
+		
+		//isEnd
 		/*
 		if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
 			//TODO should be a warning or exit???

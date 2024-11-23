@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.graalvm.polyglot.Context;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class SurvivalCalculation {
 
-	static final String WILDCARD = "99999";
+	public static final String WILDCARD = "99999";
 
 	private Particle [] particleArray;
 	private Map<String, Float> reachSurvMap;
@@ -207,8 +208,8 @@ public class SurvivalCalculation {
 
 		if(Double.isNaN(surv)) {surv = 0;}
 
-		System.out.print("Survival from " + fromStation + " to ");
-		for(int i=0; i<toStations.length; i++) {
+		System.out.print("Survival from " + fromStation + " to " + toStations[0]);
+		for(int i=1; i<toStations.length; i++) {
 			System.out.print(", " + toStations[i]);
 		}
 		System.out.println(": survivalCount=" + survivalCount + ", arrivalCount=" + arrivalCount + ", surv=" + surv);
@@ -269,9 +270,9 @@ public class SurvivalCalculation {
 		// This is the fraction calculation based on Adam's equations
 		fraction = (double) arrivalCount/(double) possibleArrivalCount;
 
-		System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations ");
-		for(int i=0; i<possibleToStations.length; i++) {
-			System.out.print(possibleToStations[i] + ", ");
+		System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations " + possibleToStations[0]);
+		for(int i=1; i<possibleToStations.length; i++) {
+			System.out.print(", " + possibleToStations[i]);
 		}
 		System.out.println(": arrivalCount=" + arrivalCount + ", possibleArrivalCount=" + possibleArrivalCount + ", fraction=" + fraction);
 
@@ -383,19 +384,24 @@ public class SurvivalCalculation {
 	 */
 	private void categorizeFates() {
 		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
-		SimpleEntry<Integer, Long> thisDeathDatetime, thisStuckDatetime;
+		SimpleEntry<Integer, Long> thisDeathDatetime, thisStuckDatetime, thisTransportDatetime;
 		Particle p;
-		boolean particleDied, particleStuck;
-		int numDied, numStuck, numExited, numLost;
+		boolean particleDied, particleStuck, particleTransported;
+		int numDied, numStuck, numTransported, numExited, numLost;
+		Map<String, Integer> transportPrevStations;
+		String transportSeq;
 
 		lastStationDatetimes = new HashMap<>();
 		fates = new HashMap<>();
 
 		numDied = 0;
 		numStuck = 0;
+		numTransported = 0;
 		numExited = 0;
 		numLost = 0;
 
+		transportPrevStations = new HashMap<>();
+		
 		// Loop over vFish
 		for(int i=0; i<particleArray.length; i++) {
 
@@ -413,6 +419,9 @@ public class SurvivalCalculation {
 
 			thisStuckDatetime = p.getStuckDatetime();
 			particleStuck = thisStuckDatetime!=null;
+			
+			thisTransportDatetime = p.getTransportDatetime();
+			particleTransported = thisTransportDatetime!=null;
 
 			if(particleDied) {
 				fates.put(p.getId(), "died");
@@ -422,22 +431,37 @@ public class SurvivalCalculation {
 				fates.put(p.getId(), "stuck");
 				numStuck++;
 			}
+			else if(particleTransported) {
+				fates.put(p.getId(), "transported");
+				numTransported++;
+							
+				transportSeq = thisArrivalDatetimes.get(thisArrivalDatetimes.size()-2).getKey() + "_" + thisArrivalDatetimes.getLast().getKey();
+				if(transportPrevStations.containsKey(transportSeq)) {
+					transportPrevStations.put(transportSeq, transportPrevStations.get(transportSeq)+1);
+				}
+				else {
+					transportPrevStations.put(transportSeq, 1);
+				}
+			}
 			else if(thisArrivalDatetimes!=null && thisArrivalDatetimes.getLast().getKey().equals("MAL")
 					&& !particleDied) {
 				fates.put(p.getId(), "exited");
 				numExited++;
 			}
 			else {
-				fates.put(p.getId(), "lost or entrained in pumping facilities");
+				fates.put(p.getId(), "lost");
 				numLost++;
 			}
 		}
 
-		System.out.println("Total number of vFish with recorded fates: " + (numDied + numExited + numLost));
+		System.out.println("===================================================================");
+		System.out.println("Total number of vFish with recorded fates: " + (numDied + numStuck + numTransported + numExited + numLost));
 		System.out.println("Number of vFish that died: " + numDied);
 		System.out.println("Number of vFish that got stuck: " + numStuck);
+		System.out.println("Number of vFish that were transported: " + numTransported);
 		System.out.println("Number of vFish that exited: " + numExited);
-		System.out.println("Number of vFish that were lost or entrained in pumping facilities: " + numLost);
+		System.out.println("Number of vFish that were lost: " + numLost);
+		System.out.println("Counts of unique transport station sequences: " + transportPrevStations.toString());
 	}
 
 	/** Write route-specific survival to a CSV file

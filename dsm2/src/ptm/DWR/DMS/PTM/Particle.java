@@ -618,6 +618,10 @@ public class Particle{
 		  return stuckDatetime;
 	  }
 	  
+	  public SimpleEntry<Integer, Long> getTransportDatetime() {
+		  return transportDatetime;
+	  }
+	  
 	  public void recordTransport(Integer wbId) {
 		  transportDatetime = new SimpleEntry<Integer, Long>(wbId, getCurrentParticleTimeExact());
 		  //System.out.println("Particle " + this.Id + " recorded transported: " + wbId + ", " + getCurrentParticleTimeExact());

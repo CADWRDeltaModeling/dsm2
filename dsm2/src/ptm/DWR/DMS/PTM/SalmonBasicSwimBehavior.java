@@ -410,6 +410,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			 }
 
 			 else if (p.wb.getPTMType() ==  Waterbody.BOUNDARY) {
+				 // Check if this is a boundary with a terminal station, e.g., a transport station
+				 p.checkSurvival();
+				 if (p.isDead) return;
+				 
 				 p.setParticleDead();
 				 break;
 			 }

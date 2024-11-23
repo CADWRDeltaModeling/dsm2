@@ -58,6 +58,7 @@ class Boundary extends Waterbody {
   public Boundary(int nId, int[] ndArray, String boundaryName){
     super(Waterbody.BOUNDARY, nId, ndArray);
     String upName = boundaryName.toUpperCase();
+    _name = upName;
     if (upName.contains("DICU")){
     	if(upName.contains("SEEP")){
     		_boundaryName = "AG_SEEP";
@@ -96,11 +97,12 @@ class Boundary extends Waterbody {
   public int getHydroType(){return FlowTypes.rim;}
 
   public String getBoundaryName(){return _boundaryName;}
+  public String getName() {return _name;}
 
   public float getInflowWSV(int nodeEnvId, float sv){
 	//TODO implement unique inflow with swimming velocity later
 	  return getInflow(nodeEnvId);
   }
-  private String _boundaryName;
+  private String _boundaryName, _name;
   private boolean _isSeep = false, _isDiv = false;
 }

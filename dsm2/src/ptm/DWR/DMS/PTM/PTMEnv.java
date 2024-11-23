@@ -130,6 +130,8 @@ public class PTMEnv{
 				  _reservoirObj2objNameID.put(((Reservoir)wbArray[i]).getName(), i);
 			  else if (wbType == Waterbody.CONVEYOR)
 				  _reservoirObj2objNameID.put(((Conveyor)wbArray[i]).getName(), i);
+			  else if (wbType == Waterbody.BOUNDARY)
+				  _reservoirObj2objNameID.put(((Boundary)wbArray[i]).getName(), i);
 		  }//end if
 	  }//end for wb
 	  if (DEBUG) System.out.println("Done with initialzing nodes");
