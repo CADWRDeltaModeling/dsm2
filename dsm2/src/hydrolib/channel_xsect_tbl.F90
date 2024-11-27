@@ -31,7 +31,7 @@ module channel_xsect_tbl
 #else
     integer, parameter ::     MaxTables=5000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
 #endif
-    integer, save:: FirstTable(MaxChannels), LastTable(MaxChannels)
+    integer, save, allocatable:: FirstTable(:), LastTable(:)
     integer, save:: Lines(MaxChannels), Offset(MaxTables)
     real*8, save::  XDistance(MaxTables)
     real*8, save::  Datum(MaxTables)

@@ -24,16 +24,12 @@ module netbnd
     implicit none
     integer, save:: BndValues
     integer, save:: NetBndValUnit
-    integer, save:: Channel(2*MaxChannels)
     integer, save :: StartSeconds
     integer, save :: bdt
     integer, save :: OldTime
     integer, save :: NewTime
     integer, save :: CurrentTime
-    real*8, save :: Old(2*MaxChannels)
-    real*8, save :: New(2*MaxChannels)
-    real*8, save :: Current(2*MaxChannels)
-    real*8, save ::StreamBndValue(2*MaxChannels)
+    real*8, save, allocatable:: StreamBndValue(:)
     logical, save :: ReadBoundaryValues
 !   Definitions:
 !     BndValues - number of values to be read each time step.
@@ -96,7 +92,7 @@ contains
 
         !-----check if new data needs to be read from DSS for each interval group
         !-----fill in fourpt 'boundary' array from DSS buffer
-
+        if(not(allocated(StreamBndValue))) allocate(StreamBndValue(2*nchans))
         StreamBndValue = 0.0        ! initialize boundary objects and arrays to zero
         do i = 1, max_qext
             qext(i)%flow = 0.0

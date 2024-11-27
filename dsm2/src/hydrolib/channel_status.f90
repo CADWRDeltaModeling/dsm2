@@ -30,7 +30,6 @@ module chstatus
     double precision,target,save :: H(MaxLocations)
     double precision, save:: Rho1(MaxLocations), Rho2(MaxLocations)
     double precision, save:: QOld(MaxLocations)
-    logical, save:: ConvergedSteady(MaxChannels)
 
 contains
 

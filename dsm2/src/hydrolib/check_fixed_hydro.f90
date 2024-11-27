@@ -297,8 +297,10 @@ subroutine check_fixed_hydro(istat)
     !-----convention for gate flow (water body to node) aligns with the flow
     !-----direction in the water body (e.g., upstream to downstream) flowDirect =1.D0
     !-----if the direction is the same (gate at downstream end of channel), -1.D0 otherwise
-    if(not(allocated(upboundarycode))) allocate (upboundarycode(nchans+1))
+    if(not(allocated(upboundarycode))) allocate(upboundarycode(nchans+1))
+    if(not(allocated(downboundarycode))) allocate(downboundarycode(nchans+1))
     upboundarycode=0
+    downboundarycode=0
     !     add gate codes
     do i = 1,ngate
         if (gateArray(i)%inUse .and. (gateArray(i)%objConnectedType &
@@ -541,6 +543,8 @@ subroutine check_fixed_hydro(istat)
     !end if
 
     if(not(allocated(dx))) allocate (dx(nchans+1))
+    if(not(allocated(FirstTable))) allocate (FirstTable(nchans+1))
+    if(not(allocated(LastTable))) allocate (LastTable(nchans+1))
 
     do intchan=1,nchans
         Lines(intchan)=2       ! means values given at two depths

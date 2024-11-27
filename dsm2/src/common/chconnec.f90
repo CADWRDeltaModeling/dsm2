@@ -35,10 +35,9 @@ module chconnec
 
     integer, save, allocatable:: UpNumberOfConnections(:), &
                                  DownNumberOfConnections(:), &
-                                 UpBoundaryCode(:)
+                                 UpBoundaryCode(:), DownBoundaryCode(:)
 
     integer, save:: UpConnection(MaxChannels*MaxConnectingChannels), &
-                    DownBoundaryCode(MaxChannels), &
                     DownConnection(MaxChannels*MaxConnectingChannels), &
                     nodeSumQChan(MaxNodes)
 
