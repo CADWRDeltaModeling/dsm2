@@ -407,7 +407,7 @@ public class SurvivalCalculation {
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
-			if(thisArrivalDatetimes!=null) {
+			if(thisArrivalDatetimes!=null && thisArrivalDatetimes.size()!= 0) {
 				lastStationDatetimes.put(p.getId(), thisArrivalDatetimes.getLast());
 			}
 			else {
