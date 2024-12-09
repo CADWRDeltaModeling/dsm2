@@ -628,7 +628,7 @@
       implicit none
       integer get_maximum_number_of_channels
 
-      get_maximum_number_of_channels = max_channels
+      get_maximum_number_of_channels = nchans
       return
       end
 !-----++++++++++++++++++++++++++++++++++++++++++++++++++++
