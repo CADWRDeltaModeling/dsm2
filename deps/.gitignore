@@ -1,9 +1,10 @@
 # Source files
 *.tar.gz
 
-# Build aritfacts
+# Build artifacts
 build/
 boost_1_*/
+boost-1.*/
 hdf5-1*/
 heclib-*/
 suitesparse-*/
