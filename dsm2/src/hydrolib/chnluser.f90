@@ -26,7 +26,7 @@ module chnluser
     use network
     implicit none
     integer, save:: NumUserLoc
-    integer, save:: UpUserPointer(MaxChannels), DownUserPointer(MaxChannels)
+    integer, save, allocatable:: UpUserPointer(:), DownUserPointer(:)
     real*8, save:: UserWS(MaxLocations), UserQ(MaxLocations)
     character*16, save:: UserLocationID(MaxLocations)
 

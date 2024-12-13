@@ -82,7 +82,8 @@ subroutine check_fixed_hydro(istat)
     integer USR, LNUM
     real*8    R23, R53 ,leng, distance,f1,f2
     parameter (R23 = 2.0/3.0, R53 = 5.0/3.0)
-    logical firsttime(maxchannels),updefined,downdefined
+    logical, allocatable :: firsttime(:)
+    logical updefined,downdefined
     logical orphannode
     logical is_node_flow
     real*8,external :: fetch_data
@@ -196,9 +197,9 @@ subroutine check_fixed_hydro(istat)
                 TideFileWriteInterval
         endif
     endif
-
     !-----don't use boundary equations
-    do i=1,2*maxchannels+1
+    if(not(allocated(eqnumber))) allocate(eqnumber(2*nchans+1))
+    do i=1,2*nchans+1
         eqnumber(i)=0
     enddo
 
@@ -444,7 +445,7 @@ subroutine check_fixed_hydro(istat)
     !-----fill FourPt connection arrays
     if(not(allocated(upnumberofconnections))) allocate (upnumberofconnections(nchans+1))
     if(not(allocated(downnumberofconnections))) allocate (downnumberofconnections(nchans+1))
-
+    if(not(allocated(firsttime))) allocate(firsttime(nchans+1))
 
 
     do intchan=1,nchans
@@ -545,6 +546,8 @@ subroutine check_fixed_hydro(istat)
     if(not(allocated(dx))) allocate (dx(nchans+1))
     if(not(allocated(FirstTable))) allocate (FirstTable(nchans+1))
     if(not(allocated(LastTable))) allocate (LastTable(nchans+1))
+    if(not(allocated(Lines))) allocate(Lines(nchans+1))
+    if(not(allocated(OneOverManning))) allocate(OneOverManning(nchans+1))
 
     do intchan=1,nchans
         Lines(intchan)=2       ! means values given at two depths
@@ -566,6 +569,9 @@ subroutine check_fixed_hydro(istat)
 
     updefined=.true.
     downdefined=.true.
+
+    if(not(allocated(UpUserPointer))) allocate(UpUserPointer(nchans))
+    if(not(allocated(DownUserPointer))) allocate(DownUserPointer(nchans))
 
     do intchan=1,nchans
         do vsecno=1,num_virt_sec(intchan)

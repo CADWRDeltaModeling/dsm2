@@ -217,6 +217,12 @@ contains
         !-----K = current constraint pointer number
         K=0
 
+        if(not(allocated(UpConstraintEq))) allocate(UpConstraintEq(NumberOfChannels()))
+        if(not(allocated(DownConstraintEq))) allocate(DownConstraintEq(NumberOfChannels()))
+        if(not(allocated(UpConstraintIndex))) allocate(UpConstraintIndex(NumberOfChannels()))
+        if(not(allocated(DownConstraintIndex))) allocate(DownConstraintIndex(NumberOfChannels()))
+        if(not(allocated(EqPointer))) allocate(EqPointer(NumberOfChannels()))
+
         do 300 M=1,NumberOfChannels()
             ChannelNumber = M
             UpConstraintRow=0

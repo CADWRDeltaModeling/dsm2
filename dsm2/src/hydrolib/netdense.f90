@@ -24,8 +24,7 @@ module netdense
     integer, save:: FortranUnit
     integer, save:: StartSeconds, dT
     integer, save:: OldTime, NewTime, CurrentTime
-    real*8, save:: Old(2*MaxChannels), New(2*MaxChannels)
-    real*8, save:: Current(2*MaxChannels),StreamBndValue(2*MaxChannels)
+    real*8, save, allocatable:: Old(:), New(:), Current(:)
     logical, save:: ReadBoundaryValues
 !   Definitions:
 !     FortranUnit - Fortran unit number for density data.
@@ -82,6 +81,10 @@ contains
 
         OldTime = NewTime
         NewTime = NewTime + dT
+
+        if(not(allocated(Old))) allocate(Old(2*Numch))
+        if(not(allocated(New))) allocate(New(2*Numch))
+
         do 100 I=1,2*NumberOfChannels()
             Old(I) = New(I)
 100     continue
@@ -153,6 +156,7 @@ logical function SetNewNetworkDensity()
     SetNewNetworkDensity = .false.
 
     CurrentTime = NetworkSeconds()
+    if(not(allocated(Current))) allocate(Current(2*NumCh))
 
 100 continue
 
@@ -167,6 +171,7 @@ logical function SetNewNetworkDensity()
                 FLOAT(NewTime - OldTime)
             Shape2 = 1.0 - Shape1
 
+            
             do 200 I=1,2*NumberOfChannels()
                 Current(I) = Shape1*Old(I) + Shape2*New(I)
             !--------------WRITE(*,*) I,Current(I)

@@ -37,10 +37,10 @@ module netblnce
         StreamSurfaceElevation
     implicit none
 
-    real*8, save:: InitialVolume(MaxChannels), InitialMass(MaxChannels)
-    real*8, save:: Volume(MaxChannels), Mass(MaxChannels)
-    real*8, save:: JnctVolFlow(MaxChannels), JnctMassFlow(MaxChannels)
-    real*8, save:: LateralVolFlow(MaxChannels), LateralMassFlow(MaxChannels)
+    real*8, save, allocatable:: InitialVolume(:), InitialMass(:), &
+                                Volume(:), Mass(:), &
+                                JnctVolFlow(:), JnctMassFlow(:), &
+                                LateralVolFlow(:), LateralMassFlow(:)
 
 !   Definitions:
 !     InitialVolume(i) - initial volume of fluid in channel i.
@@ -114,6 +114,15 @@ contains
         !-----Implementation -----------------------------------------------------
 
         !-----Get number of quadrature points for numerical integration.
+
+        if(not(allocated(InitialVolume))) allocate(InitialVolume(Numch))
+        if(not(allocated(InitialMass))) allocate(InitialMass(Numch))
+        if(not(allocated(Volume))) allocate(Volume(Numch))
+        if(not(allocated(Mass))) allocate(Mass(NumCh))
+        if(not(allocated(JnctVolFlow))) allocate(JnctVolFlow(Numch))
+        if(not(allocated(JnctMassFlow))) allocate(JnctMassFlow(Numch))
+        if(not(allocated(LateralVolFlow))) allocate(LateralVolFlow(Numch))
+        if(not(allocated(LateralMassFlow))) allocate(LateralMassFlow(Numch))
 
         QuadPts = NetworkQuadPts()
         dT = DFLOAT(NetworkTimeIncrement())

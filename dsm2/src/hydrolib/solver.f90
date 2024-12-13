@@ -47,8 +47,8 @@ module solver
         GateEqPointer(MaxGatePtr), &
         ResEqIndex(MaxNRes),ResEqRow(MaxNRes), obj2objEqIndex(20), &
         GateEqIndex(MaxNGate),GateEqRow(MaxNGate),GateNodeRow(MaxNGate)
-    integer, save::   UpConstraintEq(MaxChannels), DownConstraintEq(MaxChannels)
-    integer, save::   UpConstraintIndex(MaxChannels), DownConstraintIndex(MaxChannels), EqPointer(MaxChannels)
+    integer, save, allocatable:: UpConstraintEq(:), DownConstraintEq(:)
+    integer, save, allocatable:: UpConstraintIndex(:), DownConstraintIndex(:), EqPointer(:)
 
     logical*4,save:: NormClose
     real*8,save :: LInfNorm,LastLInfNorm,L2Norm,LastL2Norm

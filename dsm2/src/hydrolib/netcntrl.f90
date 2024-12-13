@@ -43,9 +43,7 @@ module netcntrl
     integer, save:: TimeSeriesLocation(MaxTS)
     integer, save:: TimeSeries
     integer, save:: BoundaryEquations
-    integer, save:: EqChannelNumber(2*MaxChannels)
-    integer, save:: EqNumber(2*MaxChannels+1)
-    integer, save:: EqComponents(2*MaxChannels)
+    integer, save, allocatable:: EqNumber(:)
     integer, parameter:: MaxComponents =5
     integer, save:: ChannelRatioQ
     integer, save:: NodeRatioQ

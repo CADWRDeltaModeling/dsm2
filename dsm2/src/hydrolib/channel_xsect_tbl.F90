@@ -31,17 +31,16 @@ module channel_xsect_tbl
 #else
     integer, parameter ::     MaxTables=5000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
 #endif
-    integer, save, allocatable:: FirstTable(:), LastTable(:)
-    integer, save:: Lines(MaxChannels), Offset(MaxTables)
+    integer, save, allocatable:: FirstTable(:), LastTable(:), Lines(:)
+    integer, save:: Offset(MaxTables)
     real*8, save::  XDistance(MaxTables)
     real*8, save::  Datum(MaxTables)
     real*8, save::  Depth(MaxLines)
     real*8, save::  Width(MaxLines), A(MaxLines), K(MaxLines)
     real*8, save::  P(MaxLines), N(MaxLines)
     real*8, save::  Bta(MaxLines), MA(MaxLines), MQ(MaxLines)
-    real*8, save::  RectangleWidth(MaxChannels,2)
-    real*8, save::  OneOverManning(MaxChannels)
-    logical, save:: Rectangular(MaxChannels),Prismatic(MaxChannels)
+    real*8, save, allocatable:: OneOverManning(:)
+    logical, save, allocatable:: Rectangular(:), Prismatic(:)
     logical, save:: Print, WriteIntrp, HermiteBtm
 
     integer, save:: N1, N2, NP(4), PreviousBranch, PreviousX, PreviousH100
@@ -1099,6 +1098,10 @@ contains
         !   Version 93.01, January, 1993
 
         !-----Implementation -----------------------------------------------------
+        if(not(allocated(Rectangular))) allocate(Rectangular(NumCh))
+        if(not(allocated(Prismatic))) allocate(Prismatic(NumCh))
+        Rectangular = .false.
+        Prismatic = .false.
 
         if(Rectangular(Branch).and.Prismatic(Branch)) then
             AreaWtSinuosity = 1.0
