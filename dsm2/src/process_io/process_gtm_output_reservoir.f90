@@ -94,11 +94,20 @@ module process_gtm_output_reservoir
             pathoutput(noutpaths).ndx_file=itmp
         endif
 
-        if (PerOp(1:4) .eq. 'inst') pathoutput(noutpaths).per_type=per_type_inst_val
-        if (PerOp(1:2) .eq. 'av')   pathoutput(noutpaths).per_type=per_type_per_aver
-        if (PerOp(1:3) .eq. 'min')  pathoutput(noutpaths).per_type=per_type_per_min
-        if (PerOp(1:3) .eq. 'max')  pathoutput(noutpaths).per_type=per_type_per_max
-
+        if (PerOp(1:4) .eq. 'inst') then
+             pathoutput(noutpaths).per_type=per_type_inst_val
+        else if (PerOp(1:2) .eq. 'av') then
+             pathoutput(noutpaths).per_type=per_type_per_aver
+        else if (PerOp(1:3) .eq. 'min') then
+             pathoutput(noutpaths).per_type=per_type_per_min
+        else if (PerOp(1:3) .eq. 'max') then 
+            pathoutput(noutpaths).per_type=per_type_per_max
+        else
+            write(unit_error,610) &
+              'Error! Unknown PERIOD_OP type: ', PerOp
+              call exit(-1)
+              return
+         end if
         !-----pathoutput(noutpaths).source.obj_type = SourceTypeID     fixme: this is broken
         !-----if (SourceLocLen .gt. 0)  pathoutput(noutpaths).source.loc_name = SourceLoc
 

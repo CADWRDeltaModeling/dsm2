@@ -164,14 +164,20 @@ subroutine process_output_reservoir(Name, &
       pathoutput(noutpaths).meas_type=Param
       if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'
       call assign_output_units(pathoutput(noutpaths).units,Param)
-      if (PerOp(1:4) .eq. 'inst') &
+      if (PerOp(1:4) .eq. 'inst') then
           pathoutput(noutpaths).per_type=per_type_inst_val
-      if (PerOp(1:2) .eq. 'av') &
+      else if (PerOp(1:2) .eq. 'av') then
           pathoutput(noutpaths).per_type=per_type_per_aver
-      if (PerOp(1:3) .eq. 'min') &
+      else if (PerOp(1:3) .eq. 'min') then
           pathoutput(noutpaths).per_type=per_type_per_min
-      if (PerOp(1:3) .eq. 'max') &
+      else if (PerOp(1:3) .eq. 'max') then
           pathoutput(noutpaths).per_type=per_type_per_max
+      else
+         write(unit_error,610) &
+            'Error! Unknown PERIOD_OP type: ', PerOp
+            call exit(-1)
+            return
+      end if
 
       if (print_level .ge. 3) &
           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths, &
