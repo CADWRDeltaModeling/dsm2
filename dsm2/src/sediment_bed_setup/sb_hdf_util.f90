@@ -5,6 +5,7 @@ module sb_hdf_util
         read_channel_bottom_tbl, ASSIGN_CHAN_COMPPT, ASSIGN_SEGMENT,READ_RESERVOIR_TBL,READ_QEXT_TBL,READ_TRAN_TBL,READ_XSECT_TBL,GET_TS_FROM_HDF5,VERIFY_ERROR
     use h5lt
     use common_xsect
+    use common_variables
 implicit none
 
     contains
