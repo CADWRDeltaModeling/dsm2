@@ -446,6 +446,8 @@ subroutine check_fixed_hydro(istat)
     if(not(allocated(upnumberofconnections))) allocate (upnumberofconnections(nchans+1))
     if(not(allocated(downnumberofconnections))) allocate (downnumberofconnections(nchans+1))
     if(not(allocated(firsttime))) allocate(firsttime(nchans+1))
+    if(not(allocated(upconnection))) allocate (upconnection(nchans*maxconnectingchannels+1))
+    if(not(allocated(downconnection))) allocate (downconnection(nchans*maxconnectingchannels+1))
 
 
     do intchan=1,nchans

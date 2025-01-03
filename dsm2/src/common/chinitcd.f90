@@ -24,7 +24,6 @@ module chinitcd
     use network
     integer, save, allocatable:: Locations(:), InitialConditionIndex(:),&
                                  FirstLocation(:), NUserInitLocations(:)
-    !integer, save:: ChannelNumber(MaxChannels) ! not used
     real*8, save:: InitialX(MaxLocations)
     real*8, save:: InitialWS(MaxLocations), InitialQ(MaxLocations)
     logical, save:: InitCndInitialized
