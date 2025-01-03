@@ -289,11 +289,7 @@ contains
 
         ReadNetworkInitialConditions = .false.
 
-        !-----Initialize channel-number cross-reference numbers.
-
-        do 50 I=1,MaxChannels
-            InitialConditionIndex(I) = 0
-50      continue
+    
 
         !-----Open initial-condition file.
 
@@ -324,10 +320,16 @@ contains
             write(UNIT_ERROR,*) ' ', Channels,' <> ', NumberOfChannels()
             return
         end if
-
+    
         if(not(allocated(Locations)))allocate(Locations(Channels+1))
         if(not(allocated(InitialConditionIndex)))allocate(InitialConditionIndex(Channels+1))
 
+        !-----Initialize channel-number cross-reference numbers.
+        do 50 I=1,Channels
+            InitialConditionIndex(I) = 0
+50      continue
+
+        
         K = 0
         do 200 I=1,Channels
 

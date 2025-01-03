@@ -37,9 +37,9 @@ module chconnec
                                  DownNumberOfConnections(:), &
                                  UpBoundaryCode(:), DownBoundaryCode(:)
 
-    integer, save:: UpConnection(MaxChannels*MaxConnectingChannels), &
-                    DownConnection(MaxChannels*MaxConnectingChannels), &
-                    nodeSumQChan(MaxNodes)
+    integer, save, allocatable:: UpConnection(:), DownConnection(:)
+
+    integer, save:: nodeSumQChan(MaxNodes)
 
     real*8, save, allocatable:: dX(:)
 

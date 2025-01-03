@@ -222,6 +222,7 @@ contains
         if(not(allocated(UpConstraintIndex))) allocate(UpConstraintIndex(NumberOfChannels()))
         if(not(allocated(DownConstraintIndex))) allocate(DownConstraintIndex(NumberOfChannels()))
         if(not(allocated(EqPointer))) allocate(EqPointer(NumberOfChannels()))
+        if(not(allocated(ConstraintPointers))) allocate(ConstraintPointers(7*NumberOfChannels()))
 
         do 300 M=1,NumberOfChannels()
             ChannelNumber = M

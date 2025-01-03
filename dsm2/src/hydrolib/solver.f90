@@ -39,14 +39,14 @@ module solver
         MassEqRow(MaxLocations), &
         DynmEqRow(MaxLocations), &
         TotalChanRows, & ! Total number of rows (equations) dedicated to channels. &
-        TotalChanResRows &  ! Total number of rows (equations) dedicated to channels and reservoirs
+        TotalChanResRows, & ! Total number of rows (equations) dedicated to channels and reservoirs
         !-------fixme: make the following limits better
-        ,ConstraintPointers(7*MaxChannels), &
         ResEqPointer(6*MaxResConnectChannel*MaxNRes + MaxNRes), &
         Obj2objEqPointer(100), & !   based on reservoir gate with 5 pipes and 5 weirs per gate &
         GateEqPointer(MaxGatePtr), &
         ResEqIndex(MaxNRes),ResEqRow(MaxNRes), obj2objEqIndex(20), &
         GateEqIndex(MaxNGate),GateEqRow(MaxNGate),GateNodeRow(MaxNGate)
+    integer, save, allocatable:: ConstraintPointers(:)
     integer, save, allocatable:: UpConstraintEq(:), DownConstraintEq(:)
     integer, save, allocatable:: UpConstraintIndex(:), DownConstraintIndex(:), EqPointer(:)
 
