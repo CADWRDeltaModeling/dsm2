@@ -763,22 +763,27 @@ subroutine xsect_numbers(channo)
 
 !-----determine upstream and downstream adjacent ends of adjacent
 !-----channels.
-      if ( chan_geom(upstream_chan).downnode .eq. &
-          chan_geom(channo).upnode ) then
-         upstr_adj_near_end = chan_down
-      elseif ( chan_geom(upstream_chan).upnode .eq. &
-             chan_geom(channo).upnode ) then
-         upstr_adj_near_end = chan_up
-      else
+      if (upstream_chan .ne. 0) then
+         if ( chan_geom(upstream_chan).downnode .eq. &
+            chan_geom(channo).upnode ) then
+            upstr_adj_near_end = chan_down
+         elseif ( chan_geom(upstream_chan).upnode .eq. &
+               chan_geom(channo).upnode ) then
+            upstr_adj_near_end = chan_up
+         else
+         endif
       endif
 
-      if ( chan_geom(downstream_chan).upnode .eq. &
-          chan_geom(channo).downnode ) then
-         downstr_adj_near_end = chan_up
-      elseif ( chan_geom(downstream_chan).downnode .eq. &
-             chan_geom(channo).downnode ) then
-         downstr_adj_near_end = chan_down
-      else
+      if (downstream_chan .ne. 0) then
+
+         if ( chan_geom(downstream_chan).upnode .eq. &
+            chan_geom(channo).downnode ) then
+            downstr_adj_near_end = chan_up
+         elseif ( chan_geom(downstream_chan).downnode .eq. &
+               chan_geom(channo).downnode ) then
+            downstr_adj_near_end = chan_down
+         else
+         endif
       endif
 
 !-----find number of channels adjacent to each end of the

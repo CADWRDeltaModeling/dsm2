@@ -607,7 +607,7 @@ module common_variables
         integer, intent(in) :: nitem
 
         if(not(allocated(int2ext))) allocate(int2ext(0:nitem))
-        if(not(allocated(chan_geom))) allocate(chan_geom(0:nitem))
+        if(not(allocated(chan_geom))) allocate(chan_geom(nitem))
         return
      end subroutine
 
