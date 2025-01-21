@@ -21,6 +21,7 @@ X(const NamedValueLookup::ArgMap& argmap);
 
 
 ////channel related
+EXPRESSION_FACTORY(chan_ec_factory)
 EXPRESSION_FACTORY(chan_flow_factory)
 EXPRESSION_FACTORY(chan_surf_factory)
 EXPRESSION_FACTORY(chan_vel_factory)

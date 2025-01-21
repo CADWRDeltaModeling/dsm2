@@ -149,6 +149,26 @@ subroutine set_datasource(source, expr, val, timedep)
     return
 end subroutine
 
+subroutine chan_comp_ec(intchan, distance, &
+    comp_points, weights)
+
+!-----Purpose: Wrapper to CompPointAtDist that uses arrays so that
+!     the arguments are pass-by-reference (mainly for calls from C)
+!fixme: probably could change the interface of CompPointAtDist and
+! do away with this wrapper
+    use channel_schematic, only: CompPointAtDist
+    implicit none
+
+!   Arguments:
+    integer :: intchan  ! Channel where comp point is being requested
+    real*8  :: distance     ! Downstream distance along intchan
+    integer :: comp_points(2)
+    real*8 :: weights(2)
+    call CompPointAtDist(intchan, distance, comp_points(1), &
+                         comp_points(2), weights(1), weights(2))
+    return
+end subroutine
+
 subroutine chan_comp_point(intchan, distance, &
                            comp_points, weights)
 

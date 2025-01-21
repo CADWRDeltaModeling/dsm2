@@ -55,6 +55,7 @@
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
+#define chan_comp_ec chan_comp_ec_
 #else
 
 #define get_external_flow get_external_flow_
@@ -101,6 +102,7 @@
 #define direct_from_node direct_from_node_
 #define direct_to_from_node direct_to_from_node_
 #define channel_length channel_length_
+#define chan_comp_ec chan_comp_ec_
 #endif
 
 // routines for retrieving indexes and converting external
@@ -119,6 +121,10 @@ extern "C" int STDCALL reservoir_index(const char* name,
 extern "C" int STDCALL reservoir_connect_index(const int& resndx, const int& internal_node);
 
 extern "C" void STDCALL chan_comp_point(const int& intchan,
+                                          const double& distance,
+                                          int points[],
+                                          double weights[]);
+extern "C" void STDCALL chan_comp_ec(const int& intchan,
                                           const double& distance,
                                           int points[],
                                           double weights[]);

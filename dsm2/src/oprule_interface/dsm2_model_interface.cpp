@@ -36,6 +36,25 @@ bool TransferFlowInterface::operator==( const TransferFlowInterface& rhs){
 
 
 //////////////////
+ChannelECNode::ChannelECNode(
+                   const int intchan,
+				   const double dist) :
+  channel(intchan),
+  distance(dist)
+  {
+  int points[2];
+  double weights[2];
+  chan_comp_ec(intchan, dist, points, weights);
+  upCompPt=points[0];
+  downCompPt=points[1];
+  upWt=weights[0];
+  downWt=weights[1];
+}
+
+inline double ChannelECNode::eval(){
+  return 2000.0;
+}
+
 
 ChannelFlowNode::ChannelFlowNode(
                    const int intchan,
