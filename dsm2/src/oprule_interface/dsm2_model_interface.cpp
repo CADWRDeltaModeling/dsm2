@@ -42,17 +42,12 @@ ChannelECNode::ChannelECNode(
   channel(intchan),
   distance(dist)
   {
-  int points[2];
-  double weights[2];
-  chan_comp_ec(intchan, dist, points, weights);
-  upCompPt=points[0];
-  downCompPt=points[1];
-  upWt=weights[0];
-  downWt=weights[1];
-}
-
+    int points[2];
+    double weights[2];
+  }
 inline double ChannelECNode::eval(){
-  return 2000.0;
+  double temp = chan_ec_val(channel, distance);
+  return chan_ec_val(channel, distance);
 }
 
 

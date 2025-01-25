@@ -85,11 +85,7 @@ public:
    virtual bool isTimeDependent() const{ return true; }
 private:
    int channel;
-   int distance;
-   int upCompPt;
-   int downCompPt;
-   double upWt;
-   double downWt;
+   double distance;
 };
 
 class ChannelFlowNode : public oprule::expression::ExpressionNode<double> {

@@ -149,6 +149,76 @@ subroutine set_datasource(source, expr, val, timedep)
     return
 end subroutine
 
+real*8 function chan_ec_val(chan_num, x_dist)
+    use common_variables, only: n_chan, n_segm, chan_geom, segm, cell
+    use state_variables, only: conc
+    implicit none
+    integer, intent(in) :: chan_num
+    real*8, intent(in) :: x_dist
+    integer :: j, k, chan_no, out_cell, calc_option, i_var, up_cell, down_cell
+    real*8 :: x_from_lo_face
+
+    do j = 1, n_chan
+        if (chan_num.eq.chan_geom(j)%channel_num) then
+            chan_no = chan_geom(j)%chan_no
+            do k = 1, n_segm
+                if (segm(k)%chan_no .eq. chan_no) then
+                    if ((x_dist.ge.segm(k)%up_distance).and.(x_dist.lt.segm(k)%down_distance)) then
+                        out_cell = segm(k)%start_cell_no +  &
+                                        int((x_dist-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
+                        x_from_lo_face = x_dist-segm(k)%up_distance - (segm(k)%length/segm(k)%nx)*     &
+                                        int((x_dist-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
+                        if ((cell(out_cell)%up_cell.le.0) .or.                     &
+                            (x_from_lo_face.ge.0.5*cell(out_cell)%dx) .and.    &
+                            (cell(out_cell)%down_cell.gt.0) ) then
+                            calc_option = 1
+                        elseif ((cell(out_cell)%down_cell.le.0) .or.                &
+                                (x_from_lo_face.lt.0.5*cell(out_cell)%dx) .and. &
+                                (cell(out_cell)%up_cell.gt.0) ) then
+                            calc_option = 2
+                        else
+                            calc_option = 0
+                        end if
+                            goto 10
+                    end if
+                    if (x_dist.eq.segm(k)%down_distance) then
+                        out_cell = segm(k)%start_cell_no + segm(k)%nx - 1
+                        x_from_lo_face = segm(k)%length/segm(k)%nx
+                        if (cell(out_cell)%down_cell.gt.0) then
+                            calc_option = 1
+                        else
+                            calc_option = 2
+                        end if
+                        goto 10
+                    end if
+                end if
+            end do
+        end if
+10  enddo
+
+    chan_ec_val = 0.0
+    i_var = 1            !assumed that ec is the only state varaible, so ivar for ec is 1
+
+    if (calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
+        down_cell = cell(out_cell)%down_cell
+        chan_ec_val = conc(out_cell,i_var)+                                       &
+                (conc(down_cell,i_var)-conc(out_cell,i_var))*  &
+                (x_from_lo_face-0.5*cell(out_cell)%dx)/cell(out_cell)%dx
+    elseif (calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
+        up_cell = cell(out_cell)%up_cell
+        chan_ec_val = conc(out_cell,i_var)+                                       &
+                (conc(out_cell,i_var)-conc(up_cell,i_var))*    &
+                (x_from_lo_face-0.5*cell(out_cell)%dx)/cell(out_cell)%dx
+    else
+        chan_ec_val = conc(out_cell,i_var)
+    end if
+
+    if (chan_ec_val .le. 0) then                        ! to avoid extrapolation unstability
+        chan_ec_val = conc(out_cell,i_var)
+    end if
+    return
+end function
+
 subroutine chan_comp_ec(intchan, distance, &
     comp_points, weights)
 
