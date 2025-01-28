@@ -55,7 +55,6 @@
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
-#define chan_comp_ec chan_comp_ec_
 #define chan_ec_val chan_ec_val_
 #else
 
@@ -103,7 +102,6 @@
 #define direct_from_node direct_from_node_
 #define direct_to_from_node direct_to_from_node_
 #define channel_length channel_length_
-#define chan_comp_ec chan_comp_ec_
 #define chan_ec_val chan_ec_val_
 #endif
 
@@ -126,10 +124,7 @@ extern "C" void STDCALL chan_comp_point(const int& intchan,
                                           const double& distance,
                                           int points[],
                                           double weights[]);
-extern "C" void STDCALL chan_comp_ec(const int& intchan,
-                                          const double& distance,
-                                          int points[],
-                                          double weights[]);
+
 extern "C" double STDCALL channel_length(const int & intchan);
 
 extern "C" int STDCALL ts_index(const char* name, unsigned int len);
