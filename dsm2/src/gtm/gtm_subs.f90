@@ -22,8 +22,9 @@
 module gtm_subs
 
     use gtm_precision
-
+    public :: get_select_cell_with_x, get_output_channel_vals_continue
     contains
+
 
     !> get the properties for top survey elevation
     subroutine get_survey_top(wet_perim,   &
