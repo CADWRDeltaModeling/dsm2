@@ -157,17 +157,24 @@ module gtm_subs
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel
         use common_dsm2_vars, only: noutpaths, pathoutput
-        use common_variables, only: resv_geom, n_resv
+        use common_variables, only: resv_geom, n_resv, n_chan, chan_geom
         implicit none
         integer :: out_cell(noutpaths)              !< output cells
         integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
-        integer :: chan_num(noutpaths)              !< channcel number
+        integer :: chan_num_internal(noutpaths)              !< internal channcel number
         real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)
-        integer :: i, j
+        integer :: i, j, m
+        integer :: chan_num_external(noutpaths)
+
         do i = 1, noutpaths
-            chan_num(i) = pathoutput(i)%no
+            chan_num_external(i) = pathoutput(i)%no
             x_dist(i) = dble(pathoutput(i)%distance)
+            do m = 1, n_chan
+                if (chan_num_external(i).eq.chan_geom(m)%channel_num) then
+                    chan_num_internal(i) = chan_geom(m)%chan_no
+                end if
+            end do
             if (pathoutput(i)%obj_type.eq.2) then
                 do j = 1, n_resv
                     if (trim(resv_geom(j)%name).eq.trim(pathoutput(i)%name)) then
@@ -179,7 +186,7 @@ module gtm_subs
         call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
                                     pathoutput(:)%x_from_lo_face, &
                                     pathoutput(:)%calc_option,    &
-                                    noutpaths, chan_num, x_dist)
+                                    noutpaths, chan_num_internal, x_dist)
         return
     end subroutine
 
@@ -207,12 +214,13 @@ module gtm_subs
         integer :: i, j, k, chan_no
 
         do i = 1, n_out_cell
+            chan_no = chan_num(i)
             do j = 1, n_chan
-                if (chan_num(i).eq.chan_geom(j)%channel_num) then
-                    chan_no = chan_geom(j)%chan_no
+                if (chan_no.eq.chan_geom(j)%chan_no) then
                     if (x_dist(i).eq.LARGEINT .or. x_dist(i).eq.LARGEREAL) then
                         x_dist(i) = dble(chan_geom(j)%channel_length)
                     end if
+
                     do k = 1, n_segm
                         if (segm(k)%chan_no .eq. chan_no) then
                             if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
@@ -405,8 +413,8 @@ module gtm_subs
                                                 icell,          &
                                                 ivar)
 
-        use common_variables, only: cell                    
-        use state_variables, only: conc                     !< concentration 
+        use common_variables, only: cell
+        use state_variables, only: conc                     !< concentration
         implicit none
         real(gtm_real), intent(out) :: output_val           !< output requested values
         real(gtm_real), intent(in) :: x_from_lo_face
