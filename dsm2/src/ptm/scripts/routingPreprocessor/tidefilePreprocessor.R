@@ -17,6 +17,16 @@ tidefile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_ou
 zeroFlowChannels <- c()
 zeroFlowNodes <- c()
 
+GZIPlevel <- 6
+
+# As of 05feb25, the only supported storage.mode options are "logical", "double", "integer",
+# "integer64", and "character"
+# storageMode <- "double"
+H5type <- "H5T_IEEE_F32LE"
+
+# Enable byte-shuffle algorithm prior to compression?
+enableShuffle <- TRUE
+
 ####################################################################################################
 # Run
 ####################################################################################################
@@ -124,8 +134,8 @@ for(var in c("area", "stage")) {
     varPath <- paste0("hydro/data/channel ", var)
     h5delete(h5f, varPath)
     h5createDataset(file=h5f, dataset=varPath,
-                    dims = dim(thisData), storage.mode="double",
-                    chunk=c(2, dim(thisData)[2], 16), level=6)
+                    dims = dim(thisData), H5type=H5type, #storage.mode=storageMode,
+                    chunk=c(2, dim(thisData)[2], 16), level=GZIPlevel, shuffle=enableShuffle)
     h5write(thisData, file=h5f, name=varPath)
 
     # Add original attributes back
@@ -248,8 +258,8 @@ for(thisNode in zeroFlowNodes) {
 cat("Writing modified external flow data.\n")
 h5delete(h5f, "hydro/data/qext flow")
 h5createDataset(file=h5f, dataset="hydro/data/qext flow",
-                dims = dim(extFlow), storage.mode="double",
-                chunk=c(nrow(extFlow), 16), level=6)
+                dims = dim(extFlow), H5type=H5type, #storage.mode=storageMode,
+                chunk=c(nrow(extFlow), 16), level=GZIPlevel, shuffle=enableShuffle)
 h5write(extFlow, file=h5f, name="hydro/data/qext flow")
 
 # Add original attributes back to qext
@@ -291,8 +301,8 @@ for(adjChannel in unique(balanceChannels$adjust_chan_no)) {
 cat("Writing modified channel flow data.\n")
 h5delete(h5f, "hydro/data/channel flow")
 h5createDataset(file=h5f, dataset="hydro/data/channel flow",
-                dims = dim(flow), storage.mode="double",
-                chunk=c(2, dim(flow)[2], 16), level=6)
+                dims = dim(flow), H5type=H5type, #storage.mode=storageMode,
+                chunk=c(2, dim(flow)[2], 16), level=GZIPlevel, shuffle=enableShuffle)
 h5write(flow, file=h5f, name="hydro/data/channel flow")
 
 # Add original attributes back to channel flow
