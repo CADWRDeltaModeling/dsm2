@@ -7,7 +7,7 @@ file(GLOB FORTRAN_SOURCES *.f *.f90 *.fi)
 target_sources(${LIB_FORT} PRIVATE ${FORTRAN_SOURCES})
 target_include_directories(${LIB_FORT} PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
 
-add_dependencies(${LIB_FORT} hydrolib)
+add_dependencies(${LIB_FORT} hydrolib gtm_main)
 set(LIB_CXX oprule_interface_cpp)
 add_library(${LIB_CXX})
 file(GLOB SOURCES *.cpp)
