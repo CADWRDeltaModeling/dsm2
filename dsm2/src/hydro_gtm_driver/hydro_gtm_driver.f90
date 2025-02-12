@@ -27,14 +27,14 @@ program hydro_gtm
         ) !! <NT>
 
     ! From fourpt
-    call get_command_args(init_input_file, model_name, echo_only)
+    call get_command_args_hydro_gtm(init_input_file, gtm_init_input_file)
 
     call fourpt_init()
 
     dsm2_module = gtm
     dsm2_name = 'GTM'
     ! call get_command_args(init_input_file)
-    gtm_init_input_file = 'gtm.inp'
+    ! gtm_init_input_file = 'gtm.inp'
 
     ! We need to read only on time step at a time
     memory_buffer = 1
