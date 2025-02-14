@@ -238,13 +238,6 @@ contains
     
         character*150 CLA         ! command line args
     
-        if (iargc().NE.2) then
-            write(*,*) "Incorrect number of command line arguments"
-            write(*,*) "    arg 1 - hydro input file"
-            write(*,*) "    arg 2 - gtm input file"
-            call exit(1)
-        end if
-
         iarg = 1
         do while (iarg .le. 2)
             call getarg(iarg, CLA)
@@ -261,6 +254,12 @@ contains
              print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
              call exit(1)
             else                      ! command line arg,check arg(s) if valid filename, ModelID
+                if (iargc().NE.2) then
+                    write(*,*) "Incorrect number of command line arguments"
+                    write(*,*) "    arg 1 - hydro input file"
+                    write(*,*) "    arg 2 - gtm input file"
+                    call exit(1)
+                end if
                 inquire (file=CLA, exist=exst)
                 if (exst) then
                     if (iarg .eq. 1) then
