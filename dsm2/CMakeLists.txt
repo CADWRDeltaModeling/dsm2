@@ -83,13 +83,16 @@ add_dependencies(${HYDRO_BIN} fourpt)
 target_link_libraries(
   ${HYDRO_BIN}
   PRIVATE fourpt
-          gtm_core
           hydrolib
           fixed
           hdf_tidefile
           hdf_tidefile_cpp
           oprule_interface_cpp
           oprule_interface
+          gtm_main
+          process_io
+          transport
+          gtm_core
           dsm2_input_storage
           dsm2_input_storage_cpp
           klu_fortran
