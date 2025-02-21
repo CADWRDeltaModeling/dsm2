@@ -1,0 +1,960 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Tutorial 6: Operating Rules - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-6-operating-rules" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial 6: Operating Rules
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manual (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DSM2 Learning Series (new for 2023)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            DSM2 Learning Series (new for 2023)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Studies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attachments:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="tutorial-6-operating-rules">Tutorial 6: Operating Rules</h1>
+<p><strong>Task</strong></p>
+<ul>
+<li>Operate a gate based on stage criteria</li>
+<li>Regulate a source/sink inflow</li>
+</ul>
+<p><strong>Skills Gained</strong> Get an introduction to operating rules</p>
+<p>The purpose of this tutorial is to practice using Operating Rule
+Language (ORL) statements to set gate operations and flows. With
+operating rules, expressions can be crafted to steer the model
+on-the-fly; e.g., a gate can be directed to automatically close when
+stage conditions reach a certain threshold. In this tutorial we will
+create operating rules to operate a gate and to regulate a source/sink
+inflow.<br />
+<img src="../../images/icon_warning.png" width="29" height="29" />
+Extensive documentation on the DSM2 operating rules can be found at:<br />
+START menu <em>Programs</em>  <em>DSM2_v8</em>  <em>DSM2_documentation</em> Operating
+Rules</p>
+<p><img src="../../images/fig_res_conn_w_trans.png" width="623" height="347" />
+<strong>Figure 1:</strong> <strong>Simple channel with a reservoir, gate, flow transfer and
+dummy reservoir.</strong></p>
+<ol>
+<li><strong>Adding a Second Gate Where Op Rule Will Be Applied</strong></li>
+</ol>
+<p>In this step of the tutorial we will prepare a new layer and add the
+gate that will be manipulated by the op rule.</p>
+<ol>
+<li>
+<ol>
+<li>In Windows Explorer, navigate to the directory,
+        <em>\{DSM2_home}\tutorial\simple\t6_oprule</em>.</li>
+<li>Create a file <em>grid_tutorial_opitems.inp</em>.</li>
+<li>
+<p>Open <em>grid_tutorial_base.inp</em>. We are going to copy items from
+    this file into the new file with minor changes:</p>
+<ol>
+<li>
+<p>Copy the GATE table with <em>gate_1,</em> paste it into
+    <em>grid_tutorial_opitems.inp</em> and change the following fields:</p>
+<ol>
+<li>
+<p>NAME: <em>gate_2</em></p>
+</li>
+<li>
+<p>FROM_OBJ: channel</p>
+</li>
+<li>
+<p>FROM_IFENTIFIERS: 5</p>
+</li>
+<li>
+<p>TO_NODE: 5</p>
+<ol>
+<li>In the <em>Gate_Weir Devices table</em>:<ol>
+<li>Copy the data from gate_1 to <em>grid_tutorial_opitems.inp</em>,
+change the gate name to gate_2 and change the following
+fields:</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>GATE_NAME: Gate_1</li>
+<li>Elev: <em>-2</em></li>
+<li>Save the current settings.</li>
+<li>Add <em>grid_tutorial_opitems.inp</em> to the list of included files in
+<em>hydro.inp.</em></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Adding Output for the Second Gate:</strong></p>
+<ol>
+<li>Create a file called <em>output_oprule_tutorial.inp</em>.</li>
+<li>Create the OUTPUT_GATE table:</li>
+</ol>
+</li>
+</ol>
+<p>OUTPUT_GATE<br />
+NAME GATE_NAME DEVICE VARIABLE INTERVAL PERIOD_OP FILE<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>In the output table enter the following values into the
+        appropriate fields:
+        1.  1.  Output Name: <em>gate_2_weirop</em>
+            2.  Gate name: <em>gate_2</em>
+            3.  Device: <em>weir</em>
+            4.  Variable: <em>op-from-node</em>
+            5.  Time Interval: <em>15min</em>
+            6.  Period Op: <em>inst</em>
+            7.  File: <em>${HYDROOUTDSSFILE}</em></li>
+<li>Add the following channel outputs in a new OUTPUT_CHANNEL table:</li>
+</ol>
+</li>
+</ol>
+<p>OUTPUT_CHANNEL<br />
+NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE<br />
+<strong>trigger_loc</strong> <strong>4 7500 stage 15min inst ${HYDROOUTDSSFILE}</strong><br />
+<strong>ds_gate2 5 0 flow 15min inst</strong> <strong>${HYDROOUTDSSFILE}</strong><br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Add the output layer to the list of include files in <em>hydro.inp</em>
+        and save your work.</li>
+</ol>
+</li>
+<li>
+<p><strong>Create an Operating Rule to Close the Weir when Stage is Low:</strong></p>
+</li>
+</ol>
+<p>Now we are ready to write the first operating rule. This rule closes the
+new gate we created during times where stage at a monitoring point is
+low. First we will define the rule in terms of an expression called
+<em>stage_critical</em> (the condition where stage violates a minimum) and
+<em>op_applies</em> (a seasonal condition that is True when we are controlling
+the gate for stage. In a later step we will define these variables.</p>
+<ol>
+<li>
+<ol>
+<li>Create a file called <em>oprule_tutorial.inp</em>.</li>
+<li>Create the <em>Operating Rules</em> table:</li>
+</ol>
+</li>
+</ol>
+<p>OPERATING_RULE<br />
+NAME ACTION TRIGGER<br />
+END</p>
+<ol>
+<li>Enter the following values into the appropriate fields:
+        1.  Name: <em>weir_close</em>
+        2.  Action Definition: "<em>SET gate_op(gate=gate_2,
+            device=weir, direction=from_node) TO CLOSE RAMP 30MIN"</em></li>
+</ol>
+<p><img src="../../attachments/87228781/87228782.png" width="29" height="29" /> You
+must use quotes for inputs with spaces.</p>
+<ol>
+<li>
+<p>Trigger Definition: "<em>stage_critical AND op_applies"</em></p>
+<ol>
+<li>Create an OPERATION include block in hydro.inp and add the new
+    file so that it will be used by DSM2-HYDRO.</li>
+</ol>
+</li>
+</ol>
+<p>OPERATION<br />
+oprule_tutorial.inp<br />
+END</p>
+<ol>
+<li>Save the current settings.</li>
+</ol>
+<p>Note that the expressions stage_critical and op_applies will be created
+in a later step.</p>
+<ol>
+<li><strong>Create an Operating Rule to Open the Weir when Stage is High:</strong></li>
+</ol>
+<p>As before, we will enter the rule to open the weir first in terms of the
+expressions <em>stage_relax</em> (a condition where stage is safely above a
+threshold where we can open the gate) and <em>op_applies</em>. In the next step
+we will define these expressions.</p>
+<ol>
+<li>
+<ol>
+<li>In the <em>Operating Rules</em> <em>table</em> enter the following values into
+        the appropriate fields:
+        1.  Name: <em>weir_open</em>
+        2.  Action Definition: "<em>SET gate_op(gate=gate_2,
+                device=weir, direction=from_node) TO OPEN RAMP 30MIN"</em>
+        3.  Trigger Definition: "( stage_relax AND op_applies) OR
+                NOT(op_applies)"</li>
+<li>Save the current settings.</li>
+<li>In the <em>hydro.inp</em> file, add the following environmental
+    variables and values into the ENVVAR section:</li>
+</ol>
+</li>
+</ol>
+<p>STAGE_CRITICAL 1.4<br />
+STAGE_RELAX 1.6</p>
+<ol>
+<li><strong>Define Expressions used in the rule</strong><ol>
+<li>In the file oprule_tutorial.inp, create the OPRULE_EXPRESSION
+    table:</li>
+</ol>
+</li>
+</ol>
+<p>OPRULE_EXPRESSION<br />
+NAME DEFINITION<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Enter the following values into the appropriate fields:
+            1.  Name: <em>op_applies</em>
+            2.  Definition: "<em>SEASON \&lt; 01FEB"</em>
+        2.  Enter the following values into the appropriate fields.
+            Don't forget quotes!!
+            1.  Name: <em>stage_critical</em>
+            2.  Definition: "<em>chan_stage(channel=4, dist=7500) \&lt;
+                ${STAGE_CRITICAL}"</em>
+        3.  Enter the following values into the appropriate fields:
+            1.  Name: <em>stage_relax</em>
+            2.  Definition: "<em>chan_stage(channel=4, dist=7500) &gt;
+                ${STAGE_RELAX}"</em></li>
+</ol>
+</li>
+<li>
+<p>Save the current settings.</p>
+</li>
+<li>
+<p>Now run HYDRO and QUAL:</p>
+<ol>
+<li>Open a command window for the <em>t6_oprule</em> directory.</li>
+<li>In the command window, type: <em>hydro hydro.inp</em>.</li>
+<li>In the command window, type: <em>qual qual.inp</em>.</li>
+<li>Open the <em>output.dss</em> file in the <em>t6_oprule</em> directory, and
+    examine the results.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Add a Reduced Flow Operating Rule:</strong></p>
+</li>
+</ol>
+<p>In our next operating rule, we will control the inflow to a node by
+having it toggle back and forth between a larger "full flow" and a
+"reduced flow". First we will enter the rule and then we will define the
+full and reduced flows.</p>
+<ol>
+<li>
+<ol>
+<li>In the <em>Operating Rules table</em> enter the following values into
+        the appropriate fields:
+        1.  1.  Name: <em>flow_reduce</em>
+            2.  Action Definiton: <em>SET ext_flow(name=source1) TO
+                ifelse(stage_critical,reduced_flow,full_flow)</em>
+            3.  Trigger Definition: <em>TRUE</em></li>
+<li>
+<p>Now create the expressions that define <em>full_flow</em> and
+    <em>reduced_flow</em>. In the <em>Oprule</em> <em>Expressions</em> table:</p>
+<ol>
+<li>
+<p>Enter the following values into the appropriate fields that
+    define <em>full_flow.</em> This will involve the time series
+    <em>source_flow</em> which we will enter later:</p>
+<ol>
+<li>
+<p>Input Name: <em>full_flow</em></p>
+</li>
+<li>
+<p>Definition: <em>ts(name=source_flow) [note: this is a
+reference to a time series we haven't defined yet].</em></p>
+</li>
+</ol>
+</li>
+<li>
+<p>Do the same for <em>reduced_flow.</em> Note: we are defining
+    <em>reducedflow in terms of the time series. There is no
+    guarantee of what order expressions will be evaluated, so
+    you cannot safely define _reduced_flow</em> in terms of another
+    expression such as <em>full_flow</em>. Enter the following values
+    into the appropriate fields:</p>
+<ol>
+<li>Input Name: <em>reduced_flow</em></li>
+<li>Definition: <em>0.5*ts(name=source_flow).</em></li>
+<li>Save the current settings.</li>
+</ol>
+</li>
+<li>Now we will define the <em>source_flow</em> time series upon which
+    the <em>full_flow</em> and <em>reduced_flow</em> expressions are based.<ol>
+<li>Create the <em>Operation Time Series</em> table:</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>OPRULE_TIME_SERIES<br />
+NAME FILLIN FILE PATH</p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>
+<p>Enter the following values into the appropriate fields:
+            1.  Input Name: <em>source_flow</em></p>
+<ol>
+<li>
+<p>Input File: <em>${TUTORIALINPUT}</em></p>
+</li>
+<li>
+<p>Path: <em>/TUTORIAL/SOURCE/FLOW//15MIN/CONSTANT/ [ Note:
+there are two forward slashes between FLOW</em> and
+<em>15MIN]</em></p>
+</li>
+<li>
+<p>Fillin: <em>none</em></p>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>Save the current settings.</p>
+</li>
+</ol>
+</li>
+</ol>
+<!-- -->
+
+<ol>
+<li><strong>Override the Expression op_applies:</strong></li>
+</ol>
+<p>Recall that <em>op_applies</em> is used to determine when the weir is operated.
+Previously the definition of this expression was seasonal: the
+expression was SEASON \&lt; 01FEB. The goal now is to make the same
+expression depend on a time series. Rather than change the expression,
+we will override it in a new layer.</p>
+<ol>
+<li>
+<ol>
+<li>Add a new Operating Rules Layer:
+        1.  Create a file called <em>oprule</em>_ <em>tutorial</em> revision.inp_</li>
+<li>
+<p>Redefine the expressions that define <em>op_applies</em>. In the
+    <em>Expressions</em> table:</p>
+<ol>
+<li>Create the OPRULE_EXPRESSION table.</li>
+<li>
+<p>Enter the following values into the appropriate fields:</p>
+<ol>
+<li>
+<p>Input Name: <em>op_applies</em></p>
+</li>
+<li>
+<p>Definition: "ts(name=op_used)&gt;0.0" [note: this is a
+reference to a time series we will define in the next
+step]._</p>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>Define the time series <em>op_used</em> on which the <em>op_applies</em>
+    expression depends. In the <em>Operation Time Series</em> table:</p>
+<ol>
+<li>Right-click and select <em>Insert row</em>.</li>
+<li>Enter the following values into the appropriate fields:<ol>
+<li>Input Name: <em>op_used</em></li>
+<li>Input File: <em>${TUTORIALINPUT}</em></li>
+<li>Path: <em>/TUTORIAL/GATE/FLAP_OP//IR-YEAR/TIMEVAR/</em></li>
+<li>Fillin: <em>none</em></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Add <em>oprule_tutorial_revision.inp</em> after <em>oprule_tutorial.inp</em>
+    in the OPERATIONS block of hydro.inp so that it will be used by
+    HYDRO.</li>
+<li>Run HYDRO and QUAL and examine the results.</li>
+</ol>
+</li>
+</ol>
+<h2 id="attachments">Attachments:</h2>
+<p><img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="../../attachments/87228781/87228780.png">worddavd56eb5f63f4c9181cb2a8632c8c6c562.png</a>
+(image/png)<br />
+<img src="../images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="../../attachments/87228781/87228782.png">worddave8e1df4e853bb46c4ee6f68afece040d.png</a>
+(image/png)  </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
