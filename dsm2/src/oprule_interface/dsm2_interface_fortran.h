@@ -55,7 +55,7 @@
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
-#define chan_ec_val chan_ec_val_
+#define chan_ec_val CHAN_EC_VAL
 #else
 
 #define get_external_flow get_external_flow_
