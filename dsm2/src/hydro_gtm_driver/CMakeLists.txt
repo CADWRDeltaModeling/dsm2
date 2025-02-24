@@ -7,6 +7,9 @@ target_sources(hydro_gtm PRIVATE hydro_gtm_driver.f90)
 target_include_directories(hydro_gtm PRIVATE ${CMAKE_Fortran_MODULE_DIRECTORY}
                                              ${HDF5_Fortran_INCLUDE_DIRS})
 set_target_properties(hydro_gtm PROPERTIES LINKER_LANGUAGE Fortran)
+if(WIN32)
+  target_link_options(hydro_gtm PRIVATE "/STACK:90000000")
+endif(WIN32)
 target_link_libraries(
   hydro_gtm
   PRIVATE fourpt
