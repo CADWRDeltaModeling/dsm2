@@ -5,7 +5,7 @@ program hydro_gtm
     use hdfvars
     use fourpt
     use common_dsm2_vars, only: gtm
-    use dsm2gtm, only: gtm_prepare2, gtm_prepare_loop, gtm_loop, gtm_init_input_file, current_time, gtm_time_interval
+    use dsm2gtm, only: gtm_prepare2, gtm_prepare_loop, gtm_loop, gtm_init_input_file, current_time, gtm_time_interval, gtm_wrapup
     use common_variables, only: memory_buffer, gtm_start_jmin
 
     implicit none
@@ -52,4 +52,5 @@ program hydro_gtm
         end if
     end do
     call fourpt_winddown()
+    call gtm_wrapup()
 end program hydro_gtm
