@@ -249,6 +249,7 @@ install(
           ${QUAL_BIN}
           ${PTM_DYNLIB}
           ${GTM_BIN}
+          hydro_gtm
           sed_bed_init
           RUNTIME_DEPENDENCY_SET
           RUNTIME_LIB
