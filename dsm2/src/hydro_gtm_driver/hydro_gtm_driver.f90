@@ -51,6 +51,7 @@ program hydro_gtm
             end do
         end if
     end do
-    call fourpt_winddown()
+    dsm2_name = "hydro_gtm"
     call gtm_wrapup()
+    call fourpt_winddown()
 end program hydro_gtm

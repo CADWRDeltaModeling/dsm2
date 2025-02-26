@@ -788,7 +788,7 @@ subroutine gtm_loop()
 end subroutine
 
 subroutine gtm_wrapup()
-
+    use runtime_data, only: dsm2_name
     ! modify print_last_stage to write hotstart output file.
     restart_outfn = trim(gtm_io(1,2)%filename)
     if (run_pdaf) then
@@ -815,7 +815,9 @@ subroutine gtm_wrapup()
     if (apply_diffusion) call deallocate_geom_arr
     if (use_gtm_hdf) then
         call close_gtm_hdf(gtm_hdf)
-        call hdf5_close
+        if (trim(adjustl(dsm2_name)) .eq. 'GTM') then
+            call hdf5_close
+        end if
     end if
     deallocate(disp_coef_arr)
     deallocate(pathinput)
@@ -831,18 +833,20 @@ subroutine gtm_wrapup()
     if (run_mercury) call deallocate_mercury
     if (use_sediment_bed) call close_sediment_bed  !<added:dhh
     call deallocate_datain
-    call deallocate_geometry
     call deallocate_state
     call deallocate_state_network
     call deallocate_network_tmp
     call deallocate_state_hydro
     call deallocate_hydro_ts
     !close(debug_unit)
-    close(unit_error)
-    write(*,*) '-------- Normal program end -------'
-    call cpu_time(finish)
-    write(*,*) "Total CPU Time = ",finish - start," seconds."
-    call exit(0)
+    if (dsm2_name .eq. 'GTM') then
+        call deallocate_geometry
+        close(unit_error)
+        write(*,*) '-------- Normal program end -------'
+        call cpu_time(finish)
+        write(*,*) "Total CPU Time = ",finish - start," seconds."
+        call exit(0)
+    end if
 end subroutine gtm_wrapup
 
 
