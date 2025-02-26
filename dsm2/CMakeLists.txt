@@ -83,13 +83,16 @@ add_dependencies(${HYDRO_BIN} fourpt)
 target_link_libraries(
   ${HYDRO_BIN}
   PRIVATE fourpt
-          gtm_core
           hydrolib
           fixed
           hdf_tidefile
           hdf_tidefile_cpp
           oprule_interface_cpp
           oprule_interface
+          gtm_main
+          process_io
+          transport
+          gtm_core
           dsm2_input_storage
           dsm2_input_storage_cpp
           klu_fortran
@@ -237,12 +240,16 @@ target_link_libraries(
 set(GTM_SEDIMENT_BED_SETUP sediment_bed_setup)
 add_subdirectory(src/${GTM_SEDIMENT_BED_SETUP})
 
+# Hydro-GTM
+add_subdirectory(src/hydro_gtm_driver)
+
 # INSTALL Section
 install(
   TARGETS ${HYDRO_BIN}
           ${QUAL_BIN}
           ${PTM_DYNLIB}
           ${GTM_BIN}
+          hydro_gtm
           sed_bed_init
           RUNTIME_DEPENDENCY_SET
           RUNTIME_LIB

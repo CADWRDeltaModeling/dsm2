@@ -55,6 +55,7 @@
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
+#define chan_ec_val CHAN_EC_VAL
 #else
 
 #define get_external_flow get_external_flow_
@@ -101,6 +102,7 @@
 #define direct_from_node direct_from_node_
 #define direct_to_from_node direct_to_from_node_
 #define channel_length channel_length_
+#define chan_ec_val chan_ec_val_
 #endif
 
 // routines for retrieving indexes and converting external
@@ -122,6 +124,7 @@ extern "C" void STDCALL chan_comp_point(const int& intchan,
                                           const double& distance,
                                           int points[],
                                           double weights[]);
+
 extern "C" double STDCALL channel_length(const int & intchan);
 
 extern "C" int STDCALL ts_index(const char* name, unsigned int len);
@@ -166,6 +169,8 @@ extern "C" void STDCALL set_gate_install_datasource(const int& ndx,
 
 extern "C" double get_surf_elev(const int& comp_pt);
 extern "C" double get_flow(const int& comp_pt);
+extern "C" double chan_ec_val(const int& intchan,
+                                          const double& dist);
 extern "C" double get_res_flow(const int& resndx,
                                          const int& conn);
 extern "C" double get_res_surf_elev(const int& resndx);

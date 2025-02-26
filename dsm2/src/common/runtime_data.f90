@@ -222,4 +222,57 @@ contains
 
     end
 
+    subroutine get_command_args_hydro_gtm(init_input_file, gtm_init_input_file)
+        use io_units
+        implicit none
+
+        character init_input_file*(*)
+        character gtm_init_input_file*(*)
+    
+        !-----local variables
+        logical &
+            exst, &                 ! true if file exists
+            echo_only
+    
+        integer iarg               ! argument index
+    
+        character*150 CLA         ! command line args
+    
+        iarg = 1
+        do while (iarg .le. 2)
+            call getarg(iarg, CLA)
+            if (len_trim(CLA) .eq. 0) then ! print version, usage, quit
+             print *, 'DSM2-' // trim(dsm2_name) // ' ', dsm2_version
+             print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
+             call exit(1)
+    
+            elseif (CLA(:2) .eq. "-v" .or.   &
+                   CLA(:2) .eq. "-V" .or.   &
+                   CLA(:2) .eq. "-h" .or.   &
+                   CLA(:2) .eq. "-H") then ! print version and subversion, usage, quit
+             print *, 'DSM2: ' // trim(dsm2_name) // ' ', trim(dsm2_version) // '  Git: ', trim(git_build)
+             print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
+             call exit(1)
+            else                      ! command line arg,check arg(s) if valid filename, ModelID
+                if (iargc().NE.2) then
+                    write(*,*) "Incorrect number of command line arguments"
+                    write(*,*) "    arg 1 - hydro input file"
+                    write(*,*) "    arg 2 - gtm input file"
+                    call exit(1)
+                end if
+                inquire (file=CLA, exist=exst)
+                if (exst) then
+                    if (iarg .eq. 1) then
+                        init_input_file=CLA
+                    elseif (iarg .eq. 2) then
+                        gtm_init_input_file=CLA
+                    endif
+                else
+                    write(unit_error,*)"Launch file not found: ",trim(CLA)
+                    call exit(-3)
+                endif
+            iarg=iarg+1
+            endif
+        enddo
+    end subroutine get_command_args_hydro_gtm
 end module

@@ -22,8 +22,9 @@
 module gtm_subs
 
     use gtm_precision
-
+    public :: get_select_cell_with_x, get_output_channel_vals_continue
     contains
+
 
     !> get the properties for top survey elevation
     subroutine get_survey_top(wet_perim,   &
@@ -156,17 +157,24 @@ module gtm_subs
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel
         use common_dsm2_vars, only: noutpaths, pathoutput
-        use common_variables, only: resv_geom, n_resv
+        use common_variables, only: resv_geom, n_resv, n_chan, chan_geom
         implicit none
         integer :: out_cell(noutpaths)              !< output cells
         integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
-        integer :: chan_num(noutpaths)              !< channcel number
+        integer :: chan_num_internal(noutpaths)              !< internal channcel number
         real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)
-        integer :: i, j
+        integer :: i, j, m
+        integer :: chan_num_external(noutpaths)
+
         do i = 1, noutpaths
-            chan_num(i) = pathoutput(i)%no
+            chan_num_external(i) = pathoutput(i)%no
             x_dist(i) = dble(pathoutput(i)%distance)
+            do m = 1, n_chan
+                if (chan_num_external(i).eq.chan_geom(m)%channel_num) then
+                    chan_num_internal(i) = chan_geom(m)%chan_no
+                end if
+            end do
             if (pathoutput(i)%obj_type.eq.2) then
                 do j = 1, n_resv
                     if (trim(resv_geom(j)%name).eq.trim(pathoutput(i)%name)) then
@@ -178,7 +186,7 @@ module gtm_subs
         call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
                                     pathoutput(:)%x_from_lo_face, &
                                     pathoutput(:)%calc_option,    &
-                                    noutpaths, chan_num, x_dist)
+                                    noutpaths, chan_num_internal, x_dist)
         return
     end subroutine
 
@@ -206,12 +214,13 @@ module gtm_subs
         integer :: i, j, k, chan_no
 
         do i = 1, n_out_cell
+            chan_no = chan_num(i)
             do j = 1, n_chan
-                if (chan_num(i).eq.chan_geom(j)%channel_num) then
-                    chan_no = chan_geom(j)%chan_no
+                if (chan_no.eq.chan_geom(j)%chan_no) then
                     if (x_dist(i).eq.LARGEINT .or. x_dist(i).eq.LARGEREAL) then
                         x_dist(i) = dble(chan_geom(j)%channel_length)
                     end if
+
                     do k = 1, n_segm
                         if (segm(k)%chan_no .eq. chan_no) then
                             if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
@@ -386,26 +395,48 @@ module gtm_subs
                 icell = pathoutput(i)%out_chan_cell
                 if (trim(dss_out).eq.'cell') then     ! ZZ 8/17/2020
                     vals(i) = conc(icell,pathoutput(i)%i_var)
-                else
-                    if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
-                        down_cell = cell(icell)%down_cell
-                        vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
-                                 (conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*  &
-                                 (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-                    elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
-                        up_cell = cell(icell)%up_cell
-                        vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
-                                 (conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*    &
-                                 (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-                    else
-                        vals(i) = conc(icell,pathoutput(i)%i_var)
-                    end if
-                end if
-                if (vals(i) .le. zero) vals(i) = conc(icell,pathoutput(i)%i_var) ! to avoid extrapolation unstability
+                 else
+                    call get_output_channel_vals_continue(vals(i), pathoutput(i)%x_from_lo_face, &
+                                                          pathoutput(i)%calc_option, icell, pathoutput(i)%i_var)
+                 end if
             elseif (pathoutput(i)%obj_type.eq.2) then !reservoir
                 vals(i) = conc_resv(pathoutput(i)%no, pathoutput(i)%i_var)
             end if
         end do
+        return
+    end subroutine
+
+    !> get output channel values factored out from subroutine get_output_channel_vals
+    subroutine get_output_channel_vals_continue(output_val,     &
+                                                x_from_lo_face, &
+                                                calc_option,    &
+                                                icell,          &
+                                                ivar)
+
+        use common_variables, only: cell
+        use state_variables, only: conc                     !< concentration
+        implicit none
+        real(gtm_real), intent(out) :: output_val           !< output requested values
+        real(gtm_real), intent(in) :: x_from_lo_face
+        integer, intent(in) :: calc_option
+        integer, intent(in) :: icell
+        integer, intent(in) :: ivar
+        integer :: down_cell, up_cell
+
+        if (calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
+            down_cell = cell(icell)%down_cell
+            output_val = conc(icell,ivar)+                                       &
+                     (conc(down_cell,ivar)-conc(icell,ivar))*  &
+                     (x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+        elseif (calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
+            up_cell = cell(icell)%up_cell
+            output_val = conc(icell,ivar)+                                       &
+                     (conc(icell,ivar)-conc(up_cell,ivar))*    &
+                     (x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+        else
+            output_val = conc(icell,ivar)
+        end if
+        if (output_val .le. zero) output_val = conc(icell,ivar) ! to avoid extrapolation unstability
         return
     end subroutine
 

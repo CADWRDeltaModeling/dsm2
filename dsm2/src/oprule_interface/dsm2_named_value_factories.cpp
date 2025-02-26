@@ -57,6 +57,15 @@ void convert_channel_identifiers(
      return;
 }
 
+oprule::expression::DoubleNode::NodePtr
+chan_ec_factory(const NamedValueLookup::ArgMap& argmap){
+  int chan=-901;
+  double dist=-901.;
+  convert_channel_identifiers(argmap, chan,dist);
+  if (chan != -901 && dist != -901.) return
+     ChannelECNode::create(chan,dist);
+  else return oprule::expression::DoubleNode::NodePtr();
+}
 
 oprule::expression::DoubleNode::NodePtr
 chan_flow_factory(const NamedValueLookup::ArgMap& argmap){

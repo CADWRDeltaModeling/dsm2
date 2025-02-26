@@ -249,7 +249,7 @@ module hdf_util
 
 
    !> Read input/channel table from hydro tidefile
-   subroutine read_channel_tbl()
+   subroutine read_channel_tbl(do_allocate)
        use common_variables
        implicit none
        integer(HID_T) :: input_id                   ! Group identifier
@@ -264,9 +264,19 @@ module hdf_util
        integer(SIZE_T) :: type_size                 ! Size of the datatype
        integer :: error                             ! Error flag
        integer :: i
+       logical, optional, intent(in) :: do_allocate
+       logical :: do_allocate_
+
+       if (present(do_allocate)) then
+           do_allocate_ = do_allocate
+       else
+           do_allocate_ = .true.
+       end if
 
        data_dims(1) = n_chan
-       call allocate_channel_property()
+       if (do_allocate_) then
+        call allocate_channel_property()
+       end if
        call h5gopen_f(hydro_id, "input", input_id, error)
        call h5dopen_f(input_id, "channel", dset_id, error)
 

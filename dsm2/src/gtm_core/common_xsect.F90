@@ -36,6 +36,7 @@ module common_xsect
     implicit none
     integer :: n_irreg                         !< actual number of irregular cross sections
     integer :: max_num_elev                    !< max number of elevations in dimension
+    logical :: virt_xsect_allocated = .false.  !< if true, then chan_index is allocated
     integer, allocatable :: chan_index(:)      !< starting data index for a channel
     integer, allocatable :: xsect_index(:)     !< starting xsect index for a channel
     integer, allocatable :: num_xsect_chan(:)  !< number of xsect in a channel
@@ -164,11 +165,13 @@ module common_xsect
         implicit none
         integer :: istat = 0
         character(len=128) :: message
-        allocate(chan_index(n_chan), num_xsect_chan(n_chan), num_elev_chan(n_chan), stat = istat)
-        if (istat .ne. 0 )then
-           call gtm_fatal(message)
+        if (.not. virt_xsect_allocated) then
+            allocate(chan_index(n_chan), stat = istat)
+            if (istat .ne. 0 ) call gtm_fatal(message)
+            chan_index = LARGEREAL
         end if
-        chan_index = LARGEREAL
+        allocate(num_xsect_chan(n_chan), num_elev_chan(n_chan), stat = istat)
+        if (istat .ne. 0 ) call gtm_fatal(message)
         num_xsect_chan = LARGEREAL
         num_elev_chan = LARGEREAL
         return
@@ -216,6 +219,7 @@ module common_xsect
             allocate(irreg_geom(i).wet_p(max_elevations))
             allocate(irreg_geom(i).width(max_elevations))
         end do
+        virt_xsect_allocated = .true.
     end subroutine
 
     !> Deallocate virtual xsect array
