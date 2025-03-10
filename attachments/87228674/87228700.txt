@@ -1,0 +1,110 @@
+This the Hydro Calibration note for the V8.1beta release
+
+Use 15min time step for Hydro runs.
+
+Start with WY2002
+
+Run1: Start with 2009 BDCP Calibration (mini_calibration) run, channel 141 corrected.
+
+Run2: channel 383 to 387, mannings N increase to 0.028
+      (tried 0.026 first, not enough to divert flow from steamboat sl into Sac River).
+
+Run3: channel 423 to 429, Mannings N decrease to 0.03
+      to divert more to Sac from Steamboat Sl. and increase amplitude of RSAC123
+
+run4: channel 379 to 382, N increase to 0.028.
+      (also effective in diverting flow to Sac river) 
+
+run5: channel 422, N change to 0.03. not effective. DCC and Geogianna Sl still low.
+
+run6: Channel 422 to 429, Mannings N change back to 0.032.( not good, less water in SAc)
+
+run7: Channle 379 to 387, N increase to 0.031.(very good, RSAC128,Rsac123 match exactly)
+
+Following runs try to match, jersey Point, three mile sl flow amplitudes:
+
+run8: Channel 307 to 310, N decrease to 0.028 (increase three mile slough flow amplitude, very good)
+
+run9: Channel 48 to 53, 83, 281 to 286, 295 to 300 change to 0.025 (281 o 286)
+
+run10: Try clean up, all channels (48 to 53, 83, 281 to 301 except 290,291) 
+       leading to Jersey Point are set to 0.024. three mile sl to 0.030
+
+run11: run10 change to 0.026
+
+run12: three mile sl to 0.032. result looks good at three mile sl, jersey point, and geogianna sl. 
+       ONly ROLD024 amplitude is small.
+
+switch to WY2008. 
+run12:...
+run13: change all 0.027 to 0.0251 to increase ROLD024 amplitude. 
+       Compares with old calibration better, doesnot match positive peaks. 
+
+run14: increase channel 511, 512, 513, 515 manning's n to 0.02, to reduce flow Magnitude of SLMZU025.
+
+run15: change all 69 channels of 0.018 to 0.020.
+
+run16: change all channel of 0.02 to 0.021, change ch 430 to 434 back to 0.018 
+       because of amplitude of Sltrm003 and RSAC101.
+       
+       Write status report for CWEFT presentation. Use run 16 to compare with mini_calibration, 
+       because no channel changes were made until run16.
+
+run17: channel 144 not good, delete two larger cross sections.
+
+run18: deleted.
+**********
+run19: changed hydro to NAVD88 including all channel, gates, reservoir, operating rule, init stage. 
+       (channel 117 minor modify to avoid negative dConveyance) 
+       flow results compare well with NGVD29 run. pass test. 
+       use NAVD88 from now on 2/1/2012
+      
+delete run20: try to find way to improve min daily stage:  
+       Manning's n increase when stage low, helped min daily stage to increase about o.2 ft.
+
+delete run21: try area adjustment near collinsville, see if the min stage can be improved. 
+       not obvious, almost no change.
+
+delete run22: try increase bathymetry 1ft from run19. min daily stage increase less than 0.2 ft.  
+
+delete run23: restart, output downstream channels to see phase pattern.
+       try channel 430---436, 290,291 increase n to 0.02
+
+delete run24: base on run20 base. try reduce 379-387, 422-429 mannings n. DLC shape better.
+       try increase DCC coefficient to 1.0, flow much better.
+       
+run20: reorganize into 36 groups for easy Mannings N adjustment. 
+       Preliminary calibration result with NAVD88 datum. 
+
+run21: channel 348,349, n changed to 0.026, helped a lot with LPS, LPS matches much better. 
+
+run22: modify channel 279, get rid of the first two small XS (match better 6/23/2002 to 7/7/2002).
+       modify channel 280 (Fishermans cut) with new XS, also increase n to 0.05. 
+       add taylor slough output.
+
+run23: Change group Franks_tract to 0.027 to compare flow in taylor sl.
+       taylor Sl is still high, change only 271, 272 taylor Sl to 0.05, 
+       the discharge reduced to around +1000,-1000.
+
+run24: regroup according to Dutch (0.025), Sand mond, piper sl (0.027), 
+       Manning's n kept the same as run23.
+       (* channel 273 put into group Sandmound_sl, I think this is better)
+ 
+delete run25: try delete the large XS at 270. taylor sl flow shifted downward.
+       try also 273 to 0.025, made taylor sl flow magnitude higher both negative and positive flows.
+       so no improvement in this test. Abandon.
+
+run25: try improve HWB, and MOK, RSAC128 negative flow. 
+       388,389,390 n change from 0.034 to 0.029.
+       sutter sl 375 to 382, n change from 0.027 to 0.029, HWB better. 
+       Although net flow still low, but range higher              
+
+run26: try MOK, RSAC128 negative flow. 
+       channel 348, 349 change from 0.026 to 0.028, LPS a little better.
+       channel 365 change from 0.022 to 0.028, to be more consistent with other channels.
+       DLC gate coefficient change to 2.0 to allow more flow through the gates. 
+       (Higher coefficients tested, small improvement with 3.0, not used)
+       
+stop here.              
+        
+       

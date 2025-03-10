@@ -1,0 +1,1007 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>DSM2 Bay-Delta Tutorial 1: Historical Simulation - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsm2-bay-delta-tutorial-1-historical-simulation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DSM2 Bay-Delta Tutorial 1: Historical Simulation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manual (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DSM2 Learning Series (new for 2023)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            DSM2 Learning Series (new for 2023)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Studies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="dsm2-bay-delta-tutorial-1-historical-simulation">DSM2 Bay-Delta Tutorial 1: Historical Simulation</h1>
+<h1 id="purpose">Purpose:</h1>
+<p>This tutorial will demonstrate how to launch a basic run of the
+historical HYDRO and QUAL simulations.You will also get practice using
+the study templates that are distributed with DSM2, see how the
+configuration file is used, make some changes in the output and learn
+about the post-processing "transfer" script for averaging your output.</p>
+<p>Except as part of a re-calibration, it is rare to make big changes in
+the historical simulation. More commonly, you will want to add a few
+output locations or scalars. Large scale policy or physical changes are
+usually analyzed within a Planning simulation framework, covered in a
+later tutorial.</p>
+<h2 id="hydro-and-qual">HYDRO and QUAL</h2>
+<ol>
+<li><strong>Copy the historical template:</strong><ol>
+<li>In windows, copy the
+    folder <em>\{DSM2_home}\study_template\historical</em> to the tutorial
+    directory, after creating <em>\{DSM2_home}\tutorials\historical</em>.
+    If there is already a historical folder, just copy the contents.</li>
+<li>Open <em>historical_hydro.inp</em> and <em>historical_qual_ec.inp.</em> Note
+    the CONFIGURATION sections of both reference a
+    file <em>configuration_historical.inp</em>. By containing variables
+    such as run dates in this file, you can more easily synchronize
+    the models.</li>
+<li>Examine the <em>common_input</em> directory. By looking
+    at <em>historical_hydro.inp, configuration_historical.inp</em> and the
+    other main input files, you will see that many of the included
+    files for the models are in the directory ${DSM2INPUTDIR}. In
+    this distribution, this variable points
+    to <em>/dsm2/common_input</em> – a repository in which all the
+    distributed DSM2 input files are housed. Later, you may want to
+    copy the input files locally and repoint ${DSM2INPUTDIR} to this
+    local directory. In fact, there are tools to help with this.
+    Regardless of whether you copy them, please resist changing the
+    files directly – it is much easier to diagnose problems if you
+    make your changes in the main file (<em>historical_hydro.inp,
+    historical_qual_ec.inp</em>…) or in a new file of your own making.</li>
+</ol>
+</li>
+<li><strong>Modify the Run Times in the Configuration File:</strong></li>
+</ol>
+<p>In the configuration file, set the runtime definitions as follows.</p>
+<h1 id="runtime">runtime</h1>
+<p>START_DATE 01JUL1996<br />
+START_TIME 0000<br />
+QUAL_START_DATE 02JUL1996<br />
+PTM_START_DATE ${QUAL_START_DATE}<br />
+END_DATE 01SEP1996<br />
+END_TIME 0000 </p>
+<ol>
+<li><strong>Note the Output Step in HYDRO:</strong></li>
+</ol>
+<p>If you look in the channel output files
+(e.g. <em>output_channel_std_hydro_rki_20090715.inp)</em>, you will find that
+the time step of the output is itself an ENVVAR definition called
+${FINE_OUT}. This is usually defined as 15 minutes in configuration
+file. Although DSM2 v8 will perform daily averages, it is recommended
+that you use the finer output and aggregate as a postprocessing step (we
+will cover this shortly).</p>
+<ol>
+<li><strong>Add some Output</strong></li>
+</ol>
+<p>In historical_hydro.inp, add a block containing an extra flow output for
+Old River at Head. Notice that the name in this case is a "practical"
+name. Although you may sometimes add input with names like "ch56_0",
+such a name is redundant with the other information in the line, is
+difficult for non-modelers to understand and causes confusion if the
+grid numbering changes.  </p>
+<p>OUTPUT_CHANNEL<br />
+NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE <br />
+oldr_head 56 0 flow ${FINE_OUT} inst ${HYDROOUTDSSFILE} <br />
+END </p>
+<ol>
+<li>
+<p><strong>Run HYDRO and QUAL:</strong></p>
+<ol>
+<li>In Windows Explorer, navigate to the directory,
+    _\{DSM2_home}\tutorial_</li>
+<li>Right-click on the <em>historical</em> directory, and select, <em>Open
+    Command Window Here.</em></li>
+<li>In the command window, type: <em>hydro historical_hydro.inp</em></li>
+<li>Wait for HYDRO to complete its runs.</li>
+<li>Now type: <em>qual</em> <em>historical_qual_ec.inp</em></li>
+</ol>
+</li>
+<li>
+<p><strong>Aggregate the Output</strong></p>
+</li>
+</ol>
+<p>Above we recommended that you use post-processing to aggregate your
+output. Let's see how this works. At a command prompt in the
+${study}/output directory, type:<br />
+&gt; transfer -–help<br />
+This command should give you the options for the "transfer.py" script
+that will help you aggregate your output. <br />
+For instance, if you want to create a daily average of all your flow
+output, type (this is all one line): <br />
+&gt;transfer --out=postpro.dss --selection=///FLOW//// <br />
+--transform=period_ave --interval=1DAY historical.dss <br />
+As another example, you may want to take a Godin average of all the
+stage output and put it in the same file: <br />
+&gt;transfer --out=postpro.dss --selection=///STAGE//// <br />
+--transform=godin historical.dss <br />
+You can similarly do monthly averages by making the interval 1MON and
+you can "slice" in time by specifying a time window (the syntax is given
+by the help command:<br />
+&gt; transfer -–help </p>
+<ol>
+<li>
+<p><strong>Running QUAL with Volumetric fingerpringting:</strong></p>
+<ol>
+<li>In the command window, type: <em>qual historical_qual_vol.inp</em>.</li>
+<li>Open the qual echo file qual_vol_echo_historical.inp in the
+    output subfolder.</li>
+<li>Open the results file in the output subfolder, and examine the
+    results.</li>
+</ol>
+</li>
+<li>
+<p><strong>Running QUAL with Nonconservative Constituents fingerpringting:</strong></p>
+<ol>
+<li>In Windows Explorer, navigate to the
+    directory, <em>\{DSM2_home}\study_template_
+    _historical_qual_do</em>\ Conduct a similar study as EC and VOL.</li>
+<li>Notice that the running time period is 1996-2000, since Stockton
+    effluent is not using '<em>constant'</em> but detailed
+    timeseries: <em>effluentflow96-2000.dss</em></li>
+</ol>
+</li>
+</ol>
+<p>ENVVAR<br />
+NAME VALUE <br />
+STOCKTON_FLOW_FILE ${TSINPUTDIR}/effluentflow96-2000.dss # needed for
+DO runs, if not available use constant<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Open the results file in the output subfolder, and examine the
+        results.</li>
+</ol>
+</li>
+</ol>
+<h2 id="particle-tracking-modeling-ptm">Particle Tracking Modeling (PTM)</h2>
+<ol>
+<li>
+<p><strong>Run PTM in Delta Grid under Historical Condition</strong></p>
+<ol>
+<li>
+<p>In Windows Explorer, navigate to the directory, _  </p>
+<p>Unknown macro: {DSM2_home}{_}tutorial\ in the command window,
+type: ptm historical_ptm.inp. *If necessary, reduce the running
+time period by
+modifying <em>END_DATE</em> in <em>configuration_historical.inp</em>.
+    2.  Open the ptm echo file ptm_echo_historical.inp in the output
+subfolder and examine the contents.
+    3.  Open the ptmout.dss file in the output subfolder, and examine
+the results. Do a little mass balance to see if the particle
+fluxes add up.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Repeat with Particle Filter on Channel Turned on:</strong></p>
+</li>
+</ol>
+<p>Set particle filter at Head of Old River </p>
+<ol>
+<li>
+<ol>
+<li>In historical_ptm.inp, create the table for particle filter,
+        with constant closing operation.</li>
+</ol>
+</li>
+</ol>
+<p>PARTICLE_FILTER<br />
+NAME NODE AT_WB FILLIN FILE PATH<br />
+Filter_HOR 8 chan:54 last constant 0<br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>Add the related output, like</li>
+</ol>
+</li>
+</ol>
+<p>PARTICLE_FLUX_OUTPUT<br />
+NAME FROM_WB TO_WB INTERVAL FILE<br />
+SJR-OLD chan:7 chan:54 15min ${PTMOUTPUTFILE}<br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>Open the ptmout.dss file in the output subfolder, and examine
+        the results</li>
+</ol>
+</li>
+<li>
+<p><strong>Repeat with Particle Filter on Reservoir Turned on:</strong></p>
+</li>
+</ol>
+<p>With particle filter installed at Clifton Court Forebay (this is a
+special version of filter dealing with source flows directly connecting
+to reservoir) </p>
+<ol>
+<li>
+<ol>
+<li>In historical_ptm.inp, create the table for particle filter,
+        with time-varying operation control, specified in DSS file.</li>
+</ol>
+</li>
+</ol>
+<p>PARTICLE_RES_FILTER<br />
+NAME RES_NAME AT_WB FILLIN FILE PATH<br />
+clfc_div_bbid clifton_court qext:dicu_div_bbid last ./filterOp.dss
+/HIST+FILTER/CLFC_DIV/FILTER_OP//IR-DECADE/DWR-BDO/<br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>Add the related output, like</li>
+</ol>
+</li>
+</ol>
+<p>PARTICLE_FLUX_OUTPUT<br />
+NAME FROM_WB TO_WB INTERVAL FILE<br />
+SWP-AG res:clifton_court group:bbid 15min ${PTMOUTPUTFILE} <br />
+END </p>
+<ol>
+<li>
+<ol>
+<li>Open the ptmout.dss file in the output subfolder, and examine
+        the results</li>
+</ol>
+</li>
+<li>
+<p><strong>Repeat with Particle Filter on Source Flow Turned on:</strong></p>
+</li>
+</ol>
+<p>Agriculture source flow (diversions and seepages) could be required to
+restrict particles from entering in simulations. It is one application
+for particle filter. </p>
+<ol>
+<li>
+<ol>
+<li>In Windows Explorer, navigate to the directory,
+        \{DSM2_home}\tutorial\ Open the
+        file <em>delta_dicu_filter_closed.txt</em>. Copy the content into
+        historical_ptm.inp</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>Open the ptmout.dss file in the output subfolder, and examine
+        the results</li>
+</ol>
+</li>
+</ol>
+<h2 id="making-animation-of-particle-tracking-modeling-ptm">Making animation of Particle Tracking Modeling (PTM)</h2>
+<ol>
+<li><strong>Modify the PTM input file to make text output and to turn on the
+    dispersion parameters:</strong><ol>
+<li>In Windows Explorer, copy the folder <em>ptm_animate</em> (with
+    subfolders) from <em>\{DSM2_home}\study_templates\ptm_animate</em></li>
+</ol>
+</li>
+</ol>
+<p>to the study directory, creating:<br />
+<em>\{DSM2_home}\tutorials\historical\ptm_animate</em></p>
+<ol>
+<li>
+<ol>
+<li>With the PTM, it is useful to be able to switch easily between
+        text and dss output formats – note that the animator requires
+        text files. The <em>configuration_historical.inp</em> file is
+        structured so that we can swap the environmental
+        variable <em>PTMOUTPUTFILE</em>. We are going to
+        point <em>PTMOUTPUTFILE</em> to txt format so we can use the animator.
+        1.  1.  Locate the <em>PTMOUTPUTFILE</em> at the end of the file, and
+                modify as:</li>
+</ol>
+</li>
+</ol>
+<p>PTMOUTPUTFILE ptmout.txt</p>
+<ol>
+<li>
+<ol>
+<li>Open the file, <em>historical_ptm.inp</em>.
+        1.  Locate the SCALARS section. Check all of the dispersion
+            parameters to be <em>t</em>.</li>
+</ol>
+</li>
+</ol>
+<p>ptm_ivert <em>t</em> # Use Vertical velocity profile<br />
+ptm_itrans <em>t</em> # Use Transverse velocity profile<br />
+ptm_iey <em>t</em> # Use transverse mixing<br />
+ptm_iez <em>t</em> # Use vertical mixing</p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Make sure the <em>anim_db.bin</em> line is turned on (this is
+            usually commented out to save much running time)</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>ptm anim out 15min ${DSM2OUTPUTDIR}/anim_db.bin   </p>
+<ol>
+<li><strong>Run PTM:</strong><ol>
+<li>In the command window, type: <em>ptm historical_ptm.inp</em>.</li>
+<li>In Windows Explorer:<ol>
+<li>Navigate to the directory,</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><em>\{DSM2_home}\tutorials\historical\output</em></p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Examine the output in the <em>ptmout.txt</em> file.
+        2.  Copy the files, <em>anim_db.bin</em> and <em>ptmout.txt</em>.
+        3.  Navigate to the directory,</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><em>\{DSM2_home}\tutorials\historical\ptm-animate\dual\left_panel</em></p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Paste the files in the <em>left_panel</em> directory.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Repeat with</strong> <strong>Dispersions Parameters Turned Off:</strong></p>
+<ol>
+<li>In Windows Explorer, navigate to the directory,
+    _\{DSM2_home}\tutorials\historical_</li>
+<li>Open the file, <em>historical_ptm.inp</em>.<ol>
+<li>Locate the SCALARS section.</li>
+<li>Change all of the dispersion parameters from <em>t</em> to <em>f</em>.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>ptm_ivert <em>f</em> # Use Vertical velocity profile<br />
+ptm_itrans <em>f</em> # Use Transverse velocity profile<br />
+ptm_iey <em>f</em> # Use transverse mixing<br />
+ptm_iez <em>f</em> # Use vertical mixing</p>
+<ol>
+<li>
+<ol>
+<li>In the command window, type: <em>ptm historical_ptm.inp</em>.</li>
+<li>In Windows Explorer:<ol>
+<li>Navigate to the directory,</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><em>\{DSM2_home}\tutorials\historical\output</em></p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Copy the files, <em>anim_db.bin</em> and <em>ptmout.txt</em>.
+        2.  Navigate to the directory,</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><em>\{DSM2_home}\tutorials\historical\ptm-animate\dual\right_panel</em></p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Paste the files in the <em>right_panel</em> directory.
+        2.  Navigate to the directory,</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><em>\{DSM2_home}\tutorials\historical\ptm-animate</em></p>
+<ol>
+<li>
+<ol>
+<li>
+<ol>
+<li>Double-click on <em>dual.bat</em> to open the animator.
+        2.  Press start to start the animator and use the controls to
+            adjust the speed.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Modifying the Animator Display:</strong></p>
+<ol>
+<li>The <em>left_panel</em> and <em>right_panel</em> directories contain files
+    needed for operation:<ol>
+<li>Modify the data path names: <em>fluxInfoDB.data</em> stores file
+    and path information for the PTM output (the flux output in
+    the text file is labeled with DSS-like path names). The
+    listings in this file will be turned into the small flux bar
+    graphs you see in the animator. The integer you see above
+    the file name is an internal node ID, which is how you
+    assign locations in the animator (also
+    see <em>network.dat</em> below). Also, an output file of the PTM
+    version 8 contains a minor version number. So the user may
+    need to modify the data path names in
+    the <em>fluxInfoDB.data</em> according to corresponding path names
+    in an output file, <em>ptmout.txt</em> in this example.</li>
+<li><em>labelsDB.data</em> stores label information. You list labels
+    and their location (using nodes, see <em>network.dat</em> below)</li>
+<li><em>network.dat</em> stores internal <em>x-</em> and <em>y-</em>locations for
+    nodes and channels. Pseudo-nodes are used for labels and
+    other annotations as noted above. Please note that the nodes
+    that are used in <em>network.dat</em> are internal node numbers,
+    not external. (This makes the file very hard to edit, a
+    point that will probably be addressed in the future). If you
+    want a mapping of external-to-internal numbers, look at your
+    echoed hydro output file (*.out or *.hof).</li>
+</ol>
+</li>
+<li>Examine these files and the labels in them. Change the labels to
+    something creative and reopen the animator.</li>
+</ol>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>

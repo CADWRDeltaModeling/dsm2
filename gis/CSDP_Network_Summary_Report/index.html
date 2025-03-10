@@ -1,0 +1,847 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>CSDP Network Summary Report - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#csdp-network-summary-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CSDP Network Summary Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manual (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DSM2 Learning Series (new for 2023)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            DSM2 Learning Series (new for 2023)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Studies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/Tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attachments:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="csdp-network-summary-report">CSDP Network Summary Report</h1>
+<p>The CSDP Network Summary Report is created by the CSDP. It can be used
+to help identify issues and potential issues with cross-sections in the
+currently loaded network file.</p>
+<p>It also contains important comparisons of DSM2 Virtual Cross-Section
+volume with GIS calculated volumes.</p>
+<p><strong>A network summary report uses the following input files:</strong></p>
+<ol>
+<li>An existing <strong>channels.inp file</strong> (such as
+    channel_std_delta_grid_NAVD_20150129.inp). This file is used to get
+    existing channel lengths for comparison, and to determine channel
+    connectivity.</li>
+<li>The currently loaded <strong>network file</strong>.</li>
+<li>A <strong>DSM2 output (.hof) file</strong> which was created from the network
+    file by running DSM2-Hydro with geometry created using the currently
+    loaded network file with printlevel&gt;=5</li>
+<li>A <strong>2m meter DEM CutFill validity</strong> <strong>file</strong>, which was created
+    based upon a visual inspection of the extent of the coverage of
+    channel polygons with data in the 2m DEM files, using ArcGIS. If
+    coverage is complete or very nearly complete, the validity is true.</li>
+<li><strong>CutFill results</strong> files, each containing results from the CutFill
+    operations for a given DEM.</li>
+<li>(Optional): <strong>a list of channel groups</strong>. Default is the list of
+    groups for which polygons were created and used in the CutFill
+    operations: "448_449_572_573, 439_440_441_451_452_453_454,
+    438_443_444_450_570_571_574_575,290-294,281_282_295_296_297_301".
+    You can add to this list.</li>
+</ol>
+<p><strong>The report contains, for a given stage (usually 0.0 NAVD)</strong></p>
+<ol>
+<li><strong>Channel</strong>: The name/number of the DSM2 channel. Could also be a
+    group of channels. Examples: Sherman Lake would be identified as:
+    290-294, Grizzly Bay would be identified as: 448_449_572_573</li>
+<li>Comparison of channels.inp length vs CSDP length:<ol>
+<li><strong>Channels.inp length</strong>: length specified for DSM2 in the DSM2
+    channels file above.</li>
+<li><strong>CSDP length</strong>: length calculated by the CSDP that will be used
+    to replace the 'Channels.inp length'.</li>
+<li><strong>% change</strong>: the change in length CSDP vs Channels.inp</li>
+</ol>
+</li>
+<li><strong>CSDP Average width</strong>: For determining GIS volume
+    estimate validity–average width should be at least 3 times the DEM
+    grid size.</li>
+<li>If CSDP Volume is significantly different from DSM2 Volume, that
+    would mean the effects of interpolation should be considered when
+    modifying cross-sections.  <ol>
+<li><strong>CSDP Volume</strong>: Channel volume calculated by CSDP for specified
+    elevation assuming no inter-channel interpolation. Not used for
+    comparison, but may be of interest to some.</li>
+</ol>
+</li>
+<li>Not used for comparison, but may be of interest to some.<ol>
+<li><strong>CSDP Wetted Area</strong>: Wetted area calculated by CSDP for
+    specified elevation assuming no inter-channel interpolation. Not
+    used for comparison, but may be of interest to some.</li>
+<li><strong>CSDP Surface Area</strong>: Surface area calculated by CSDP for
+    specified elevation assuming no inter-channel interpolation.</li>
+<li><strong>CSDP Max Area Ratio</strong>: The maximum ratio of cross-sectional
+    areas within a channel using CSDP cross-sections. <u>Important
+    for numerical stability. Max area ratios should be \&lt; 2.0.</u></li>
+</ol>
+</li>
+<li>If CSDP Volume is significantly different from DSM2 Volume, that
+    would mean the effects of interpolation should be considered when
+    modifying cross-sections.<ol>
+<li><strong>DSM2 Volume</strong>: Channel volume calculated at specified
+    elevation using virtual cross-sections from DSM2 output file.
+    Used for comparison with GIS volumes.</li>
+</ol>
+</li>
+<li>Not used for comparison, but may be of interest to some:<ol>
+<li><strong>DSM2 Wetted Area</strong>: Wetted area calculated at specified
+    elevation using virtual cross-sections from DSM2 output file</li>
+<li><strong>DSM2 Surface Area</strong>: Surface area calculated at specified
+    elevation using virtual cross-sections from DSM2 output file</li>
+<li><strong>DSM2 Max Area Ratio</strong>: The maximum ratio of cross-sectional
+    areas within a channel using virtual cross-sections.
+    <u>Important for numerical stability. Max area ratios should be
+    \&lt; 2.0.</u></li>
+</ol>
+</li>
+<li>These results include valid and invalid values (see "2m Validity"
+    and "10m Validity" below), so these are <strong>probably not what you want
+    to use</strong>.<ol>
+<li><strong>GIS 2m Max* Volume:</strong> The GIS calculated channel volume,
+    converted to ft3, using 2m DEM.</li>
+<li><strong>GIS 2m Max* Area:</strong> The GIS calculated 2d area, converted to
+    ft2, using 2m DEM.</li>
+<li><strong>GIS 10 Max* Volume:</strong> The GIS calculated channel volume,
+    converted to ft3, using 10m DEM.</li>
+<li><strong>GIS 10m Max* Area:</strong> The GIS calculated 2D area, converted to
+    ft2, using 10m DEM.</li>
+<li><strong>DSM2-2m Vol:</strong> The difference between the DSM2 virtual
+    cross-section volume and the 2m DEM volume.</li>
+<li><strong>DSM2-10m Vol:</strong> The difference between the DSM2 virtual
+    cross-section volume and the 10m DEM volume.</li>
+<li><strong>2m Vol % diff:</strong> The % difference between the DSM2 virtual
+    cross-section volume and the 2m DEM volume.</li>
+<li><strong>10m Vol % diff:</strong> The % difference between the DSM2 virtual
+    cross-section volume and the 10m DEM volume.</li>
+<li><strong>CSDP Avg Width:</strong> The average width of all the CSDP
+    cross-sections in a channel at the specified elevation.</li>
+</ol>
+</li>
+<li><strong>2m Width Ratio:</strong> the CSDP Avg Width / 2m.</li>
+<li><strong>10m Width Ratio:</strong> the CSDP Avg Width / 10m.</li>
+<li><strong>2m Validity:</strong> 2m DEM volume and area calculations will be
+    considered valid if a 2m DEM covers (or nearly covers) the entire
+    channel polygon, and the <strong>2m Width Ratio</strong> &gt;= 3.0.</li>
+<li><strong>10m Validity:</strong> 10m DEM volume and area calculations will be
+    considered valid if the <strong>10m Width Ratio</strong> &gt;= 3.0. Coverage is
+    assumed to be complete for all channels.</li>
+<li><strong>Valid Values: These are the ones you want to use:</strong><ol>
+<li><strong>Valid 2m Vol:</strong> The value of <strong>GIS 2m Volume</strong>, if <strong>2m
+    Validity</strong>==true, null otherwise.</li>
+<li><strong>Valid 10m Vol:</strong> The value of <strong>GIS 10m Volume</strong>, if <strong>10m
+    Validity</strong>==true, null otherwise.</li>
+<li><strong>DSM2-Valid 2m Vol:</strong> The value of <strong>DSM2-2m Vol</strong> if <strong>2m
+    Validity</strong>==true, null otherwise.</li>
+<li><strong>DSM2-Valid 10m Vol:</strong> The value of <strong>DSM2-10m Vol</strong> if <strong>10m
+    Validity</strong>==true, null otherwise.</li>
+<li><strong>Valid 2m Vol % diff:</strong> The value of <strong>2m Vol % diff</strong> if <strong>2m
+    Validity</strong>==true, null otherwise.</li>
+<li><strong>Valid 10m Vol % diff:</strong> The value of <strong>10m Vol % diff</strong> if
+    <strong>10m Validity</strong>==true, null otherwise.</li>
+</ol>
+</li>
+<li><strong>CSDP highest bottom elevation</strong>: The highest bottom elevation of
+    all the cross-sections within the channel. Can help identify
+    cross-sections that are likely to dry up.</li>
+<li><strong>CSDP XS with no points</strong>: The indices of the cross-sections in the
+    channel that have no points. These cross-sections should be removed
+    or edited.</li>
+<li><strong>CSDP XS within 500.0 feet</strong>: The indices of the cross-sections in
+    the channel that are within 500.0 feet of each other. This could
+    help identify duplicate cross-sections or unnecessary
+    cross-sections. </li>
+<li><strong>These can help identify cross-sections that need to be adjusted to
+    improve Max Area Ratio.</strong><ol>
+<li><strong>CSDP XS with Min area</strong>: The index of the cross-section in the
+    channel that has the smallest area at the specified elevation</li>
+<li><strong>CSDP XS with Max area</strong>: The index of the cross-section in the
+    channel that has the largest area at the specified elevation</li>
+</ol>
+</li>
+<li><strong>CSDP XS with duplicate stations</strong>: The indices of the
+    cross-sections in the channel that have duplicate station values.
+    These cross-section need to be fixed.</li>
+<li><strong>We no longer care about negative dConveyance, so these can
+    probably be ignored:</strong><ol>
+<li><strong>CSDP XS with -dK</strong>: The indices of the cross-sections in the
+    channel that have negative dConveyance at any elevation.</li>
+<li><strong>CSDP XS with -dK in intertidal zone</strong>: the indices of the
+    cross-sections in the channel that have negative dConveyance in
+    the intertidal zone. (intertidal zone is assumed to be limited
+    to the range -2.5 \&lt; Z \&lt; 17.5 ft NAVD88)</li>
+</ol>
+</li>
+</ol>
+<p>*When calculating GIS results, some channels overlap more than one
+DEM.  When this happens, only the largest values of Volume and 2D Area
+are used, because they are assumed to be associated with the DEM that
+covers a greater portion of the polygon. If the coverage is not
+complete, the value should be invalidated visually in the "2m DEM
+Validity" file.</p>
+<p><strong>Creating the network summary report:</strong></p>
+<ol>
+<li>Load a bathymetry file.</li>
+<li>Load or create a network file.</li>
+<li>Select Network-&gt;Reports→Network Summary Report</li>
+<li>In the following dialog: <br />
+    <img src="attachments/87228828/87228832.png"
+    data-image-src="attachments/87228828/87228832.png"
+    data-unresolved-comment-count="0" data-linked-resource-id="87228832"
+    data-linked-resource-version="1" data-linked-resource-type="attachment"
+    data-linked-resource-default-alias="image2019-3-25_16-8-30.png"
+    data-base-url="http://msb-confluence"
+    data-linked-resource-content-type="image/png"
+    data-linked-resource-container-id="87228828"
+    data-linked-resource-container-version="1" height="250" /></li>
+<li>Either<ol>
+<li>click the "Load Dialog Values" button to populate the dialog
+    using values read from a file, OR</li>
+<li>Populate the dialog one field at a time by clicking the "Select
+    File" buttons to specify<ol>
+<li>the channels.inp file (in the current DSM2 setup, this is
+    channel_std_delta_grid_NAVD-20121214.inp),</li>
+<li>optionally a .hof file created by running DSM2 with
+    printlevel=5,</li>
+<li>A string representing an array of channels to use for
+    aggregating results (for example, all the channels
+    representing Grizzly Bay). This string can contain lists of
+    channels for which polygons were created for the GIS CutFill
+    operation, or a custom list of channels.</li>
+<li>A list of all files containing CutFill results from GIS,</li>
+<li>A 2m DEM CutFill Validity file, which I created by visually
+    inspecting the DEM coverage of polygons.</li>
+<li>An output path</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>The results will be written to a tab delimited .txt file specified
+    above. Import the file into Excel, specifying tab as a delimiter.</li>
+<li>After the results are written, another window will appear containing
+    graphs of the results.</li>
+<li>Save results if desired.</li>
+</ol>
+<p>Here is the current network summary report:</p>
+<p>There are many rows above the table which define the various quantities.
+You may want to hide these rows when using the spreadsheet.</p>
+<p><a
+href="/download/attachments/87228828/networkSummary.txt?version=1&amp;modificationDate=1611798718168&amp;api=v2"
+data-nice-type="Text File"
+data-file-src="/download/attachments/87228828/networkSummary.txt?version=1&amp;modificationDate=1611798718168&amp;api=v2"
+data-linked-resource-id="87228831"
+data-linked-resource-type="attachment"
+data-linked-resource-container-id="87228828"
+data-linked-resource-default-alias="networkSummary.txt"
+data-mime-type="text/plain" data-has-thumbnail="true"
+data-linked-resource-version="1" data-can-edit="true"
+aria-label="networkSummary.txt"><img
+src="rest/documentConversion/latest/conversion/thumbnail/87228831/1"
+height="250" /></a><img src="attachments/87228828/87228827.png"
+data-image-src="attachments/87228828/87228827.png"
+data-unresolved-comment-count="0" data-linked-resource-id="87228827"
+data-linked-resource-version="1" data-linked-resource-type="attachment"
+data-linked-resource-default-alias="image2019-3-26_14-13-18.png"
+data-base-url="http://msb-confluence"
+data-linked-resource-content-type="image/png"
+data-linked-resource-container-id="87228828"
+data-linked-resource-container-version="1" height="250" /></p>
+<h2 id="attachments">Attachments:</h2>
+<p><img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228827.png">image2019-3-26_14-13-18.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228829.png">image2019-3-25_16-9-52.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228830.png">image2019-3-25_16-9-41.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228831.txt">networkSummary.txt</a> (text/plain)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228832.png">image2019-3-25_16-8-30.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228833.xlsx">networkSummary20190308.xlsx</a>
+(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228834.png">image2019-1-7_14-32-27.png</a>
+(image/png)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228835.xltx">networkSummaryWithoutHof.xltx</a>
+(application/vnd.openxmlformats-officedocument.spreadsheetml.template)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228836.xltx">networkSummaryWithHof.xltx</a>
+(application/vnd.openxmlformats-officedocument.spreadsheetml.template)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228837.xlsx">networkSummaryWithoutHof.xlsx</a>
+(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228838.xlsx">networkSummaryWithHof.xlsx</a>
+(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)<br />
+<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+<a href="attachments/87228828/87228839.txt">networkSummaryWithoutHof.txt</a>
+(text/plain)  </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>

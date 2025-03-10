@@ -1,0 +1,883 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Tutorial 2: Reservoirs, Gates, Transfers - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-2-reservoirs-gates-transfers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial 2: Reservoirs, Gates, Transfers
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manual (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DSM2 Learning Series (new for 2023)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            DSM2 Learning Series (new for 2023)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Studies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_learning_series/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials (archive)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="tutorial-2-reservoirs-gates-transfers">Tutorial 2: Reservoirs, Gates, Transfers</h1>
+<p><strong>Task</strong><br />
+Add reservoirs, gates and object to object flow transfers to the simple
+channel grid created in tutorial 1 <br />
+<strong>Skills Gained</strong></p>
+<ul>
+<li>Understanding of how reservoirs and gates are represented in DSM2</li>
+<li>
+<p>Learn how to transfer flow from one reservoir or node to another
+    reservoir or node in DSM2<br />
+    The purpose of this tutorial is to learn how to add reservoirs,
+    gates, and flow transfers to the simple channel-only grid created in
+    Tutorial 1 (Figure 1). The grid we are going to create has the
+    following configuration and specifications: The channel portion is
+    identical to the simple channel model from Tutorial 1. Note that
+    each tutorial is self contained, so it is not necessary to do
+    Tutorial 1 before completing this tutorial.<br />
+<img alt="" src="../../attachments/87228759/87228764.png" />
+    <strong>Figure 1- Simple channel with a new reservoir, gate, and flow
+    transfer.</strong> <br />
+    The following steps will instruct you on how to create these new
+    features and add them to the simple channel system.   </p>
+<p><strong>DSM2 Definitions</strong> <br />
+<strong><em>Reservoir</em></strong><br />
+In DSM2, reservoirs are open bodies of water that store flow and are
+connected to nodes by means of an energy-based equation. This means
+that flow moves between the reservoir and its connected node or
+channel whenever there is an energy imbalance (e.g. stage
+difference). Reservoirs are considered instantly well-mixed. The
+Reservoirs Table specifies the identity and physical properties of
+the reservoir. Connections to nodes are specified in the Reservoir
+Connections table. If it is desired to regulate flow between a
+reservoir and its connected node or channel, a gate device is
+used. <br />
+In DSM2 applications for the Delta, reservoirs are used for actual
+reservoirs such as Clifton Court Forebay and for open water bodies
+such as flooded islands. <br />
+<strong><em>Gate</em></strong><br />
+In DSM2, gates are sites that present a barrier or control on flow.
+A gate may have an arbitrary number of associated hydraulic devices
+(pipes and weirs), each of which may be operated independently to
+control flow. <br />
+In DSM2 applications for the Delta, gates are used to represent the
+Delta Cross Channel, the Montezuma Slough Salinity Control Gates,
+and permanent or temporary barriers. <br />
+<strong><em>Object to Object Flow Transfer</em></strong><br />
+Transfers are direct water connections from a reservoir or node to
+another reservoir or node. Transfers are instantaneous movements of
+water (and its constituents and particles) without any detailed
+description of physics or storage. The Transfer table specifies the
+connectivity of the transfer. <br />
+In DSM2 applications for the Delta, object to object transfers have
+been used to represent proposed peripheral canal withdrawal and
+outflow locations.   </p>
+</li>
+<li>
+<p><strong>Create the reservoir:</strong></p>
+<ol>
+<li>In Windows Explorer, navigate to the
+    directory: <em>\{DSM2_home}\tutorial\simple\t2_reservoir_gate_transfer</em>.<BR></li>
+<li>Open <em>hydro.inp.</em> At the bottom of the file, Add the skeleton
+    for the reservoir table:</li>
+</ol>
+</li>
+</ul>
+<p>RESERVOIR<br />
+NAME AREA BOT_ELEV<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Enter the following values into the appropriate fields:<BR>
+        1.  Name: <em>res_1</em><BR>
+        2.  Area (million sq ft): <em>40</em><BR>
+        3.  Bottom elev (ft): <em>-24</em><BR></li>
+<li>Note from Figure 1 that the reservoir has two connections; one
+    at Node 3, and one at Node 4. These will go in a child table
+    called RESERVOIR_CONNECTION. <img src="../../attachments/5931233/5931235.png" width="29" height="29" />Some DSM2 input data tables are
+    related to each other in what is referred to as a parent/child
+    relationship. In the case of reservoirs, the RESERVOIR table is
+    the parent table and the RESERVOIR_CONNECTIONS table is the
+    child table that provides additional information related to the
+    information in the parent table. The parent table must appear in
+    the input file prior to the child table. The header has the
+    following form:</li>
+</ol>
+</li>
+</ol>
+<p>RESERVOIR_CONNECTION<br />
+RES_NAME NODE COEF_IN COEF_OUT<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>Enter the following values into the appropriate fields for the
+        first connection:<BR>
+        1.  Res Name: res_1<BR>
+        2.  Node: <em>3</em><BR>
+        3.  Res Coef (in): <em>200</em><BR>
+        4.  Res Coef (out): <em>200</em><BR></li>
+<li>Enter the following values into the appropriate fields for the
+    second connection:<BR><ol>
+<li>Res Name: res_1<BR></li>
+<li>Node: <em>4</em><BR></li>
+<li>Res Coef (in): <em>200</em><BR></li>
+<li>Res Coef (out): <em>200</em><BR></li>
+</ol>
+</li>
+<li>Save the current settings.</li>
+</ol>
+</li>
+</ol>
+<p><img src="../../attachments/5931233/5931235.png" width="29" height="29" /> To ensure conservation of mass at the beginning of a DSM2 simulation,
+it is good practice to set appropriate initial conditions. It is
+recommended to set all flows to zero and reservoir stage to zero.</p>
+<ol>
+<li><strong>Add Initial Conditions for the Reservoir:</strong><ol>
+<li>Create the <em>Reservoir Initial Conditions</em> <em>table</em>:<BR><ol>
+<li>The header and data are</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>RESERVOIR_IC<br />
+RES_NAME STAGE<br />
+res_1 0.0<br />
+END </p>
+<ol>
+<li><strong>Create the Gate:</strong><ol>
+<li>Now we are going to create the GATE table and its child table
+    GATE_DEVICE. Note from Figure 1 that the gate is located at Node
+    2 of Channel 2. This gate consists of both a weir and a pipe.
+    Therefore, two rows of information will be needed for
+    the <em>GATE_DEVICE</em> table.<BR></li>
+<li>At the bottom of hydro.inp, add the skeleton for the GATE table:<BR></li>
+</ol>
+</li>
+</ol>
+<p>GATE<br />
+NAME FROM_OBJ FROM_IDENTIFIER TO_NODE<br />
+END</p>
+<ol>
+<li>
+<ol>
+<li>In the <em>Gates</em> <em>table</em>:<BR>
+        1.  Add a row and enter the following values into the
+            appropriate fields:<BR>
+            1.  Name: <em>gate_1</em><BR>
+            2.  From object: <em>channel</em><BR>
+            3.  From identifier: <em>2 [note that this 2 refers to channel
+                2]</em><BR>
+            4.  to Node: <em>2 [note that this 2 refers to node 2]</em><BR>
+        2.  Create a GATE_WEIR_DEVICE table with the following fields:<BR></li>
+</ol>
+</li>
+</ol>
+<p>GATE_NAME, DEVICE, NDUPLICATE, WIDTH, ELEV, HEIGHT, CF_FROM_NODE,
+CF_TO_NODE, DEFAULT_OP<BR></p>
+<ol>
+<li>
+<p>Enter the following values into the appropriate fields:<BR></p>
+<ol>
+<li>Gate Name: gate_1<BR></li>
+<li>Device: <em>weir</em><BR></li>
+<li>NDuplicate: <em>2</em><BR></li>
+<li>Width: <em>20</em><BR></li>
+<li>Elev: <em>2</em><BR></li>
+<li>Height: <em>9999.0</em><BR></li>
+<li>CF from Node: <em>0.8</em><BR></li>
+<li>CF to Node: <em>0.8</em><BR></li>
+<li>Default Op: <em>gate_openNote: don't forget to close your
+        table with END.</em> <img src="../../attachments/5931233/5931236.png" width="29" height="29" />How many weirs does this gate have?<br />
+        Hint: check out the value for number of duplicates<BR></li>
+</ol>
+</li>
+<li>
+<p>Create a GATE_PIPE_DEVICE table by looking up the
+        appropriate headers in the DSM2 documentation. <img src="../../attachments/5931233/5931235.png" width="29" height="29" />All
+        table headers have to be in capital letters.</p>
+<ol>
+<li>
+<p>Again, in the <em>Gate Devices</em> table:<BR></p>
+<ol>
+<li>On a new line enter the following values into the
+    appropriate fields:<BR><ol>
+<li>Gate Name: gate_1<BR></li>
+<li>Device Name: <em>pipe</em><BR></li>
+<li>Number of duplicates: <em>2</em><BR></li>
+<li>Radius: <em>2</em><BR></li>
+<li>Elevation: <em>2</em><BR></li>
+<li>Flow coefficient from Node: <em>0.8</em><BR></li>
+<li>Flow coefficient to Node: <em>0.8</em><BR></li>
+<li>Default Operation: <em>gate_open</em><BR></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>Save the current settings.  <img src="../../attachments/5931233/5931236.png" width="29" height="29" /> How would you change the gate device
+    table to only allow flow in one direction? Hint: review gate
+    operation options in the documentation.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Create the Transfer:</strong></p>
+</li>
+</ol>
+<p>A transfer is a momentum-free transfer of water from one node or
+reservoir to another node or reservoir. We are going to create a
+continuous transfer of 40cfs of water from the reservoir res_1 to node
+6.</p>
+<ol>
+<li>Below the gate input, create the <em>TRANSFER</em> <em>table</em><ol>
+<li>The headers are:</li>
+</ol>
+</li>
+</ol>
+<p>TRANSFER<br />
+NAME FROM_OBJ FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER<br />
+END</p>
+<ol>
+<li>
+<p>Enter the following values into the appropriate fields:<BR>
+        1.  Name: <em>transfer_1</em><BR>
+        2.  From Object: <em>reservoir</em><BR>
+        3.  To identifier: <em>res_1</em><BR>
+        4.  To Object: <em>node</em><BR>
+        5.  To identifier: <em>6</em><BR></p>
+<ol>
+<li>Save the current settings.</li>
+</ol>
+</li>
+<li>
+<p><strong>Add the Transfer Flow Time Series:</strong></p>
+</li>
+</ol>
+<p>We have created the transfer physically, but we have not assigned it a
+flow. This is done on a separate table, so that the specifications of
+the transfer can be used with different operations or hydrologies. Flow
+will be 40cfs.</p>
+<ol>
+<li>In hydro.inp, create the <em>Transfer Time Series</em> table:<BR><ol>
+<li>The headers are:</li>
+</ol>
+</li>
+</ol>
+<p>INPUT_TRANSFER_FLOW<br />
+TRANSFER_NAME FILLIN FILE PATH<br />
+END</p>
+<ol>
+<li>
+<p>Enter the following values into the appropriate fields:<BR>
+        1.  Input Name: <em>transfer_1</em><BR>
+        2.  Fillin: <em>last</em><BR>
+        3.  Input File: <em>constant</em><BR>
+        4.  Path/Value: <em>40</em><BR></p>
+<ol>
+<li>Save the current settings.</li>
+</ol>
+</li>
+</ol>
+<p><img src="../../attachments/5931233/5931236.png" width="29" height="29" />
+ How would you change the flow transfer from a constant value to a time
+varying value?<br />
+<img alt="" src="../../attachments/87228759/87228761.png" />
+Note: the values shown in the last two columns are descriptions of the
+information that would go in that field; they are not actual field
+values. See Basic Tutorial 4 for more information on using time series
+data in DSM2. </p>
+<ol>
+<li>
+<p><strong>Running HYDRO and QUAL</strong></p>
+<ol>
+<li>
+<p>In Windows Explorer, navigate to the directory: _  <BR></p>
+<p>Unknown macro: {DSM2_home}tutorialsimple{_}.<BR>
+    2.  Right-click on the directory, <em>t2_reservoir_gate_transfer</em>, and
+select <em>Open Command Window Here</em>.<BR>
+    3.  In the command window, type: <em>hydro hydro.inp</em>.<BR>
+    4.  In the command window, type: <em>qual qual.inp</em>.<BR>
+    5.  Open the <em>output.dss</em> file in
+the <em>t2_reservoir_gate_transfer</em> directory, and examine <img src="../../attachments/87228759/87228760.png" width="100"/> the
+results.<BR></p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Brain teasers</strong></p>
+<ol>
+<li>
+<p>The equation for inflow from a node to a reservoir through a
+    gate is as follows:  
+    <img alt="" src="../../attachments/87228759/87228758.png" /></p>
+<p>Lookup the equation for a reservoir
+connection in the documentation. Write it down next to the gate
+equation. Assuming they both represent the same basic orifice
+physics, what terms in the gate equation does the reservoir
+coefficient C lump together?<BR>
+    2.  Clifton Court Forebay has five duplicate radial gates connecting
+it to the surrounding channel. Each has a crest elevation of
+-10.1ft and a width of 20ft:<BR>
+1.  If water is at 0 ft and the five gates are open, what is the
+    area exposed to flow?<BR>
+2.  If the weirs are perfectly efficient (no loss, coefficients
+    of 1.0), what would be the equivalent "lumped" reservoir
+    coefficient for these gates?<BR>
+3.  DSM2 version 6 had a calibrated reservoir coefficient of
+    1800^^ Note that the value of 1800 is the DSM2v6 value of
+    2400 adjusted so that it matches the reservoir equation and
+    v8. In version 6 the coefficient was multiplied by an
+    undocumented 0.75 factor. DSM2v8 uses the reservoir
+    coefficient as specified.. Was this value physical given the
+    assumptions of the model? What alternate value might you
+    use? Why might the version 6 value have been acceptable –
+    are there explanations having to do with the model
+    assumptions?<BR></p>
+</li>
+</ol>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
