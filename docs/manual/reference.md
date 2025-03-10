@@ -13,6 +13,7 @@
     -   [IO Files Section (non-DSS)](IO_Files)
     -   [Node Concentration](Node_Concentration)
     -   [Operating Rule](Operating_Rule)
+        -   [EC-based Operating Rule](Operating_Rule/EC-based_Operating_Rule)
     -   [Output: Channel (including source tracking)](Output_Channel)
     -   [Output: Gate](Output_Gate)
     -   [Output: Reservoir (including source tracking)](Output_Reservoir)

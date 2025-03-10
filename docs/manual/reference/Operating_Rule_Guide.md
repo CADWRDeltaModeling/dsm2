@@ -419,6 +419,10 @@ Velocity at given channel and distance.
 
     chan_stage(channel=number,dist=[number|length])
 
+Electrical Conductivity from GTM at given channel and distance.
+
+    chan_ec(channel=number,dist=[number|length])
+
 Water Surface at given channel and distance.
 
     chan_surf
