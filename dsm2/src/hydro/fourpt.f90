@@ -110,8 +110,7 @@ module fourpt
         istat, &              ! status of fixed input
         i, j                  ! loop index
 
-    character &
-        init_input_file*130    ! initial input file on command line [optional]
+    character(kind=c_char, len=130), bind(c, name="init_input_file") :: init_input_file    ! initial input file on command line [optional]
     ! character, external :: &
     !     jmin2cdt*14            ! convert from julian minute to char date/time
 
@@ -126,9 +125,8 @@ module fourpt
     !   Last modified: October 1994 Parviz Nader DWR
     !   Last modified: September 1996 Ralph Finch DWR
 
-    data init_input_file/' '/
 contains
-    subroutine prepare_hydro()
+    subroutine prepare_hydro() bind(c, name="prepare_hydro")
         !-----DSM2 module, name and version number
         dsm2_module = hydro
         dsm2_name = 'Hydro'
@@ -149,7 +147,7 @@ contains
         !-----simulation name for Database read
     end subroutine prepare_hydro
 
-    subroutine fourpt_init()
+    subroutine fourpt_init() bind(c, name="fourpt_init")
         !-----dsm2 initialization
         call dsm2_hydro_init
 
@@ -164,8 +162,8 @@ contains
 
         !---- begin data reading
 
-        !---- read all text into buffers and process envvironmental variables
-        if (init_input_file .ne. ' ') then
+        !---- read all text into buffers and process environmental variables
+        if (trim(init_input_file) /= ' ') then
             inquire (file=init_input_file, exist=file_exists)
             if (.not. file_exists) then
                 write (unit_error, *) "Input file does not exist: ", init_input_file
@@ -344,7 +342,7 @@ contains
         current_date = jmin2cdt(julmin)
     end subroutine
 
-    subroutine fourpt_step()
+    subroutine fourpt_step() bind(c, name="fourpt_step")
         call fourpt_step_before_updatenetwork()
 
         if (check_input_data) then
@@ -400,7 +398,7 @@ contains
         current_date = jmin2cdt(julmin)
     end subroutine fourpt_step
 
-    subroutine fourpt_winddown()
+    subroutine fourpt_winddown() bind(c, name="fourpt_winddown")
         if (julmin .gt. end_julmin) then
             julmin = prev_julmin
             prev_julmin = prev_julmin - time_step

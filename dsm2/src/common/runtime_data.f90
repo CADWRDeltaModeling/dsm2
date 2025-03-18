@@ -30,10 +30,10 @@ module runtime_data
     integer :: prev_time_step        ! previous time step in minutes
     integer:: nprints = 1    ! number of start/stop output date/times
 
-    integer*4 :: julmin       ! (hydro) when to start writing tidefile, jul mins
+    integer(kind=c_int), bind(c) :: julmin       ! (hydro) when to start writing tidefile, jul mins
     integer*4 :: prev_julmin       ! (hydro) when to start writing tidefile, jul mins
     integer*4 :: start_julmin       ! (hydro) when to start writing tidefile, jul mins
-    integer*4 :: end_julmin       ! (hydro) when to start writing tidefile, jul mins
+    integer(kind=c_int), bind(c) :: end_julmin       ! (hydro) when to start writing tidefile, jul mins
     integer*4 :: jul_generic_date       ! (hydro) when to start writing tidefile, jul mins
     integer*4 :: tf_start_julmin       ! (hydro) when to start writing tidefile, jul mins
 

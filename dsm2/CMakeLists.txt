@@ -69,6 +69,7 @@ add_subdirectory(src/${DSM2_HYDROLIB})
 add_subdirectory(src/${DSM2_KLU_FORTRAN})
 add_subdirectory(src/${DSM2_OPRULE_INTERFACE})
 add_subdirectory(src/${DSM2_PATTERN_MATCH})
+add_subdirectory(src/${DSM2_PYTHON})
 
 # GTM
 set(GTM_CORE gtm_core)
