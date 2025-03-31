@@ -193,12 +193,16 @@ public class PTMBehaviorInputs {
 			for(String writeOp: outputOpText){
 				if (writeOp.toUpperCase().contains("DISPLAY_SIMULATION_TIMESTEP"))
 					Globals.DisplaySimulationTimestep = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "DISPLAY_SIMULATION_TIMESTEP_WRITE_ALL");
-				if (writeOp.toUpperCase().contains("FLUX"))
+				else if (writeOp.toUpperCase().contains("FLUX"))
 					Globals.CalculateWritePTMFlux = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FLUX_WRITE_ALL");
-				if (writeOp.toUpperCase().contains("ENTRAINMENT"))
+				else if (writeOp.toUpperCase().contains("ENTRAINMENT"))
 					_routeInputs.setWriteEntrainmentAll(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ENTRAINMENT_WRITE_ALL"));
-				if (writeOp.toUpperCase().contains("SURVIVAL"))
+				else if (writeOp.toUpperCase().contains("SURVIVAL"))
 					_survivalInputs.setSurvivalAllWriteout(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURVIVAL_WRITE_ALL"));
+				else if (writeOp.toUpperCase().contains("ROUTE_SURV"))
+					SurvivalCalculation.setWriteRouteSurvival(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ROUTE_SURV_WRITE_ALL"));
+				else if (writeOp.toUpperCase().contains("FATES"))
+					SurvivalCalculation.setWriteFates(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FATES_WRITE_ALL"));
 			}
 		}
 

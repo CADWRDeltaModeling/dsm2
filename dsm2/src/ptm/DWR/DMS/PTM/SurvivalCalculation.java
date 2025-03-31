@@ -27,7 +27,9 @@ import java.util.regex.Pattern;
  */
 public class SurvivalCalculation {
 
+	static boolean writeRouteSurvival, writeFates, showRouteSurvivalDetail;
 	public static final String WILDCARD = "99999";
+	static final int MISSING=-999;
 
 	private Particle [] particleArray;
 	private Map<String, Float> reachSurvMap;
@@ -36,8 +38,14 @@ public class SurvivalCalculation {
 
 	private Map<Integer, SimpleEntry<String, Long>> lastStationDatetimes;
 	private Map<Integer, String> fates;
-
-	static final int MISSING=-999;
+	
+	static {
+		writeRouteSurvival = false;
+		writeFates = false;
+		
+		// Enable/disable printing of route survival calculation details for testing
+		showRouteSurvivalDetail = false;
+	}
 
 	public SurvivalCalculation(Particle [] particleArray) {
 		this.particleArray = particleArray;
@@ -160,7 +168,11 @@ public class SurvivalCalculation {
 		}
 		if(reachSurvMap.containsKey(reachIndex)) {
 			surv = reachSurvMap.get(reachIndex);
-			System.out.println("Survival for " + reachIndex + ": surv = " + surv);
+			
+			if(showRouteSurvivalDetail) {
+				System.out.println("Survival for " + reachIndex + ": surv = " + surv);
+			}
+			
 			return surv;
 		}
 
@@ -208,11 +220,13 @@ public class SurvivalCalculation {
 
 		if(Double.isNaN(surv)) {surv = 0;}
 
-		System.out.print("Survival from " + fromStation + " to " + toStations[0]);
-		for(int i=1; i<toStations.length; i++) {
-			System.out.print(", " + toStations[i]);
+		if (showRouteSurvivalDetail) {
+			System.out.print("Survival from " + fromStation + " to " + toStations[0]);
+			for(int i=1; i<toStations.length; i++) {
+				System.out.print(", " + toStations[i]);
+			}
+			System.out.println(": survivalCount=" + survivalCount + ", arrivalCount=" + arrivalCount + ", surv=" + surv);
 		}
-		System.out.println(": survivalCount=" + survivalCount + ", arrivalCount=" + arrivalCount + ", surv=" + surv);
 
 		return surv;
 	}
@@ -270,11 +284,13 @@ public class SurvivalCalculation {
 		// This is the fraction calculation based on Adam's equations
 		fraction = (double) arrivalCount/(double) possibleArrivalCount;
 
-		System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations " + possibleToStations[0]);
-		for(int i=1; i<possibleToStations.length; i++) {
-			System.out.print(", " + possibleToStations[i]);
+		if (showRouteSurvivalDetail) {
+			System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations " + possibleToStations[0]);
+			for(int i=1; i<possibleToStations.length; i++) {
+				System.out.print(", " + possibleToStations[i]);
+			}
+			System.out.println(": arrivalCount=" + arrivalCount + ", possibleArrivalCount=" + possibleArrivalCount + ", fraction=" + fraction);
 		}
-		System.out.println(": arrivalCount=" + arrivalCount + ", possibleArrivalCount=" + possibleArrivalCount + ", fraction=" + fraction);
 
 		if(Double.isNaN(fraction)) {fraction = 0;}
 
@@ -461,9 +477,27 @@ public class SurvivalCalculation {
 		System.out.println("Number of vFish that were transported: " + numTransported);
 		System.out.println("Number of vFish that exited: " + numExited);
 		System.out.println("Number of vFish that were lost: " + numLost);
-		System.out.println("Counts of unique transport station sequences: " + transportPrevStations.toString());
+		if(showRouteSurvivalDetail) {
+			System.out.println("Counts of unique transport station sequences: " + transportPrevStations.toString());
+		}
 	}
 
+	/**
+	 * Set writeRouteSurvival
+	 * @param writeRouteSurvival	value to set writeRouteSurvival to		
+	 */
+	public static void setWriteRouteSurvival(boolean writeRouteSurvival) {
+		SurvivalCalculation.writeRouteSurvival = writeRouteSurvival;
+	}
+	
+	/**
+	 * Set writeFates
+	 * @param writeFates			value to set writeFates to
+	 */
+	public static void setWriteFates(boolean writeFates) {
+		SurvivalCalculation.writeFates = writeFates;
+	}
+	
 	/** Write route-specific survival to a CSV file
 	 */
 	public void writeOutputCSV() {
@@ -472,7 +506,7 @@ public class SurvivalCalculation {
 
 		// Write survival outputs to route survival outputs CSV file
 		survOutputPathCSV = "routeSurvival.csv"; 
-		if(survOutputPathCSV!=null && (!survOutputPathCSV.equals(""))) {
+		if(writeRouteSurvival && survOutputPathCSV!=null && (!survOutputPathCSV.equals(""))) {
 
 			survOutputPathCSV = Paths.get(survOutputPathCSV).toAbsolutePath().normalize().toString();
 
@@ -495,12 +529,12 @@ public class SurvivalCalculation {
 			} catch (IOException e) {
 				PTMUtil.systemExit("Failed to write to route-specific survival output file, " + survOutputPathCSV + ": " + e);
 			}
+			System.out.println("Saved route-specific survival fractions to " + survOutputPathCSV);
 		}
-		System.out.println("Saved route-specific survival fractions to " + survOutputPathCSV);
 
 		// Write fates to fates outputs CSV files
 		fatesOutputPathCSV = "fates.csv";
-		if(fatesOutputPathCSV!=null && (!fatesOutputPathCSV.equals(""))) {
+		if(writeFates && fatesOutputPathCSV!=null && (!fatesOutputPathCSV.equals(""))) {
 
 			fatesOutputPathCSV = Paths.get(fatesOutputPathCSV).toAbsolutePath().normalize().toString();
 
@@ -521,8 +555,9 @@ public class SurvivalCalculation {
 			} catch (IOException e) {
 				PTMUtil.systemExit("Failed to write to fates output file, " + fatesOutputPathCSV + ": " + e);
 			}
+			System.out.println("Saved vFish fates to " + fatesOutputPathCSV);
 		}
-		System.out.println("Saved vFish fates to " + fatesOutputPathCSV);
+		
 
 	}
 }
