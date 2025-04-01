@@ -44,7 +44,8 @@ def generate_dsm2():
                            DoubleField("manning",10,4),  # double field with width=10 precision=4
                            DoubleField("dispersion",12,4),  # double field with width=10 precision=4
                            IntField("upnode"),
-                           IntField("downnode")],
+                           IntField("downnode"),
+                           DoubleField("dx",12,4)],  # double field with width=10 precision=4],
                            ["chan_no"])            # chan_no is the identifier
     component.layered=True                         # Component is part of the layering system
     prep_component(component,outdir)               # Group reads/writes/clears are based on the

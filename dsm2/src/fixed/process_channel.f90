@@ -26,7 +26,8 @@ subroutine process_channel( &
     chan_manning, &
     chan_dispersion, &
     chan_upnode, &
-    chan_downnode)
+    chan_downnode, &
+    chan_dx_col )
 
     use logging
     use grid_data
@@ -43,7 +44,8 @@ subroutine process_channel( &
 
     real*8 &
         chan_manning, &
-        chan_dispersion
+        chan_dispersion, &
+        chan_dx_col
 
     counter = nchans
     counter = counter + 1
@@ -57,6 +59,7 @@ subroutine process_channel( &
     ! internal later in the call to order_nodes
     chan_geom(counter) .downnode = chan_downnode
     chan_geom(counter) .upnode = chan_upnode
+    chan_geom(counter) .chan_dx_col = chan_dx_col
     int2ext(counter) = channo
     nchans = counter
     extcounter = counter

@@ -57,7 +57,7 @@ subroutine check_fixed_hydro(istat)
         nsumq              , &! number of sum-of-flow boundaries
         channo             , &! channel number--do loop counter
         vsecno             , &! number of virt section within channel
-        nsec               , &! number of sections based on deltax_requested
+        nsec               , &! number of sections based on chan_dx
         loc,loccarr        , &! character array string locator
         node2hydrochan     , &! function to convert node to hydro channel
         nintnode(max_nodes), &! number of internal and external flows at nodes and reservoirs
@@ -72,7 +72,7 @@ subroutine check_fixed_hydro(istat)
     real*8 &
         totalweight         , &! check quadrature weighting
         delx               , &! actual distance between xsect
-        dx_r                ! stores value of deltax_requested
+        dx_r                ! stores value of chan_dx
 
     character cresnames(max_reservoirs)*20 ! reservoir names array
     character cinputnames(max_inputpaths)*20 ! input names array
@@ -555,12 +555,8 @@ subroutine check_fixed_hydro(istat)
         Lines(intchan)=2       ! means values given at two depths
         FirstTable(intchan) = USR+1
         if (chan_dx(intchan)<=0) then
-            if (deltax_requested<=0.) then
-                write(unit_error,*) "zero dx found for chan_id:", intchan
+            write(unit_error,*) "invalid dx found for chan_id:", intchan
                 call exit(3)
-            else
-                dx(intchan)=deltax_requested
-            endif
         else
             dx(intchan)=chan_dx(intchan)
         endif
@@ -595,7 +591,7 @@ subroutine check_fixed_hydro(istat)
                 goto 900
             endif
             if (USR > MaxLocations) then
-                write(unit_error, 720) MaxLocations, nint(deltax_requested)
+                write(unit_error, 720) MaxLocations, nint(chan_dx(nchans))
                 goto 900
             endif
 
@@ -606,10 +602,6 @@ subroutine check_fixed_hydro(istat)
             leng=float(chan_geom(intchan)%length)
             if (chan_dx(intchan)/=0) then
                 dx_r = chan_dx(intchan)
-            elseif (deltax_requested == 0) then
-                dx_r = chan_geom(intchan)%length
-            elseif (deltax_requested /= 0) then
-                dx_r = deltax_requested
             endif
             if (float(chan_geom(intchan)%length) <= dx_r) then
                 nsec=1

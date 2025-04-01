@@ -21,6 +21,7 @@
 module virt_xsect
     use network
     use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
+    use grid_data, only: chan_geom
     implicit none
     double precision, save :: x, x1, x2, y1, y2, & ! interpolation variables
         temp_all_elev(max_elevations), & ! all elevations in current channel incl duplicates
@@ -51,11 +52,7 @@ contains
             alocstat, &
             error, &
             status, &
-            chan_len, &
-            dx_len
-        integer :: dx_channo(1:nchans)  ! channo read from the input deltax file for variable dx
-        integer :: dx_num
-        real :: dx_var
+            chan_len
 
         !-----initialize index arrays
         do vsecno = 1, max_virt_xsects
@@ -83,40 +80,9 @@ contains
         !----Read in variable dx
         allocate (chan_dx(nchans), stat=alocstat)
         chan_dx = 0.0
-        if (deltax_fn(len_trim(deltax_fn) - 4 + 1:len_trim(deltax_fn)) == '.csv') then
-            open (unit=120, file=deltax_fn)
-            i = 1
-            do
-                read (120, *, iostat=status) dx_num, dx_var
-                if (status /= 0) exit
-                dx_channo(i) = dx_num
-                chan_dx(i) = dx_var
-                i = i + 1
-            end do
-            close (120)
-
-            dx_len = size(chan_dx)
-
-            ! check if dx_channo(i) matches exactly the chan_geom(i)%chan_no in the grid file.
-            if (nchans /= dx_len) then
-                write (unit_error, *) &
-                    'The number of input dx does not match the number of channels: ', nchans, dx_len
-                call exit(3)
-            else
-                error = 0
-                do i = 1, nchans
-                    if (dx_channo(i) /= chan_geom(i)%chan_no) then
-                        error = 1
-                        write (unit_screen, *) &
-                            "chan_no for dx: ", dx_channo(i), " does not match ", chan_geom(i)%chan_no
-                    end if
-                end do
-                if (error == 1) then
-                    write (unit_error, *) "chan_no for dx is not consistent with chan_no for grid"
-                    call exit(3)
-                end if
-            end if
-        end if
+        do i = 1, nchans
+            chan_dx(i) = chan_geom(i)%chan_dx_col
+        end do
 
         do channo = 1, nchans
             !--------initialize temporary data arrays--these must be re-initialized for each
@@ -369,16 +335,12 @@ contains
         implicit none
 
         integer channo               ! dsm channel number
-        real*8 dx_r                ! stores value of deltax_requested
+        real*8 dx_r                ! stores value of chan_dx
 
         !-----find the virtual deltax (requested value divided by 2)
 
         if (chan_dx(channo) > 0.0) then
             dx_r = chan_dx(channo)
-        elseif (deltax_requested == 0.0) then
-            dx_r = chan_geom(channo)%length
-        elseif (deltax_requested /= 0.0) then
-            dx_r = deltax_requested
         end if
 
         !-----find number of virtual cross-sections that will be assigned to the channel

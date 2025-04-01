@@ -63,6 +63,7 @@ module type_defs
         integer nxsect         ! Number of rectangular X-Sections defined for this channel
         integer upnode         ! upstream node
         integer downnode       ! downstream node
+        real*4 chan_dx_col         ! channel dx (distance between computational points)
         !@# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         !@# From GTM (common_variables.f90)
         integer :: channel_num                       !< actual channel number in DSM2 grid

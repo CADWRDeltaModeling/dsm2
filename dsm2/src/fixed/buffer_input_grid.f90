@@ -36,7 +36,7 @@ subroutine buffer_input_grid() !process_text_grid_input()
       integer :: ierror = 0
 
       integer chan_no,length,up_node,down_node
-      real*8 manning,dispersion
+      real*8 manning,dispersion, chan_dx_col
 
       real*8 dist,elev,width,wet_perim
 
@@ -81,6 +81,7 @@ subroutine buffer_input_grid() !process_text_grid_input()
                                         dispersion, &
                                         up_node, &
                                         down_node, &
+                                        chan_dx_col, &
                                         ierror)
 
       nitem = channel_buffer_size()
@@ -89,7 +90,8 @@ subroutine buffer_input_grid() !process_text_grid_input()
                                manning, &
                                dispersion, &
                                up_node, &
-                               down_node)
+                               down_node, &
+                               chan_dx_col)
        end do
        print *,"Number of channels: ", nitem
        if (.not. order_nodes()) then

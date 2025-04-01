@@ -84,8 +84,6 @@ module grid_data
     integer:: nquadpts = 3           ! number of quadrature points
 
     !-----used by virtual_xsect
-    real*8 :: deltax_requested       ! delta x to use in spatial discretization
-    character*20 deltax_fn            ! delta x defined by a file
     real(kind=4), allocatable :: chan_dx(:)  ! variable dx for dsm2
 
     !-----accounting and object names, value codes, period type names
