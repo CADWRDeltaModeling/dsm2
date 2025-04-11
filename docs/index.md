@@ -1,8 +1,15 @@
 # DSM2 Documentation
 
+## General Description:
+
+DSM2 is a river, estuary, and land modeling system.
+
+River - Can simulate riverine systems, and has been extended from Sacramento to Shasta Dam. Also has been tested with high flow/stage simulations for flood modeling.
+Estuary - Completely flexible estuary model; stages and flows may be specified at boundary and internal points.
+Land - Includes effects from land-based processes, such as consumptive use and agricultural runoff.
+DSM2 can calculate stages, flows, velocities; many mass transport processes, including salts, multiple non-conservative constituents, temperature, THM formation potential and individual particles.
 
 ## Overview:
-
 The Delta Simulation Model II (DSM2) is a one-dimensional mathematical
 model for dynamic simulation of one-dimensional hydrodynamics, water
 quality and particle tracking in a network of riverine or estuarine
@@ -24,11 +31,14 @@ buoyant particles based on the flow field simulated by HYDRO. PTM has
 multiple applications ranging from visualization of flow patterns to
 simulation of discrete organisms such as fish eggs and larvae.<BR>
 
+### Copyright:
+
+The model is copyrighted by the State of California, Department of Water Resources. It is licensed under the GNU General Public License, version 2. This means it can be copied, distributed, and modified freely, but you may not restrict others in their ability to copy, distribute, and modify it. See the License for more details. Also notice the list of protected routines.
+
 DSM2 release packages are available on the [CNRA Open Data web site](https://data.cnra.ca.gov/dataset/dsm2)<BR>
 
 Please send comments to Min Yu
-<a href="mailto:minyu@water.ca.gov"
-rel="nofollow">minyu@water.ca.gov</a>.
+<a href="mailto:minyu@water.ca.gov" rel="nofollow">minyu@water.ca.gov</a>.
 
 # For more information
 [DSM2 Learning Series](https://cadwrdeltamodeling.github.io/dsm2/dsm2_learning_series/)<BR>

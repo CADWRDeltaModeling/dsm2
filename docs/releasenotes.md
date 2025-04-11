@@ -1,3 +1,3 @@
 # Release Notes
 
- Release Notes here
+ Release Notes are on [github](https://github.com/CADWRDeltaModeling/dsm2/releases)

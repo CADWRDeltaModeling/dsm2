@@ -2,19 +2,90 @@ site_name: DSM2 Documentation
 repo_url: https://github.com/CADWRDeltaModeling/dsm2
 edit_uri: edit/mkdocs/docs/
 nav:
-  - Home: index.md
+  - Home: 
+      - General: index.md
+      - Overview: dsm2_overview.md
   - Getting Started: getting_started.md
-  - Manual (archive): manual/index.md
-  - Reference: reference/Background_Material_and_References.md
-  - Installation: installation.md
-  - DSM2 Learning Series (new for 2023):
-    - Quick Start: dsm2_learning_series.md
-    - Planning Studies: dsm2_learning_series.md
-    - ECO-PTM: dsm2_learning_series.md
-  - Tutorials (archive): tutorials/Tutorials.md
+  - Manual:
+      - Table of Contents: manual/reference.md
+      - Boundary Flow: manual/reference/Boundary_Flow.md
+      - Boundary Stage: manual/reference/Boundary_Stage.md
+      - Channel Initial Condition: manual/reference/Channel_Initial_Condition.md
+      - Channels: manual/reference/Channels.md
+      - EC-based Operating Rule: manual/reference/EC_based_Operating_Rule.md
+      - ENVVARS Section: manual/reference/ENVVARS_Section.md
+      - Gate: manual/reference/Gate.md
+      - Groups: manual/reference/Groups.md
+      - IO Files: manual/reference/IO_Files.md
+      - Input Climate: manual/reference/Input_Climate.md
+      - Input Gate: manual/reference/Input_Gate.md
+      - Input Transfer Flow: manual/reference/Input_Transfer_Flow.md
+      - Layers: manual/reference/Layers.md
+      - Manual: manual/reference/Manual.md
+      - Node Concentration: manual/reference/Node_Concentration.md
+      - Operating Rule: manual/reference/Operating_Rule.md
+      - Operating Rule Guide: manual/reference/Operating_Rule_Guide.md
+      - Output Channel: manual/reference/Output_Channel.md
+      - Output Gate: manual/reference/Output_Gate.md
+      - Output Reservoir: manual/reference/Output_Reservoir.md
+      - PTM Output Files: manual/reference/PTM_Output_Files.md
+      - Particle Filter: manual/reference/Particle_Filter.md
+      - Particle Flux Output: manual/reference/Particle_Flux_Output.md
+      - Particle Group Output: manual/reference/Particle_Group_Output.md
+      - Particle Insertion: manual/reference/Particle_Insertion.md
+      - Particle Reservoir Filter: manual/reference/Particle_Reservoir_Filter.md
+      - Rate Coefficients: manual/reference/Rate_Coefficients.md
+      - Reservoir: manual/reference/Reservoir.md
+      - Reservoir Concentration: manual/reference/Reservoir_Concentration.md
+      - Reservoir Initial Condition: manual/reference/Reservoir_Initial_Condition.md
+      - Scalar: manual/reference/Scalar.md
+      - Source Flow: manual/reference/Source_Flow.md
+      - Source Flow Reservoir: manual/reference/Source_Flow_Reservoir.md
+      - Source Tracking: manual/reference/Source_Tracking.md
+      - Tidefile: manual/reference/Tidefile.md
+      - Transfer: manual/reference/Transfer.md
+  - Reference:
+      - Background Material and References: reference/Background_Material_and_References.md
+      - DSM2 Cloud Setup: reference/DSM2_Cloud_Setup.md
+      - Historical Simulation Checklist: reference/Historical_Simulation_Checklist.md
+      - Organizing a Study: reference/Organizing_a_Study.md
+      - Planning Simulation Checklist: reference/Planning_Simulation_Checklist.md
+      - Post-processing and Visualization: reference/Post_processing_and_Visualization.md
+      - Supporting Tools and QAQC: reference/Supporting_Tools_and_QAQC.md
+  - Learning Series 🌟:
+      - Overview: learning_series/overview.md
+      - Quick Start: learning_series/quick_start.md
+      - Planning Studies: learning_series/planning_studies.md
+      - ECO-PTM: learning_series/eco_ptm_studies.md
+  - Tutorials:
+      - Introduction: tutorials/An_Introduction_to_DSM2_Tutorials.md
+      - Bay-Delta Tutorials:
+          - Historical Simulation: tutorials/DSM2_Bay-Delta_Tutorial_1_Historical_Simulation.md
+          - Source Tracking Fingerprinting: tutorials/DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_.md
+          - Planning Simulation: tutorials/DSM2_Bay-Delta_Tutorial_3_Planning_Simulation.md
+          - Batch Preprocessing: tutorials/DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing.md
+          - Suisun Marsh Operating Rules: tutorials/DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules.md
+          - Clifton Court Diurnal Pumping: tutorials/DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping.md
+      - Delta Tutorials:
+          - Temperature Simulation: tutorials/Delta_Tutorial_8_-_Temperature_Simulation.md
+          - DO Simulation: tutorials/Delta_Tutorial_9_-_DO_Simulation.md
+      - Basic Tutorials:
+          - Tutorial 1: tutorials/Tutorial_1_Channels.md
+          - Tutorial 2: tutorials/Tutorial_2_Reservoirs_Gates_Transfers.md
+          - Tutorial 3: tutorials/Tutorial_3_Layering.md
+          - Tutorial 4: tutorials/Tutorial_4_Time_Varying_Data.md
+          - Tutorial 5: tutorials/Tutorial_5_Advanced_Output_and_Source_Tracking.md
+          - Tutorial 6: tutorials/Tutorial_6_Operating_Rules.md
   - FAQs: faqs/index.md
   - Release Notes: releasenotes.md
-#theme: readthedocs
+  - Build:
+      - CMake Build: build/CMake_Build.md
+      - Cloud Notes: build/Cloud_Notes.md
+      - Developer and Build: build/Developer_and_Build.md
+      - Docker Builds: build/Docker_Builds.md
+      - Troubleshooting: build/Troubleshooting.md
 theme:
- name: material
+  name: material
+  favicon: images/dsm2-icon_32-24.png
+  logo: images/dsm2-icon_32-24.png
 
