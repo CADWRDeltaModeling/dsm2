@@ -1,35 +1,16 @@
-# Supporting Tools and QAQC
+# Supporting Tools and QA/QC
 
-Currently, all the preprocess scripts are written with
-DSM2-[Vista](http://msb-confluence/display/DM/Vista). It's recommended
-to use the most updated version at
-<a href="https://github.com/CADWRDeltaModeling/dsm2-vista"
-rel="nofollow">https://github.com/CADWRDeltaModeling/dsm2-vista</a> (not
-the one included in DSM2 package). \* Note to change the relevant
-environment variables.
+All preprocess scripts are written with DSM2-[Vista](http://msb-confluence/display/DM/Vista). Use the most updated version available at [DSM2 Vista GitHub](https://github.com/CADWRDeltaModeling/dsm2-vista). Ensure relevant environment variables are updated.
 
-1\.
+### Recommended Practices
 
-It is good practice to review and compare CalSIM outputs and its
-preprocessed results (\*.dss) before running DSM2.
-[HEC-DSS](http://msb-confluence/display/DM/HEC+Manuals) and
-DSM2-[Vista](http://msb-confluence/display/DM/Vista) are the most widely
-used tools.
+1. **Review and Compare CALSIM Outputs**
+   - Use [HEC-DSS](http://msb-confluence/display/DM/HEC+Manuals) and DSM2-[Vista](http://msb-confluence/display/DM/Vista).
+   - Ensure consistency in pathnames, time windows, etc., between comparison scenarios.
 
-<a href="http://www.hec.usace.army.mil/software/hec-dss/"
-rel="nofollow">http://www.hec.usace.army.mil/software/hec-dss/</a>
-
-2\.
-
-WRIMS' report tool is useful to compare CalSIM outputs, i.e. DSM2
-inputs (timeseries\CALSIM\\DV.dss)
-
-<a
-href="https://www.water.ca.gov/Library/Modeling-and-Analysis/Modeling-Platforms/Water-Resource-Integrated-Modeling-System"
-rel="nofollow">https://www.water.ca.gov/Library/Modeling-and-Analysis/Modeling-Platforms/Water-Resource-Integrated-Modeling-System</a>
-
-\* Note to keep consistence in the pathnames, time windows, etc between
-the comparison scenarios.
+2. **WRIMS Report Tool**
+   - Useful for comparing CALSIM outputs (e.g., DSM2 inputs in `timeseries\CALSIM\\DV.dss`).
+   - [WRIMS Tool Details](https://www.water.ca.gov/Library/Modeling-and-Analysis/Modeling-Platforms/Water-Resource-Integrated-Modeling-System).
 
 <img src="attachments/87228626/87228630.png"
 data-image-src="attachments/87228626/87228630.png"
@@ -61,18 +42,9 @@ data-linked-resource-content-type="image/jpeg"
 data-linked-resource-container-id="87228626"
 data-linked-resource-container-version="1" />
 
-  
-
-  
-
-3\.
-
-Another good tool to compare between scenarios dss (in general) is the
-scripts [Compare DSS
-Tool](http://msb-confluence/display/DM/Compare+DSS+Tool) in
-DSM2-[Vista](http://msb-confluence/display/DM/Vista).
-
-${vista}\bin\compare_dss.bat
+3. **Compare DSS Tool**
+   - Use the [Compare DSS Tool](http://msb-confluence/display/DM/Compare+DSS+Tool) in DSM2-[Vista](http://msb-confluence/display/DM/Vista).
+   - Scripts: `${vista}\bin\compare_dss.bat` or `${vista}\bin\compare_dss_files.bat`.
 
 <img src="attachments/87228626/87228627.jpg"
 data-image-src="attachments/87228626/87228627.jpg"
@@ -84,11 +56,7 @@ data-linked-resource-content-type="image/jpeg"
 data-linked-resource-container-id="87228626"
 data-linked-resource-container-version="1" />
 
-or a simplified version to check
-consistence ${vista}\bin\compare_dss_files.bat
-
-\* One good practice is to locate changes first (maybe the big ones),
-then use compare_dss.bat to specify and illustrate them.
+\* One good practice is to locate changes first (maybe the big ones), then use compare_dss.bat to specify and illustrate them.
 
 <img src="attachments/87228626/87228625.jpg"
 data-image-src="attachments/87228626/87228625.jpg"
@@ -100,26 +68,13 @@ data-linked-resource-content-type="image/jpeg"
 data-linked-resource-container-id="87228626"
 data-linked-resource-container-version="1" />
 
-  
+4. **Net Delta Flow (NDO) Check**
+   - Compare NDO = inflows - outflows - CU for accuracy.
 
-4\.
+### Attachments
 
-A quick way to check accuracy of preprocess is to compare Net Delta Flow
-(NDO) = inflows-outflow-CU
-
-  
-
-  
-
-## Attachments:
-
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[compareDSSfiles.JPG](attachments/87228626/87228625.jpg) (image/jpeg)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[compareDSS.JPG](attachments/87228626/87228627.jpg) (image/jpeg)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[wrimsReport2.JPG](attachments/87228626/87228628.jpg) (image/jpeg)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[wrimsReport1.JPG](attachments/87228626/87228629.jpg) (image/jpeg)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[wrimsReport.png](attachments/87228626/87228630.png) (image/png)  
+- [compareDSSfiles.JPG](attachments/87228626/87228625.jpg)
+- [compareDSS.JPG](attachments/87228626/87228627.jpg)
+- [wrimsReport2.JPG](attachments/87228626/87228628.jpg)
+- [wrimsReport1.JPG](attachments/87228626/87228629.jpg)
+- [wrimsReport.png](attachments/87228626/87228630.png)

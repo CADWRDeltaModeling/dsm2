@@ -1,23 +1,24 @@
 # Tutorial 3: Layering
 
-**Task**
+## Task
 
 - Separate DSM2 input data into multiple input files.
 - Use layers in DSM2 to group related items.
 
-**Skills Gained**  
+## Skills Gained
+
 Learn how to use layering in DSM2 to add, change, and delete features in a DSM2 simulation, for example, including a new reservoir in a simulation.
 
-The purpose of this tutorial is to demonstrate the use of layering to structure your project. Layers are part of the DSM2 data management system. They allow input items to be grouped in logical bundles and allow changes to be brought into an old simulation without erasing or altering archived items. At the same time, we will neaten up our input by dividing it into several files that are "included" from a fairly sparse primary file. The layering concept will be demonstrated by adding a "dummy" reservoir connected to nodes 5 and 6 (Figure 1) that will be "turned on" or "turned off" in a simulation. We will also use `DSM2MODIFIER` to differentiate between alternative simulations.  
+The purpose of this tutorial is to demonstrate the use of layering to structure your project. Layers are part of the DSM2 data management system. They allow input items to be grouped in logical bundles and allow changes to be brought into an old simulation without erasing or altering archived items. At the same time, we will neaten up our input by dividing it into several files that are "included" from a fairly sparse primary file. The layering concept will be demonstrated by adding a "dummy" reservoir connected to nodes 5 and 6 (Figure 1) that will be "turned on" or "turned off" in a simulation. We will also use `DSM2MODIFIER` to differentiate between alternative simulations.
 
-![Simple channel with a reservoir, gate, flow transfer, and dummy reservoir](../../images/fig_res_conn_w_trans.png)  
+![Simple channel with a reservoir, gate, flow transfer, and dummy reservoir](../../images/fig_res_conn_w_trans.png)
 **Figure 1:** Simple channel with a reservoir, gate, flow transfer, and dummy reservoir.
 
 ---
 
 ### 1. Convert the Previous `hydro.inp` GRID Items to External Files
 
-To use layers, the input tables must be gathered into individual input files.  
+To use layers, the input tables must be gathered into individual input files.
 
 > **Key Points about Layering:**
 > - Each file represents a layer.
@@ -28,6 +29,7 @@ To use layers, the input tables must be gathered into individual input files.
 > - If a parent item is overridden, all the child items associated with the overridden parent item are ignored.
 
 #### Steps:
+
 1. Navigate to the `t3_layering` directory.
 2. Create a new file called `grid_tutorial_base.inp`.
 3. Open `hydro.inp` and:
@@ -37,13 +39,13 @@ To use layers, the input tables must be gathered into individual input files.
 4. Ensure the data tables listed above have been removed from `hydro.inp`.
 5. Add the following lines to `hydro.inp` to include the external file:
 
-```
+```text
 GRID
 grid_tutorial_base.inp
 END
 ```
 
-   > **Note:** Ensure there is a carriage return at the end of each `.inp` file.
+> **Note:** Ensure there is a carriage return at the end of each `.inp` file.
 
 ---
 
@@ -52,14 +54,17 @@ END
 This simulation will serve as the base case for comparison with other simulations. Use `DSM2MODIFIER` to differentiate between the various simulations. `DSM2MODIFIER` is a special `ENVVAR` definition automatically used by DSM2 to mark output (the F-Part of the DSS Path).
 
 #### Steps:
+
 1. In the `ENVVAR` section of `hydro.inp` and `qual.inp`, change `DSM2MODIFIER` to `layers_base` and save the files.
 2. Navigate to the `t3_layering` directory.
 3. Open a command window in the directory.
 4. Run the following commands:
-```
+
+```text
 hydro hydro.inp
 qual qual.inp
 ```
+
 5. Open the `output.dss` file in the `t3_layering` directory and examine the results.
 
 ---
@@ -69,9 +74,10 @@ qual qual.inp
 To add a feature, such as a new reservoir, follow these steps:
 
 #### Steps:
+
 1. In `grid_tutorial_base.inp`, add the following data for the new reservoir below the data for `res_1`:
 
-```
+```text
 RESERVOIR
 NAME AREA BOT_ELEV
 dummy_res 60.0 -30.0
@@ -93,14 +99,17 @@ END
 This simulation is the first alternative, which adds a reservoir. Use `DSM2MODIFIER` to differentiate this simulation from the base simulation.
 
 #### Steps:
+
 1. In the `ENVVAR` section of `hydro.inp` and `qual.inp`, change `DSM2MODIFIER` to `layers_dummyres` and save the files.
 2. Navigate to the `t3_layering` directory.
 3. Open a command window in the directory.
 4. Run the following commands:
-```
+
+```text
 hydro hydro.inp
 qual qual.inp
 ```
+
 5. Compare the `layers_base.out` and `layers_dummyres.out` echoed input files to ensure the dummy reservoir was included in the simulation. Open the `output.dss` file and compare results from the base run and the new `dummyres` simulation.
 
 ---
@@ -110,9 +119,10 @@ qual qual.inp
 To disable the dummy reservoir, use a revision layer.
 
 #### Steps:
+
 1. Create a file called `grid_tutorial_revision.inp`. Add this file to the `GRID` include-file section in `hydro.inp`:
 
-```
+```text
 GRID
 grid_tutorial_base.inp
 grid_tutorial_revision.inp
@@ -121,7 +131,7 @@ END
 
 2. Copy the `RESERVOIR` and `RESERVOIR_CONNECTION` tables for `dummy_res` from `grid_tutorial_base.inp` to `grid_tutorial_revision.inp`. Add a caret (`^`) before the reservoir name in the parent table:
 
-```
+```text
 RESERVOIR
 NAME AREA BOT_ELEV
 ^dummy_res 60.0 -30.0
@@ -141,14 +151,17 @@ END
 ### 6. Running HYDRO and QUAL Disabling the New Reservoir
 
 #### Steps:
+
 1. In the `ENVVAR` section of `hydro.inp` and `qual.inp`, change `DSM2MODIFIER` to `layers_nodummyres` and save the files.
 2. Navigate to the `t3_layering` directory.
 3. Open a command window in the directory.
 4. Run the following commands:
-```
+
+```text
 hydro hydro.inp
 qual qual.inp
 ```
+
 5. Compare the `layers_base.out`, `layers_dummyres.out`, and `layers_nodummyres.out` echoed input files and the `output.dss` file. Are the results the same for the base simulation and the no-dummy-reservoir simulation?
 
 ---
@@ -158,9 +171,10 @@ qual qual.inp
 To change the properties of `res_1`, such as increasing its area:
 
 #### Steps:
+
 1. In `grid_tutorial_revision.inp`, update the `RESERVOIR` table:
 
-```
+```text
 RESERVOIR
 NAME AREA BOT_ELEV
 res_1 50.0 -24.0
@@ -183,14 +197,17 @@ END
 ### 8. Running HYDRO and QUAL with Increased Area for `res_1`
 
 #### Steps:
+
 1. In the `ENVVAR` section of `hydro.inp` and `qual.inp`, change `DSM2MODIFIER` to `layers_larger_res1` and save the files.
 2. Navigate to the `t3_layering` directory.
 3. Open a command window in the directory.
 4. Run the following commands:
-```
+
+```text
 hydro hydro.inp
 qual qual.inp
 ```
+
 5. Compare the output to earlier simulations.
 
 ---
@@ -200,9 +217,10 @@ qual qual.inp
 To replace the channel number of Channel 2004 with Channel 4:
 
 #### Steps:
+
 1. In `grid_tutorial_revision.inp`, copy the `CHANNEL` and `XSECT_LAYER` data for Channel 2004. Update the channel number to 4 and disable Channel 2004 using a caret (`^`):
 
-```
+```text
 CHANNEL
 CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
 4 15000 0.035 0.3 4 5
@@ -227,9 +245,10 @@ END
 ### 10. Add Initial Conditions for Channel 4
 
 #### Steps:
+
 1. Create a file called `channel_ic_revision.inp` and add the following:
 
-```
+```text
 CHANNEL_IC
 CHAN_NO DISTANCE STAGE FLOW
 4 0 0.0 0.0
@@ -239,7 +258,7 @@ END
 
 2. Update `hydro.inp` to include the file:
 
-```
+```text
 INITIAL_CONDITION
 channel_ic_revision.inp
 END
@@ -252,14 +271,17 @@ END
 ### 11. Running HYDRO and QUAL with Channel 4
 
 #### Steps:
+
 1. In the `ENVVAR` section of `hydro.inp` and `qual.inp`, change `DSM2MODIFIER` to `layers_ch2004_to_ch4` and save the files.
 2. Navigate to the `t3_layering` directory.
 3. Open a command window in the directory.
 4. Run the following commands:
-```
+
+```text
 hydro hydro.inp
 qual qual.inp
 ```
+
 5. Examine the results in the `output.dss` file and the echoed input file.
 
 ---
