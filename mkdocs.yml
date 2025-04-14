@@ -6,44 +6,56 @@ nav:
       - General: index.md
       - Overview: dsm2_overview.md
   - Getting Started: getting_started.md
-  - Manual:
-      - Table of Contents: manual/reference.md
-      - Boundary Flow: manual/reference/Boundary_Flow.md
-      - Boundary Stage: manual/reference/Boundary_Stage.md
-      - Channel Initial Condition: manual/reference/Channel_Initial_Condition.md
-      - Channels: manual/reference/Channels.md
-      - EC-based Operating Rule: manual/reference/EC_based_Operating_Rule.md
-      - ENVVARS Section: manual/reference/ENVVARS_Section.md
-      - Gate: manual/reference/Gate.md
-      - Groups: manual/reference/Groups.md
-      - IO Files: manual/reference/IO_Files.md
-      - Input Climate: manual/reference/Input_Climate.md
-      - Input Gate: manual/reference/Input_Gate.md
-      - Input Transfer Flow: manual/reference/Input_Transfer_Flow.md
-      - Layers: manual/reference/Layers.md
-      - Manual: manual/reference/Manual.md
-      - Node Concentration: manual/reference/Node_Concentration.md
-      - Operating Rule: manual/reference/Operating_Rule.md
-      - Operating Rule Guide: manual/reference/Operating_Rule_Guide.md
-      - Output Channel: manual/reference/Output_Channel.md
-      - Output Gate: manual/reference/Output_Gate.md
-      - Output Reservoir: manual/reference/Output_Reservoir.md
-      - PTM Output Files: manual/reference/PTM_Output_Files.md
-      - Particle Filter: manual/reference/Particle_Filter.md
-      - Particle Flux Output: manual/reference/Particle_Flux_Output.md
-      - Particle Group Output: manual/reference/Particle_Group_Output.md
-      - Particle Insertion: manual/reference/Particle_Insertion.md
-      - Particle Reservoir Filter: manual/reference/Particle_Reservoir_Filter.md
-      - Rate Coefficients: manual/reference/Rate_Coefficients.md
-      - Reservoir: manual/reference/Reservoir.md
-      - Reservoir Concentration: manual/reference/Reservoir_Concentration.md
-      - Reservoir Initial Condition: manual/reference/Reservoir_Initial_Condition.md
-      - Scalar: manual/reference/Scalar.md
-      - Source Flow: manual/reference/Source_Flow.md
-      - Source Flow Reservoir: manual/reference/Source_Flow_Reservoir.md
-      - Source Tracking: manual/reference/Source_Tracking.md
-      - Tidefile: manual/reference/Tidefile.md
-      - Transfer: manual/reference/Transfer.md
+  - User Guide: 
+    # - TOC: manual/reference/Manual.md
+    - Overview: dsm2_overview.md
+    - Getting Started: getting_started.md
+    - Layers: manual/reference/Layers.md
+    - Operating Rule: manual/reference/Operating_Rule_Guide.md
+    - Manual:
+        - Boundary Flow: manual/reference/Boundary_Flow.md
+        - Boundary Stage: manual/reference/Boundary_Stage.md
+        - Channel Initial Condition: manual/reference/Channel_Initial_Condition.md
+        - Channels: manual/reference/Channels.md
+        - ENVVARS Section: manual/reference/ENVVARS_Section.md
+        - Gate: manual/reference/Gate.md
+        - Groups: manual/reference/Groups.md
+        - IO Files: manual/reference/IO_Files.md
+        - Input Climate: manual/reference/Input_Climate.md
+        - Input Gate: manual/reference/Input_Gate.md
+        - Input Transfer Flow: manual/reference/Input_Transfer_Flow.md
+        - Node Concentration: manual/reference/Node_Concentration.md
+        - Operating Rule: manual/reference/Operating_Rule.md
+        - Operating Rule (EC-based): manual/reference/EC_based_Operating_Rule.md
+        - Output Channel: manual/reference/Output_Channel.md
+        - Output Gate: manual/reference/Output_Gate.md
+        - Output Reservoir: manual/reference/Output_Reservoir.md
+        - PTM Output Files: manual/reference/PTM_Output_Files.md
+        - Particle Filter: manual/reference/Particle_Filter.md
+        - Particle Flux Output: manual/reference/Particle_Flux_Output.md
+        - Particle Group Output: manual/reference/Particle_Group_Output.md
+        - Particle Insertion: manual/reference/Particle_Insertion.md
+        - Particle Reservoir Filter: manual/reference/Particle_Reservoir_Filter.md
+        - Rate Coefficients: manual/reference/Rate_Coefficients.md
+        - Reservoir: manual/reference/Reservoir.md
+        - Reservoir Concentration: manual/reference/Reservoir_Concentration.md
+        - Reservoir Initial Condition: manual/reference/Reservoir_Initial_Condition.md
+        - Scalar: manual/reference/Scalar.md
+        - Source Flow: manual/reference/Source_Flow.md
+        - Source Flow Reservoir: manual/reference/Source_Flow_Reservoir.md
+        - Source Tracking: manual/reference/Source_Tracking.md
+        - Tidefile: manual/reference/Tidefile.md
+        - Transfer: manual/reference/Transfer.md
+        - ECO-PTM:
+            - Overview: manual/reference/eco_ptm/Overview.md
+            - Fish Release Inputs: manual/reference/eco_ptm/Fish_Release_Inputs.md
+            - Particle Type Inputs: manual/reference/eco_ptm/Particle_Type_Inputs.md
+            - Random Sequence Inputs: manual/reference/eco_ptm/Random_Sequence_Inputs.md
+            - Route Inputs: manual/reference/eco_ptm/Route_Inputs.md
+            - Survival Inputs: manual/reference/eco_ptm/Survival_Inputs.md
+            - Swim Inputs: manual/reference/eco_ptm/Swim_Inputs.md
+            - Time Zone: manual/reference/eco_ptm/Time_Zone.md
+            - Travel Time Output: manual/reference/eco_ptm/Travel_Time_Output.md
   - Reference:
       - Background Material and References: reference/Background_Material_and_References.md
       - DSM2 Cloud Setup: reference/DSM2_Cloud_Setup.md
@@ -59,6 +71,13 @@ nav:
       - ECO-PTM: learning_series/eco_ptm_studies.md
   - Tutorials:
       - Introduction: tutorials/An_Introduction_to_DSM2_Tutorials.md
+      - Basic Tutorials:
+          - Channels: tutorials/Tutorial_1_Channels.md
+          - Reservoir Gates Transfers: tutorials/Tutorial_2_Reservoirs_Gates_Transfers.md
+          - Layering: tutorials/Tutorial_3_Layering.md
+          - Time Varying Data: tutorials/Tutorial_4_Time_Varying_Data.md
+          - Advanced Output and Source Tracking: tutorials/Tutorial_5_Advanced_Output_and_Source_Tracking.md
+          - Operating Rules: tutorials/Tutorial_6_Operating_Rules.md
       - Bay-Delta Tutorials:
           - Historical Simulation: tutorials/DSM2_Bay-Delta_Tutorial_1_Historical_Simulation.md
           - Source Tracking Fingerprinting: tutorials/DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_.md
@@ -69,13 +88,6 @@ nav:
       - Delta Tutorials:
           - Temperature Simulation: tutorials/Delta_Tutorial_8_-_Temperature_Simulation.md
           - DO Simulation: tutorials/Delta_Tutorial_9_-_DO_Simulation.md
-      - Basic Tutorials:
-          - Tutorial 1: tutorials/Tutorial_1_Channels.md
-          - Tutorial 2: tutorials/Tutorial_2_Reservoirs_Gates_Transfers.md
-          - Tutorial 3: tutorials/Tutorial_3_Layering.md
-          - Tutorial 4: tutorials/Tutorial_4_Time_Varying_Data.md
-          - Tutorial 5: tutorials/Tutorial_5_Advanced_Output_and_Source_Tracking.md
-          - Tutorial 6: tutorials/Tutorial_6_Operating_Rules.md
   - FAQs: faqs/index.md
   - Release Notes: releasenotes.md
   - Build:

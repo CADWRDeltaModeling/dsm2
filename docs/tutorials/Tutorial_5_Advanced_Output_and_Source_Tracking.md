@@ -11,7 +11,6 @@ Learn how to use advanced output options in DSM2 including source
 tracking
 
   
-  
 The purpose of this tutorial is to provide instruction on advanced
 output options in DSM2. Basic outputs include flow, stage and
 constituent concentrations at nodes and channel locations. Advanced
@@ -24,9 +23,6 @@ network shown in Figure 1.
 ![figure 1](../images/fig_res_conn_w_trans.png)
 **Figure 1:** **Simple channel with a reservoir, gate, flow transfer and
 dummy reservoir.**  
-  
-  
-  
   
   
 
@@ -52,9 +48,10 @@ flow data at bnd_1, will the output be written at the upstream end of
 the channel (location 0) or 100ft downstream?  
 **Answer:** The output will be for 100ft downstream because the output
 request in the launch file (e.g. *hydro.inp* or *qual.inp*) supersedes
-all other output requests that have the same identifier. In this case
+all other output requests that have the same identifier. In this case,
 the identifier is the NAME and VARIABLE combination (e.g. bnd_1 and
 flow).  
+To ensure outputs at both locations, assign unique identifiers to each location, e.g., `bnd_1` for location 0 and `bnd_100` for location 100.
 <img src="../../images/icon_question.png" width="29" height="29" />
  How
 would you get output at channel 1 and both location 0 and location

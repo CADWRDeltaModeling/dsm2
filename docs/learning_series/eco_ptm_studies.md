@@ -4,6 +4,8 @@ The ECO-PTM training was held on April 16, 2024.
 <BR><BR>
 The slides shown in the training are available on our [GitHub repository](https://github.com/CADWRDeltaModeling/DSM2LearningSeries/tree/main/eco-ptm).
 
+This is the  [ECO-PTM input reference manual](../manual/reference/eco_ptm/Overview.md)
+
 ## Training Videos
 
 You can watch the training videos directly below:

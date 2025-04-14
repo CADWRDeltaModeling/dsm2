@@ -8,5 +8,5 @@ The slides shown in the training are available on our [GitHub repository](https:
 
 You can watch the training videos directly below:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PL33EJkVWqElXUihYnGzA9E5BocWu-Deij" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?si=jUssQu8cZD1EiOY5&amp;list=PL33EJkVWqElUkKFFz6A4A0LLyXqLVeHD5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 

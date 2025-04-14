@@ -8,8 +8,8 @@ The variables that can be requested vary by model.
 
 ## Tables:
 
--   [OUTPUT_CHANNEL](http://msb-confluence/display/DSM2/Output+Channel#OutputChannel-output_channel)
--   [OUTPUT_CHANNEL_SOURCE_TRACK](http://msb-confluence/display/DSM2/Output+Channel#OutputChannel-output_channel_source_track)
+-   [OUTPUT_CHANNEL](#output_channel)
+-   [OUTPUT_CHANNEL_SOURCE_TRACK](#output_channel_source_track)
 
 ### OUTPUT_CHANNEL
 
