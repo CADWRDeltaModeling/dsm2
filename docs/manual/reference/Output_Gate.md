@@ -1,17 +1,13 @@
 # Output Gate
 
-## Overview:
+## Overview
 
 The OUTPUT_GATE table is used by both HYDRO to specify output requests
 at a gate. Output is HEC-DSS or text format.
 
-  
+## Tables
 
-## Tables:
-
--   [OUTPUT_GATE](#OutputGate-output_gate)
-
-  
+- [OUTPUT_GATE](#output_gate)
 
 ### OUTPUT_GATE
 
@@ -37,15 +33,15 @@ Name of the gate at which output is requested.
 Name of the gate device, if applicable. You can request operational or
 physical data from a device as well as flow. You can also request some
 gate output (install,flow) that is not linked to a particular device. In
-this case, the field should be set to none
+this case, the field should be set to none.
 
 ##### VARIABLE
 
 Model variable to be output. From a device you can request some physical
-data (width, height, elev), operational data
-(op_to_node, op_from_node, position ) or flow oriented from water body
+data (width, height, elev), operational data
+(op_to_node, op_from_node, position) or flow oriented from water body
 to node. From a gate with device=none you can request the
-variables install, or total flow oriented from water body to node
+variables install, or total flow oriented from water body to node.
 
 ##### INTERVAL
 
@@ -67,33 +63,26 @@ extension is used, output is in HEC-DSS format.
 
 #### Table Info
 
-##### Identifier:
+##### Identifier
 
 NAME, VARIABLE
 
-##### Parent Table:
+##### Parent Table
 
 Table is parent
 
-##### Include Block:
+##### Include Block
 
 OUTPUT_TIME_SERIES
 
-  
+---
 
-------------------------------------------------------------------------
+## Examples
 
-  
+output_gate_example.inp
 
-## Examples:
+---
 
-output_gate_example.inp   
-  
-
-------------------------------------------------------------------------
-
-  
-
--   Initially, the thing that is hard to get about gate output is the
-    flow orientation. The output for the gate is oriented with the gate,
-    which may or may not be in the upstream-downstream direction
+- Initially, the thing that is hard to get about gate output is the
+  flow orientation. The output for the gate is oriented with the gate,
+  which may or may not be in the upstream-downstream direction.

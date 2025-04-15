@@ -56,46 +56,92 @@ nav:
             - Swim Inputs: manual/reference/eco_ptm/Swim_Inputs.md
             - Time Zone: manual/reference/eco_ptm/Time_Zone.md
             - Travel Time Output: manual/reference/eco_ptm/Travel_Time_Output.md
-  - Reference:
-      - Background Material and References: reference/Background_Material_and_References.md
-      - DSM2 Cloud Setup: reference/DSM2_Cloud_Setup.md
-      - Historical Simulation Checklist: reference/Historical_Simulation_Checklist.md
+    - CSDP:
+        - Overview: csdp/overview.md
+        - CSDP Network File Format: csdp/CSDP_Network_File_Format.md
+        - CSDP Network Summary Report: csdp/CSDP_Network_Summary_Report.md
+        - Creating DSM2 GIS Grid Map: csdp/Creating_DSM2_v8.2_GIS_grid_map.md
+        - DSM2 Geo-referenced Grid: csdp/DSM2_Geo_referenced_grid.md
+        - DSM2 Sacramento San-Joaquin Delta Grid: csdp/DSM2_Sacramento_San-Joaquin_Delta_Grid.md
+        - Exporting Channel Lengths: csdp/Exporting_Channel_Lengths_from_CSDP_Network_file.md
+        - Exporting CSDP Information: csdp/Exporting_CSDP_Information_into_GIS.md
+        - Extracting Bathymetry Data: csdp/Extracting_Bathymetry_Data_From_An_Irregularly_Shaped_Region.md
+        - Importing DEMs into CSDP: csdp/Importing_Digital_Elevation_Maps_DEMs_into_CSDP.md
+        - Merging Network Files: csdp/Merging_multiple_versions_of_network_files.md
+        - Schematics and Boundaries: csdp/Schematics_and_Boundaries.md
+        - Symbology: csdp/Symbology.md
+  - Developer Guide:
+      - Overview: developer_guide/overview.md
+      - Build:
+          - CMake Build: build/CMake_Build.md
+          - Cloud Notes: build/Cloud_Notes.md
+          - Developer and Build: build/Developer_and_Build.md
+          - DSM2 v82 Compiling and Packaging: build/DSM2_v82_Compiling_and_Packaging.md
+          - Docker Builds: build/Docker_Builds.md
+          - Troubleshooting: build/Troubleshooting.md
+      - PTM code:
+          - Java: developer_guide/java_code.md
+          - Debugging JNI Code: build/Debugging_JNI_code_with_Eclipse_and_Visual_Studio_20xx_.md
+          - DSM2 v82 PTM Compiling: build/DSM2_v82_PTM_Compiling_with_Eclipse.md
+          - HDF5 CMake Static Build: build/HDF5_CMake_Static_Build.md
+          - PTM DLL Static Build: build/PTM_DLL_Static_Build.md
+          - Troubleshooting Eclipse: build/Troubleshooting_Eclipse.md
+      - Python: developer_guide/python.md
+  - Best Practices:
       - Organizing a Study: reference/Organizing_a_Study.md
+      - Checklists: reference/Checklists.md
       - Planning Simulation Checklist: reference/Planning_Simulation_Checklist.md
+      - Historical Simulation Checklist: reference/Historical_Simulation_Checklist.md
+      - CALSIM-DSM2 Integration: reference/CALSIM_-_DSM2_Integration.md
+      - RKI Referenced Output: reference/RKI_Referenced_Output.md
+      - Scripts and Input Files: reference/Scripts_and_input_files.md
       - Post-processing and Visualization: reference/Post_processing_and_Visualization.md
       - Supporting Tools and QAQC: reference/Supporting_Tools_and_QAQC.md
-  - Learning Series 🌟:
-      - Overview: learning_series/overview.md
-      - Quick Start: learning_series/quick_start.md
-      - Planning Studies: learning_series/planning_studies.md
-      - ECO-PTM: learning_series/eco_ptm_studies.md
-  - Tutorials:
-      - Introduction: tutorials/An_Introduction_to_DSM2_Tutorials.md
-      - Basic Tutorials:
-          - Channels: tutorials/Tutorial_1_Channels.md
-          - Reservoir Gates Transfers: tutorials/Tutorial_2_Reservoirs_Gates_Transfers.md
-          - Layering: tutorials/Tutorial_3_Layering.md
-          - Time Varying Data: tutorials/Tutorial_4_Time_Varying_Data.md
-          - Advanced Output and Source Tracking: tutorials/Tutorial_5_Advanced_Output_and_Source_Tracking.md
-          - Operating Rules: tutorials/Tutorial_6_Operating_Rules.md
-      - Bay-Delta Tutorials:
-          - Historical Simulation: tutorials/DSM2_Bay-Delta_Tutorial_1_Historical_Simulation.md
-          - Source Tracking Fingerprinting: tutorials/DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_.md
-          - Planning Simulation: tutorials/DSM2_Bay-Delta_Tutorial_3_Planning_Simulation.md
-          - Batch Preprocessing: tutorials/DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing.md
-          - Suisun Marsh Operating Rules: tutorials/DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules.md
-          - Clifton Court Diurnal Pumping: tutorials/DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping.md
-      - Delta Tutorials:
-          - Temperature Simulation: tutorials/Delta_Tutorial_8_-_Temperature_Simulation.md
-          - DO Simulation: tutorials/Delta_Tutorial_9_-_DO_Simulation.md
-  - FAQs: faqs/index.md
-  - Release Notes: releasenotes.md
-  - Build:
-      - CMake Build: build/CMake_Build.md
-      - Cloud Notes: build/Cloud_Notes.md
-      - Developer and Build: build/Developer_and_Build.md
-      - Docker Builds: build/Docker_Builds.md
-      - Troubleshooting: build/Troubleshooting.md
+      - DSM2 Cloud Setup: reference/DSM2_Cloud_Setup.md
+      - Update DSM2 Historical Simulation: reference/Update_DSM2_historical_simulation.md
+
+  - Reference:
+      - Background Material and References: reference/Background_Material_and_References.md
+      - Presentations: reference/Presentations.md
+  - Training Materials:
+      - Learning Series 🌟:
+          - Overview: learning_series/overview.md
+          - Quick Start: learning_series/quick_start.md
+          - Planning Studies: learning_series/planning_studies.md
+          - ECO-PTM: learning_series/eco_ptm_studies.md
+      - Tutorials:
+          - Introduction: tutorials/An_Introduction_to_DSM2_Tutorials.md
+          - Basic Tutorials:
+              - Channels: tutorials/Tutorial_1_Channels.md
+              - Reservoir Gates Transfers: tutorials/Tutorial_2_Reservoirs_Gates_Transfers.md
+              - Layering: tutorials/Tutorial_3_Layering.md
+              - Time Varying Data: tutorials/Tutorial_4_Time_Varying_Data.md
+              - Advanced Output and Source Tracking: tutorials/Tutorial_5_Advanced_Output_and_Source_Tracking.md
+              - Operating Rules: tutorials/Tutorial_6_Operating_Rules.md
+          - Bay-Delta Tutorials:
+              - Historical Simulation: tutorials/DSM2_Bay-Delta_Tutorial_1_Historical_Simulation.md
+              - Source Tracking Fingerprinting: tutorials/DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_.md
+              - Planning Simulation: tutorials/DSM2_Bay-Delta_Tutorial_3_Planning_Simulation.md
+              - Batch Preprocessing: tutorials/DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing.md
+              - Generating Hydro Boundary Conditions: faqs/Generating_DSM2_Hydro_boundary_conditions_from_the_DCR_2017_CALSIM_II_output.md
+              - Suisun Marsh Operating Rules: tutorials/DSM2_Bay-Delta_Tutorial_5_Suisun_Marsh_Operating_Rules.md
+              - Clifton Court Diurnal Pumping: tutorials/DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping.md
+          - Delta Tutorials:
+              - Temperature Simulation: tutorials/Delta_Tutorial_8_-_Temperature_Simulation.md
+              - DO Simulation: tutorials/Delta_Tutorial_9_-_DO_Simulation.md
+          - CSDP Tutorials:
+              - CSDP Tutorial: csdp/CSDP_Tutorial.md
+      - FAQs:
+         - General: faqs/index.md
+         - PTM: faqs/PTM_Frequently_Asked_Questions_FAQ_.md
+      - How-tos:
+          - How to Read HDF5 Output Files: faqs/DSM2_-_How_to_read_hdf5_output_files.md
+          - How DSM2-Hydro Calculates Channel Volume: faqs/How_does_DSM2-Hydro_calculate_channel_volume_.md
+      - Missing Irregular Gate Position Data: faqs/DSM2_Seems_to_indicate_missing_irregular_gate_position_data.md
+      - DSM2 Inputs Off by 1 Day: faqs/DSM2_inputs_are_off_by_1DAY.md
+  - Release Notes:
+      - Overview: releasenotes.md
+      - Versions: reference/Versions.md
 theme:
   name: material
   favicon: images/dsm2-icon_32-24.png
