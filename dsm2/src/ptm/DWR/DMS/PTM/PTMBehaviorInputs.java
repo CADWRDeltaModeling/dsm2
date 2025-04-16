@@ -203,6 +203,8 @@ public class PTMBehaviorInputs {
 					SurvivalCalculation.setWriteRouteSurvival(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ROUTE_SURV_WRITE_ALL"));
 				else if (writeOp.toUpperCase().contains("FATES"))
 					SurvivalCalculation.setWriteFates(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FATES_WRITE_ALL"));
+				else if (writeOp.toUpperCase().contains("SURV_DETAIL"))
+					SurvivalCalculation.setWriteSurvDetail(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURV_DETAIL_WRITE_ALL"));
 			}
 		}
 

@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class SurvivalCalculation {
 
-	static boolean writeRouteSurvival, writeFates, showRouteSurvivalDetail;
+	static boolean writeRouteSurvival, writeFates, writeSurvDetail, showRouteSurvivalDetail;
 	public static final String WILDCARD = "99999";
 	static final int MISSING=-999;
 
@@ -39,9 +40,13 @@ public class SurvivalCalculation {
 	private Map<Integer, SimpleEntry<String, Long>> lastStationDatetimes;
 	private Map<Integer, String> fates;
 	
+	// HashMap to store the survival calculation details
+	public Map<String, Map<String, String>> survDetails;
+	
 	static {
 		writeRouteSurvival = false;
 		writeFates = false;
+		writeSurvDetail = false;
 		
 		// Enable/disable printing of route survival calculation details for testing
 		showRouteSurvivalDetail = false;
@@ -51,6 +56,10 @@ public class SurvivalCalculation {
 		this.particleArray = particleArray;
 
 		reachSurvMap = Globals.Environment.getBehaviorInputs().getSurvivalInputs().getReachSurvMap();
+		
+		survDetails = new HashMap<>();
+		survDetails.put("survival", new HashMap<>());
+		survDetails.put("routingFraction", new HashMap<>());
 	}
 
 	/**
@@ -62,6 +71,7 @@ public class SurvivalCalculation {
 		Map<String, String> survEqs, dependentSurvEqs;
 		Pattern p;
 		Matcher m;
+		Value thisSurvCalc;
 
 		survEqs = Globals.Environment.getBehaviorInputs().getSurvivalInputs().getSurvEqs();
 
@@ -111,10 +121,15 @@ public class SurvivalCalculation {
 			thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
 			thisSurvEq = translateEquation(thisSurvEq);
 			thisSurv = ctx.eval("js", thisSurvEq);
-			System.out.println("Survival for route " + key + ": " + thisSurv);
+			
+			System.out.println("Survival output " + key + ": " + thisSurv);
 			System.out.println("===================================================================");
 
 			surv.put(key, Float.parseFloat(thisSurv.toString()));
+			
+			// Store survival output details
+			thisSurvCalc = ctx.getBindings("js").getMember("survCalc");
+			storeSurvDetails(thisSurvCalc);
 		}
 
 		// Calculate dependent survivals after inserting the appropriate survival values calculated above
@@ -131,17 +146,43 @@ public class SurvivalCalculation {
 			thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
 			thisSurvEq = translateEquation(thisSurvEq);
 			thisSurv = ctx.eval("js", thisSurvEq);
-			System.out.println("Survival for route " + key + ": " + thisSurv);
+			System.out.println("Survival output " + key + ": " + thisSurv);
 			System.out.println("===================================================================");
 
 			surv.put(key, Float.parseFloat(thisSurv.toString()));
+			
+			// Store survival output details
+			thisSurvCalc = ctx.getBindings("js").getMember("survCalc");
+			storeSurvDetails(thisSurvCalc);
 		}
 
 		// Categorize final fates (passed Chipps, died, lost or entrained in pumps, etc.)
 		categorizeFates();
 		System.out.println("===================================================================");
-
 		writeOutputCSV();
+	}
+	
+	/**
+	 * Store survival details in survDetails HashMap
+	 * @param survCalc				GraalVM Polyglot Value containing SurvivalCalculation object
+	 */
+	public void storeSurvDetails(Value survCalc) {
+		Value thisSurvDetails, thisSurvival, thisRoutingFraction, hashKeysIterator, thisVal;
+		
+		thisSurvDetails = survCalc.getMember("survDetails");
+		thisSurvival = thisSurvDetails.getHashValue("survival");
+		thisRoutingFraction = thisSurvDetails.getHashValue("routingFraction");
+		
+		hashKeysIterator = thisSurvival.getHashKeysIterator();
+		while(hashKeysIterator.hasIteratorNextElement()) {
+			thisVal = hashKeysIterator.getIteratorNextElement();
+			survDetails.get("survival").put(thisVal.toString(), thisSurvival.getHashValue(thisVal).asString());
+		}
+		hashKeysIterator = thisRoutingFraction.getHashKeysIterator();
+		while(hashKeysIterator.hasIteratorNextElement()) {
+			thisVal = hashKeysIterator.getIteratorNextElement();
+			survDetails.get("routingFraction").put(thisVal.toString(), thisRoutingFraction.getHashValue(thisVal).asString());
+		}
 	}
 
 	/**
@@ -155,11 +196,11 @@ public class SurvivalCalculation {
 		double surv=0;
 		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
 		SimpleEntry<Integer, Long> thisDeathDatetime;
-		int survivalCount, arrivalCount;
+		int passedStartCount, survivalCount, arrivalCount;
 		Particle p;
 		boolean particleDied;
 		SimpleEntry<String, Long> thisArrivalDatetime;
-		String reachIndex;
+		String reachIndex, survDetailsKey;
 
 		// Check to see if there's a predefined survival probability for this combination of fromStation and toStations
 		reachIndex = fromStation + "_" + toStations[0];
@@ -176,6 +217,9 @@ public class SurvivalCalculation {
 			return surv;
 		}
 
+		survDetailsKey = "S(" +  reachIndex + ")";
+
+		passedStartCount = 0;
 		survivalCount = 0;
 		arrivalCount = 0;
 
@@ -195,6 +239,7 @@ public class SurvivalCalculation {
 
 				// If the vFish passed the start station, check to see if it survived to each of the end stations
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
+					passedStartCount++;
 
 					for(int k=0; k<toStations.length; k++) {
 
@@ -217,8 +262,10 @@ public class SurvivalCalculation {
 		}
 
 		surv = (double) survivalCount/ (double) arrivalCount;
+		survDetails.get("survival").put(survDetailsKey + "-calculatedSurv", Double.toString(surv));
 
 		if(Double.isNaN(surv)) {surv = 0;}
+		survDetails.get("survival").put(survDetailsKey + "-finalSurv", Double.toString(surv));
 
 		if (showRouteSurvivalDetail) {
 			System.out.print("Survival from " + fromStation + " to " + toStations[0]);
@@ -227,6 +274,9 @@ public class SurvivalCalculation {
 			}
 			System.out.println(": survivalCount=" + survivalCount + ", arrivalCount=" + arrivalCount + ", surv=" + surv);
 		}
+		survDetails.get("survival").put(survDetailsKey + "-survivalCount", Integer.toString(survivalCount));
+		survDetails.get("survival").put(survDetailsKey + "-arrivalCount", Integer.toString(arrivalCount));
+		survDetails.get("survival").put(survDetailsKey + "-passedStartCount", Integer.toString(passedStartCount));
 
 		return surv;
 	}
@@ -241,11 +291,22 @@ public class SurvivalCalculation {
 	public double calcFraction(String fromStation, String toStation, String[] possibleToStations) {
 		double fraction;
 		List<SimpleEntry<String, Long>> thisArrivalDatetimes;
-		int arrivalCount, possibleArrivalCount;
+		int passedStartCount, arrivalCount, possibleArrivalCount;
 		Particle p;
 		SimpleEntry<String, Long> thisArrivalDatetime;
+		String numerator, denominator, survDetailsKey;
+
+		// Check to see if there's a predefined survival probability for this combination of fromStation and toStations
+		numerator = fromStation + "_" + toStation;
+		denominator = fromStation + "_" + possibleToStations[0];
+		for(int i=1; i<possibleToStations.length; i++) {
+			denominator+="." + possibleToStations[i];
+		}
+		
+		survDetailsKey = "frac(" +  numerator + "/" + denominator + ")";
 
 		fraction = 0;
+		passedStartCount = 0;
 		arrivalCount = 0;
 		possibleArrivalCount = 0;
 
@@ -261,6 +322,7 @@ public class SurvivalCalculation {
 
 				// Check to see if the vFish arrived at fromStation
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
+					passedStartCount++;
 
 					// Check to see if the vFish arrived at any possibleToStations
 					for(int k=0; k<possibleToStations.length; k++) {
@@ -283,6 +345,7 @@ public class SurvivalCalculation {
 
 		// This is the fraction calculation based on Adam's equations
 		fraction = (double) arrivalCount/(double) possibleArrivalCount;
+		survDetails.get("routingFraction").put(survDetailsKey + "-calculatedFraction", Double.toString(fraction));
 
 		if (showRouteSurvivalDetail) {
 			System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations " + possibleToStations[0]);
@@ -293,6 +356,11 @@ public class SurvivalCalculation {
 		}
 
 		if(Double.isNaN(fraction)) {fraction = 0;}
+		survDetails.get("routingFraction").put(survDetailsKey + "-finalFraction", Double.toString(fraction));
+		
+		survDetails.get("routingFraction").put(survDetailsKey + "-arrivalCount", Integer.toString(arrivalCount));
+		survDetails.get("routingFraction").put(survDetailsKey + "-possibleArrivalCount", Integer.toString(possibleArrivalCount));
+		survDetails.get("routingFraction").put(survDetailsKey + "-passedStartCount", Integer.toString(passedStartCount));
 
 		return fraction;
 	}
@@ -423,7 +491,7 @@ public class SurvivalCalculation {
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
-			if(thisArrivalDatetimes!=null && thisArrivalDatetimes.size()!= 0) {
+			if(thisArrivalDatetimes!=null && thisArrivalDatetimes.size()>0) {
 				lastStationDatetimes.put(p.getId(), thisArrivalDatetimes.getLast());
 			}
 			else {
@@ -498,10 +566,18 @@ public class SurvivalCalculation {
 		SurvivalCalculation.writeFates = writeFates;
 	}
 	
+	/**
+	 * set writeSurvDetail
+	 * @param writeSurvDetail		value to set writeSurvDetail to
+	 */
+	public static void setWriteSurvDetail(boolean writeSurvDetail) {
+		SurvivalCalculation.writeSurvDetail = writeSurvDetail;
+	}
+	
 	/** Write route-specific survival to a CSV file
 	 */
 	public void writeOutputCSV() {
-		String survOutputPathCSV, fatesOutputPathCSV, line;
+		String survOutputPathCSV, fatesOutputPathCSV, survDetailOutputPathCSV, line;
 		Particle p;
 
 		// Write survival outputs to route survival outputs CSV file
@@ -529,7 +605,7 @@ public class SurvivalCalculation {
 			} catch (IOException e) {
 				PTMUtil.systemExit("Failed to write to route-specific survival output file, " + survOutputPathCSV + ": " + e);
 			}
-			System.out.println("Saved route-specific survival fractions to " + survOutputPathCSV);
+			System.out.println("Saved route-specific survival outputs to " + survOutputPathCSV);
 		}
 
 		// Write fates to fates outputs CSV files
@@ -558,6 +634,35 @@ public class SurvivalCalculation {
 			System.out.println("Saved vFish fates to " + fatesOutputPathCSV);
 		}
 		
+		// Write survival details to CSV file
+		survDetailOutputPathCSV = "survDetail.csv";
+		if(writeSurvDetail && survDetailOutputPathCSV!=null && (!survDetailOutputPathCSV.equals(""))) {
+			
+			survDetailOutputPathCSV = Paths.get(survDetailOutputPathCSV).toAbsolutePath().normalize().toString();
+			
+			try(BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(survDetailOutputPathCSV)))) {
+				
+				line = "key, value";
+				buffer.write(line);
+				buffer.newLine();
+				
+				for(String key : survDetails.get("survival").keySet()) {
+					line = key + "," + survDetails.get("survival").get(key);
+					buffer.write(line);
+					buffer.newLine();
+				}
+				for(String key : survDetails.get("routingFraction").keySet()) {
+					line = key + "," + survDetails.get("routingFraction").get(key);
+					buffer.write(line);
+					buffer.newLine();
+				}
+				
+			} catch (IOException e) {
+				PTMUtil.systemExit("Failed to write to survival detail output file, " + survDetailOutputPathCSV + ": " + e);
+			}
+			System.out.println("Saved survival calculation details to " + survDetailOutputPathCSV);
+			
+		}
 
 	}
 }
