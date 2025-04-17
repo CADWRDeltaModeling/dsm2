@@ -114,7 +114,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		// Define a small length difference to compare the current x position to the channel length
 		smallLengthDiff = 0.001f;
 
-		// Define a large swimming velocity that will ensure waiting eFish aren't advected
+		// Define a large swimming velocity that will ensure waiting vFish aren't advected
 		// away from the junction
 		largeSwimmingVel = 20;
 
@@ -206,7 +206,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		}
 
 		// If we're waiting due to a no-action transition, set swimming velocity strongly towards junction so
-		// eFish aren't advected away
+		// vFish aren't advected away
 		if(wait) {
 			if(Math.abs(p.x - ((Channel) p.wb).getLength()) < smallLengthDiff) {
 				p.setSwimmingVelocity(largeSwimmingVel);
@@ -229,13 +229,13 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			confusionFactor = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(channelId);
 			outflow = Math.max(0.0f, chosenChannel.getInflowWSV(nodeId, swimmingVel*confusionFactor));
 
-			// If effective outflow is zero, the eFish can't successfully swim into the channel without being
+			// If effective outflow is zero, the vFish can't successfully swim into the channel without being
 			// immediately returned to the node, so wait for a time step.
 			if (Math.abs(outflow) < Float.MIN_VALUE){
 				wait = true;
 			}
 
-			// Whether waiting or not, the eFish should be inserted into the chosen channel so it re-enters the routing model
+			// Whether waiting or not, the vFish should be inserted into the chosen channel so it re-enters the routing model
 			// from the correct channel.
 			p.wb = chosenChannel;
 			setChannelStartingCondition(p, swimmingVel, confusionFactor);
@@ -261,9 +261,9 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 	 * Calculate flow-split transition probabilities
 	 * @param p							particle
 	 * @param nodeId					node ID
-	 * @param channelFrom				channel eFish is entering from
-	 * @param channelTo1				first of channels that eFish could exit into
-	 * @param channelTo2				second of channels that eFish could exit into
+	 * @param channelFrom				channel vFish is entering from
+	 * @param channelTo1				first of channels that vFish could exit into
+	 * @param channelTo2				second of channels that vFish could exit into
 	 * @param distTo1_ft				distance in feet between entrance and first exit telemetry stations
 	 * @param distTo2_ft				distance in feet between entrance and second exit telemetry stations
 	 * @return							double[] with [transProbFrom, transProbTo1, transProbTo2]

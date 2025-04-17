@@ -50,12 +50,14 @@ class FluxFixedData {
   /**
    * Constructor
    */
-  public FluxFixedData(Group inGroup, Group outGroup){
+  public FluxFixedData(String name, Group inGroup, Group outGroup){
     this.nodeId = -1;
+    this.name = name;
     this.inGroup = inGroup;
     this.outGroup = outGroup;
   }
 
+  public String getName() {return name;}
   public Group getInGroup(){return inGroup;}
   public Group getOutGroup(){return outGroup;}
   public int getNodeId(){return nodeId;}
@@ -71,6 +73,7 @@ class FluxFixedData {
     return buf.toString();
   }
 
+  public String name;
   public int nodeId;
   private Group inGroup;
   private Group outGroup;

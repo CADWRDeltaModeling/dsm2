@@ -18,6 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 
 package DWR.DMS.PTM;
+
 /**
  *  This class is contained in PTMEnv class. The main purpose of this class
  *  is reading fixed input.
@@ -26,11 +27,6 @@ package DWR.DMS.PTM;
  * Each Waterbody has a unique id and maybe queried as to which nodes it is
  * connected to. Each Node also has a unique id and can be queried as to which
  * waterbodies it is connected to.
- *  <p>
- *  Calls are made to fortran functions for reading fixed input files. These
- *  fortran functions read the data into common blocks. The information is then
- *  transferred with a C++-Fortran function calls
- *  <p>
  *  This class is also called upon by PTMEnv class to create Waterbody,
  *  Node and XSection objects and insert them into arrays.
  *  <p>
@@ -38,485 +34,544 @@ package DWR.DMS.PTM;
  * @version $Id: PTMFixedInput.java,v 1.7.6.4 2006/04/04 18:16:23 eli2 Exp $
  */
 public class PTMFixedInput{
-  /**
-   *  Constructor: Opens the fixed input information files and fills
-   *  the fortran common block with the information
-   */
-  public PTMFixedInput(String inputFilename){
-    _fixedData = new PTMFixedData(inputFilename);
-    //
-    lFD = _fixedData.getLimitsFixedData();
-    pFD = _fixedData.getParticleFixedData();
-    fFD = _fixedData.getFluxFixedData();
-  }
-  /**
-   *  Gets the number of Channels
-   */
-  public final int getNumberOfChannels(){
-    return _fixedData.getNumberOfChannels();
-  }
-  /**
-   *  Gets the number of Channel Groups
-   */
-  public final int getNumberOfChannelGroups(){
-    return _fixedData.getNumberOfChannelGroups();
-  }
+	/**
+	 *  Constructor
+	 */
+	public PTMFixedInput(){
+		_fixedData = new PTMFixedData();
+		//
+		lFD = _fixedData.getLimitsFixedData();
+		pFD = _fixedData.getParticleFixedData();
+		fFD = _fixedData.getFluxFixedData();
+	}
 
-  public final Group[] getOutputGroups(){
-  	return _fixedData.getOutputGroups();
-  }
+	/**
+	 * Obtain the path to the tidefile that is specified in the config file
+	 * @return						full path to the tidefile
+	 */
+	public final String getTidefile() {
+		return PTMFixedData.getTidefile();
+	}
 
-  /**
-   *  Gets the number of Reservoirs
-   */
-  public final int getNumberOfReservoirs(){
-    return _fixedData.getNumberOfReservoirs();
-  }
-  /**
-   *  Gets the number of Diversions
-   */
-  public final int getNumberOfDiversions(){
-    return _fixedData.getNumberOfDiversions();
-  }
-  /**
-   *  Gets the number of Pumps
-   */
-  public final int getNumberOfPumps(){
-    return _fixedData.getNumberOfPumps();
-  }
-  /**
-   *  Gets the number of BoundaryWaterbodies
-   */
-  public final int getNumberOfBoundaryWaterbodies(){
-    return  _fixedData.getNumberOfBoundaryWaterbodies();
-  }
-  /**
-   *  Gets the number of BoundaryWaterbodies
-   */
-  public final int getNumberOfConveyors(){
-    return _fixedData.getNumberOfConveyors();
-  }
-  /**
-   * @return the number of waterbodies
-   */
-  public final int getNumberOfWaterbodies(){
-    return _fixedData.getNumberOfWaterbodies();
-  }
-  /**
-   *  @return the number of nodes
-   */
-  public final int getNumberOfNodes(){
-    return _fixedData.getNumberOfNodes();
-  }
-  /**
-   *  the number of cross sections
-   */
-  public final int getNumberOfXSections(){
-    return _fixedData.getNumberOfXSections();
-  }
-  /**
-   *  Gets the maximum number of waterbodies
-   */
-  public final int getMaximumNumberOfWaterbodies(){
-   return PTMFixedData.getMaximumNumberOfWaterbodies();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfChannels(){
-    return PTMFixedData.getMaximumNumberOfChannels();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfDiversions(){
-    return PTMFixedData.getMaximumNumberOfDiversions();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfNodes(){
-    return PTMFixedData.getMaximumNumberOfNodes();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfReservoirs(){
-    return PTMFixedData.getMaximumNumberOfReservoirs();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfPumps(){
-    return PTMFixedData.getMaximumNumberOfPumps();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfBoundaryWaterbodies(){
-    return PTMFixedData.getMaximumNumberOfBoundaryWaterbodies();
-  }
-  /**
-   *  Gets the maximum number of nodes
-   */
-  public final int getMaximumNumberOfConveyors(){
-    return PTMFixedData.getMaximumNumberOfConveyors();
-  }
-  /**
-   *  Gets the maximum number of cross sections
-   */
-  public final int getMaximumNumberOfXSections(){
-    return PTMFixedData.getMaximumNumberOfXSections();
-  }
+	/**
+	 * Obtain the theta value (low-pass filter constant) that is specified in the config file
+	 * @return						theta
+	 */
+	public final float getTheta() {
+		return PTMFixedData.getTheta();
+	}
 
-  /**
-   *  Creates the Waterbody array.
-   *  The assumption here is that channels are stored first,
-   *  followed by reservoirs, stage boundaries, boundaries and lastly
-   *  conveyors
-   */
-  public final Waterbody [] createWaterbodyFixedInfo(){
-    Waterbody [] wbArray = new Waterbody[PTMFixedData.getMaximumNumberOfWaterbodies()+1];
-    for(int i=1; i < wbArray.length; i++){
-      Waterbody wb = null;
-      if (DEBUG)
-    	  System.out.println("Waterbody ID: "+i +"  Waterbody Type: "+ _fixedData.getWaterbodyType(i));
-      switch (_fixedData.getWaterbodyType(i)){
-      case Waterbody.CHANNEL:
-        wb = createChannel(i);
-        break;
-      case Waterbody.RESERVOIR:
-        wb = createReservoir(i);
-        break;
-      case Waterbody.BOUNDARY:
-        wb = createBoundary(i);
-        break;
-      case Waterbody.CONVEYOR:
-        wb = createConveyor(i);
-        break;
-      }
-      wbArray[i] = wb;
-      if ( wb != null ){
-        wb.setObjectType( _fixedData.getWaterbodyObjectType(i) );
-      }
-    }
+	/**
+	 *  Gets the number of Channels
+	 */
+	public final int getNumberOfChannels(){
+		return _fixedData.getNumberOfChannels();
+	}
+	/**
+	 *  Gets the number of Channel Groups
+	 */
+	public final int getNumberOfChannelGroups(){
+		return _fixedData.getNumberOfChannelGroups();
+	}
 
-    return wbArray;
-  }
+	public final Group[] getOutputGroups(){
+		return _fixedData.getOutputGroups();
+	}
 
-  /**
-   *  Create a Channel Waterbody
-   */
-  private final Channel createChannel(int nId){
-    Channel wb = null;
-    int lId = _fixedData.getLocalIdForWaterbody(nId);
-    float len = _fixedData.getChannelLength(lId);
-    if (len > 0) {
-      int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
-      wb = new Channel(lId, nId,
-    		 len, nodeArray);
-      if (DEBUG){
-        System.out.println("Created channel local ID: " + lId);
-        System.out.println("Created channel waterbody ID: " + nId);
-        System.out.println("Created channel length: " + len);
-      }
-    }
-    return wb;
-  }
+	/**
+	 *  Gets the number of Reservoirs
+	 */
+	public final int getNumberOfReservoirs(){
+		return _fixedData.getNumberOfReservoirs();
+	}
+	/**
+	 *  Gets the number of Diversions
+	 */
+	public final int getNumberOfDiversions(){
+		return _fixedData.getNumberOfDiversions();
+	}
+	/**
+	 *  Gets the number of Pumps
+	 */
+	public final int getNumberOfPumps(){
+		return _fixedData.getNumberOfPumps();
+	}
+	/**
+	 *  Gets the number of BoundaryWaterbodies
+	 */
+	public final int getNumberOfBoundaryWaterbodies(){
+		return  _fixedData.getNumberOfBoundaryWaterbodies();
+	}
+	/**
+	 *  Gets the number of BoundaryWaterbodies
+	 */
+	public final int getNumberOfConveyors(){
+		return _fixedData.getNumberOfConveyors();
+	}
+	/**
+	 * @return the number of waterbodies
+	 */
+	public final int getNumberOfWaterbodies(){
+		return _fixedData.getNumberOfWaterbodies();
+	}
+	/**
+	 *  @return the number of nodes
+	 */
+	public final int getNumberOfNodes(){
+		return _fixedData.getNumberOfNodes();
+	}
+	/**
+	 *  the number of cross sections
+	 */
+	public final int getNumberOfXSections(){
+		return _fixedData.getNumberOfXSections();
+	}
+	/**
+	 *  Gets the maximum number of waterbodies
+	 */
+	public final int getMaximumNumberOfWaterbodies() {
+		return PTMFixedData.getMaxNumberOfWaterbodies();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfChannels(){
+		return PTMFixedData.getMaxNumberOfChannels();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfDiversions(){
+		return PTMFixedData.getMaxNumberOfDiversions();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfNodes(){
+		return PTMFixedData.getMaxNumberOfNodes();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfReservoirs(){
+		return PTMFixedData.getMaxNumberOfReservoirs();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfPumps(){
+		return PTMFixedData.getMaxNumberOfPumps();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfBoundaryWaterbodies(){
+		return PTMFixedData.getMaxNumberOfBoundaryWaterbodies();
+	}
+	/**
+	 *  Gets the maximum number of nodes
+	 */
+	public final int getMaximumNumberOfConveyors(){
+		return PTMFixedData.getMaxNumberOfConveyors();
+	}
+	/**
+	 *  Gets the maximum number of cross sections
+	 */
+	public final int getMaximumNumberOfXSections(){
+		return PTMFixedData.getMaxNumberOfCrossSections();
+	}
 
-  /**
-   *  Create a Reservoir Waterbody
-   */
-  private final Reservoir createReservoir(int nId){
-    Reservoir wb = null;
-    int lId = _fixedData.getLocalIdForWaterbody(nId);
-    float area = _fixedData.getReservoirArea(lId);
-    if(area > 1e-10f) {
-      String name = _fixedData.getReservoirName(lId);
-      float botelv=_fixedData.getReservoirBottomElevation(lId);
-      int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
-      wb = new Reservoir(nId, lId,
-                         name, area, botelv,
-                         nodeArray);
-    }
-    return wb;
-  }
+	/**
+	 *  Creates the Waterbody array.
+	 *  
+	 *  The assumption here is that channels are stored first,
+	 *  followed by reservoirs, stage boundaries, boundaries and lastly
+	 *  conveyors
+	 */
+	public final Waterbody [] createWaterbodyFixedInfo(){
+		Waterbody [] wbArray = new Waterbody[PTMFixedData.getMaxNumberOfWaterbodies()+1];
+		for(int i=1; i < wbArray.length; i++){
+			Waterbody wb = null;
+			if (DEBUG)
+				System.out.println("Waterbody ID: "+i +"  Waterbody Type: "+ Grid.getWaterbodyObjectTypeCode(i));
+			switch (Grid.getWaterbodyObjectTypeCode(i)) {
 
-  /**
-   *  create a rim Waterbody
-   */
-  private final Boundary createBoundary(int nId){
-    Boundary wb = null;
-    int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
-    if (DEBUG) {
-      for( int i=0; i < nodeArray.length; i++ ){
-        System.out.println("For boundary node is: " + nodeArray[i]);
-      }
-    }
-    if ( nodeArray != null )
-      wb = new Boundary(nId, nodeArray, _fixedData.getWaterBodyName(nId));
-    return wb;
-  }
+			case Waterbody.CHANNEL:
+				// Don't create placeholder channels which might have lengths due to spurious reads from the tidefile
+				if(Grid.waterbodyIsNotPlaceholder(i)) {
+					wb = createChannel(i);
+				}
+				else {
+					wb = null; 
+				}
+				break;
+			case Waterbody.RESERVOIR:
+				wb = createReservoir(i);
+				break;
+			case Waterbody.BOUNDARY:
+				wb = createBoundary(i);
+				break;
+			case Waterbody.CONVEYOR:
+				wb = createConveyor(i);
+				break;
+			}
+			wbArray[i] = wb;
+			if ( wb != null ){
+				wb.setObjectType(Grid.getWaterbodyObjectType(i));
+			}
+		}
+		return wbArray;
+	}
 
-  /**
-   *  create a Conveyor Waterbody
-   */
-  private final Conveyor createConveyor(int nId){
-    Conveyor wb = null;
-    int lId = _fixedData.getLocalIdForWaterbody(nId);
-    String name = _fixedData.getConveyorName(lId);
-    int [] nodeArray = _fixedData.getNodeArrayForWaterbody( nId );
-    if (nodeArray != null)
-      wb = new Conveyor(nId, name, nodeArray);
-    return wb;
-  }
+	/**
+	 *  Create a Channel Waterbody
+	 */
+	private final Channel createChannel(int nId){
+		Channel wb = null;
+		int lId = _fixedData.getLocalIdForWaterbody(nId);
+		float len = _fixedData.getChannelLength(lId);
 
-  /**
-   *  Creates the Node array with fixed information from common
-   *  block.
-   *
-   *  Note however that Reservoir Node info, ag. drain and pump
-   *  Node info is not directly available from the common block
-   *  This Node info is present in the common block for the Reservoir
-   *  and for ag. drains is the Node number itself...
-   *
-   *  It is the responsibility of the PTMEnv class to calculate and
-   *  update the Node object with this information.
-   */
-  public final Node[] createNodeFixedInfo(){
-    Node [] nodeArray = new Node[PTMFixedData.getMaximumNumberOfNodes() + 1];
-    for( int i=1; i <= nodeArray.length; i++ ){
-      int nodeId = i;
-      //create arrays to store Waterbody id's and type's
-      int[] waterbodyIdArray = _fixedData.getWaterbodyIdArrayForNode(nodeId);
-      if (waterbodyIdArray.length == 0) continue;
-       //TODO this used to cause an error (below) for high Node numbers. never figured out
-      // howe the code would ever work right.
-      // Xiao added: the reason is because a node for very high node number may not exist and there is no
-      // check here for a null or anything.  The code needs to be rewritten.
-      String type = _fixedData.getBoundaryTypeForNode(nodeId);
-      nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
-      if (DEBUG) System.out.println("Created node: "+ nodeArray[i]);
-    }
-    return nodeArray;
-  }
+		if (len > 0) {
+			int[] nodeArray = Grid.getNodeArrayForWaterbody(nId);
+			wb = new Channel(lId, nId,
+					len, nodeArray);
+			if (DEBUG){
+				System.out.println("Created channel local ID: " + lId);
+				System.out.println("Created channel waterbody ID: " + nId);
+				System.out.println("Created channel length: " + len);
+			}
+		}
+		return wb;
+	}
 
-  /**
-   *  Creates the cross secton array with fixed information from
-   *  common block
-   */
-  public final XSection [] createXSectionFixedInfo(){
+	/**
+	 *  Create a Reservoir Waterbody
+	 */
+	private final Reservoir createReservoir(int nId){
+		Reservoir wb = null;
+		int lId = _fixedData.getLocalIdForWaterbody(nId);
+		float area = _fixedData.getReservoirArea(lId);
+		if(area > 1e-10f) {
+			String name = _fixedData.getReservoirName(lId);
+			float botelv=_fixedData.getReservoirBottomElevation(lId);
+			int[] nodeArray = Grid.getNodeArrayForWaterbody(nId);
+			wb = new Reservoir(nId, lId,
+					name, area, botelv,
+					nodeArray);
+		}
+		return wb;
+	}
 
-    XSection[] xSArray = new XSection[getMaximumNumberOfXSections()+1];
-    // rigged to meet only regular cross section stuff
-    //  int numElvs = com_s_irr_geom_.irreg_geom[nId].num_elev ;
-    int numElvs = 2;
-    float [] width = new float[numElvs];
-    float [] elevation = new float[numElvs];
-    float [] area = new float[numElvs];
+	/**
+	 *  Create a rim Waterbody
+	 */
+	private final Boundary createBoundary(int nId){
+		Boundary wb = null;
+		int[] nodeArray = Grid.getNodeArrayForWaterbody(nId);
+		if (DEBUG) {
+			for( int i=0; i < nodeArray.length; i++ ){
+				System.out.println("For boundary node is: " + nodeArray[i]);
+			}
+		}
+		if ( nodeArray != null )
+			wb = new Boundary(nId, nodeArray, _fixedData.getWaterBodyName(nId));
+		return wb;
+	}
 
-    // float dist = com_s_irr_geom_.irreg_geom[nId].dist;
-    //int i,j;
+	/**
+	 *  Create a conveyor waterbody
+	 */
+	private final Conveyor createConveyor(int nId){
+		Conveyor wb = null;
+		int lId = _fixedData.getLocalIdForWaterbody(nId);
+		String name = _fixedData.getConveyorName(lId);
+		int [] nodeArray = Grid.getNodeArrayForWaterbody(nId);
+		if (nodeArray != null)
+			wb = new Conveyor(nId, name, nodeArray);
+		return wb;
+	}
 
-    for (int i=1; i<= PTMFixedData.getMaximumNumberOfXSections(); i++) {
-      xSArray[i] = null;
-      width = _fixedData.getXSectionWidths(i); // xFD[i-1].width[0];
-      if (width[0] > 0){
-        //TODO set distance to non zero. PTMEnv will set the dist = length of Channel
-        //TODO later.
-        float dist = -1;
-        //
-        elevation = _fixedData.getXSectionElevations(i);
-        area = _fixedData.getXSectionAreas(i);
-        //
-        float minElv = _fixedData.getXSectionMinimumElevation(i);
-        xSArray[i] = new XSection(i, numElvs, dist,
-  				width, area, elevation,
-  				minElv, false);
-      }
-    }
-    return xSArray;
-  }
-  /**
-   *  updates the class ParticleFixedInfo with fixed information
-   *  from common block
-   */
-  public final void getPTMFixedInfo(ParticleFixedInfo info) {
-    // Logical true/false variables
-    boolean ivert = pFD.useVerticalProfile();
-    boolean itrans = pFD.useTransverseProfile();
-    boolean iey = pFD.useTransverseMixing();
-    boolean iez = pFD.useVerticalMixing();
-    boolean iprof = pFD.doProfileOutput();
-    boolean igroup = pFD.doGroupOutput();
-    boolean fluxPercent = pFD.doFluxPercentage();
-    boolean groupPercent = pFD.doGroupPercentage();
-    boolean fluxCumulative = pFD.doFluxCumulative();
-    info.setVariables(ivert,itrans,iey,iez,iprof,igroup,fluxPercent,groupPercent,fluxCumulative);
+	/**
+	 *  Creates the Node array with fixed information from common block 
+	 *
+	 *  Note however that Reservoir Node info, ag. drain and pump
+	 *  Node info is not directly available from the common block
+	 *  This Node info is present in the common block for the Reservoir
+	 *  and for ag. drains is the Node number itself...
+	 *
+	 *  It is the responsibility of the PTMEnv class to calculate and
+	 *  update the Node object with this information.
+	 */
+	public final Node[] createNodeFixedInfo(){
+		Node [] nodeArray = new Node[PTMFixedData.getMaxNumberOfNodes() + 1];
+		for( int i=1; i <= nodeArray.length; i++ ){
+			int nodeId = i;
+			//create arrays to store Waterbody id's and type's
+			int[] waterbodyIdArray = _fixedData.getWaterbodyIdArrayForNode(nodeId);
 
-    // floats
-    int random_seed = pFD.getRandomSeed();
-    float trans_constant = pFD.getTransverseConstant();
-    float vert_constant = pFD.getVerticalConstant();
-    float trans_a_coef = pFD.getTransverseACoef();
-    float trans_b_coef = pFD.getTransverseBCoef();
-    float trans_c_coef = pFD.getTransverseCCoef();
-    int animated_particles = pFD.getAnimatedParticles();
+			if (waterbodyIdArray.length == 0) continue;
+			//TODO this used to cause an error (below) for high Node numbers. never figured out
+			// howe the code would ever work right.
+			// Xiao added: the reason is because a node for very high node number may not exist and there is no
+			// check here for a null or anything.  The code needs to be rewritten.
+			String type = Grid.getBoundaryTypeForNode(nodeId);
+			nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
+			if (DEBUG) System.out.println("Created node: "+ nodeArray[i]);
+		}
+		return nodeArray;
+	}
 
-    info.setVariables(random_seed, trans_constant, vert_constant,
-  		    trans_a_coef, trans_b_coef, trans_c_coef,
-  		    animated_particles);
+	/**
+	 *  Create the cross secton array with fixed information from common block
+	 */
+	public final XSection [] createXSectionFixedInfo(){
 
-    // particle injection
-    int nInjections = pFD.getNumberOfInjections();
-    int [] nNode = pFD.getLocationOfParticlesInjectedArray();
-    int [] nInjected = pFD.getNumberInjectedArray();
-    int [] startJulmin = pFD.getInjectionStartJulminArray();
-    int [] lengthJulmin = pFD.getInjectionLengthJulminArray();
-    //TODO check if nInjections == 0 use data from behavior inputs
-    info.setVariables(nInjections, nNode, nInjected, startJulmin, lengthJulmin);
+		XSection[] xSArray = new XSection[getMaximumNumberOfXSections()+1];
+		// rigged to meet only regular cross section stuff
+		int numElvs = 2;
+		float [] width = new float[numElvs];
+		float [] elevation = new float[numElvs];
+		float [] area = new float[numElvs];
 
-    boolean qBinary = pFD.getBinaryExistance();
-    int ngroups = pFD.getNumberOfGroups();
-    String[] qNames = pFD.getQualityNames();
+		for (int i=1; i<= PTMFixedData.getMaxNumberOfCrossSections(); i++) {
+			xSArray[i] = null;
+			width = _fixedData.getXSectionWidths(i);
+			if (width[0] > 0){
+				//TODO set distance to non zero. PTMEnv will set the dist = length of Channel
+				//TODO later.
+				float dist = -1;
+				//
+				elevation = _fixedData.getXSectionElevations(i);
+				area = _fixedData.getXSectionAreas(i);
+				//
+				float minElv = _fixedData.getXSectionMinimumElevation(i);
+				xSArray[i] = new XSection(i, numElvs, dist,
+						width, area, elevation,
+						minElv, false);
+			}
+		}
+		return xSArray;
+	}
+	/**
+	 *  Update the class ParticleFixedInfo with fixed information from common block
+	 */
+	public final void getPTMFixedInfo(ParticleFixedInfo info) {
+		// Logical true/false variables
+		boolean ivert = pFD.useVerticalProfile();
+		boolean itrans = pFD.useTransverseProfile();
+		boolean iey = pFD.useTransverseMixing();
+		boolean iez = pFD.useVerticalMixing();
+		boolean iprof = pFD.doProfileOutput();
+		boolean igroup = pFD.doGroupOutput();
+		boolean fluxPercent = pFD.doFluxPercentage();
+		boolean groupPercent = pFD.doGroupPercentage();
+		boolean fluxCumulative = pFD.doFluxCumulative();
+		info.setVariables(ivert,itrans,iey,iez,iprof,igroup,fluxPercent,groupPercent,fluxCumulative);
 
-    info.setVariables(ngroups,qBinary,qNames);
-    info.setVariables(pFD.getParticleType());
+		// floats
+		int random_seed = pFD.getRandomSeed();
+		float trans_constant = pFD.getTransverseConstant();
+		float vert_constant = pFD.getVerticalConstant();
+		float trans_a_coef = pFD.getTransverseACoef();
+		float trans_b_coef = pFD.getTransverseBCoef();
+		float trans_c_coef = pFD.getTransverseCCoef();
+		int animated_particles = pFD.getAnimatedParticles();
 
-  }
+		info.setVariables(random_seed, trans_constant, vert_constant,
+				trans_a_coef, trans_b_coef, trans_c_coef,
+				animated_particles);
 
-  /**
-   *  Gets the start run time in julian minutes
-   */
-  public final int getStartTime(){
-    return _fixedData.getModelStartTime();
-  }
+		// particle injection
+		int nInjections = pFD.getNumberOfInjections();
+		int [] nNode = pFD.getLocationOfParticlesInjectedArray();
+		int [] nInjected = pFD.getNumberInjectedArray();
+		int [] startJulmin = pFD.getInjectionStartJulminArray();
+		int [] lengthJulmin = pFD.getInjectionLengthJulminArray();
+		//TODO check if nInjections == 0 use data from behavior inputs
+		info.setVariables(nInjections, nNode, nInjected, startJulmin, lengthJulmin);
 
-  /**
-   *  Gets the end run time in julian minutes
-   */
-  public final int getEndTime(){
-    return _fixedData.getModelEndTime();
-  }
+		boolean qBinary = pFD.getBinaryExistance();
+		int ngroups = pFD.getNumberOfGroups();
+		String[] qNames = pFD.getQualityNames();
 
-  /**
-   *  Gets the run length in julian minutes
-   */
-  public final int getRunLength(){
-    return getEndTime()-getStartTime();
-  }
+		info.setVariables(ngroups,qBinary,qNames);
+		info.setVariables(pFD.getParticleType());
 
-  /**
-   *  Gets the time step in minutes
-   */
-  public final int getPTMTimeStep(){
-    return _fixedData.getPTMTimeStep();
-  }
+	}
 
-  /**
-   *  Gets the output display interval in minutes
-   */
-  public final int getDisplayInterval(){
-    return _fixedData.getDisplayInterval();
-  }
+	/**
+	 *  Get the start run time in julian minutes
+	 */
+	public final int getStartTime(){
+		return _fixedData.getModelStartTime();
+	}
 
-  /**
-   *  Creates FluxInfo
-   */
-  public final FluxInfo getfluxInfo(){
-    FluxInfo fI = new FluxInfo(fFD,pFD);
-    return fI;
-  }
+	/**
+	 *  Gets the end run time in julian minutes
+	 */
+	public final int getEndTime(){
+		return _fixedData.getModelEndTime();
+	}
 
-  /**
-   *  Creates GroupInfo
-   */
-  public final GroupInfo getgroupInfo(){
-    GroupInfo gI = new GroupInfo(pFD,getOutputGroups());
-    return gI;
-  }
+	/**
+	 *  Gets the run length in julian minutes
+	 */
+	public final int getRunLength(){
+		return getEndTime()-getStartTime();
+	}
 
-  /**
-   *  Gets animation file name
-   */
-  public final String getAnimationFileName(){
-    return _fixedData.getAnimationFileName();
-  }
-  /**
-   *  animation output interval
-   */
-  public final int getAnimationOutputInterval(){
-    return _fixedData.getAnimationOutputInterval();
-  }
-  /**
-   *  Gets behavior file name
-   */
-  //TODO need to be removed uses getBehaviorInfileName instead
-  public final String getBehaviorFileName(){
-    return _fixedData.getBehaviorFileName();
-  }
-  /**
-   *  Gets behavior file name this one need to keep
-   */
-  public final String getBehaviorInfileName(){
-    return _fixedData.getBehaviorInfileName();
-  }
-  /**
-   *  Gets trace file name
-   */
-  public final String getTraceFileName(){
-    return _fixedData.getTraceFileName();
-  }
-  /**
-   *  Gets output restart file name
-   */
-  public final String getOutputRestartFileName(){
-    return _fixedData.getRestartOutputFileName();
-  }
-  /**
-   *  gets output interval for restart file
-   */
-  public final int getRestartOutputInterval(){
-    return _fixedData.getRestartOutputInterval();
-  }
-  /**
-   *  Gets input restart file name
-   */
-  public final String getInputRestartFileName(){
-    return _fixedData.getRestartInputFileName();
-  }
+	/**
+	 *  Gets the time step in minutes
+	 */
+	public final int getPTMTimeStep(){
+		return _fixedData.getPTMTimeStep();
+	}
 
-  /**
-   *  checks to see if this is a restart run
-   */
-  public final boolean isRestartRun(){
-    //  return isRestartRun;
-    return false;
-  }
-  /**
-   * get limits fixed data
-   */
-  public LimitsFixedData getLimitsFixedData(){
-    return lFD;
-  }
-  /**
-   * Fixed data object
-   */
-  private PTMFixedData _fixedData;
-  /**
-   * particle fixed data
-   */
-  private ParticleFixedData pFD;
-  /**
-   *
-   */
-  private LimitsFixedData lFD;
-  /**
-   * flux fixed data
-   */
-  private FluxFixedData[] fFD;
-  /**
-   *
-   */
-  private static boolean DEBUG = false;
+	/**
+	 *  Gets the output display interval in minutes
+	 */
+	public final int getDisplayInterval(){
+		return _fixedData.getDisplayInterval();
+	}
+
+	/**
+	 *  Creates FluxInfo
+	 */
+	public final FluxInfo getfluxInfo(){
+		FluxInfo fI = new FluxInfo(fFD,pFD);
+		return fI;
+	}
+
+	/**
+	 *  Creates GroupInfo
+	 */
+	public final GroupInfo getgroupInfo(){
+		GroupInfo gI = new GroupInfo(pFD,getOutputGroups());
+		return gI;
+	}
+
+	/**
+	 *  Gets animation file name
+	 */
+	public final String getAnimationFileName(){
+		return _fixedData.getAnimationFileName();
+	}
+	/**
+	 *  animation output interval
+	 */
+	public final int getAnimationOutputInterval(){
+		return _fixedData.getAnimationOutputInterval();
+	}
+
+	/**
+	 *  Gets trace file name
+	 */
+	public final String getTraceFileName(){
+		return _fixedData.getTraceFileName();
+	}
+	/**
+	 *  Gets output restart file name
+	 */
+	public final String getOutputRestartFileName(){
+		return _fixedData.getRestartOutputFileName();
+	}
+	/**
+	 *  gets output interval for restart file
+	 */
+	public final int getRestartOutputInterval(){
+		return _fixedData.getRestartOutputInterval();
+	}
+	/**
+	 *  Gets input restart file name
+	 */
+	public final String getInputRestartFileName(){
+		return _fixedData.getRestartInputFileName();
+	}
+
+	/**
+	 * Obtain the filename of the specified type
+	 * @param type					filename type, e.g., "ANIM"
+	 * @return						full path of the file
+	 */
+	public final String getFileName(String type) {
+		return _fixedData.getFileName(type);
+	}
+
+	/**
+	 * Obtain the interval in minutes for the specified file type
+	 * @param type					filename type, e.g., "ANIM"
+	 * @return						interval in minutes
+	 */
+	public int getIntervalInMin(String type) {
+		return _fixedData.getIntervalInMin(type);
+	}
+
+	/**
+	 * Obtain the internal channel number for the specified external channel number
+	 * @param extChanNum				external channel number
+	 * @return						internal channel number
+	 */
+	public final int getIntChanNum(int extChanNum) {
+		return PTMFixedData.getIntChanNum(extChanNum);
+	}
+
+	/**
+	 * Obtain the internal node number for the specified external node number
+	 * @param extNodeNum				external node number
+	 * @return						internal node number
+	 */
+	public final int getIntNodeNum(int extNodeNum) {
+		return PTMFixedData.getIntNodeNum(extNodeNum);
+	}
+
+	/**
+	 * Obtain the external node number for the specified internal node number
+	 * @param intNodeNum				internal node number
+	 * @return						external node number
+	 */
+	public final int getExtNodeNum(int intNodeNum) {
+		return PTMFixedData.getExtNodeNum(intNodeNum);
+	}
+
+	/**
+	 * Obtain the name of the specified group
+	 * @param i						zero-based index of the group
+	 * @return						name of the group
+	 */
+	public final String getGroupMemberName(int i) {
+		return _fixedData.getGroupMemberName(i);
+	}
+
+	/**
+	 *  checks to see if this is a restart run
+	 */
+	public final boolean isRestartRun(){
+		return false;
+	}
+	/**
+	 * get limits fixed data
+	 */
+	public LimitsFixedData getLimitsFixedData(){
+		return lFD;
+	}
+	/**
+	 * Fixed data object
+	 */
+	private PTMFixedData _fixedData;
+	/**
+	 * particle fixed data
+	 */
+	private ParticleFixedData pFD;
+	/**
+	 *
+	 */
+	private LimitsFixedData lFD;
+	/**
+	 * flux fixed data
+	 */
+	private FluxFixedData[] fFD;
+	/**
+	 *
+	 */
+	private static boolean DEBUG = false;
 }

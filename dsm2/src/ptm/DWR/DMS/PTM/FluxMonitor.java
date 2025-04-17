@@ -17,6 +17,7 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
+
 /**
  *  This class controls the various classes for Flux output. It is responsible
  *  for reading in the trace of particles from the trace file and creating the
@@ -53,8 +54,8 @@ public class FluxMonitor{
     int ngrp = groupInfoPtr.getNumberOfGroups();
     fluxOfGroup = new Flux[ngrp];
 
-    for(int i=0; i < ngrp; i++){
-      fluxOfGroup[i] = new GroupFlux(groupInfoPtr.getOutputGroups()[i]);
+    for(int i=0; i < ngrp; i++){    	
+      fluxOfGroup[i] = new GroupFlux(groupInfoPtr.getOutputGroups()[i].getName(), groupInfoPtr.getOutputGroups()[i]);
     }
     traceArray = null;
   }
@@ -99,14 +100,16 @@ public class FluxMonitor{
   /**
    *  Output Flux to file
    */
-  public final void writeOutput(){
+  public final PTMFluxOutput prepOutput(){
     fluxOut = new PTMFluxOutput(getStartTimeFromTrace());
     if (fluxInfoPtr.getNumberOfFluxes() > 0)
       fluxOut.FluxOutput(fluxAtNode, fluxInfoPtr.doFluxPercentage());
     if (groupInfoPtr.getNumberOfGroups() > 0)
       fluxOut.GroupOutput(fluxOfGroup, groupInfoPtr.doGroupPercentage());
-    fluxOut.output();
-    fluxOut.closeFile();
+    
+    fluxOut.calcOutput();
+    
+    return fluxOut;
   }
 
   /**

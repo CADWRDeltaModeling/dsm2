@@ -20,24 +20,27 @@ import java.util.Arrays;
  */
 public class TravelTimeOutput {
 
+	private Config config;
+	
 	/**
 	 * Output travel time to a .csv file
 	 */
-	public TravelTimeOutput(ArrayList<String> outText) { // outText:  the line specify travel time output in the behavior input file
-		if (outText == null)
-			System.out.println("No travel time output info!");
+	public TravelTimeOutput() {
+		config = PTMFixedData.getConfig();
+		
+		if(config.travel_time_output_path==null || config.travel_time_header==null || config.travel_time==null) {
+			System.out.println("No travel time output info defined in behavior input file");
+		}
 		else{
-			_pathName = PTMUtil.getPathFromLine(outText.get(0), ':');
-			if(_pathName.equalsIgnoreCase("")){
+			_pathName = config.travel_time_output_path;
+			if(_pathName==null || _pathName.equalsIgnoreCase("")){
 				_pathName = null;
 				System.err.println("not output travel times!");
 				return;
 			}
 			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
-			PTMUtil.checkTitle(outText.get(1), shouldBe);
-			if (outText.size()<3 )
-				PTMUtil.systemExit("travel time output info is not entered correctly, please revise them in behavior input file");
-			setIdsDistance(outText.subList(2, outText.size()));
+			PTMUtil.checkTitle(config.travel_time_header, shouldBe);
+			setIdsDistance();
 		}
 		_recorderTest = new ConcurrentHashMap<Integer, Boolean>();
 	}
@@ -51,53 +54,56 @@ public class TravelTimeOutput {
 		}
 		return -999999f;
 	}
-	private void setIdsDistance(List<String> stationText){
+	private void setIdsDistance(){
 		//_outputStations = new ArrayList<IntBuffer>();
 		_stationNames = new ConcurrentHashMap<Integer, String>();
 		_ttHolder = new ConcurrentHashMap<String, Map<Integer, TTEntry>>();
 		_staDist = new ConcurrentHashMap<Integer, Float>();
+		List<Object> thisStationDef;
+		
 		//TODO clean up later, sublisted in the calling function
-		//for (String stationLine: stationText.subList(1, stationText.size())){
-		for (String stationLine: stationText){
+		for(int i=0; i<config.travel_time.size(); i++) {
+			thisStationDef = config.travel_time.get(i);
+			
 			int[] station = new int[2];
 			float d = 0.0f;
-			String[] items = stationLine.trim().split("[,\\s\\t]+");
-			if (items.length<4)
+			if (thisStationDef.size()<4)
 				PTMUtil.systemExit("SYSTEM EXIT: expect at least 4 items in travel time output line in behavior input file. ");
-			if (items[3] == null)
+			if (thisStationDef.get(3)== null)
 				PTMUtil.systemExit("expect a travel time output station name, but found none, system exit. ");
 			try{
 				// nodeId
-				station[0] = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
+				station[0] = PTMHydroInput.getIntFromExtNode((int) thisStationDef.get(0));
 			}catch(NumberFormatException e){
 					e.printStackTrace();
-					PTMUtil.systemExit("node id:" + items[0]+ " in the travel time output line is wrong, please check");
+					PTMUtil.systemExit("node id:" + thisStationDef.get(0) + " in the travel time output line is wrong, please check");
 			}
 			try{
 				// wbId
-				station[1] = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[1]));
+				station[1] = PTMHydroInput.getIntFromExtChan((int) thisStationDef.get(1));
 			}catch(NumberFormatException e){
-				if (PTMEnv.getReservoirObj2ObjEnvId(items[1]) == null){
-					PTMUtil.systemExit("channel/reservior/obj2obj id:" + items[1] + " in the travel time output line is wrong, please check");
+				if (PTMEnv.getReservoirObj2ObjEnvId((String) thisStationDef.get(1)) == null){
+					PTMUtil.systemExit("channel/reservior/obj2obj id:" + thisStationDef.get(1) + " in the travel time output line is wrong, please check");
 				}
 				else
-					station[1] = PTMEnv.getReservoirObj2ObjEnvId(items[1]);
+					station[1] = PTMEnv.getReservoirObj2ObjEnvId((String) thisStationDef.get(1));
 			}
 			try{
-				//distance
-				d = Float.parseFloat(items[2]);
+				//distance				
+				d = ((Number) thisStationDef.get(2)).floatValue();
 			}catch(NumberFormatException e){
-				if (items[2].equalsIgnoreCase("LENGTH"))
+				if (((String) thisStationDef.get(2)).equalsIgnoreCase("LENGTH"))
 					d = getLength(station[1]);
 				else{
-					PTMUtil.systemExit("distance input:" + items[2] +" for channel:" + items[0] + " and node:"+items[1] + " in travel time output line is wrong, please check." );
+					PTMUtil.systemExit("distance input:" + thisStationDef.get(2) +" for channel:" + thisStationDef.get(0) 
+					+ " and node:" + thisStationDef.get(1) + " in travel time output line is wrong, please check." );
 				}
 			}
 			IntBuffer ndWb = IntBuffer.wrap(station);
 			//_outputStations.add(ndWb);
-			_stationNames.put(station[1], items[3]);
-			_staDist.put(station[1], new Float(d));
-			_ttHolder.put(items[3], new ConcurrentHashMap<Integer, TTEntry>());
+			_stationNames.put(station[1], (String) thisStationDef.get(3));
+			_staDist.put(station[1], Float.valueOf(d));
+			_ttHolder.put((String) thisStationDef.get(3), new ConcurrentHashMap<Integer, TTEntry>());
 		}
 	}
 

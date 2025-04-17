@@ -17,7 +17,9 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
+
 import java.util.TimeZone;
+
 /**
  * Provides access to variables that are global to all
  * call classes of this package.
@@ -26,12 +28,6 @@ import java.util.TimeZone;
  * @version $Id: Globals.java,v 1.3 2000/08/07 17:00:27 miller Exp $
  */
 public class Globals{
-  /**
-   * initializes by loading library
-   */
-  public static void initialize(){
-    System.loadLibrary("ptm");
-  }
   /**
    * current model time
    */
@@ -55,20 +51,53 @@ public class Globals{
   /**
    * returns current model data as a string
    */
-  public static native String getModelDate(int currentModelTime);
+  
+  public static String getModelDate(int currentModelTime) {
+	  int julianDate;
+	  String dateStr;
+	  	  
+	  // The current convention is for midnight to be assigned to the previous day
+	  // => subtract one minute to shift midnight to the previous day
+	  julianDate = Math.floorDiv(currentModelTime-1, 24*60);
+	  
+	  dateStr = PTMUtil.juldat(julianDate);
+	  
+	  return dateStr;
+  }
+  
   /**
    * returns current model time as string
    */
-  public static native String getModelTime(int currentModelTime);
+  
+  public static String getModelTime(int modelTime) {
+	  int timeTotMinutes, hour, minute;
+	  String timeStr;
+	  
+      timeTotMinutes = modelTime%(24*60);
+      hour = Math.floorDiv(timeTotMinutes, 60);
+      minute = timeTotMinutes%60;
+      
+      timeStr = String.format("%02d%02d", hour, minute);
+      if(timeStr.equals("0000")) {timeStr = "2400";}
+      
+      return timeStr; 
+  }
   /**
    * model time zone
    */
   public static TimeZone TIME_ZONE;
-  /**
-   * returns time in julian minutes since base date using strings
-   * of the model date and time in the format ddMMMyyyy, HHmm respectively
-   */
-  public static native int getTimeInJulianMins(String modelDate, String modelTime);
+  
+  public static int getTimeInJulianMins(String modelDate, String modelTime) {
+	  int julian;
+	  int minutes;
+	  
+	  julian = PTMUtil.datjul(modelDate);
+	  
+	  minutes = Integer.parseInt(modelTime.substring(0, 2))*60 + Integer.parseInt(modelTime.substring(2, 4));
+	  
+	  return julian*24*60 + minutes;
+  }
   public static boolean DisplaySimulationTimestep = true;
   public static boolean CalculateWritePTMFlux = true;
+  
 }

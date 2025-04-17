@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -18,73 +19,69 @@ import java.lang.reflect.Constructor;
  *
  */
 public class RouteInputs {
-	public RouteInputs(ArrayList<String> inText, String fishType) {
+	private Config config;
+	
+	public RouteInputs(String fishType) {
+		config = PTMFixedData.getConfig();
+		
 		if (fishType == null)
 				PTMUtil.systemExit("No Particle Type! exit.");
 		_fishType = fishType;
-		if (inText != null){
-			_barriers = new ArrayList<NonPhysicalBarrier>();
-			_fishScreens = new ArrayList<IntBuffer>();
-			//if pathname is not input, the entrainment file will not be written.
-			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
-			if(_pathFileNameEntrainment.equalsIgnoreCase(""))
-				_pathFileNameEntrainment = null;
+		
+		_barriers = new ArrayList<NonPhysicalBarrier>();
+		_fishScreens = new ArrayList<IntBuffer>();
+		//if pathname is not input, the entrainment file will not be written.
+		_pathFileNameEntrainment = config.output_path_entrainment;
+		if(_pathFileNameEntrainment!=null && _pathFileNameEntrainment.equalsIgnoreCase(""))
+			_pathFileNameEntrainment = null;
 
-			_pathFileNameTransProbs = PTMUtil.getPathFromLine(inText.get(1), ':');
-			if(_pathFileNameTransProbs.equalsIgnoreCase("")) {
-				_pathFileNameTransProbs = null;
-			}
-			else {
-				TransProbs.openFile(_pathFileNameTransProbs);
-			}
-
-            //TODO disabled the flux reading. The flux calculation needs more work for fish particles because they move back and forth many times.
-            /*
-			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
-			if(_pathFileNameFlux.equalsIgnoreCase(""))
-				_pathFileNameFlux = null;
-			else
-				Particle.ADD_TRACE=true;
-			ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
-            */
-			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
-			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
-			ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
-			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
-			_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
-
-			/*
-			if( fluxInText == null || fluxInText.size() < 2)
-				System.out.println("No flux calculation info found or the info is not properly defined in behavior inputs.");
-			else
-				setFluxInfo(fluxInText);
-			*/
-			if( barriersInText == null || barriersInText.size() < 6)
-				System.out.println("No non-physical-barrier info found or the info is not properly defined in behavior inputs.");
-			else
-				setBarriers(barriersInText);
-
-			if( screensInText == null || screensInText.size() < 2)
-				System.out.println("No fish screen info found or the info is not properly defined in behavior inputs.");
-			else
-				setFishScreens(screensInText);
-
-			if( dicuInText == null || dicuInText.size() < 1)
-				System.out.println("No dicu info found or the info is not properly defined in behavior inputs.");
-			else{
-				try{
-					_dicuFilterEfficiency = PTMUtil.getFloatFromLine(dicuInText.get(0).trim(), "Filter_Efficiency");
-				}catch (NumberFormatException e){
-					e.printStackTrace();
-					PTMUtil.systemExit("expect a float for dicu efficiency coefficient but get:" + dicuInText.get(0));
-				}
-				setDicuFilterEfficiency();
-			}
-			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
-				System.out.println("No special routing Behavior defined or defined improperly in behavior inputs.");
-			else
-				setSpecialBehaviors(specialBehaviorInText);
+		_pathFileNameTransProbs = config.trans_probs_path;
+		if(!(_pathFileNameTransProbs==null || _pathFileNameTransProbs.equalsIgnoreCase(""))) {
+			TransProbs.openFile(_pathFileNameTransProbs);
 		}
+
+        //TODO disabled the flux reading. The flux calculation needs more work for fish particles because they move back and forth many times.
+        /*
+         * This section and the setFluxInfo() method will have to be modified to work with the YAML config file when/if flux is reenabled.
+		_pathFileNameFlux = config.output_path_flux
+		if(!(_pathFileNameFlux==null || _pathFileNameFlux.equalsIgnoreCase(""))) {
+			Particle.ADD_TRACE=true;
+		ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
+        */
+		_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
+
+		/*
+		if( fluxInText == null || fluxInText.size() < 2)
+			System.out.println("No flux calculation info found or the info is not properly defined in behavior inputs.");
+		else
+			setFluxInfo(fluxInText);
+		*/
+		if(config.barriers==null)
+			System.out.println("No non-physical-barrier info found or the info is not properly defined in behavior inputs.");
+		else
+			setBarriers(); 
+
+		if(config.fish_screens_header==null || config.fish_screens==null)
+			System.out.println("No fish screen info found or the info is not properly defined in behavior inputs.");
+		else
+			setFishScreens();
+
+		if(!config.isSet("dicu_filter_efficiency")) {
+			System.out.println("No dicu info found or the info is not properly defined in behavior inputs.");
+		}
+		else {
+			try{
+				_dicuFilterEfficiency = config.dicu_filter_efficiency;
+			}catch (NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("expect a float for dicu efficiency coefficient but get:" + config.dicu_filter_efficiency);
+			}
+			setDicuFilterEfficiency();
+		}
+		if(config.special_behavior_header==null || config.special_behavior==null)
+			System.out.println("No special routing Behavior defined or defined improperly in behavior inputs.");
+		else
+			setSpecialBehaviors();
 	}
 	public void setBarrierNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
@@ -346,27 +343,33 @@ public class RouteInputs {
 			PTMUtil.systemExit("DICU Fileter Efficiency cannot be less than 0, , system exit");
 	}
 
-	private void setSpecialBehaviors(ArrayList<String> inText){
+	private void setSpecialBehaviors(){
 		//set up a channel look up table so that a channel number can be searched if a channel name is given
-		 Map<String, Integer> lookUp= PTMUtil.getStrIntPairsFromLine(inText.get(0), "Channel_Name_Look_Up");
+		 Map<String, Integer> lookup = new HashMap<>();
+		 for(int i=0; i<config.channel_name_lookup.size(); i++) {
+			 lookup.put(config.channel_name_lookup.get(i).get(0).toString(), 
+					 ((Number) config.channel_name_lookup.get(i).get(1)).intValue());
+		 }
 		 _nameChanLookUp = new HashMap<String, Integer>();
+		 
 		 //convert to internal nodeIds
-		 for (String key: lookUp.keySet())
-			 _nameChanLookUp.put(key, PTMHydroInput.getIntFromExtChan(lookUp.get(key)));
-		// make sure the title line in the input file is right
-		String title = inText.get(1);
+		 for (String key: lookup.keySet())
+			 _nameChanLookUp.put(key, PTMHydroInput.getIntFromExtChan(lookup.get(key)));
+		
+		 // make sure the title line in the input file is right
 		String shouldBe[] = {"NODEID", "CLASS_NAME", "PERCENT_INCREASE_DECREASE"};
-		PTMUtil.checkTitle(title, shouldBe);
+		PTMUtil.checkTitle(config.special_behavior_header, shouldBe);
 		// read in node vs. special junction class name
 		_specialBehaviorNames = new ConcurrentHashMap<Integer, String>();
 		_specialBehaviorPercent = new ConcurrentHashMap<Integer, Integer>();
-		for (String line: inText.subList(2, inText.size())){
-			String [] items = line.trim().split("[,\\s\\t]+");
-			if (items.length!=3)
-				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);
-			int nId = getEnvNodeId(items[0]);
-			_specialBehaviorNames.put(nId, items[1]);
-			_specialBehaviorPercent.put(nId, PTMUtil.getIntFromString(items[2]));
+		for(int i=0; i<config.special_behavior.size(); i++) {			
+			if (config.special_behavior.get(i).size()!=3) {
+				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:" + config.special_behavior.get(i).toString());
+			}
+			
+			int nId = getEnvNodeId(config.special_behavior.get(i).get(0).toString());
+			_specialBehaviorNames.put(nId, config.special_behavior.get(i).get(1).toString());
+			_specialBehaviorPercent.put(nId, ((Number) config.special_behavior.get(i).get(2)).intValue());
 		}
 		if(DEBUG == true){
 			for (String key:_nameChanLookUp.keySet())
@@ -376,80 +379,85 @@ public class RouteInputs {
 		}
 	}
 	private void setFluxInfo(ArrayList<String> inText){
-		String title = inText.get(0);
-		String shouldBe[] = {"NAME", "CHANNELS_FROM", "CHANNELS_TO"};
-		PTMUtil.checkTitle(title, shouldBe);
-		_fluxChannelGroups = new ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>>();
-		for (String line: inText.subList(1, inText.size()))
-			_fluxChannelGroups.add(PTMUtil.getGroupPair(line));
+		/*
+		 * Flux is currently disabled (see above). This method will need to be updated to work
+		 * with the YAML config file when flux is reenabled.
+		 */
+//		String title = inText.get(0);
+//		String shouldBe[] = {"NAME", "CHANNELS_FROM", "CHANNELS_TO"};
+//		PTMUtil.checkTitle(title, shouldBe);
+//		_fluxChannelGroups = new ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>>();
+//		for (String line: inText.subList(1, inText.size()))
+//			_fluxChannelGroups.add(PTMUtil.getGroupPair(line));
 	}
-	private void setBarriers(ArrayList<String> inText){
+	private void setBarriers(){
 		// first line of inText is number_of_barriers: number
-		int numberOfBarriers = PTMUtil.getInt(inText.get(0));
-		for (int i = 1; i<numberOfBarriers+1; i++){
-			setBarrier(PTMUtil.getInputBlock(inText, "BARRIER"+i, "END_BARRIER"+i));
+		int numberOfBarriers = config.barriers.size();
+		for (int barrierIndex=0; barrierIndex<numberOfBarriers; barrierIndex++){
+			addBarrier(barrierIndex);
 		}
 	}
 
-	private void setBarrier(ArrayList<String> barrierText){
-		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
-		if( barrierText == null || barrierText.size() < 4)
-			PTMUtil.systemExit("SYSTEM EXIT: the non-physical-barrier operation info is not properly defined in behavior inputs.");
-		else{
-			PTMUtil.checkTitle(barrierText.get(0), shouldBe);
-			String[] items = barrierText.get(1).trim().split("[,\\s\\t]+");
-			// convert to Internal Env Ids
-			int[] ids = getEnvIds(items);
-			addBarrier(barrierText, ids);
+	private void addBarrier(int barrierIndex){
+		int[] ids;
+		ConcurrentHashMap<PTMPeriod, Integer> bOpTS = new ConcurrentHashMap<PTMPeriod, Integer>();
+		Calendar s_time = null, e_time = null;
+		int optemp, op = -99;
+		
+		ids = getEnvIds(new String[] {String.valueOf(config.barriers.get(barrierIndex).nodeID),
+				String.valueOf(config.barriers.get(barrierIndex).waterbodyID)});
+		 
+		for(int i=0; i<config.barriers.get(barrierIndex).schedule.size(); i++) {
+			optemp = -99;
+					
+			try {
+				if(config.barriers.get(barrierIndex).schedule.get(i).size()<3) {
+					throw new NumberFormatException();
+				}
+				e_time = PTMUtil.getDateTime(config.barriers.get(barrierIndex).schedule.get(i).get(0).toString(), 
+						config.barriers.get(barrierIndex).schedule.get(i).get(1).toString(), Globals.TIME_ZONE);
+				optemp = ((Number) config.barriers.get(barrierIndex).schedule.get(i).get(2)).intValue();
+				
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				PTMUtil.systemExit("operation schecule line has wrong format: " + config.barriers.get(barrierIndex).schedule.get(i).toString());
+			}
+			/*
+			 * schedule example:
+			 * Date		Time		On/Off
+			 * 2/1/2011	0:00		0
+			 * 3/17/2011	18:45		1
+			 * 6/30/2011	0:00		0
+			 *
+			 * from startTime(2/1/2011 0:00) - EndTime(3/17/2011 18:45) barrier off
+			 * from startTime(3/17/2011 18:45) - EndTime(6/30/2011 0:00) barrier on
+			 * operation at endTime takes the next time interval value, e.g. op at 3/17/2011 18:45 is on
+			 * see BarrierOpPeriod for period treatment
+			 */
+			if (s_time != null) {
+				bOpTS.put(new PTMPeriod(s_time, e_time), op);
+				//System.out.println(s_time.getTime()+"--"+e_time.getTime()+"  op:"+op);
+			}
+			op = optemp;
+			s_time = e_time;
 		}
+		_barriers.add(new NonPhysicalBarrier(ids[0], ids[1], bOpTS));
 	}
-	private void addBarrier(ArrayList<String> barrierBlock, int[] nodeWbIds){
-		  ConcurrentHashMap<PTMPeriod, Integer> bOpTS = new ConcurrentHashMap<PTMPeriod, Integer>();
-		  Calendar s_time = null, e_time = null;
-		  int op = -99;
-
-		  // first 2 lines are barrier location info: nodeid wbid
-		  // the third line is operation schedule title.  operation schedule data start from forth line
-		  // and the data end before line: end_barrieri
-		  for (String inLine: barrierBlock.subList(3, barrierBlock.size())){
-			  String[] items = inLine.trim().split("[,\\s\\t]+");
-			  int optemp = -99;
-			  try{
-				  if (items.length < 3)
-					  throw new NumberFormatException();
-				  e_time = PTMUtil.getDateTime(items[0], items[1], Globals.TIME_ZONE);
-				  optemp = Integer.parseInt(items[2].trim());
-			  }catch (NumberFormatException e){
-					e.printStackTrace();
-					PTMUtil.systemExit("operation schecule line has wrong format: "+inLine);
-			  }
-			  /*
-			   * schedule example:
-			   * Date		Time		On/Off
-			   * 2/1/2011	0:00		0
-			   * 3/17/2011	18:45		1
-			   * 6/30/2011	0:00		0
-			   *
-			   * from startTime(2/1/2011 0:00) - EndTime(3/17/2011 18:45) barrier off
-			   * from startTime(3/17/2011 18:45) - EndTime(6/30/2011 0:00) barrier on
-			   * operation at endTime takes the next time interval value, e.g. op at 3/17/2011 18:45 is on
-			   * see BarrierOpPeriod for period treatment
-			   */
-			  if (s_time != null){
-				  bOpTS.put(new PTMPeriod(s_time, e_time), op);
-				  //System.out.println(s_time.getTime()+"--"+e_time.getTime()+"  op:"+op);
-			  }
-			  op = optemp;
-			  s_time = e_time;
-		  }
-		  _barriers.add(new NonPhysicalBarrier(nodeWbIds[0], nodeWbIds[1], bOpTS));
-	}
-	private void setFishScreens(ArrayList<String> inText){
+	
+	private void setFishScreens(){
+		List<Integer> thisFishScreen;
+		int[] ids;
+		
 		// first line is the title
 		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME"};
-		PTMUtil.checkTitle(inText.get(0), shouldBe);
-		for (int i = 1; i<inText.size(); i++){
-			int[] ids = getEnvIds(inText.get(i).trim().split("[,\\s\\t]+"));
+		PTMUtil.checkTitle(config.fish_screens_header, shouldBe);
+		for (int i=0; i<config.fish_screens.size(); i++){
+			thisFishScreen = config.fish_screens.get(i);
+			
+			if(thisFishScreen.size()!=2) {PTMUtil.systemExit("Fish screen not specified correctly: " + thisFishScreen.toString());}
+			
+			ids = getEnvIds(new String[] {String.valueOf(thisFishScreen.get(0)), 
+					String.valueOf(thisFishScreen.get(1))});
 			_fishScreens.add(IntBuffer.wrap(ids));
 		}
 	}

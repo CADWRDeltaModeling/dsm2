@@ -193,10 +193,7 @@ public final int getOutgoing(int index){
    *
    */
   protected boolean cumulativeFlux;
-  /**
-   *  Flux information is contained in info
-   */
-  protected FluxFixedData info;
+ 
   /**
    *  An array of Flux over time indexed from starttime to endtime
    *  using timestep which counts only repeated contributions to Flux

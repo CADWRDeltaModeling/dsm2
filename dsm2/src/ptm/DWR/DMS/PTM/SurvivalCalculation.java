@@ -17,8 +17,20 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Value;
 
+import ucar.ma2.ArrayChar;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Variable;
+import ucar.nc2.write.NetcdfFormatWriter;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +76,7 @@ public class SurvivalCalculation {
 
 	/**
 	 * Evaluate the survival equations using GraalJS engine
+	 * @param  
 	 */
 	public void run() {
 		String thisSurvEq;
@@ -113,6 +126,19 @@ public class SurvivalCalculation {
 			survEqs.remove(key);
 		}
 
+		if(PTMFixedData.getConfig().show_route_survival_detail) {
+			// Create and display translated equations
+			for (String key: survEqs.keySet()) {
+				System.out.println("===================================================================");
+				System.out.println("Survival equations for " + key);        	
+				thisSurvEq = survEqs.get(key);
+				// Replace # wildcards in equation with WILDCARD, which is an allowable component of a variable name
+				thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
+				thisSurvEq = translateEquation(thisSurvEq);
+				System.out.println("translated equation: " + thisSurvEq);
+			}
+		}
+
 		// Calculate survivals
 		System.out.println("===================================================================");
 		for (String key: survEqs.keySet()) {
@@ -159,7 +185,6 @@ public class SurvivalCalculation {
 		// Categorize final fates (passed Chipps, died, lost or entrained in pumps, etc.)
 		categorizeFates();
 		System.out.println("===================================================================");
-		writeOutputCSV();
 	}
 	
 	/**
@@ -209,14 +234,14 @@ public class SurvivalCalculation {
 		}
 		if(reachSurvMap.containsKey(reachIndex)) {
 			surv = reachSurvMap.get(reachIndex);
-			
-			if(showRouteSurvivalDetail) {
+
+			if(PTMFixedData.getConfig().show_route_survival_detail) {
 				System.out.println("Survival for " + reachIndex + ": surv = " + surv);
 			}
-			
+
 			return surv;
 		}
-
+		
 		survDetailsKey = "S(" +  reachIndex + ")";
 
 		passedStartCount = 0;
@@ -236,7 +261,7 @@ public class SurvivalCalculation {
 			// Loop over the vFish's arrival history
 			for(int j=0; j<thisArrivalDatetimes.size()-1; j++) {		
 				thisArrivalDatetime = thisArrivalDatetimes.get(j);
-
+			
 				// If the vFish passed the start station, check to see if it survived to each of the end stations
 				if(checkEqual(fromStation, thisArrivalDatetime.getKey())) {
 					passedStartCount++;
@@ -251,7 +276,7 @@ public class SurvivalCalculation {
 								survivalCount++;
 							}
 							arrivalCount++;
-
+							
 							// No need to check additional toStations if we've found a match
 							break;
 						}
@@ -267,7 +292,7 @@ public class SurvivalCalculation {
 		if(Double.isNaN(surv)) {surv = 0;}
 		survDetails.get("survival").put(survDetailsKey + "-finalSurv", Double.toString(surv));
 
-		if (showRouteSurvivalDetail) {
+		if(PTMFixedData.getConfig().show_route_survival_detail) { 
 			System.out.print("Survival from " + fromStation + " to " + toStations[0]);
 			for(int i=1; i<toStations.length; i++) {
 				System.out.print(", " + toStations[i]);
@@ -277,7 +302,7 @@ public class SurvivalCalculation {
 		survDetails.get("survival").put(survDetailsKey + "-survivalCount", Integer.toString(survivalCount));
 		survDetails.get("survival").put(survDetailsKey + "-arrivalCount", Integer.toString(arrivalCount));
 		survDetails.get("survival").put(survDetailsKey + "-passedStartCount", Integer.toString(passedStartCount));
-
+		
 		return surv;
 	}
 
@@ -347,7 +372,7 @@ public class SurvivalCalculation {
 		fraction = (double) arrivalCount/(double) possibleArrivalCount;
 		survDetails.get("routingFraction").put(survDetailsKey + "-calculatedFraction", Double.toString(fraction));
 
-		if (showRouteSurvivalDetail) {
+		if(PTMFixedData.getConfig().show_route_survival_detail) { 
 			System.out.print("Fraction from " + fromStation + " to " + toStation + " of possible stations " + possibleToStations[0]);
 			for(int i=1; i<possibleToStations.length; i++) {
 				System.out.print(", " + possibleToStations[i]);
@@ -500,10 +525,10 @@ public class SurvivalCalculation {
 
 			thisDeathDatetime = p.getDeathDatetime();
 			particleDied = thisDeathDatetime!=null;
-
+			
 			thisStuckDatetime = p.getStuckDatetime();
 			particleStuck = thisStuckDatetime!=null;
-			
+
 			thisTransportDatetime = p.getTransportDatetime();
 			particleTransported = thisTransportDatetime!=null;
 
@@ -527,12 +552,17 @@ public class SurvivalCalculation {
 					transportPrevStations.put(transportSeq, 1);
 				}
 			}
-			else if(thisArrivalDatetimes!=null && thisArrivalDatetimes.getLast().getKey().equals("MAL")
-					&& !particleDied) {
-				fates.put(p.getId(), "exited");
-				numExited++;
+			else if(thisArrivalDatetimes!=null && !particleDied) {
+				for(String exitStation : PTMFixedData.getConfig().exit_stations) {
+					if(thisArrivalDatetimes.size()>0 && thisArrivalDatetimes.getLast().getKey().equals(exitStation)) {
+						fates.put(p.getId(), "exited");
+						numExited++;
+					}
+				}
 			}
-			else {
+			
+			// If a fate hasn't been assigned, mark the vFish as lost
+			if (!fates.containsKey(p.getId())) {
 				fates.put(p.getId(), "lost");
 				numLost++;
 			}
@@ -545,9 +575,147 @@ public class SurvivalCalculation {
 		System.out.println("Number of vFish that were transported: " + numTransported);
 		System.out.println("Number of vFish that exited: " + numExited);
 		System.out.println("Number of vFish that were lost: " + numLost);
-		if(showRouteSurvivalDetail) {
+		if(PTMFixedData.getConfig().show_route_survival_detail) {
 			System.out.println("Counts of unique transport station sequences: " + transportPrevStations.toString());
 		}
+	}
+
+	/**
+	 * Build survival components of netCDF output file
+	 * @param builder				NetcdfFormatWriter.Builder
+	 */
+	public void buildOutput(NetcdfFormatWriter.Builder builder) {
+		Dimension survGroupDim, survGroupLen, particleDim, stationCharLen, fateCharLen,
+			survDetailsKeyDim, survDetailsCharLen;
+		Variable.Builder<?> survBuilder, fatesBuilder;
+		List<Dimension> survDims, fatesDims;
+
+		survGroupDim = builder.addDimension("survGroup", surv.size());
+
+		// Create survGroup dimension
+		survGroupLen = builder.addDimension("survGroupLen", 20);
+		builder.addVariable("survGroup", DataType.CHAR, "survGroup survGroupLen");
+
+		survDims = new ArrayList<Dimension>();
+		survDims.add(survGroupDim);
+
+		survBuilder = builder.addVariable("surv", DataType.DOUBLE, survDims);
+		survBuilder.addAttribute(new Attribute("units", "fraction"));
+
+		particleDim = builder.addDimension("particle", particleArray.length);
+		builder.addVariable("particle", DataType.INT, "particle");
+
+		stationCharLen = builder.addDimension("stationCharLen", 80);
+		builder.addVariable("lastStation", DataType.CHAR, "particle stationCharLen");
+
+		fateCharLen = builder.addDimension("fateCharLen", 80);
+		builder.addVariable("fate", DataType.CHAR, "particle fateCharLen");
+		
+		survDetailsCharLen = builder.addDimension("survDetailsCharLen", 80);
+		survDetailsKeyDim = builder.addDimension("survDetailsKey", survDetails.get("survival").size() + survDetails.get("routingFraction").size());
+		
+		builder.addVariable("survDetailsKey", DataType.CHAR, "survDetailsKey survDetailsCharLen");
+		builder.addVariable("survDetails", DataType.CHAR, "survDetailsKey survDetailsCharLen");		
+	}
+
+	/**
+	 * Write survival components of netCDF output file
+	 * @param writer				NetcdfFormatWriter
+	 * @throws IOException			
+	 * @throws InvalidRangeException
+	 */
+	public void writeOutput(NetcdfFormatWriter writer) throws IOException, InvalidRangeException {
+		Variable v;
+		int[] shape;
+		Index ima;
+		ArrayFloat floatArray;
+		ArrayChar charArray;
+		ArrayInt intArray;
+		int survDetailsIndex;
+
+		// Write survival fractions
+		v = writer.findVariable("surv");
+		shape = v.getShape();
+		floatArray = new ArrayFloat.D1(shape[0]);
+		ima = floatArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			floatArray.setFloat(ima.set(i), surv.get(survGroups.get(i)));
+		}
+		writer.write(v, floatArray);		
+
+		// Set survGroup dimension
+		v = writer.findVariable("survGroup");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			charArray.setString(ima.set(i), survGroups.get(i));
+		}
+		writer.write(v, charArray);
+
+		// Write last stations
+		v = writer.findVariable("lastStation");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			charArray.setString(ima.set(i), lastStationDatetimes.get(particleArray[i].getId()).getKey());
+		}
+		writer.write(v, charArray);
+
+		// Write fates
+		v = writer.findVariable("fate");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			charArray.setString(ima.set(i), fates.get(particleArray[i].getId()));
+		}
+		writer.write(v, charArray);
+
+		// Set particle dimension
+		v = writer.findVariable("particle");
+		shape = v.getShape();
+		intArray = new ArrayInt.D1(shape[0], false);
+		ima = intArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			intArray.set(ima.set(i), particleArray[i].getId());
+		}
+		writer.write(v, intArray);
+		
+		// Set survDetailsKey dimension
+		v = writer.findVariable("survDetailsKey");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		survDetailsIndex = 0;
+		for (String key : survDetails.get("survival").keySet()) {
+			charArray.setString(ima.set(survDetailsIndex), key);
+			survDetailsIndex++;
+		}
+		for (String key : survDetails.get("routingFraction").keySet()) {
+			charArray.setString(ima.set(survDetailsIndex), key);
+			survDetailsIndex++;
+		}
+		writer.write(v, charArray);
+		
+		// survDetails values
+		v = writer.findVariable("survDetails");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		survDetailsIndex = 0;
+		for (String key : survDetails.get("survival").keySet()) {
+			charArray.setString(ima.set(survDetailsIndex), survDetails.get("survival").get(key));
+			survDetailsIndex++;
+		}
+		for (String key : survDetails.get("routingFraction").keySet()) {
+			charArray.setString(ima.set(survDetailsIndex), survDetails.get("routingFraction").get(key));
+			survDetailsIndex++;
+		}
+		writer.write(v, charArray);
+
+		System.out.println("Done writing survival.");
 	}
 
 	/**
@@ -581,7 +749,7 @@ public class SurvivalCalculation {
 		Particle p;
 
 		// Write survival outputs to route survival outputs CSV file
-		survOutputPathCSV = "routeSurvival.csv"; 
+		survOutputPathCSV =  Globals.Environment.getPTMFixedInput().getFileName("routeSurvival");
 		if(writeRouteSurvival && survOutputPathCSV!=null && (!survOutputPathCSV.equals(""))) {
 
 			survOutputPathCSV = Paths.get(survOutputPathCSV).toAbsolutePath().normalize().toString();
@@ -609,7 +777,7 @@ public class SurvivalCalculation {
 		}
 
 		// Write fates to fates outputs CSV files
-		fatesOutputPathCSV = "fates.csv";
+		fatesOutputPathCSV = Globals.Environment.getPTMFixedInput().getFileName("fates");
 		if(writeFates && fatesOutputPathCSV!=null && (!fatesOutputPathCSV.equals(""))) {
 
 			fatesOutputPathCSV = Paths.get(fatesOutputPathCSV).toAbsolutePath().normalize().toString();
@@ -635,7 +803,7 @@ public class SurvivalCalculation {
 		}
 		
 		// Write survival details to CSV file
-		survDetailOutputPathCSV = "survDetail.csv";
+		survDetailOutputPathCSV = Globals.Environment.getPTMFixedInput().getFileName("survDetail");
 		if(writeSurvDetail && survDetailOutputPathCSV!=null && (!survDetailOutputPathCSV.equals(""))) {
 			
 			survDetailOutputPathCSV = Paths.get(survDetailOutputPathCSV).toAbsolutePath().normalize().toString();
@@ -663,6 +831,6 @@ public class SurvivalCalculation {
 			System.out.println("Saved survival calculation details to " + survDetailOutputPathCSV);
 			
 		}
-
+		
 	}
 }

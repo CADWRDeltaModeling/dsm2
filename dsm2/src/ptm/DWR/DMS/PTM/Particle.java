@@ -584,13 +584,10 @@ public class Particle{
 	  // Methods to record route and fate
 	  public void recordArrival(String groupName) {
 		  arrivalDatetimes.add(new SimpleEntry<String, Long>(groupName, getCurrentParticleTimeExact()));
- 		  //System.out.println("Particle " + this.Id + " recorded arrival: " + groupName + ", " + getCurrentParticleTimeExact());
 	  }
 	  
 	  public void removeLastArrivalRecord() {
 		  if (!arrivalDatetimes.isEmpty()) {
-			  //System.out.println("Removing record of station for particle " + this.Id +": " + arrivalDatetimes.get(arrivalDatetimes.size() - 1));
-			  //System.out.println("Particle " + this.Id + " recorded removedArrival: " + arrivalDatetimes.get(arrivalDatetimes.size() - 1).getKey() + ", " + getCurrentParticleTimeExact());
 			  arrivalDatetimes.remove(arrivalDatetimes.size() - 1);
 		  }
 		  
@@ -602,7 +599,6 @@ public class Particle{
 	  
 	  public void recordDeath(Integer chanId) {
 		  deathDatetime = new SimpleEntry<Integer, Long>(chanId, getCurrentParticleTimeExact());
-		  //System.out.println("Particle " + this.Id + " recorded dead: " + chanId + ", " + getCurrentParticleTimeExact());
 	  }
 	  
 	  public SimpleEntry<Integer, Long> getDeathDatetime() {
@@ -611,7 +607,6 @@ public class Particle{
 	  
 	  public void recordStuck(Integer chanId) {
 		  stuckDatetime = new SimpleEntry<Integer, Long>(chanId, getCurrentParticleTimeExact());
-		  //System.out.println("Particle " + this.Id + " recorded stuck: " + chanId + ", " + getCurrentParticleTimeExact());
 	  }
 	  
 	  public SimpleEntry<Integer, Long> getStuckDatetime() {
@@ -624,9 +619,8 @@ public class Particle{
 	  
 	  public void recordTransport(Integer wbId) {
 		  transportDatetime = new SimpleEntry<Integer, Long>(wbId, getCurrentParticleTimeExact());
-		  //System.out.println("Particle " + this.Id + " recorded transported: " + wbId + ", " + getCurrentParticleTimeExact());
 		  
-		  // Set eFish to dead so it is no longer active, but don't record the death in the observer
+		  // Set vFish to dead so it is no longer active, but don't record the death in the observer
 		  isDead = true;
 	  }
 	  
@@ -634,7 +628,6 @@ public class Particle{
 	  public void recordUniqueVisit(Integer wbId) {
 		  if(!uniqueVisits.containsKey(wbId)) {
 			  uniqueVisits.put(wbId, this.getCurrentParticleTimeExact());
-			//  System.out.println("Particle " + this.Id + " recorded inWaterbody: " + wbId + ", " + this.getCurrentParticleTimeExact());	
 		  }
 	  }
 }

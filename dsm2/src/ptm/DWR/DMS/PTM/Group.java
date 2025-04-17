@@ -55,5 +55,5 @@ public interface Group{
 
    public boolean containsWaterbody(Waterbody wb);
 
-
+   public String getName();
 }

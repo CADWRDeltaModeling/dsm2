@@ -5,7 +5,9 @@ package DWR.DMS.PTM;
 import java.io.BufferedReader;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -27,41 +29,51 @@ public class PTMBehaviorInputs {
 	private Waterbody[] _wbArray=null;
 	private TimeZone _timeZone = null;
 
-	private void extractReleaseInputs(ArrayList<String> releaseInputText){
-		if (releaseInputText.size()< 6)
+	private void extractReleaseInputs(){
+		Config config;
+		List<Object> thisRelease;
+		
+		config = PTMFixedData.getConfig();
+		
+		if (config.release_groups==null || config.release_groups.size()==0) {
 			PTMUtil.systemExit("Errors in Fish_Release_Inputs, system exit.");
-		int numOfGroups = PTMUtil.getIntFromLine(releaseInputText.get(0), "NUMBER_OF_RELEASE_GROUPS");
-		for (int i = 1; i< numOfGroups + 1; i++){
-			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
-			if (groupText == null)
-				PTMUtil.systemExit("No Fish_Release_Inputs Group_"+i+" inputs, system exit.");
-			else if (groupText.size()<4)
-				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
+		}
+		
+		int numOfGroups = config.release_groups.size();
+		for (int i=0; i<numOfGroups; i++){
+			
+			if(config.release_groups.get(i).name==null || 
+					config.release_groups.get(i).release_loc_header==null || config.release_groups.get(i).release_loc==null || 
+					config.release_groups.get(i).releases_header==null || config.release_groups.get(i).releases==null ||
+					config.release_groups.get(i).releases.size()==0) {
+				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_" + (i+1) + " system exit.");
+			}
+				
 			String stationShouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
-			PTMUtil.checkTitle(groupText.get(0), stationShouldBe);
-			Pair<String, IntBuffer> stationName = setIdsDistance(groupText.get(1)); //PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
+			PTMUtil.checkTitle(config.release_groups.get(i).release_loc_header, stationShouldBe);
+			Pair<String, IntBuffer> stationName = setIdsDistance(config.release_groups.get(i).release_loc); //PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
 			IntBuffer station = stationName.getSecond();
 			String name = stationName.getFirst();
-			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
 			String[] releaseShouldBe = {"RELEASE_DATE", "RELEASE_TIME", "PARTICLE_NUMBER", "RELEASE_STYLE"};
-			if (PTMUtil.check(title, releaseShouldBe))
-				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: "+groupText.get(2));
+			if (!PTMUtil.check(config.release_groups.get(i).releases_header, releaseShouldBe))
+				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: " + 
+									Arrays.toString(config.release_groups.get(i).releases_header));
 			else{
-				for (String rline: groupText.subList(3, groupText.size())){
-					String [] oneRelease = rline.trim().split("[,\\s\\t]+");
+				for (int j=0; j<config.release_groups.get(i).releases.size(); j++) {
+					thisRelease = config.release_groups.get(i).releases.get(j);
 
-					if (oneRelease.length<4)
-						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
-					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1], _timeZone);
-					int particleNumber = Integer.parseInt(oneRelease[2].trim());
+					if (thisRelease.size()<4)
+						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_" + (i+1) + ": " + thisRelease + " system exit.");
+					Calendar releaseTime = PTMUtil.getDateTime(thisRelease.get(0).toString(), thisRelease.get(1).toString(), _timeZone);
+					int particleNumber = (int) thisRelease.get(2);
 
 					int releaseStyle = FishRelease.RANDOM;
-					if(oneRelease[3].equalsIgnoreCase("CENTER"))
+					if(thisRelease.get(3).toString().equalsIgnoreCase("CENTER"))
 						releaseStyle = FishRelease.CENTER;
-					else if (oneRelease[3].equalsIgnoreCase("RANDOM"))
+					else if (thisRelease.get(3).toString().equalsIgnoreCase("RANDOM"))
 						releaseStyle = FishRelease.RANDOM;
 					else
-						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
+						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_" + (i+1) + ": " + thisRelease + " system exit.");
 
 					if (_fishGroups == null)
 						// map key: node id
@@ -82,41 +94,42 @@ public class PTMBehaviorInputs {
 	}
 
 	//TODO copied from TravelTimeOutput, need write a utility method to read in node, wb ids and distances
-	private Pair<String, IntBuffer> setIdsDistance(String stationLine){
+	private Pair<String, IntBuffer> setIdsDistance(List<Object> releaseLoc){
 		int[] station = new int[3];
-		String[] items = stationLine.trim().split("[,\\s\\t]+");
-		if (items.length<4)
+		
+		if (releaseLoc.size()<4)
 			PTMUtil.systemExit("expect at least 4 items in paticle release line in behavior input file, system exit ");
-		if (items[3] == null)
+		if (releaseLoc.get(3)==null)
 			PTMUtil.systemExit("expect a release station name, but found none, system exit. ");
 		try{
 			// nodeId
-			station[0] = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
+			station[0] = PTMHydroInput.getIntFromExtNode((int) releaseLoc.get(0));
 		}catch(NumberFormatException e){
 				e.printStackTrace();
-				PTMUtil.systemExit("node id:" + items[0]+ " in the travel time output line is wrong, please check");
+				PTMUtil.systemExit("node id:" + releaseLoc.get(0) + " in the travel time output line is wrong, please check");
 		}
 		try{
 			// wbId
-			station[1] = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[1]));
+			station[1] = PTMHydroInput.getIntFromExtChan((int) releaseLoc.get(1));
 		}catch(NumberFormatException e){
-			if (PTMEnv.getReservoirObj2ObjEnvId(items[1]) == null){
-				PTMUtil.systemExit("channel/reservior/obj2obj id:" + items[1] + " in the travel time output line is wrong, please check");
+			if (PTMEnv.getReservoirObj2ObjEnvId(releaseLoc.get(1).toString()) == null){
+				PTMUtil.systemExit("channel/reservior/obj2obj id:" + releaseLoc.get(1) + " in the travel time output line is wrong, please check");
 			}
 			else
-				station[1] = PTMEnv.getReservoirObj2ObjEnvId(items[1]);
+				station[1] = PTMEnv.getReservoirObj2ObjEnvId(releaseLoc.get(1).toString());
 		}
 		try{
 			//distance
-			station[2] = Integer.parseInt(items[2]);
+			station[2] = (int) releaseLoc.get(2);
 		}catch(NumberFormatException e){
-			if (items[2].equalsIgnoreCase("LENGTH"))
+			if (releaseLoc.get(2).toString().equalsIgnoreCase("LENGTH"))
 				station[2] = -999999;
 			else{
-				PTMUtil.systemExit("distance input:" + items[2] +" for channel:" + items[0] + " and node:"+items[1] + " in travel time output line is wrong, please check." );
+				PTMUtil.systemExit("distance input:" + releaseLoc.get(2) +" for channel:" + releaseLoc.get(0) + 
+						" and node:" + releaseLoc.get(1) + " in travel time output line is wrong, please check." );
 			}
 		}
-		return new Pair<String, IntBuffer>(items[3], IntBuffer.wrap(station));
+		return new Pair<String, IntBuffer>(releaseLoc.get(3).toString(), IntBuffer.wrap(station));
 	}
 
 	/**
@@ -125,31 +138,30 @@ public class PTMBehaviorInputs {
 	public PTMBehaviorInputs() {
 		PTMUtil.systemExit("missing nodes, waterbodies and input file info, system exit.");
 	}
-	public PTMBehaviorInputs(String inputFileName, Node[] nodeArray, Waterbody[] wbArray) {
-		System.out.println("");
-		if (inputFileName == null || inputFileName.length() == 0)
-			PTMUtil.systemExit("Behavior input file not found, system exit");
+	public PTMBehaviorInputs(Node[] nodeArray, Waterbody[] wbArray) {
+		Config config;
+		String scratchString;
+		int scratchInt;
+		
+		config = PTMFixedData.getConfig();
+		
 		_nodeArray = nodeArray;
 		_wbArray = wbArray;
 
-		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
-
 		// read in general info
-		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
-		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "PARTICLE_TYPE_INPUTS", "END_PARTICLE_TYPE_INPUTS");
-		if (fishTypeList==null || fishTypeList.size()==0)
+		_fishType = config.particle_type;
+		if (_fishType==null)
 			PTMUtil.systemExit("No Particle Type found, exit.");
-		_fishType = fishTypeList.get(0).trim();
 		if (_fishType.equalsIgnoreCase("Salmon_Particle"))
 			Globals.CalculateWritePTMFlux = false;
 
-		ArrayList<String> tzList = PTMUtil.getInputBlock(inputText, "TIME_ZONE", "END_TIME_ZONE");
-		if (tzList==null || fishTypeList.size()==0){
+		String tzString = config.time_zone;
+		if (tzString==null){
 			_timeZone = TimeZone.getTimeZone("PST");
 			System.out.println("Set default time zone to PST");
 		}
 		else{
-			String id = tzList.get(0).trim();
+			String id = tzString;
 			if(id.equalsIgnoreCase("PST")|| id.equalsIgnoreCase("MST")
 					|| id.equalsIgnoreCase("CST")|| id.equalsIgnoreCase("EST"))
 				_timeZone = TimeZone.getTimeZone(id);
@@ -157,59 +169,55 @@ public class PTMBehaviorInputs {
 				PTMUtil.systemExit("Wrong time zone input, exit.");
 		}
 		Globals.TIME_ZONE = _timeZone;
+		
+		if (config.use_new_random_seed) {PTMUtil.setRandomNumber();}
 
-		ArrayList<String> randomSequence = PTMUtil.getInputBlock(inputText, "RANDOM_SEQUENCE_INPUTS", "END_RANDOM_SEQUENCE_INPUTS");
-		if (randomSequence==null || randomSequence.size()==0)
-			System.err.println("Warning: No random sequence input found!");
-		if (PTMUtil.getStringFromLine(randomSequence.get(0).trim(), "Use_New_Random_Seed").equalsIgnoreCase("YES"))
-			PTMUtil.setRandomNumber();
-
-		ArrayList<String> travelTimeOutputInfo = PTMUtil.getInputBlock(inputText, "TRAVEL_TIME_OUTPUT", "END_TRAVEL_TIME_OUTPUT");
-		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0)
-			System.out.println("No travel time output info defined in behavior input file");
-		_travelTimeOutput = new TravelTimeOutput(travelTimeOutputInfo);
-
-		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
-		if (releaseInputs==null || releaseInputs.size()==0)
-			System.out.println("No fish release timeseries found in the behavior input file, using specification in historical_ptm.inp instead!");
-		else
-			extractReleaseInputs(releaseInputs);
-
-		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
-		if (survivalInputText == null)
-			System.out.println("No survival behavior inputs.");
-		_survivalInputs = new SurvivalInputs(survivalInputText, _fishType);
-		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
-		if (swimInputText == null)
-			System.out.println("No swimming behehavior inputs");
-		_swimInputs = new SwimInputs(swimInputText,  _fishType);
-		ArrayList<String> routeInputText = PTMUtil.getInputBlock(inputText, "ROUTE_INPUTS", "END_ROUTE_INPUTS");
-		if (routeInputText == null)
-			System.out.println("No routing behavior inputs");
-		_routeInputs = new RouteInputs(routeInputText, _fishType);
-
-		ArrayList<String> outputOpText = PTMUtil.getInputBlock(inputText, "OUTPUT_OPTIONS", "END_OUTPUT_OPTIONS");
-		if(outputOpText != null && !outputOpText.equals("")){
-			for(String writeOp: outputOpText){
-				if (writeOp.toUpperCase().contains("DISPLAY_SIMULATION_TIMESTEP"))
-					Globals.DisplaySimulationTimestep = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "DISPLAY_SIMULATION_TIMESTEP_WRITE_ALL");
-				else if (writeOp.toUpperCase().contains("FLUX"))
-					Globals.CalculateWritePTMFlux = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FLUX_WRITE_ALL");
-				else if (writeOp.toUpperCase().contains("ENTRAINMENT"))
-					_routeInputs.setWriteEntrainmentAll(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ENTRAINMENT_WRITE_ALL"));
-				else if (writeOp.toUpperCase().contains("SURVIVAL"))
-					_survivalInputs.setSurvivalAllWriteout(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURVIVAL_WRITE_ALL"));
-				else if (writeOp.toUpperCase().contains("ROUTE_SURV"))
-					SurvivalCalculation.setWriteRouteSurvival(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ROUTE_SURV_WRITE_ALL"));
-				else if (writeOp.toUpperCase().contains("FATES"))
-					SurvivalCalculation.setWriteFates(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FATES_WRITE_ALL"));
-				else if (writeOp.toUpperCase().contains("SURV_DETAIL"))
-					SurvivalCalculation.setWriteSurvDetail(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURV_DETAIL_WRITE_ALL"));
+		_travelTimeOutput = new TravelTimeOutput();
+		
+		if (config.release_groups==null || config.release_groups.size()==0) {
+			if (config.particle_insertion!=null) {
+				System.out.println("No fish release timeseries found in release_groups section of the behavior input file. Using specification in particle_insertion instead!");				
 			}
+			else {
+				PTMUtil.systemExit("No fish release specification found in the behavior input file. Please specify either release_groups or particle_insertion. System exit.");
+			}
+ 		}
+		else {
+			extractReleaseInputs();
 		}
 
+		_survivalInputs = new SurvivalInputs(_fishType);
+		_swimInputs = new SwimInputs(_fishType);
+		_routeInputs = new RouteInputs(_fishType);
 
-		PTMUtil.closeBuffer(inputTextBuff);
+		if(config.isSet("display_simulation_timestep_write_all")) {
+			Globals.DisplaySimulationTimestep = config.display_simulation_timestep_write_all;
+		}
+		if(config.isSet("flux_write_all")) {
+			Globals.CalculateWritePTMFlux = config.flux_write_all;
+		}
+		if(config.isSet("entrainment_write_all")) {
+			_routeInputs.setWriteEntrainmentAll(config.entrainment_write_all);
+		}
+		if(config.isSet("survival_write_all")) {
+			_survivalInputs.setSurvivalAllWriteout(config.survival_write_all);
+		}
+		if(config.isSet("route_survival_write_all")) {
+			SurvivalCalculation.setWriteRouteSurvival(config.route_survival_write_all);
+		}
+		if(config.isSet("fates_write_all")) {
+			SurvivalCalculation.setWriteFates(config.fates_write_all);
+		}
+		if(config.isSet("survival_detail_write_all")) {
+			SurvivalCalculation.setWriteSurvDetail(config.survival_detail_write_all);
+		}
+		
+		// Verify that the flux output file is specified
+		if(Globals.CalculateWritePTMFlux) {
+			scratchString = Globals.Environment.getPTMFixedInput().getFileName("flux");
+			scratchInt = Globals.Environment.getPTMFixedInput().getIntervalInMin("flux");
+		}
+
 		setNodeInfo(_nodeArray);
 		setWaterbodyInfo(_wbArray);
 		//TODO get rid of it when swiming behavior is completed

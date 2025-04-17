@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
@@ -20,6 +21,9 @@ import java.util.Calendar;
 import java.util.Set;
 import java.util.regex.*;
 import java.nio.IntBuffer;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.lang.Math;
 import java.util.Random;
 import java.util.TimeZone;
@@ -258,7 +262,12 @@ public class PTMUtil {
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
 
-	public static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
+	public static Pair<Integer, Integer> getPairFromString(String line) {
+		String[] items = line.split("[,:\\s\\t]+");
+		return new Pair<Integer, Integer> (Integer.parseInt(items[0]), Integer.parseInt(items[1]));
+	}
+	
+	private static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
 		String[] items = line.split(":");
 		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
@@ -450,6 +459,11 @@ public class PTMUtil {
 		if (!PTMUtil.check(title, titleShouldBe))
 			PTMUtil.systemExit("SYSTEM EXIT while reading Input info: Title line is wrong:"+inTitle);
 	}
+	public static void checkTitle(String[] inTitle, String[] titleShouldBe) {
+		if (!PTMUtil.check(inTitle, titleShouldBe)) {
+			PTMUtil.systemExit("SYSTEM EXIT while reading Input info: Title line is wrong:" + Arrays.asList(inTitle));
+		}
+	}
 	public static boolean floatNearlyEqual(float f1, float f2){
 		return f1 == f2 ? true: Math.abs(f1-f2) < EPSILON*Math.min(Math.abs(f1),Math.abs(f2));
 	}
@@ -510,4 +524,119 @@ public class PTMUtil {
 		nodeId = PTMHydroInput.getIntFromExtNode(nodeId);
 		return nodeId;
 	}
+	
+	/**
+	 * Convert numerical year, month, and day to Julian days
+	 * @param year					integer year
+	 * @param month					integer month
+	 * @param day					integer day
+	 * @return						Julian minutes
+	 */
+	private static int ymdToJul(int year, int month, int day) {
+		DateTimeFormatter MMformatter, LLLformatter;
+		String dateStr;
+		LocalDate d;
+		int julian;
+		
+		dateStr = String.format("%d-%02d-%02d", year, month, day);
+		
+		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		
+		d = LocalDate.parse(dateStr, MMformatter);
+		
+		julian = datjul(d.format(LLLformatter));
+		
+		return julian;
+		
+	}
+	
+	/**
+	 * Convert String date into Julian days
+	 * @param dat					String date, e.g., 01Jan2011
+	 * @return						Julian days
+	 */
+	public static int datjul(String dat) {
+		DateTimeFormatter formatter;
+		LocalDate d;
+		int year, month, day, julYear, numLeap, mLeap, base, jul;
+		int[] numDay;
+		
+		numDay = new int[] {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+		base = 693960;
+		
+		formatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		d = LocalDate.parse(dat, formatter);
+		
+		year = d.getYear();
+		month = d.getMonthValue();
+		day = d.getDayOfMonth();
+		
+		julYear = year - 1;
+		numLeap = (int) Math.floor(julYear/4 + julYear/400 - julYear/100);
+		
+		mLeap = (month>=3 && d.isLeapYear()) ? 1: 0;
+		
+		jul = year*365 + numLeap + numDay[month-1] + day + mLeap - base;
+		
+		return jul;
+		
+	}
+	
+	/**
+	 * Convert from Julian days to a String date
+	 * @param julian				Julian days
+	 * @return						String date, e.g., 01JAN2011
+	 */
+	public static String juldat(int julian) {
+		int base, tempJul, startMonth, year, month, day;
+		DateTimeFormatter MMformatter, LLLformatter;
+		String tempDateStr, dateStr;
+		LocalDate d;
+		
+		base = 693960;
+		
+		tempJul = julian + base;
+		year = (int) Math.floor(tempJul/365.2425);
+		
+		// Find year by increasing it until we exceed julian
+		for(int i=0; i<20; i++) {
+			tempJul = ymdToJul(year, 1, 1);
+			if(tempJul>julian) {
+				break;
+			}
+			year++;
+		}
+		year--;
+		
+		tempJul = ymdToJul(year, 1, 1);
+		startMonth = (int) Math.floor(Math.min((double) 12, (julian - tempJul + 28)/28));
+		
+		// Find month by increasing it until we exceed julian
+		month = startMonth;
+		for(int testMonth=startMonth; testMonth<(12+1); testMonth++) {
+			tempJul = ymdToJul(year, testMonth, 1);
+			if(tempJul>julian) {
+				break;
+			}
+			month++;
+		}
+		month--;
+		
+		// Calculate the day
+		tempJul = ymdToJul(year, month, 1);
+		day = julian - tempJul + 1;
+
+		tempDateStr = String.format("%d-%02d-%02d", year, month, day);
+		
+		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		
+		d = LocalDate.parse(tempDateStr, MMformatter);
+		
+		dateStr = d.format(LLLformatter).toUpperCase();
+		
+		return dateStr;
+	}
+	
 }

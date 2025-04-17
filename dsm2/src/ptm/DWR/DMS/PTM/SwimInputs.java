@@ -5,6 +5,7 @@ package DWR.DMS.PTM;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.File;
 import java.io.IOException;
@@ -21,13 +22,33 @@ public class SwimInputs {
 	public SwimInputs() {
 		// TODO Auto-generated constructor stub
 	}
-	public SwimInputs(ArrayList<String> inText, String fishType) {
-		if (inText != null){
+	public SwimInputs(String fishType) {
+		Config config;
+		boolean swimInputsSet;
+		
+		config = PTMFixedData.getConfig();
+		
+		// Verify that parameters have been explicitly set in the config file
+		// Abort if we're running a salmon or position-oriented particle and the swim inputs parameters aren't set.
+		swimInputsSet = true;
+		for (String par : new String[] {"sunrise", "sunset", "stst_threshold", "tidal_cycles_to_calculate_channel_direction",
+				"confusion_probability_constant", "max_confusion_probability", "confusion_probability_slope", 
+				"random_assess", "assess_probability", "stuck_threshold"}) {
+			if(!config.isSet(par)) {
+				swimInputsSet = false;
+				if (fishType.equalsIgnoreCase("SALMON_PARTICLE") || fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")) {
+					PTMUtil.systemExit(par + " missing in Swim inputs section");	
+				}
+			}
+		}
+		
+		if (swimInputsSet){
 			if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
-				ArrayList<String> fileNames = PTMUtil.getInputBlock(inText, "Input_Position_Oriented_Particle_File_Name", "END_Input_Position_Oriented_Particle_File_Name");
-				if (fileNames==null || fileNames.size()==0)
-					PTMUtil.systemExit("No position oriented particle input file name found, exit.");
-				String smeltInputFileName = fileNames.get(0).trim();
+				String smeltInputFileName = config.smelt_input_filename;
+				if (smeltInputFileName==null) {
+					PTMUtil.systemExit("No smelt input file name found, exit.");
+				}
+				
 				try{
 					setSmeltParticleBehavior(smeltInputFileName);
 				}catch (IOException e){
@@ -36,33 +57,25 @@ public class SwimInputs {
 				}
 			}
 			else if (fishType.equalsIgnoreCase("SALMON_PARTICLE")){
-				if (inText.size()<12)
-					PTMUtil.systemExit("information missing in Swim_Inputs section");
 				try{
-					//_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT"); //no longer used
-					_sunrise = PTMUtil.getPairFromLine(inText.get(0), "SUNRISE");
-					_sunset = PTMUtil.getPairFromLine(inText.get(1), "SUNSET");
-					_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(2), "STST_THRESHOLD");
-					_numTidalCycles = PTMUtil.getIntFromLine(inText.get(3), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
-					_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(4), "CONSTANT_CONFUSION_PROBABILITY");
-					_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "MAXIMUM_CONFUSION_PROBABILITY");
-					_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "CONFUSION_PROBABILITY_SLOPE");
-					_randomAccess = PTMUtil.getBooleanFromLine(inText.get(7), "RANDOM_ACCESS");
-					_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY");
-					THRESHOLD_STUCK = PTMUtil.getIntFromLine(inText.get(9), "Stuck_Threshold")*24*60*60;
+					_sunrise = PTMUtil.getPairFromString(config.sunrise);
+					_sunset = PTMUtil.getPairFromString(config.sunset);
+					_floodHoldVel = config.stst_threshold;
+					_numTidalCycles = config.tidal_cycles_to_calculate_channel_direction;
+					_constProbConfusion = config.confusion_probability_constant;
+					_maxProbConfusion = config.max_confusion_probability;
+					_slopeProbConfusion = config.confusion_probability_slope;
+					_randomAccess = config.random_assess;
+					_accessProb = config.assess_probability;
+					THRESHOLD_STUCK = config.stuck_threshold*24*60*60;
 				}catch (NumberFormatException e){
 					e.printStackTrace();
-					PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");
+					PTMUtil.systemExit("number format is wrong in one of the swimming input lines");
 				}
-				ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
-				setChannelGroups(sVelInText);
+				setChannelGroups();
 			}
 			else
-				PTMUtil.systemExit("No swimming input is expected, but get this:"+inText.get(0)+" system exit.");
-		}
-		else {
-			if (fishType.equalsIgnoreCase("SALMON_PARTICLE") || fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE"))
-					PTMUtil.systemExit("For SALMON_PARTICLE or POSITION_ORIENTED_PARTICLE, the swimming input section is needed, but not found.");
+				PTMUtil.systemExit("No swimming input is expected, but found swimming input parameters (sunrise, sunset, etc.). System exit.");
 		}
 		_fishType = fishType;
 	}
@@ -120,16 +133,20 @@ public class SwimInputs {
 	public ParticleBehavior getSmeltBehavior(){return _smeltBehavior;}
 
 
-	private void setChannelGroups(ArrayList<String> chanGroups){
-		if (chanGroups == null){
+	private void setChannelGroups(){
+		Config config;
+		List<Object> thisSwimmingVel;
+		
+		config = PTMFixedData.getConfig();
+		
+		if (config.channel_groups==null){
 			System.err.println("WARNING: No channel groups for Swimming velocities defined in behavior input file!");
 			return;
 		}
 		// get swimming velocities
-		ArrayList<String> sVelStrs = PTMUtil.getInputBlock(chanGroups, "SWIMMING_VELOCITIES", "END_SWIMMING_VELOCITIES");
-		if (sVelStrs == null)
+		if (config.swimming_vel==null)
 			PTMUtil.systemExit("No swimming velocities found in the Channel_Groups block, system exit");
-		checkTitle(sVelStrs.get(0));
+		checkTitle(String.join(",", config.swimming_vel_header));
 		if (_groupNames != null || _swimVelParas != null)
 			PTMUtil.systemExit("Swimming velocities should not have been set before SwimInputs intialization, system exit");
 		_groupNames = new ArrayList<String>();
@@ -138,27 +155,27 @@ public class SwimInputs {
 		_particleMeanRearingHoldings = new HashMap<String, Map<Integer, Long>>();
 		_particleDaytimeHoldings = new HashMap<String, Map<Integer, Boolean>>();
 		boolean includeAll = false;
-		for (String line: sVelStrs.subList(1, sVelStrs.size())){
-			String [] items = line.trim().split("[,\\s\\t]+");
-
+		for(int i=0; i<config.swimming_vel.size(); i++) {
+			thisSwimmingVel = config.swimming_vel.get(i);
+			
 			try{
-				if (items.length < 6)
+				if (thisSwimmingVel.size() < 6)
 					throw new NumberFormatException();
-				String groupName = items[0].toUpperCase();
+				String groupName = thisSwimmingVel.get(0).toString().toUpperCase();
 				if(groupName.equals("ALL"))
 					includeAll = true;
 				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle; item[4] rearing holding; item[5] day time not swim percent
-				_swimVelParas.put(groupName, new float[] {Float.parseFloat(items[1]),
-														 Float.parseFloat(items[2]),
-														 Float.parseFloat(items[3]),
-														 Float.parseFloat(items[4])*60.0f,
-														 Float.parseFloat(items[5])}); // converting from hours to minutes
+				_swimVelParas.put(groupName, new float[] {((Number) thisSwimmingVel.get(1)).floatValue(),
+						((Number) thisSwimmingVel.get(2)).floatValue(),
+						((Number) thisSwimmingVel.get(3)).floatValue(),
+						((Number) thisSwimmingVel.get(4)).floatValue()*60.0f,
+						((Number) thisSwimmingVel.get(5)).floatValue()}); // converting from hours to minutes
 				_groupNames.add(groupName);
 				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
 				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Long>());
 				_particleDaytimeHoldings.put(groupName, new HashMap<Integer, Boolean>());
 			}catch(NumberFormatException e){
-				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
+				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: " + thisSwimmingVel + ", System exit.");
 			}
 		}
 		if(!includeAll)
@@ -168,39 +185,35 @@ public class SwimInputs {
 		//_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Long>());
 		//_particleDaytimeHoldings.put("ALL", new HashMap<Integer, Boolean>());
 		//get Channel list
-		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
-		if (channelListStrs == null)
-			PTMUtil.systemExit("No channel list found in behavior input file, system exit");
 		_channelGroups = new HashMap<Integer, String>();
 		for (String name: _groupNames){
 			if (!name.equalsIgnoreCase("ALL")){
-				ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
+				int[] chanList = config.getChannels(name);
 				if (chanList == null)
 						PTMUtil.systemExit("expect a channel list for a group:"+name+", but got none, please check swimming behavior inputs, system exit.");
 				else{
-					for (String line: chanList){
-						ArrayList<Integer> chanIds = PTMUtil.getInts(line);
-						for (int chanId: chanIds){
-							Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
-							if (envId <= 0)
-								PTMUtil.systemExit("No such channel number:"+chanId+", Please check swimming velocity section in behavior input file, system exit.");
-							else
-								_channelGroups.put(envId, name);
-						}
+					for (int chanId: chanList){
+						Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
+						if (envId <= 0)
+							PTMUtil.systemExit("No such channel number:"+chanId+", Please check swimming velocity section in behavior input file, system exit.");
+						else
+							_channelGroups.put(envId, name);		
 					}
 				}
 			}
 		}
 	}
+	
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
 
-		if (title.length < 5
+		if (title.length < 6
 				||!title[0].equalsIgnoreCase("Group_Name")
 				|| !title[1].equalsIgnoreCase("Constant_Swimming_velocity")
 				|| !title[2].equalsIgnoreCase("Standard_Deviation_Particles")
 				|| !title[3].equalsIgnoreCase("Standard_Deviation_Times")
-				|| !title[4].equalsIgnoreCase("Rearing_Holding_Mean"))
+				|| !title[4].equalsIgnoreCase("Rearing_Holding_Mean")
+				|| !title[5].equalsIgnoreCase("Day_time_not_swim_percent"))
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Constant_Swimming_Velocity ... but get:"+ inTitle);
 	}
 	private void setSwimHelper(){
