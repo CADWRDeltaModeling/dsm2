@@ -1,25 +1,28 @@
 # Preprocessor for generating South Delta transition probabilities for the ECO-PTM using the USGS routing model.
 # Doug Jackson
 # doug@QEDAconsulting.com
-library(rhdf5)
-library(tidyverse)
-library(lubridate)
-library(ggplot2)
-library(doParallel)
-library(imputeTS)
-library(slider)
-library(msm)
+
+# Need yaml to read the config file. At this point, .libPaths() may still point to the default library,
+# so it may use a version of yaml that's different from the one in the conda environment, but that's probably OK.
+library(yaml)
 ####################################################################################################
 # Constants
 ####################################################################################################
-workingDir <- "/Users/djackson/Documents/QEDA/DWR/programs/routingPreprocessor"
+args <- commandArgs(trailingOnly=T)
+if(length(args)==0) {
+    cat("Reading hard-coded path to configuration file.\n")
+    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor"
+} else {
+    cat("Reading path to configuration file as a command line argument\n")
+    configFile <- args[1]
+    workingDir <- getwd()
+}
+cat("Reading configuration from ", configFile, "\n")
+config <- read_yaml(configFile)$routingPreprocessor
 
-outputDir <- file.path(workingDir, "output")
-tideFile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_output_15apr22/routing_model_dsm2_15apr22_orig.h5"
-
-sampleTime_min <- 15
-
-TClag_min <- 90
+# Number of optional command line arguments (in addition to configFile)
+numOptArgs <- 4
 
 stationLocFile <- file.path(workingDir, "stationLoc.csv")
 fitHORfile <- file.path(workingDir, "fitHOR.rds")
@@ -31,31 +34,55 @@ flowBoundsFile <- file.path(workingDir, "flowBounds.csv")
 HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
-# Flag to indicate whether the 2011 statistical model should be used
-use2011 <- FALSE
-
-# Range of dates to calculate transition probabilities
-transProbsStartDate <- "01dec2017" #"03jan1999"
-transProbsEndDate <- "31dec2017"
-
-plotHORstartDate <- "18may2013"
-plotHORstartTime <- "08:00"
-plotHORendDate <- "20may2013"
-plotHORendTime <- "08:00"
-plotTCstartDate <- "20apr2016"
-plotTCstartTime <- "00:00"
-plotTCendDate <- "23apr2016"
-plotTCendTime <- "00:00"
-
 # Number used to indicate missing value
 missingVal <- -999
 
-# Number of CPU cores to use
-numCores <- 8
+####################################################################################################
+# Install packages that aren't available through conda
+####################################################################################################
+cat("=========================================================\n")
+cat("Running routingPreprocessor.R\n")
+cat("---------------------------------------------------------\n")
+cat("Installing packages that are not available through conda.\n")
+if(config$runInCondaEnv) {
+    # Use the library associated with the active R installation as the default.
+    # This ensures that R is using packages installed in the current conda environment.
+    .libPaths(R.home("library"))
+}
 
-figWidth <- 10
-figHeight <- 5
-figDPI <- 300
+# Check if rhdf5 is installed. If not, install it.
+if(!require("rhdf5", quietly=T)) {
+    cat("Installing rhdf5...\n")
+    options(install.packages.compile.from.source="always")
+    install.packages("BiocManager", repos="http://cran.us.r-project.org", quiet=T)
+    BiocManager::install("rhdf5")
+}
+if(!require("imputeTS", quietly=T)) {
+    cat("Installing imputeTS...\n")
+    install.packages("imputeTS", repos="http://cran.us.r-project.org", quiet=T)
+}
+if(!require("suncalc", quietly=T)) {
+    cat("Installing suncalc...\n")
+    install.packages("suncalc", repos="http://cran.us.r-project.org", quiet=T)
+}
+
+library(rhdf5)
+library(tidyverse)
+library(lubridate)
+if(config$runInCondaEnv) {
+    # lubridate may set TZDIR to the wrong location when running within a conda environment
+    Sys.setenv(TZDIR=file.path(Sys.getenv("CONDA_PREFIX"), "share", "zoneinfo"))
+}
+
+library(ggplot2)
+library(doParallel)
+library(imputeTS)
+library(slider)
+library(msm)
+library(suncalc)
+
+cat("Done installing packages that are not available through conda.\n")
+
 ####################################################################################################
 # Functions
 ####################################################################################################
@@ -183,11 +210,88 @@ calcProbsTC <- function(scaled_net_flow_U, scaled_tidal_U,
     }
     return(p)
 }
+
+# Load variables from config file after verifying they exist
+loadVar <- function(varName) {
+    if(is.null(config[[varName]])) {
+        stop(paste(varName, "not found in configuration file."))
+    }
+    else {return (config[[varName]])}
+}
+
+runArgsQA <- function() {
+    if(!file.exists(tideFile)) {
+        cat("Tide file does not exist. Did you specify the correct path?\n")
+        cat("Tide file: ", tideFile, "\n")
+        return(FALSE)
+    }
+    
+    if(is.na(dmy(transProbsStartDate, tz="Etc/GMT+8"))) {
+        cat("Could not parse transProbStartDate. Is it in a form like 03jan2009?\n")
+        cat("transProbsStartDate", transProbsStartDate, "\n")
+        return(FALSE)
+    }
+    
+    if(is.na(dmy(transProbsEndDate, tz="Etc/GMT+8"))) {
+        cat("Could not parse transProbsEndDate. Is it in a form like 03jan2009?\n")
+        cat("transProbsEndDate", transProbsEndDate, "\n")
+        return(FALSE)
+    }
+    
+    if(!is.numeric(numCores) | numCores<1) {
+        cat("Incorrect number of cores specified.\n")
+        cat("numCores: ", numCores, "\n")
+        return(FALSE)
+    }
+    
+    return(TRUE)
+}
 ####################################################################################################
 # Run
 ####################################################################################################
+cat("---------------------------------------------------------\n")
+cat("workingDir: ", workingDir, "\n")
 setwd(workingDir)
-dir.create(outputDir, showWarnings=F)
+
+outputDir <- file.path(workingDir, "output")
+dir.create(outputDir, showWarnings=F, recursive=T)
+
+# Load variables from command line or configuration file
+if(length(args)==(1 + numOptArgs)) {
+    tideFile <- args[2]
+    transProbsStartDate <- args[3]
+    transProbsEndDate <- args[4]
+    numCores <- round(as.numeric(args[5]), 0)
+} else {
+    tideFile <- loadVar("tideFile")
+    transProbsStartDate <- loadVar("transProbsStartDate")
+    transProbsEndDate <- loadVar("transProbsEndDate")
+    # Number of CPU cores to use
+    numCores <- loadVar("numCores")
+}
+
+sampleTime_min <- loadVar("sampleTime_min")
+TClag_min <- loadVar("TClag_min")
+# Flag to indicate whether the 2011 statistical model should be used
+use2011 <- loadVar("use2011")
+
+figWidth <- loadVar("figWidth")
+figHeight <- loadVar("figHeight")
+figDPI <- loadVar("figDPI")
+
+plotHORstartDate <- loadVar("plotHORstartDate")
+plotHORstartTime <- loadVar("plotHORstartTime")
+plotHORendDate <- loadVar("plotHORendDate")
+plotHORendTime <- loadVar("plotHORendTime")
+plotTCstartDate <- loadVar("plotTCstartDate")
+plotTCstartTime <- loadVar("plotTCstartTime")
+plotTCendDate <- loadVar("plotTCendDate")
+plotTCendTime <- loadVar("plotTCendTime")
+
+passedQA <- runArgsQA()
+if(!passedQA) {
+    stop("One or more configuration settings failed QA check. Aborting.")
+}
 
 # Set up parallel processing
 registerDoParallel(cores=numCores)
@@ -197,17 +301,18 @@ stationLoc <- read.csv(stationLocFile)
 stationLoc$channelFrac <- stationLoc$channelDist_ft/stationLoc$channelLen_ft
 stationNames <- unique(stationLoc$stationName)
 
-# Read the start and end dates and times
-envVar <- h5read(tideFile, "hydro/input/envvar")
-startDate <- envVar[envVar$name=="START_DATE", "value"]
-startTime <- envVar[envVar$name=="START_TIME", "value"]
-endDate <- envVar[envVar$name=="END_DATE", "value"]
-endTime <- envVar[envVar$name=="END_TIME", "value"]
+# Read flows for all channels
+channelFlows <- h5read(tideFile, "/hydro/data/channel flow")
+
+# Read the start datetime from the channel flow attributes
+channelFlowAttrib <- h5readAttributes(tideFile, "hydro/data/channel flow")
+startDatetime <- ymd_hms(channelFlowAttrib$start_time, tz="Etc/GMT+8")
 timeStep_min <- h5readAttributes(tideFile, "hydro")$'Time interval'
+numTimeSteps <- dim(channelFlows)[3]
+flowDatetimes <- seq(startDatetime, length=numTimeSteps, by=paste(timeStep_min, "min"))
+endDatetime <- flowDatetimes[length(flowDatetimes)]
 
 # All times are in PST (GMT+8)
-startDatetime <- dmy_hm(paste0(startDate, startTime), tz="Etc/GMT+8")
-endDatetime <- dmy_hm(paste0(endDate, endTime), tz="Etc/GMT+8")
 transProbsStartDatetime <- dmy(transProbsStartDate, tz="Etc/GMT+8")
 transProbsEndDatetime <- dmy(transProbsEndDate, tz="Etc/GMT+8")
 plotHORstartDatetime <- dmy_hm(paste0(plotHORstartDate, plotHORstartTime), tz="Etc/GMT+8")
@@ -215,11 +320,17 @@ plotHORendDatetime <- dmy_hm(paste0(plotHORendDate, plotHORendTime), tz="Etc/GMT
 plotTCstartDatetime <- dmy_hm(paste0(plotTCstartDate, plotTCstartTime), tz="Etc/GMT+8")
 plotTCendDatetime <- dmy_hm(paste0(plotTCendDate, plotTCendTime), tz="Etc/GMT+8")
 
-cat("Range of data available in tide file:", as.character(startDatetime), "to", as.character(endDatetime), "\n")
-cat("Range of data to extract:", as.character(transProbsStartDatetime), "to", as.character(transProbsEndDatetime), "\n")
+cat("Tide file: ", tideFile, "\n")
+cat("Range of data available in tide file:", format(startDatetime, "%Y-%m-%d %H:%M:%S"), "to", format(endDatetime, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("Range of data to extract:", format(transProbsStartDatetime, "%Y-%m-%d %H:%M:%S"), "to", format(transProbsEndDatetime, "%Y-%m-%d %H:%M:%S"), "\n")
 
-# Read flows for all channels
-channelFlows <- h5read(tideFile, "/hydro/data/channel flow")
+# Verify that the tide file range encompasses the requested range, including a buffer for TClag_min
+if(transProbsStartDatetime>=transProbsEndDatetime) {
+    stop("Start of requested datetime range cannot be the same as or after the end of the requested datetime range. Aborting.")
+}
+if((transProbsStartDatetime - minutes(TClag_min))<startDatetime | (transProbsEndDatetime + minutes(TClag_min))>endDatetime) {
+    stop("Requested range of data is outside of the range covered by the tide file. Aborting.")
+}
 
 # Read the (external) channel numbers
 channelNums = h5read(tideFile, "/hydro/geometry/channel_number")
@@ -229,12 +340,10 @@ datetimes <- seq(startDatetime, endDatetime, sampleTime_min*60)
 datetimes <- data.frame(datetime=datetimes)
 datetimes$year <- year(datetimes$datetime)
 
-flowDatetimes <- seq(startDatetime, endDatetime, length.out=dim(channelFlows)[3])
-
 # Expand stationLoc to include entries for all years
 stationLocByYear <- data.frame(year=seq(min(datetimes$year), max(datetimes$year)), ID=1)
 stationNamesDF <- data.frame(stationName=stationNames, ID=1)
-stationLocByYear <- full_join(stationLocByYear, stationNamesDF, by="ID")
+stationLocByYear <- full_join(stationLocByYear, stationNamesDF, by="ID", relationship="many-to-many")
 stationLocByYear$ID <- NULL
 
 for(i in 1:nrow(stationLoc)) {
@@ -245,7 +354,7 @@ for(i in 1:nrow(stationLoc)) {
     stationLocByYear[thisIndices, "channelFrac"] <- thisStationLoc$channelFrac
 }
 
-stationLocByDatetime <- left_join(datetimes, stationLocByYear, by="year")
+stationLocByDatetime <- left_join(datetimes, stationLocByYear, by="year", relationship="many-to-many")
 
 stationChannelNums <- unique(stationLocByDatetime$channelNum)
 
@@ -351,7 +460,9 @@ fitTC <- readRDS(fitTCfile)
 
 # Create a logfile to monitor progress
 logFile <- file.path(workingDir, "routingPreprocessor.log")
-cat("Calculating transition probabilities. Track progress in logfile:", logFile, "\n")
+cat("\nCalculating transition probabilities. Track progress in logfile:", logFile, "\n")
+cat("Number of cores to use (numCores):", numCores, "\n")
+cat("\nNOTE: IF YOU ENCOUNTER AN ERROR SIMILAR TO 'Error in serialize', YOU MAY NEED TO REDUCE numCores IN THE CONFIGURATION FILE.\n")
 cat("routingPreprocessor.R logfile\n", file=logFile)
 ######################################################
 # Calculate Head of Old River transition probabilities
@@ -434,12 +545,6 @@ r <- foreach(i=1:nrow(modelTCflow), .combine=rbind, .packages=c("lubridate", "im
 cat("Assembling transition probabilities.\n", file=logFile, append=T)
 rownames(r) <- c()
 modelTCflow <- r
-
-# Save modelHORflow and modelTCflow for external analysis
-cat("temporary: save modelHORflow and modelTCflow.\n")
-write.csv(modelHORflow, file=file.path(outputDir, "modelHORflow.csv"), row.names=F)
-write.csv(modelTCflow, file=file.path(outputDir, "modelTCflow.csv"), row.names=F)
-
 ######################################################
 # Combine HOR and TC transition probabilities and write to an output file
 transProbsHOR <- modelHORflow %>% select(datetime, qUD, qUT, qDU, qDT, qTU, qTD) %>% mutate(junction="HOR")
@@ -455,4 +560,9 @@ cat("Saving transition probabilities to", file.path(outputDir, "transProbs.csv")
 transProbs <- transProbs %>% pivot_longer(cols=qUD:qTD, names_to="transition", values_to="transProb") %>%
     select(junction, datetime, transition, transProb) %>% arrange(datetime, junction, transition)
 transProbs$datetime <- format(transProbs$datetime, "%Y-%m-%d %H:%M:%S")
-write.csv(transProbs, file=file.path(outputDir, "transProbs.csv"), row.names=F, quote=F)
+
+outputFile <- file.path(outputDir, "transProbs.csv")
+write.csv(transProbs, file=outputFile, row.names=F, quote=F)
+
+cat("Done. Transition probabilities saved to:", outputFile, "\n")
+cat("=========================================================\n")

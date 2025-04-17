@@ -1,23 +1,35 @@
 # Alter grid topology (connectivity) in a DSM2 *.h5 tidefile so it can be used
-# with the ECO-PTM South Delta routing model
+# with the ECO-PTM South Delta routing model.
 # Doug Jackson
 # doug@QEDAconsulting.com
-library(rhdf5)
-library(tidyverse)
 
+# Need yaml to read the config file. At this point, .libPaths() may still point to the default library,
+# so it may use a version of yaml that's different from the one in the conda environment, but that's probably OK.
+library(yaml)
 ####################################################################################################
 # Constants
 ####################################################################################################
-workingDir <- "/Users/djackson/Documents/QEDA/DWR/programs/routingPreprocessor"
+args <- commandArgs(trailingOnly=T)
+if(length(args)==0) {
+    cat("Reading hard-coded path to configuration file.\n")
+    configFile <- "" # "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "" # "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor"
+} else {
+    cat("Reading path to configuration file as a command line argument\n")
+    configFile <- args[1]
+    workingDir <- getwd()
+}
+cat("Reading configuration from ", configFile, "\n")
+config <- read_yaml(configFile)$tidefilePreprocessor
 
-tidefile <- "/Users/djackson/Documents/QEDA/DSM2_tideFiles/routing_model_dsm2_output_15apr22/routing_model_dsm2_15apr22.h5"
+
+# Number of optional command line arguments (in addition to configFile)
+numOptArgs <- 1
 
 # Specify list of channels and nodes in which flow should be zero (external channel and node numbers).
 # These are used to balance flows in orphaned nodes and channels
 zeroFlowChannels <- c()
 zeroFlowNodes <- c()
-
-GZIPlevel <- 6
 
 # As of 05feb25, the only supported storage.mode options are "logical", "double", "integer",
 # "integer64", and "character"
@@ -28,19 +40,86 @@ H5type <- "H5T_IEEE_F32LE"
 enableShuffle <- TRUE
 
 ####################################################################################################
+# Install packages that aren't available through conda
+####################################################################################################
+cat("=========================================================\n")
+cat("Running tidefilePreprocessor.R\n")
+cat("---------------------------------------------------------\n")
+cat("Installing packages that are not available through conda.\n")
+if(config$runInCondaEnv) {
+    # Use the library associated with the active R installation as the default.
+    # This ensures that R is using packages installed in the current conda environment.
+    .libPaths(R.home("library"))
+}
+
+# Check if rhdf5 is installed. If not, install it.
+if(!require("rhdf5", quietly=T)) {
+    cat("Installing rhdf5...\n")
+    options(install.packages.compile.from.source="always")
+    install.packages("BiocManager", repos="http://cran.us.r-project.org", quiet=T)
+    BiocManager::install("rhdf5")
+}
+cat("Done installing packages that are not available through conda.\n")
+
+library(rhdf5)
+library(tidyverse)
+####################################################################################################
+# Functions
+####################################################################################################
+# Load variables from config file after verifying they exist
+loadVar <- function(varName) {
+    if(is.null(config[[varName]])) {
+        stop(paste(varName, "not found in configuration file."))
+    }
+    else {return (config[[varName]])}
+}
+####################################################################################################
 # Run
 ####################################################################################################
+cat("---------------------------------------------------------\n")
 setwd(workingDir)
 
+# Load variables from command line or configuration file
+if(length(args)==(1 + numOptArgs)) {
+    tideFile <- args[2]
+} else {
+    tideFile <- loadVar("tideFile")
+}
+
+GZIPlevel <- loadVar("GZIPlevel")
+overwriteOrigTideFile <- loadVar("overwriteOrigTideFile")
+overwriteNewTideFile <- loadVar("overwriteNewTideFile")
+
+cat("Preprocessing tide file:", tideFile, "\n")
+if(overwriteOrigTideFile) {
+    cat("Overwriting original tide file:", tideFile, "\n")
+} else {
+    newTideFile <- paste0(sub("\\.[^.]*$", "", tideFile), "_preprocessed.h5")
+    
+    if(file.exists(newTideFile)) {
+        if(overwriteNewTideFile) {
+            cat("Overwriting tide file:", newTideFile, "\n")
+        } else {
+            cat("Output tide file already exists and overwriteTideFile=false.\n")
+            cat("Output tide file:", newTideFile, "\n")
+            stop("Output tide file already exists.")
+        }
+    }
+    file.copy(from=tideFile, to=newTideFile)
+    tideFile <- newTideFile
+}
+
+cat("Preprocessed tide file will be saved to:", tideFile, "\n")
+
 # Save original attributes
-origAttrs <- list(qf=h5readAttributes(tidefile, "hydro/data/qext flow"),
-                  cf=h5readAttributes(tidefile, "hydro/data/channel flow"),
-                  area=h5readAttributes(tidefile, "hydro/data/channel area"),
-                  stage=h5readAttributes(tidefile, "hydro/data/channel stage"),
-                  channelBottom=h5readAttributes(tidefile, "hydro/geometry/channel_bottom"))
+origAttrs <- list(qf=h5readAttributes(tideFile, "hydro/data/qext flow"),
+                  cf=h5readAttributes(tideFile, "hydro/data/channel flow"),
+                  area=h5readAttributes(tideFile, "hydro/data/channel area"),
+                  stage=h5readAttributes(tideFile, "hydro/data/channel stage"),
+                  channelBottom=h5readAttributes(tideFile, "hydro/geometry/channel_bottom"))
 h5closeAll()
 
-h5f <- H5Fopen(tidefile)
+h5f <- H5Fopen(tideFile)
 
 ########################################
 # Modify connectivity
@@ -314,3 +393,5 @@ for(thisAttr in names(cfAttrs)) {
 H5Dclose(cfD)
 
 h5closeAll()
+cat("Done preprocessing tide file:", tideFile, "\n")
+cat("=========================================================\n")

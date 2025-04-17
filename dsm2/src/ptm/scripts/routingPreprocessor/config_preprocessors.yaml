@@ -1,0 +1,27 @@
+runRoutingPreprocessor: true
+runTidefilePreprocessor: false
+tideFile: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_scratch/v1.1.88.4_2009.h5 
+routingPreprocessor:
+  runInCondaEnv: true
+  transProbsStartDate: 03jan2009
+  transProbsEndDate: 31dec2009
+  sampleTime_min: 15
+  TClag_min: 90
+  use2011: false
+  numCores: 8
+  figWidth: 10
+  figHeight: 5
+  figDPI: 300
+  plotHORstartDate: 18may2013
+  plotHORstartTime: "08:00"
+  plotHORendDate: 20may2013
+  plotHORendTime: "08:00"
+  plotTCstartDate: 20apr2016
+  plotTCstartTime: "00:00"
+  plotTCendDate: 23apr2016
+  plotTCendTime: "00:00"
+tidefilePreprocessor:
+  runInCondaEnv: true
+  GZIPlevel: 6
+  overwriteOrigTideFile: false
+  overwriteNewTideFile: true
