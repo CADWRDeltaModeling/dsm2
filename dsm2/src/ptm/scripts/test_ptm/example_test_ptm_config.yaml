@@ -1,0 +1,10 @@
+"workingDir": "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_ptm"
+"tidefilePath": "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/test_ptm/data/hist_v821_GZIP9.h5"
+"javaHome": "C:/Program Files/Java/jdk-21"
+"javaRootDir": "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm"
+"runTestSuite": true
+"runProfilingTest": false
+"runCodeCoverage": false
+"useNewRandomSeed": false
+"runSpecificTests": [1]
+"runSpecificScenarios": ["lowFlow"]

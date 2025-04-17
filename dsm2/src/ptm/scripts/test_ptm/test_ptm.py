@@ -22,7 +22,7 @@ from ptm_output_reader import PTMoutputReader
 
 class TestPTM:
 
-    def __init__(self, javaHome, javaRootDir, workingDir, runCodeCoverage, useNewRandomSeed):
+    def __init__(self, javaHome, javaRootDir, workingDir, tidefilePath, runCodeCoverage, useNewRandomSeed):
         """Initialize a TestPTM object.
         
         Keyword arguments:
@@ -35,8 +35,10 @@ class TestPTM:
         self.javaHome = javaHome
         self.javaRootDir = javaRootDir
         self.workingDir = workingDir
+        self.tidefilePath = tidefilePath
         self.runCodeCoverage = runCodeCoverage
         self.useNewRandomSeed = {True:"Yes", False:"No"}[useNewRandomSeed]
+        self.jacocoVer = "jacoco-0.8.13-20250127.230924-151"
           
         numTests = 14
         self.tests = np.arange(0, numTests)+1
@@ -106,7 +108,6 @@ class TestPTM:
         self.rootDir = os.path.dirname(os.path.realpath(__file__))
         self.templatesDir = os.path.join(self.rootDir, "test_templates")
         
-        self.tidefilePath = os.path.join(self.rootDir, "data", "hist_v822.h5")
         self.tidefilePath = self.tidefilePath.replace("\\", "/")
         
         # Create the working directory, if necessary
@@ -124,7 +125,7 @@ class TestPTM:
         print(f"classpath: {self.classpath}")
         print(f"rootDir: {self.rootDir}")
         print(f"useNewRandomSeed: {useNewRandomSeed}")
-                    
+
     def runTestSuite(self):
         """Run the suite of tests."""
         # Create a directory with the datetime stamp for this run of the tests
@@ -146,62 +147,40 @@ class TestPTM:
                 thisTestDir = os.path.join(self.testsDir, "test_" + test + "_" + flowScenario)
                 os.makedirs(thisTestDir)
                 os.makedirs(os.path.join(thisTestDir, "output"))
-                
-                # Temporary kluge: Copy an existing DSS file into the output directory to avoid DSS ERROR
-                shutil.copy(os.path.join(self.rootDir, "data", "ptmout-10-22-1997.dss"),
-                            os.path.join(thisTestDir, "output", "ptmout_test_" + test + "_" + flowScenario + ".dss"))
         
                 # Read the configuration file templates
-                with open(os.path.join(self.templatesDir, "template_dsm2_config.inp"), "r") as fH:
-                    dsm2Config = fH.read()
-                with open(os.path.join(self.templatesDir, "template_ptm_config.inp"), "r") as fH:
-                    ptmConfig = fH.read()
-                with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs.inp"), "r") as fH:
+                with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs.yaml"), "r") as fH:
                     behaviorConfigTemplate = fH.read()
-                with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs_test_" + test + ".inp"), "r") as fH:
+                with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs_test_" + test + ".yaml"), "r") as fH:
                     behaviorConfigTestSpecific = fH.read()
                 
                 # Modify the configuration files
-                dsm2Config = dsm2Config.replace("DSM2MODIFIER_PLACEHOLDER", "test_" + test)        
-                dsm2Config = dsm2Config.replace("START_DATE_PLACEHOLDER", self.flowScenarios[flowScenario]["startDate"])        
-                dsm2Config = dsm2Config.replace("END_DATE_PLACEHOLDER", self.flowScenarios[flowScenario]["endDate"])        
-                dsm2Config = dsm2Config.replace("HYDROTIDEFILE_PLACEHOLDER", self.tidefilePath)
-                dsm2Config = dsm2Config.replace("PTMOUTFILE_PLACEHOLDER", "test_" + test + "_" + flowScenario + ".pof")
-                dsm2Config = dsm2Config.replace("PTMOUTPUTFILE_PLACEHOLDER", "ptmout_test_" + test + "_" + flowScenario)
-        
-                ptmConfig = ptmConfig.replace("DSM2_CONFIG_PLACEHOLDER",
-                                                "dsm2_config_test_" + test + "_" + flowScenario + ".inp")
-                ptmConfig = ptmConfig.replace("BEHAVIOR_CONFIG_PLACEHOLDER",
-                                                "ptm_behavior_inputs_test" + test + "_" + flowScenario + ".inp")
-                ptmConfig = ptmConfig.replace("TEST_PLACEHOLDER", "test_" + test + "_" + flowScenario)
-                                                
                 behaviorConfig = behaviorConfigTemplate.replace("TEST-SPECIFIC_PLACEHOLDER", behaviorConfigTestSpecific)
                 behaviorConfig = behaviorConfig.replace("TEST_PLACEHOLDER", "test_" + test + "_" + flowScenario)
                 behaviorConfig = behaviorConfig.replace("RELEASE_DATE_PLACEHOLDER", self.flowScenarios[flowScenario]["releaseDate"])
                 behaviorConfig = behaviorConfig.replace("USE_NEW_RANDOM_SEED_PLACEHOLDER", self.useNewRandomSeed)
+                behaviorConfig = behaviorConfig.replace("START_DATE_PLACEHOLDER", self.flowScenarios[flowScenario]["startDate"])        
+                behaviorConfig = behaviorConfig.replace("END_DATE_PLACEHOLDER", self.flowScenarios[flowScenario]["endDate"])        
+                behaviorConfig = behaviorConfig.replace("HYDROTIDEFILE_PLACEHOLDER", self.tidefilePath)
                      
                 # Fix path separators for Linux
                 if platform.system()=="Linux":
                     behaviorConfig = behaviorConfig.replace("\\output\\", "/output/")
                     
                 # Write the modified configuration files
-                with open(os.path.join(thisTestDir, "dsm2_config_test_" + test + "_" + flowScenario + ".inp"), "w") as fH:
-                    print(dsm2Config, file=fH)
-                with open(os.path.join(thisTestDir, "ptm_config_test_" + test + "_" + flowScenario + ".inp"), "w") as fH:
-                    print(ptmConfig, file=fH)
-                with open(os.path.join(thisTestDir, "ptm_behavior_inputs_test" + test + "_" + flowScenario + ".inp"), "w") as fH:
+                with open(os.path.join(thisTestDir, "ptm_behavior_inputs_test_" + test + "_" + flowScenario + ".yaml"), "w") as fH:
                     print(behaviorConfig, file=fH)
                 
                 # Run the test
                 os.chdir(thisTestDir)
     
                 if self.runCodeCoverage:
-                    javaCommand = (self.javaPath + " -javaagent:" + self.rootDir + "/data/jacoco-0.8.5-20190510.230805-3/lib/jacocoagent.jar=output=file " +
+                    javaCommand = (self.javaPath + " -javaagent:" + self.rootDir + f"/data/{self.jacocoVer}/lib/jacocoagent.jar=output=file " +
                             "-Xss5M -Xms512M -Xmx1G -classpath " + '"' + self.classpath + '" ' +
-                            "DWR.DMS.PTM.MainPTM " + "ptm_config_test_" + test + "_" + flowScenario + ".inp")
+                            "DWR.DMS.PTM.MainPTM " + "ptm_behavior_inputs_test_" + test + "_" + flowScenario + ".yaml")
                 else:
                     javaCommand = (self.javaPath + " -Xss5M -Xms512M -Xmx1G -classpath " + '"' + self.classpath + '" ' +
-                            "DWR.DMS.PTM.MainPTM " + "ptm_config_test_" + test + "_" + flowScenario + ".inp")
+                            "DWR.DMS.PTM.MainPTM " + "ptm_behavior_inputs_test_" + test + "_" + flowScenario + ".yaml")
                     
                 print(javaCommand)                
                 
@@ -246,7 +225,7 @@ class TestPTM:
                         jaCoCoOutputDir = os.path.join(mainOutputDir, "jacoco-report_test_" + test + "_" + flowScenario)
                     
                         # Generate the coverage report
-                        javaCommand = (self.javaPath + ' -jar "' + self.rootDir + '/data/jacoco-0.8.5-20190510.230805-3/lib/jacococli.jar" ' +  
+                        javaCommand = (self.javaPath + ' -jar "' + self.rootDir + f'/data/{self.jacocoVer}/lib/jacococli.jar" ' +  
                             'report "' + os.path.join(self.testsDir, "test_" + test + "_" + flowScenario, "jacoco.exec") + 
                             '" --classfiles "' + os.path.join(self.javaRootDir, "javabin", "DWR", "DMS", "PTM") + 
                             '" --html "' + jaCoCoOutputDir + 
@@ -417,55 +396,33 @@ class TestPTM:
                 
         print("Launching profiling run.")
         
-        # Temporary kluge: Copy an existing DSS file into the output directory to avoid DSS ERROR
-        shutil.copy(os.path.join(self.rootDir, "data", "ptmout-10-22-1997.dss"),
-                    os.path.join(profilingDir, "output", "ptmout_profiling.dss"))        
-            
         # Read the configuration file templates
-        with open(os.path.join(self.templatesDir, "template_dsm2_config.inp"), "r") as fH:
-            dsm2Config = fH.read()
-        with open(os.path.join(self.templatesDir, "template_ptm_config.inp"), "r") as fH:
-            ptmConfig = fH.read()
-        with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs.inp"), "r") as fH:
+        with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs.yaml"), "r") as fH:
             behaviorConfigTemplate = fH.read()
-        with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs_profiling.inp"), "r") as fH:
+        with open(os.path.join(self.templatesDir, "template_ptm_behavior_inputs_profiling.yaml"), "r") as fH:
             behaviorConfigTestSpecific = fH.read()
-                
-        # Modify the configuration files
-        dsm2Config = dsm2Config.replace("DSM2MODIFIER_PLACEHOLDER", "profiling")        
-        dsm2Config = dsm2Config.replace("START_DATE_PLACEHOLDER", self.profilingScenarios["profiling"]["startDate"])        
-        dsm2Config = dsm2Config.replace("END_DATE_PLACEHOLDER", self.profilingScenarios["profiling"]["endDate"])        
-        dsm2Config = dsm2Config.replace("HYDROTIDEFILE_PLACEHOLDER", self.tidefilePath)
-        dsm2Config = dsm2Config.replace("PTMOUTFILE_PLACEHOLDER", "profiling.pof")
-        dsm2Config = dsm2Config.replace("PTMOUTPUTFILE_PLACEHOLDER", "ptmout_profiling")
         
-        ptmConfig = ptmConfig.replace("DSM2_CONFIG_PLACEHOLDER",
-                                        "dsm2_config_profiling.inp")
-        ptmConfig = ptmConfig.replace("BEHAVIOR_CONFIG_PLACEHOLDER",
-                                        "ptm_behavior_inputs_profiling.inp")
-        ptmConfig = ptmConfig.replace("TEST_PLACEHOLDER", "profiling")
-
         behaviorConfig = behaviorConfigTemplate.replace("TEST-SPECIFIC_PLACEHOLDER", behaviorConfigTestSpecific)                                        
         behaviorConfig = behaviorConfig.replace("TEST_PLACEHOLDER", "profiling")
         behaviorConfig = behaviorConfig.replace("USE_NEW_RANDOM_SEED_PLACEHOLDER", self.useNewRandomSeed)
+        behaviorConfig = behaviorConfig.replace("START_DATE_PLACEHOLDER", self.profilingScenarios["profiling"]["startDate"])        
+        behaviorConfig = behaviorConfig.replace("END_DATE_PLACEHOLDER", self.profilingScenarios["profiling"]["endDate"])        
+        behaviorConfig = behaviorConfig.replace("HYDROTIDEFILE_PLACEHOLDER", self.tidefilePath)
 
         # Fix path separators for Linux
         if platform.system()=="Linux":
             behaviorConfig = behaviorConfig.replace("\\output\\", "/output/")
                                                         
         # Write the modified configuration files
-        with open(os.path.join(profilingDir, "dsm2_config_profiling.inp"), "w") as fH:
-            print(dsm2Config, file=fH)
-        with open(os.path.join(profilingDir, "ptm_config_profiling.inp"), "w") as fH:
-            print(ptmConfig, file=fH)
-        with open(os.path.join(profilingDir, "ptm_behavior_inputs_profiling.inp"), "w") as fH:
+        with open(os.path.join(profilingDir, "ptm_behavior_inputs_profiling.yaml"), "w") as fH:
             print(behaviorConfig, file=fH)
                 
         # Run the test
         os.chdir(profilingDir)
+        print(f"Changing directory to {profilingDir}")
 
         javaCommand = (self.javaPath + " -Xss5M -Xms512M -Xmx512M -classpath " + '"' + self.classpath + '" ' +
-                "DWR.DMS.PTM.MainPTM " + "ptm_config_profiling.inp")
+                "DWR.DMS.PTM.MainPTM " + "ptm_behavior_inputs_profiling.yaml")
         print(javaCommand)     
 
         with subprocess.Popen(javaCommand, stdout=subprocess.PIPE, shell=self.shell,
@@ -477,8 +434,8 @@ class TestPTM:
 
 if __name__=="__main__":
     import argparse
-    import json
-     
+    import yaml 
+
      # Read in command line arguments
     parser = argparse.ArgumentParser(description="Automatic test framework for ECO-PTM model.")
     parser.add_argument("--configFile", action="store", dest="configFile", required=True)
@@ -486,22 +443,23 @@ if __name__=="__main__":
 
     configFile = args.configFile
 
-    # Read configuration file
+    # Read YAML configuration file
     try:
         with open(configFile) as fH:
-            config = json.load(fH)
+            config = yaml.safe_load(fH)
     except IOError as e:
         print(f"Could not load configuration file {configFile}. Does it exist? {e}")
         sys.exit()
-    except json.JSONDecodeError as e:
+    except yaml.YAMLError as e:
         print(f"Error while parsing PTM configuration file: {e}")
-        sys.exit()            
+        sys.exit()
 
     # Read configuration parameter values
     try:
         workingDir = config["workingDir"]
         javaHome = config["javaHome"]
         javaRootDir = config["javaRootDir"]
+        tidefilePath = config["tidefilePath"]
         runTestSuite = config["runTestSuite"]
         runProfilingTest = config["runProfilingTest"]
         runCodeCoverage = config["runCodeCoverage"]
@@ -516,7 +474,7 @@ if __name__=="__main__":
         print(f"Required parameter {e} missing from configuration file.")
         sys.exit()
     
-    t = TestPTM(javaHome, javaRootDir, workingDir, runCodeCoverage, useNewRandomSeed)
+    t = TestPTM(javaHome, javaRootDir, workingDir, tidefilePath, runCodeCoverage, useNewRandomSeed)
 
     # Run a subset of tests, if specified 
     if len(runSpecificTests)>0:
@@ -536,7 +494,8 @@ if __name__=="__main__":
                 sys.exit()
     print(f"Scenarios to run: {t.flowScenarios}")
     print("="*75)
-                
+    
+    print(f"runTestSuite: {runTestSuite}")
     if runTestSuite:
         t.runTestSuite()
         t.processTestSuite()

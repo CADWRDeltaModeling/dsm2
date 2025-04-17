@@ -130,7 +130,7 @@ class PTMoutputReader:
                         # Create a new tempDataString
                         tempDataString = line
      
-                    elif re.search("^\d", line) is not None:
+                    elif re.search(r"^\d", line) is not None:
                         tempDataString+=line
                             
             # Read the final chunk
