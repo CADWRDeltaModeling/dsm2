@@ -1,0 +1,737 @@
+---
+tidefile: TIDEFILE_PLACEHOLDER
+
+# ECO-PTM behavior configuration
+particle_type: Salmon_Particle
+
+# timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
+time_zone: PST
+
+# true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
+use_new_random_seed: true
+
+# Node has to be upnode, and distance in feet is from upnode.
+# In DSM2 map, upstream of a flow arrow is upnode, downstream is downnode.
+# Only one travel time output location can be specified. 
+travel_time_output_path: .\output\travel_time_in_min_SouthDelta.csv
+travel_time_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
+travel_time:
+  - [4, 4, 751, BCA]
+  - [6, 6, 6205, MOS]
+  - [8, 54, 0, ORE]
+  - [8, 8, 10, SJL]
+  - [14, 14, 2550, SJG]
+  - [16, 16, 2768, SJNB]
+  - [16, 169, 1644, RRI]
+  - [140, 172, 727, TC]
+  - [29, 31, 10, MAC]
+  - [33, 37, 3977, MF]
+  - [44, 83, 2275, JPT]
+  - [226, 279, 5742, FR]
+  - [43, 310, 6457, TMS]
+  - [52, 59, 10, ORS]
+  - [52, 125, 2357, MRS]
+  - [79, 90, 3711, OR4]
+  - [113, 135, 3315, MR4]
+  - [71, 82, 2609, RGU]
+  - [72, 217, 0, RGU]
+  - [72, 232, 0, RGU]
+  - [179, 214, 4490, CVPgate]
+
+release_groups:
+  - name: Group_1
+    release_loc_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
+    release_loc: [17, 17, 100, Vernalis]
+    releases_header: [Release_Date, Release_Time, Particle_Number, Release_Style]
+    releases:
+      - [03/25/2011, 1:00, 100, Random]
+      - [03/25/2011, 1:15, 100, Random]
+      - [03/25/2011, 1:30, 100, Random]
+      - [03/25/2011, 1:45, 100, Random]
+      - [03/25/2011, 2:00, 100, Random]
+      - [03/25/2011, 2:15, 100, Random]
+      - [03/25/2011, 2:30, 100, Random]
+      - [03/25/2011, 2:45, 100, Random]
+      - [03/25/2011, 3:00, 100, Random]
+      - [03/25/2011, 3:15, 100, Random]
+      - [03/25/2011, 3:30, 100, Random]
+      - [03/25/2011, 3:45, 100, Random]
+      - [03/25/2011, 4:00, 100, Random]
+      - [03/25/2011, 4:15, 100, Random]
+      - [03/25/2011, 4:30, 100, Random]
+      - [03/25/2011, 4:45, 100, Random]
+      - [03/25/2011, 5:00, 100, Random]
+      - [03/25/2011, 5:15, 100, Random]
+      - [03/25/2011, 5:30, 100, Random]
+      - [03/25/2011, 5:45, 100, Random]
+      - [03/25/2011, 6:00, 100, Random]
+      - [03/25/2011, 6:15, 100, Random]
+      - [03/25/2011, 6:30, 100, Random]
+      - [03/25/2011, 6:45, 100, Random]
+      - [03/25/2011, 7:00, 100, Random]
+      - [03/25/2011, 7:15, 100, Random]
+      - [03/25/2011, 7:30, 100, Random]
+      - [03/25/2011, 7:45, 100, Random]
+      - [03/25/2011, 8:00, 100, Random]
+      - [03/25/2011, 8:15, 100, Random]
+      - [03/25/2011, 8:30, 100, Random]
+      - [03/25/2011, 8:45, 100, Random]
+      - [03/25/2011, 9:00, 100, Random]
+      - [03/25/2011, 9:15, 100, Random]
+      - [03/25/2011, 9:30, 100, Random]
+      - [03/25/2011, 9:45, 100, Random]
+      - [03/25/2011, 10:00, 100, Random]
+      - [03/25/2011, 10:15, 100, Random]
+      - [03/25/2011, 10:30, 100, Random]
+      - [03/25/2011, 10:45, 100, Random]
+      - [03/25/2011, 11:00, 100, Random]
+      - [03/25/2011, 11:15, 100, Random]
+      - [03/25/2011, 11:30, 100, Random]
+      - [03/25/2011, 11:45, 100, Random]
+      - [03/25/2011, 12:00, 100, Random]
+      - [03/25/2011, 12:15, 100, Random]
+      - [03/25/2011, 12:30, 100, Random]
+      - [03/25/2011, 12:45, 100, Random]
+      - [03/25/2011, 13:00, 100, Random]
+      - [03/25/2011, 13:15, 100, Random]
+      - [03/25/2011, 13:30, 100, Random]
+      - [03/25/2011, 13:45, 100, Random]
+      - [03/25/2011, 14:00, 100, Random]
+      - [03/25/2011, 14:15, 100, Random]
+      - [03/25/2011, 14:30, 100, Random]
+      - [03/25/2011, 14:45, 100, Random]
+      - [03/25/2011, 15:00, 100, Random]
+      - [03/25/2011, 15:15, 100, Random]
+      - [03/25/2011, 15:30, 100, Random]
+      - [03/25/2011, 15:45, 100, Random]
+      - [03/25/2011, 16:00, 100, Random]
+      - [03/25/2011, 16:15, 100, Random]
+      - [03/25/2011, 16:30, 100, Random]
+      - [03/25/2011, 16:45, 100, Random]
+      - [03/25/2011, 17:00, 100, Random]
+      - [03/25/2011, 17:15, 100, Random]
+      - [03/25/2011, 17:30, 100, Random]
+      - [03/25/2011, 17:45, 100, Random]
+      - [03/25/2011, 18:00, 100, Random]
+      - [03/25/2011, 18:15, 100, Random]
+      - [03/25/2011, 18:30, 100, Random]
+      - [03/25/2011, 18:45, 100, Random]
+      - [03/25/2011, 19:00, 100, Random]
+      - [03/25/2011, 19:15, 100, Random]
+      - [03/25/2011, 19:30, 100, Random]
+      - [03/25/2011, 19:45, 100, Random]
+      - [03/25/2011, 20:00, 100, Random]
+      - [03/25/2011, 20:15, 100, Random]
+      - [03/25/2011, 20:30, 100, Random]
+      - [03/25/2011, 20:45, 100, Random]
+      - [03/25/2011, 21:00, 100, Random]
+      - [03/25/2011, 21:15, 100, Random]
+      - [03/25/2011, 21:30, 100, Random]
+      - [03/25/2011, 21:45, 100, Random]
+      - [03/25/2011, 22:00, 100, Random]
+      - [03/25/2011, 22:15, 100, Random]
+      - [03/25/2011, 22:30, 100, Random]
+      - [03/25/2011, 22:45, 100, Random]
+      - [03/25/2011, 23:00, 100, Random]
+      - [03/25/2011, 23:15, 100, Random]
+      - [03/25/2011, 23:30, 100, Random]
+      - [03/25/2011, 23:45, 100, Random]
+      - [03/25/2011, 24:00, 100, Random]
+      - [03/25/2011, 24:15, 100, Random]
+      - [03/25/2011, 24:30, 100, Random]
+      - [03/25/2011, 24:45, 100, Random]
+
+# Swim inputs
+# North Delta sunrise: 6:31
+# North Delta sunset: 18:39 
+sunrise: 5:19
+sunset: 20:48
+
+stst_threshold: -7.007
+tidal_cycles_to_calculate_channel_direction: 2
+confusion_probability_constant: -1.610
+max_confusion_probability: 1.0
+confusion_probability_slope: -0.55
+random_assess: true
+assess_probability: 0.01
+# If a particle is detected at the same channel after #Stuck_Threshold, the particle is considered stuck and removed from the system.
+# The unit for Stuck threshold is day. 
+stuck_threshold: 30
+
+# User can define channel groups and assign a swimming velocity to each group. 
+# The group names have to be consistent with the names in the Channel_list
+# Rearing holding in hours
+# Behavior parameter values updated 25oct24
+swimming_vel_header: [Group_Name, Constant_Swimming_Velocity, Standard_Deviation_Particles, Standard_Deviation_Times, Rearing_Holding_Mean, Day_time_not_swim_percent]
+swimming_vel:
+  - [All, 0.240, 0.444, 0.915, 0.0, 0.085]
+  - [Riverine, 0.456, 0.444, 0.915, 0.0, 0.084]
+  - [Transitional, 0.070, 0.444, 0.915, 0.0, 0.054]
+channel_groups:
+  - name: Riverine
+    channels: [17,1,2,3,4,5]
+  - name: Transitional
+    channels: [6,7,8,9,10,11,12,13,14,15,16,169,54,55,56,57,58,59,60,61,62,63,
+               65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,88,89,90,
+               125,126,127,128,129,130,131,132,133,134,135,183,184,185,186,187,188,189,190,191,192,193,194,
+               195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,
+               214,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,
+               252,253,254,255,257,258,259]
+
+# Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
+output_path_entrainment: .\output\entrainment_SouthDelta.csv
+trans_probs_path: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv
+output_path_flux: ./output/flux_SouthDelta.csv
+
+channel_name_lookup_header: [Name, ChanneID]
+channel_name_lookup:
+  - [GS, 366]
+  - [SACUPGS, 422]
+  - [SACDOWNGS, 423]
+  - [DCC, 365]
+  - [SACUPDCC, 421]
+  - [SACUPSUT, 418]
+  - [SACDOWNSUT, 419]
+  - [SUT, 379]
+  - [STM, 383]
+  - [SACDOWNSTM, 420]
+  - [TC_U, 25]
+  - [TC_T, 172]
+  - [TC_D, 31]
+  - [HOR_U, 7]
+  - [HOR_T, 54]
+  - [HOR_D, 8]
+
+# Users are allowed to modify calculated entrainment rates. 100 means no change,150 means calculated_chance*1.5, and 50 means calculated_chance*0.5
+# except for STM & SUT if and only if pct > 100, pct is added e.g. 110 means calculated_chance + 0.1 
+# Class_Name is a junction model class name.  The class will be located and instantiated and the junction model will be used when a fish particle reaches the junction
+special_behavior_header: [NodeID, Class_Name, Percent_Increase_Decrease]
+special_behavior:
+  - [343, SalmonGSJRouteBehavior, 100]
+  - [339, SalmonSutterJRouteBehavior, 100]
+  - [340, SalmonSTMJRouteBehavior, 100]
+  - [342, SalmonDCCRouteBehavior, 100]
+  - [8, SalmonHORrouteBehavior, -999]
+  - [26, SalmonTCrouteBehavior, -999]
+
+barriers:
+  - name: Barrier1
+    nodeID: 343
+    waterbodyID: 366
+    schedule_header: [Date, Time, On/Off]
+    schedule:
+      - [1/1/1980, 0:00, 0]
+      - [12/31/2022, 21:20, 0]
+
+dicu_filter_efficiency: 0.0
+
+fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
+fish_screens:
+  - [330, 700]
+
+survival_output_path: .\output\survival_SouthDelta.csv
+# Station is defined by (channel number, distance from upstream node)
+# The group number for a start station will be used as the key to search for the calculation group
+# Lambda and X in feet, Omega in feet/second
+# Survival parameters from SD_Survival_sts-start-end - 9Oct24.xlsx
+survival_groups:
+  - number: 1
+    name: DFD
+    start_stations:
+      - [1, 3158]
+    end_stations:
+      - [4, 751]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [4, 291259.8518, 0.0191, 33333.3344]
+  - number: 2
+    name: BCA
+    start_stations:
+      - [4, 751]
+    end_stations:
+      - [6, 6205]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [6, 124153.5473, 0.0734, 30610.2372]
+  - number: 3
+    name: MOS
+    start_stations:
+      - [6, 6205]
+    end_stations:
+      - [54, 0]
+      - [8, 10]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [54, 892575.4879, 0.1878, 14698.1632]
+      - [8, 892575.4879, 0.1878, 14698.1632]
+  - number: 4
+    name: ORE
+    start_stations:
+      - [54, 0]
+    end_stations:
+      - [59, 10]
+      - [125, 2357]
+    exchangeable_start_stations:
+      - [8, 10]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [59, 330157.4909, 0.3261, 19980.3156]
+      - [125, 330157.4909, 0.3261, 19980.3156]
+  - number: 5
+    name: SJL
+    start_stations:
+      - [8, 10]
+    end_stations:
+      - [14, 2550]
+    exchangeable_start_stations:
+      - [54, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [14, 317706.7031, 0.7708, 58202.1016]
+  - number: 6
+    name: SJG
+    start_stations:
+      - [14, 2550]
+    end_stations:
+      - [16, 2768]
+      - [169, 1644]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [16, 479655.5272, 0.2937, 8562.9924]
+      - [169, 479655.5272, 0.2937, 8562.9924]
+  - number: 7
+    name: SJNB
+    start_stations:
+      - [16, 2768]
+    end_stations:
+      - [172, 727]
+      - [31, 10]
+    exchangeable_start_stations:
+      - [169, 1644]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [172, 134186.3560, 0.4485, 47900.2640]
+      - [31, 134186.3560, 0.4485, 47900.2640]
+  - number: 8
+    name: RRI
+    start_stations:
+      - [169, 1644]
+    end_stations:
+      - [172, 727]
+      - [31, 10]
+    exchangeable_start_stations:
+      - [16, 2768]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [172, 134186.3560, 0.4485, 47900.2640]
+      - [31, 134186.3560, 0.4485, 47900.2640]
+  - number: 9
+    name: TC
+    start_stations:
+      - [172, 727]
+    end_stations:
+      - [83, 2275]
+      - [279, 5742]
+      - [310, 6457]
+      - [90, 3711]
+      - [135, 3315]
+    exchangeable_start_stations:
+      - [31, 10]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [83, 38421.9172, 0.2556, 135859.5844]
+      - [279, 38421.9172, 0.2556, 135859.5844]
+      - [310, 38421.9172, 0.2106, 135859.5844]
+      - [90, 38421.9172, 0.2556, 67913.3880]
+      - [135, 38421.9172, 0.2556, 63254.5952]
+  - number: 10
+    name: MAC
+    start_stations:
+      - [31, 10]
+    end_stations:
+      - [37, 3977]
+      - [90, 3711]
+      - [135, 3315]
+      - [83, 2275]
+      - [279, 5742]
+      - [310, 6457]
+    exchangeable_start_stations:
+      - [172, 727]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [37, 91079.3992, 0.4773, 18799.2132]
+      - [90, 38421.9172, 0.2556, 108103.6780]
+      - [135, 38421.9172, 0.2556, 85793.9660]
+      - [83, 116190.9486, 0.3558, 106397.6412]
+      - [279, 116190.9486, 0.3558, 106397.6412]
+      - [310, 116190.9486, 0.3558, 106397.6412]
+  - number: 11
+    name: MF
+    start_stations:
+      - [37, 3977]
+    end_stations:
+      - [83, 2275]
+      - [279, 5742]
+      - [310, 6457]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [83, 116190.9486, 0.3558, 87598.4280]
+      - [279, 116190.9486, 0.3558, 87598.4280]
+      - [310, 116190.9486, 0.3558, 87598.4280]
+  - number: 12
+    name: JPT
+    start_stations:
+      - [83, 2275]
+    end_stations:
+      - [437, 15766]
+    exchangeable_start_stations:
+      - [279, 5742]
+      - [310, 6457]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [437, 280980.9801, 0.3078, 82086.6168]
+  - number: 13
+    name: FR
+    start_stations:
+      - [279, 5742]
+    end_stations:
+      - [437, 15766]
+    exchangeable_start_stations:
+      - [83, 2275]
+      - [310, 6457]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [437, 0.0000, 0.0000, 0.0000]
+  - number: 14
+    name: TMS
+    start_stations:
+      - [310, 6457]
+    end_stations:
+      - [437, 15766]
+    exchangeable_start_stations:
+      - [83, 2275]
+      - [279, 5742]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [437, 97194.8850, 0.3227, 81791.3412]
+  - number: 15
+    name: ORS
+    start_stations:
+      - [59, 10]
+    end_stations:
+      - [82, 2609]
+      - [217, 0]
+      - [232, 0]
+      - [214, 4490]
+      - [90, 3711]
+      - [135, 3315]
+    exchangeable_start_stations:
+      - [125, 2357]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [82, 366834.0012, 0.5590, 59678.4796]
+      - [217, 366834.0012, 0.5590, 59678.4796]
+      - [232, 366834.0012, 0.5590, 59678.4796]
+      - [214, 366834.0012, 0.5590, 59678.4796]
+      - [90, 366834.0012, 0.5590, 100688.9796]
+      - [135, 366834.0012, 0.5590, 105413.3892]
+  - number: 16
+    name: MRS
+    start_stations:
+      - [125, 2357]
+    end_stations:
+      - [82, 2609]
+      - [217, 0]
+      - [232, 0]
+      - [214, 4490]
+      - [90, 3711]
+      - [135, 3315]
+    exchangeable_start_stations:
+      - [59, 10]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [82, 366834.0012, 0.5590, 107808.4024]
+      - [217, 366834.0012, 0.5590, 107808.4024]
+      - [232, 366834.0012, 0.5590, 107808.4024]
+      - [214, 366834.0012, 0.5590, 107808.4024]
+      - [90, 366834.0012, 0.5590, 107939.6360]
+      - [135, 366834.0012, 0.5590, 65485.5664]
+  - number: 17
+    name: OR4
+    start_stations:
+      - [90, 3711]
+    end_stations:
+      - [37, 3977]
+      - [83, 2275]
+      - [279, 5742]
+      - [310, 6457]
+      - [82, 2609]
+      - [217, 0]
+      - [232, 0]
+      - [214, 4490]
+    exchangeable_start_stations:
+      - [135, 3315]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [37, 38421.9172, 0.2556, 103707.3524]
+      - [83, 38421.9172, 0.2556, 150426.5140]
+      - [279, 38421.9172, 0.2556, 150426.5140]
+      - [310, 38421.9172, 0.2556, 150426.5140]
+      - [82, 366834.0012, 0.5590, 30347.7700]
+      - [217, 366834.0012, 0.5590, 30347.7700]
+      - [232, 366834.0012, 0.5590, 30347.7700]
+      - [214, 366834.0012, 0.5590, 30347.7700]
+  - number: 18
+    name: MR4
+    start_stations:
+      - [135, 3315]
+    end_stations:
+      - [37, 3977]
+      - [83, 2275]
+      - [279, 5742]
+      - [310, 6457]
+      - [82, 2609]
+      - [217, 0]
+      - [232, 0]
+      - [214, 4490]
+    exchangeable_start_stations:
+      - [90, 3711]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [37, 38421.9172, 0.2556, 80479.0052]
+      - [83, 38421.9172, 0.2556, 161679.7952]
+      - [279, 38421.9172, 0.2556, 161679.7952]
+      - [310, 38421.9172, 0.2556, 161679.7952]
+      - [82, 366834.0012, 0.5590, 41174.5420]
+      - [217, 366834.0012, 0.5590, 41174.5420]
+      - [232, 366834.0012, 0.5590, 41174.5420]
+      - [214, 366834.0012, 0.5590, 41174.5420]
+  - number: 19
+    name: CVPgate
+    start_stations:
+      - [214, 4490]
+    end_stations:
+      - [CVP, -999]
+    exchangeable_start_stations:
+      - [232, 0]
+      - [217, 0]
+      - [82, 2609]
+      - [90, 3711]
+      - [135, 3315]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [CVP, 26210.6308, 0.4775, 3280.8400]
+  - number: 20
+    name: MAL
+    start_stations:
+      - [437, 15766]
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+  - number: 21
+    name: RGU1
+    start_stations:
+      - [82, 2609]
+    end_stations:
+      - [clifton_court, -999]
+    exchangeable_start_stations:
+      - [214, 4490]
+      - [90, 3711]
+      - [135, 3315]
+      - [217, 0]
+      - [232, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [clifton_court, 9999999999, 0, 3280.84]
+  - number: 22
+    name: RGU2
+    start_stations:
+      - [217, 0]
+    end_stations:
+      - [clifton_court, -999]
+    exchangeable_start_stations:
+      - [214, 4490]
+      - [90, 3711]
+      - [135, 3315]
+      - [82, 2609]
+      - [232, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [clifton_court, 9999999999, 0, 3280.84]
+  - number: 23
+    name: RGU3
+    start_stations:
+      - [232, 0]
+    end_stations:
+      - [clifton_court, -999]
+    exchangeable_start_stations:
+      - [214, 4490]
+      - [90, 3711]
+      - [135, 3315]
+      - [217, 0]
+      - [82, 2609]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [clifton_court, 9999999999, 0, 3280.84]
+  - number: 24
+    name: CVPtank
+    start_stations:
+      - [CVP, -999]
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+  - number: 25
+    name: RGD
+    start_stations:
+      - [clifton_court, -999]
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+
+simulation_start_date: INSERTION_DATE
+simulation_scenario: STUDY_SCENARIO
+
+particle_flux_header: [Name, From_Survival_Calculation_Group, To_Survival_Calculation_Group]
+#particle_flux:
+#  - [one, 1, 2]
+
+individual_route_survival_header: [Name, Route_Survival_Calculation_Group_List]
+individual_route_survival:
+  - [SUT_suv, "(2,4,9)"]
+  - [STM_suv, "(2,5,9)"]
+  - [SAC_suv, "(2,3,6,9)"]
+  - [GEO_suv, "(2,3,7,10)"]
+  - [DCC_suv, "(2,3,8,10)"]
+
+show_route_survival_detail: false
+# From survivalModelEquations_01nov24/ECO-PTM South Delta route specific survial calculation formulas_Oct2024_error_fixed_dwj_edits.txt
+route_survival_equations_header: [Name, Route_Survival_Equation]
+route_survival_equations:
+  - [SJR, "S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(SJL_SJG)*S(SJG_SJNB.RRI)*[frac(SJG_SJNB/SJG_SJNB.RRI)*S(SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*S(RRI_MAC.TC)]*<S(MAC_MF)*frac(MAC_MF/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(MF_JPT.TMS.FR)*{frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)}+S(MAC_JPT.TMS.FR)*{frac(MAC_JPT/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(JPT_MAL)+frac(MAC_TMS/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(TMS_MAL)}+S(MAC_OR4)*frac(MAC_OR4/MAC_MF.JPT.TMS.FR.OR4.MR4)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MAC_MR4)*frac(MAC_MR4/MAC_MF.JPT.TMS.FR.OR4.MR4)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}>"]
+  - [OMR, "S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(ORE_ORS.MRS)*(frac(ORE_ORS/ORE_ORS.MRS)*<S(ORS_OR4)*frac(ORS_OR4/ORS_OR4.MR4.RGU#.CVPgate)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(ORS_MR4)*frac(ORS_MR4/ORS_OR4.MR4.RGU#.CVPgate)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(ORS_RGU#.CVPgate)*[frac(ORS_RGU#/ORS_OR4.MR4.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(ORS_CVPgate/ORS_OR4.MR4.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]>+frac(ORE_MRS/ORE_ORS.MRS)*<S(MRS_OR4)*frac(MRS_OR4/MRS_OR4.MR4.RGU#.CVPgate)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MRS_MR4)*frac(MRS_MR4/MRS_OR4.MR4.RGU#.CVPgate)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MRS_RGU#.CVPgate)*[frac(MRS_RGU#/MRS_OR4.MR4.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MRS_CVPgate/MRS_OR4.MR4.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]>)"]
+  - [TC, "S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(SJL_SJG)*S(SJG_SJNB.RRI)*[frac(SJG_SJNB/SJG_SJNB.RRI)*S(SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*S(RRI_MAC.TC)]*<S(TC_JPT.TMS.FR)*[frac(TC_JPT/TC_JPT.TMS.FR.OR4.MR4)*S(JPT_MAL)+frac(TC_TMS/TC_JPT.TMS.FR.OR4.MR4)*S(TMS_MAL)]+S(TC_OR4)*frac(TC_OR4/TC_JPT.TMS.FR.OR4.MR4)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(TC_MR4)*frac(TC_MR4/TC_JPT.TMS.FR.OR4.MR4)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}>"]
+  - [overall, "S(SJR)*frac(MOS_SJL/MOS_ORE.SJL)*[frac(SJG_SJNB/SJG_SJNB.RRI)*frac(SJNB_MAC/SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*frac(RRI_MAC/SJNB_MAC.TC)]+S(OMR)*frac(MOS_ORE/MOS_ORE.SJL)+S(TC)*frac(MOS_SJL/MOS_ORE.SJL)*[frac(SJG_SJNB/SJG_SJNB.RRI)*frac(SJNB_TC/SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*frac(RRI_TC/SJNB_MAC.TC)]"]
+  - [frac1, "frac(MOS_SJL/MOS_ORE.SJL)"]
+  - [surv1, "S(MOS_ORE.SJL)"]
+individual_reach_survival_header: [fromStation_toStations, survival]
+individual_reach_survival:
+  - [RGD_MAL, 0.0222]
+  - [CVPtank_MAL, 0.6256]
+
+exit_stations: [MAL]
+
+display_simulation_timestep_write_all: true
+flux_write_all: true
+entrainment_write_all: true
+survival_write_all: true
+route_survival_write_all: true
+fates_write_all: true
+survival_detail_write_all: true
+
+# PTM configuration
+ptm_start_date: 15MAR2011
+ptm_start_time: 0000
+ptm_end_date: 22AUG2011
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
+
+theta: 0.6                            # Theta to interpolate velocity
+
+# Boolean variables
+ptm_ivert: true                       # Use vertical velocity profile
+ptm_itrans: true                      # Use transverse velocity profile
+ptm_iey: true                         # Use transverse mixing
+ptm_iez: true                         # Use vertical mixing
+ptm_iprof: false                      # 
+
+# Set this to false for now. In the Fortran code, it is set by process_fixed.f90. See 22jul24 Obsidian
+ptm_igroup: false
+
+ptm_flux_percent: true                # Output flux as a percentage
+ptm_group_percent: true               # Output groups as a percentage
+ptm_flux_cumulative: true             # Output flux as cumulative values
+
+# Numeric variables
+ptm_random_seed: 32001                # Random number seed
+ptm_trans_constant: 0.6               # Transverse mixing constant 
+ptm_vert_constant: 0.067              # Vertical mixing constant
+
+ptm_trans_a_coef: 1.2                 # Transverse a coefficient
+ptm_trans_b_coef: 0.3                 # Transverse b coefficient
+ptm_trans_c_coef: -1.5                # Transverse c coefficient
+
+ptm_num_animated: 2000                # Maximum number of particles to animate
+
+particle_group_output_header: [name, groupName]
+particle_group_output:
+  - [GS, GS]
+  - [SUT, SUT]
+  - [STM, STM]
+  - [RIO, RIO]
+  - [franks, franks]
+  - [whole, whole]
+
+particle_flux_output_header: [name, from_wb, from_wb_type, to_wb, to_wb_type]
+particle_flux_output:
+  - [SUT_flux, 418, chan, 379, chan]
+  - [STM_flux, 419, chan, 383, chan]
+  - [GS_flux, 422, chan, 366, chan]
+  - [pass_rio, RIO_UP, group, 430, chan]
+  - [export_swp, clifton_court, res, swp, group]
+  - [export_cvp, 216, chan, cvp, group]
+  - [past_mtz, 441, chan, mtz, group]
+  - [past_chipps, chipps_east, group, chipps_west, group]
+  - [diversion_ag, all, group, ag_div, group]
+
+groups_header: [name, type, pattern]
+groups:
+  - [SUT, chan, (379)]
+  - [STM, chan, (383)]
+  - [GS, chan, (366)]
+  - [RIO_UP, chan, (387|398|429)]
+  - [RIO, chan, (430)]
+  - [chipps_east, chan, (288|294|291)]
+  - [chipps_west, chan, (442|437)]
+  - [ag_div, qext, dicu_div_.*]
+  - [swp, qext, swp]
+  - [cvp, qext, cvp]
+  - [mtz, stage, mtz.*]
+  - [franks, res, franks_tract]
+  - [whole, chan, .*]
+  - [whole, res, .*]
+
+io_file:
+#  - type: anim
+#    interval: 15min
+#    file: ./output/anim_db_southdelta.bin
+  - type: trace
+    interval: none
+    file: ./output/trace_southdelta.out
+  - type: flux
+    interval: 1hour
+    file: ./output/ptm_out.ncd
+  - type: survival
+    interval: none
+    file: ./output/ptm_out.ncd
+  - type: echoConfig
+    interval: none
+    file: ./output/echoConfig.yaml
+  - type: echoConfigNetCDF
+    interval: none
+    file: ./output/ptm_out.ncd
+  - type: routeSurvival
+    interval: none
+    file: ./output/routeSurvival.csv
+  - type: fates
+    interval: none
+    file: ./output/fates.csv
+  - type: survDetail
+    interval: none
+    file: ./output/survivalDetail.csv

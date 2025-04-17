@@ -3,12 +3,13 @@
 """
 @author: djackson
 """
-workingDir = r"C:\Users\admin\Documents\QEDA\DWR\programs\ECO_PTM_SouthDelta\dsm2\src\ptm\scripts\utilities"
+import os
+workingDir = r"C:\Users\admin\Documents\QEDA\DWR\programs\ECO_PTM_SouthDelta\dsm2\src\ptm\scripts\utilities\create_config"
 
 inputFileCSV = "exampleCreateConfigInput.csv"
-outputFileYAML = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_createConfig_17apr25\ptmConfig.yaml"
+outputDir = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_createConfig_17apr25"
 
 from create_config import CreateConfig
 
-cC = CreateConfig(inputFileCSV, outputFileYAML)
+cC = CreateConfig(inputFileCSV, outputDir)
 cC.run()

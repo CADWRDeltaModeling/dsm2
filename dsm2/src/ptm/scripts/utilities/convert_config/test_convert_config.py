@@ -5,7 +5,7 @@ Created on Fri Mar 28 10:58:58 2025
 
 @author: djackson
 """
-workingDir = r"C:\Users\admin\Documents\QEDA\DWR\programs\ECO_PTM_SouthDelta\dsm2\src\ptm\scripts\utilities"
+workingDir = r"C:\Users\admin\Documents\QEDA\DWR\programs\ECO_PTM_SouthDelta\dsm2\src\ptm\scripts\utilities\convert_config"
 
 DSM2configFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\dsm2_config.inp"
 PTMconfigFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\ptm_config.inp"
