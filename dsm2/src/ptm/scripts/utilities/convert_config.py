@@ -15,7 +15,7 @@ import pyparsing as pp
 import numpy as np
 import pandas as pd
 
-class ConvertConfigInpToYAML:
+class ConvertConfig:
     
     def __init__(self, DSM2configFile, PTMconfigFile, PTMbehaviorFile, outputFile):
         """Initialize ConvertConfig object."""
@@ -674,9 +674,7 @@ if __name__=="__main__":
     parser.add_argument("--outputFile", action="store", dest="outputFile", required=True)
     
     args = parser.parse_args()
-    
-    
-    
-    cC = ConvertConfigInpToYAML(args.DSM2configFile, args.PTMconfigFile, args.PTMbehaviorFile, args.outputFile)
+
+    cC = ConvertConfig(args.DSM2configFile, args.PTMconfigFile, args.PTMbehaviorFile, args.outputFile)
     cC.run()
     

@@ -12,7 +12,7 @@ PTMconfigFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_For
 PTMbehaviorFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\ptm_behavior_inputs.inp"
 outputFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_convertConfig_17apr25\ptmConfig.yaml"
 
-from convert_config_inp_to_yaml import ConvertConfigInpToYAML
+from convert_config import ConvertConfig
 
-cC = ConvertConfigInpToYAML(DSM2configFile, PTMconfigFile, PTMbehaviorFile, outputFile)
+cC = ConvertConfig(DSM2configFile, PTMconfigFile, PTMbehaviorFile, outputFile)
 cC.run()
