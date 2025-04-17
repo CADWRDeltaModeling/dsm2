@@ -10,7 +10,7 @@ workingDir = r"C:\Users\admin\Documents\QEDA\DWR\programs\ECO_PTM_SouthDelta\dsm
 DSM2configFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\dsm2_config.inp"
 PTMconfigFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\ptm_config.inp"
 PTMbehaviorFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_master_FortranIO_24oct24\ptm_behavior_inputs.inp"
-outputFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_convertConfig_28mar25\ptmConfig.yaml"
+outputFile = r"C:\Users\admin\Documents\QEDA\DWR\ECO_PTM_runs\test_convertConfig_17apr25\ptmConfig.yaml"
 
 from convert_config import ConvertConfig
 

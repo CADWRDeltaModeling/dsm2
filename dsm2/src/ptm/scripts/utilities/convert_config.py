@@ -527,6 +527,9 @@ class ConvertConfig:
                               "survival_write_all":"Survival_Write_All",
                               "route_survival_write_all":"Route_Surv_Write_All",
                               "fates_write_all":"Fates_Write_All"}, "boolean", self.behaviorTextNoComment)
+
+        # survival_detail_write_all is not present in the *.inp config files
+        self.config["survival_detail_write_all"] = True
         
         self.parseScalars({"ptm_start_date":"PTM_START_DATE"}, "string", self.DSM2configTextNoComment)
         self.config["ptm_start_time"] = "0000"
@@ -638,6 +641,7 @@ class ConvertConfig:
                 ioFiles.append({"type":"echoConfigNetCDF", "interval":"none", "file": "./output/ptm_out.ncd"})
                 ioFiles.append({"type":"routeSurvival", "interval":"none", "file": "./output/routeSurvival.csv"})
                 ioFiles.append({"type":"fates", "interval":"none", "file": "./output/fates.csv"})
+                ioFiles.append({"type":"survDetail", "interval":"none", "file": "./output/survivalDetail.csv"})
 
                 self.config["io_file"] = ioFiles     
         except:
