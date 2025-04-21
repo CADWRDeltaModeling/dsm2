@@ -45,6 +45,18 @@ class CreateConfig:
         """Replace placeholders in template with specified values"""
         template = self.replacePlaceholder(template, "TIDEFILE_PLACEHOLDER", "tidefile")
 
+        template = self.replacePlaceholder(template, "RELEASE_LOC_NODEID_PLACEHOLDER", "release_loc_nodeID")
+        template = self.replacePlaceholder(template, "RELEASE_LOC_CHANNELID_PLACEHOLDER", "release_loc_channelID")
+        template = self.replacePlaceholder(template, "RELEASE_LOC_DISTANCE_PLACEHOLDER", "release_loc_distance")
+        template = self.replacePlaceholder(template, "RELEASE_LOC_STATIONNAME_PLACEHOLDER", "release_loc_stationName")
+
+        template = self.replacePlaceholder(template, "RELEASES_RELEASE_DATE_PLACEHOLDER", "releases_release_date")
+        template = self.replacePlaceholder(template, "RELEASES_RELEASE_TIME_PLACEHOLDER", "releases_release_time")
+        template = self.replacePlaceholder(template, "RELEASES_PARTICLE_NUMBER_PLACEHOLDER", "releases_particle_number")
+
+        template = self.replacePlaceholder(template, "PTM_START_DATE_PLACEHOLDER", "ptm_start_date")
+        template = self.replacePlaceholder(template, "PTM_END_DATE_PLACEHOLDER", "ptm_end_date")
+
         return template
 
     def replacePlaceholder(self, template, placeholder, variable):

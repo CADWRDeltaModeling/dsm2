@@ -1,2 +1,11 @@
 variable,value
 tidefile,C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5 
+release_loc_nodeID,17
+release_loc_channelID,17
+release_loc_distance,100
+release_loc_stationName,Vernalis
+releases_release_date,05/01/2011
+releases_release_time,1:00
+releases_particle_number,100
+ptm_start_date,21APR2011
+ptm_end_date,28SEP2011
