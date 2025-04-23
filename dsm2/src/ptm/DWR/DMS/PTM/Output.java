@@ -145,7 +145,7 @@ public class Output {
 					  config.writeOutput(writer);
 				  }
 				  
-			  } catch (IOException | InvalidRangeException e) {
+			  } catch (Exception e) {
 				  PTMUtil.systemExit("Failed to write to netCDF output file. " + e);
 			  }
 		  }

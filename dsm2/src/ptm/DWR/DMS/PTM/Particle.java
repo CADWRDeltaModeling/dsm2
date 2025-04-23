@@ -150,6 +150,8 @@ public class Particle{
 	   	*  position.
 	   	*/
 	  boolean particleWait;
+	  boolean inJunctionModel;
+	  
 	  /**
 	   	*  Particle observer
 	   	*/
@@ -239,6 +241,8 @@ public class Particle{
 		  _particleTrace = new BasicParticleTrace();
 		  
 		  arrivalDatetimes = new ArrayList<SimpleEntry<String, Long>>();
+		  
+		  inJunctionModel = false;
 		  
 		  // For testing
 		  uniqueVisits = new HashMap<Integer, Long>();
@@ -622,6 +626,10 @@ public class Particle{
 		  
 		  // Set vFish to dead so it is no longer active, but don't record the death in the observer
 		  isDead = true;
+	  }
+	  
+	  public float getTmLeft() {
+		  return(Globals.Environment.getPTMTimeStep()*60 - _timeUsedInSecond);
 	  }
 	  
 	  // For testing

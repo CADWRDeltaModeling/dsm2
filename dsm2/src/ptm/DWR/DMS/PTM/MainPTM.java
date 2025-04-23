@@ -1,3 +1,4 @@
+
 /** <license>
 C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
@@ -179,6 +180,9 @@ public class MainPTM {
 					MainPTM.display(displayInterval);
 				//if (smeltBehavior)
 				Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
+				
+				// Trigger any scheduled insertions into an external routing model
+				BioPTMinterface.runAllInsertions();
 
 				// get latest hydro information using Global/model time in minutes!!!!!!
 				Environment.getHydroInfo(Globals.currentModelTime);

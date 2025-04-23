@@ -162,6 +162,10 @@ public class Config {
 	public List<IOfileLine> io_file;
 
 	public String smelt_input_filename;
+	
+	public String cross_stream_frac_method;
+	public float cross_stream_frac_beta_a;
+	public float cross_stream_frac_beta_b;
 
 	public Config() {
 		valuesSet = new ArrayList<>();
@@ -254,6 +258,21 @@ public class Config {
 	public void setSurvival_detail_write_all(boolean survival_detail_write_all) {
 		this.survival_detail_write_all = survival_detail_write_all;
 		valuesSet.add("survival_detail_write_all");
+	}
+	
+	public void setCross_stream_frac_method(String cross_stream_frac_method) {
+		this.cross_stream_frac_method = cross_stream_frac_method;
+		valuesSet.add("cross_stream_frac_method");
+	}
+	
+	public void setCross_stream_frac_beta_a(float cross_stream_frac_beta_a) {
+		this.cross_stream_frac_beta_a = cross_stream_frac_beta_a;
+		valuesSet.add("cross_stream_frac_beta_a");
+	}
+	
+	public void setCross_stream_frac_beta_b(float cross_stream_frac_beta_b) {
+		this.cross_stream_frac_beta_b = cross_stream_frac_beta_b;
+		valuesSet.add("cross_stream_frac_beta_b");
 	}
 
 	/**
@@ -539,7 +558,7 @@ public class Config {
 	 * @throws IOException			
 	 * @throws InvalidRangeException
 	 */
-	public void writeOutput(NetcdfFormatWriter writer) throws IOException, InvalidRangeException {		
+	public void writeOutput(NetcdfFormatWriter writer) {		
 		Variable v;
 		int[] shape;
 		int len, rowNum;
@@ -631,212 +650,203 @@ public class Config {
 		setColDim(writer, "groupsCol", this.groups_header);
 
 		// release_loc
-		v = writer.findVariable("releaseLocCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		for(int i=1; i<shape[0]; i++) {
-			ac.setString(ima.set(i), this.release_groups.get(0).release_loc_header[i-1]);
-		}
-		writer.write(v, ac);
-		
-		v = writer.findVariable("release_groups:release_loc");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
-			for(int j=0; j<shape[1]; j++) {
-				if(j==0) {
-					charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
-				}
-				else {
-					charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).release_loc.get(j-1).toString());
-				}
+		try {
+			v = writer.findVariable("releaseLocCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			for(int i=1; i<shape[0]; i++) {
+				ac.setString(ima.set(i), this.release_groups.get(0).release_loc_header[i-1]);
 			}
-			rowNum++;
-		}
-		writer.write(v, charArray);
-		
-		// releases
-		v = writer.findVariable("releasesCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		for (int i=1; i<shape[0]; i++) {
-			ac.setString(ima.set(i), this.release_groups.get(0).releases_header[i-1]);
-		}
-		writer.write(v, ac);
-		
-		v = writer.findVariable("release_groups:releases");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
+			writer.write(v, ac);
 			
-			for(int rel=0; rel<this.release_groups.get(relGroup).releases.size(); rel++) {
-				
+			v = writer.findVariable("release_groups:release_loc");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
 				for(int j=0; j<shape[1]; j++) {
-					
 					if(j==0) {
 						charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
 					}
 					else {
-						charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).releases.get(rel).get(j-1).toString());
+						charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).release_loc.get(j-1).toString());
 					}
 				}
 				rowNum++;
 			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
-		
-		// channel_groups
-		v = writer.findVariable("channelGroupsCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "channel");
-		
-		v = writer.findVariable("channel_groups");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(int chanGroup=0; chanGroup<this.channel_groups.size(); chanGroup++) {
-			for(int chanNum=0; chanNum<this.channel_groups.get(chanGroup).channels.length; chanNum++) {
-				charArray.setString(ima.set(rowNum, 0), this.channel_groups.get(chanGroup).name);
-				charArray.setString(ima.set(rowNum, 1), Integer.toString(this.channel_groups.get(chanGroup).channels[chanNum]));
-				rowNum++;
+		catch (Exception e) {
+			System.out.println("Could not write release_loc to netCDF output file. Skipping.");
+		}
+
+		// releases
+		try {
+			v = writer.findVariable("releasesCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			for (int i=1; i<shape[0]; i++) {
+				ac.setString(ima.set(i), this.release_groups.get(0).releases_header[i-1]);
 			}
+			writer.write(v, ac);
+			
+			v = writer.findVariable("release_groups:releases");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
+				
+				for(int rel=0; rel<this.release_groups.get(relGroup).releases.size(); rel++) {
+					
+					for(int j=0; j<shape[1]; j++) {
+						
+						if(j==0) {
+							charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
+						}
+						else {
+							charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).releases.get(rel).get(j-1).toString());
+						}
+					}
+					rowNum++;
+				}
+			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write releases to netCDF output file. Skipping.");
+		}
+
+		// channel_groups
+		try {
+			v = writer.findVariable("channelGroupsCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "channel");
+			
+			v = writer.findVariable("channel_groups");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(int chanGroup=0; chanGroup<this.channel_groups.size(); chanGroup++) {
+				for(int chanNum=0; chanNum<this.channel_groups.get(chanGroup).channels.length; chanNum++) {
+					charArray.setString(ima.set(rowNum, 0), this.channel_groups.get(chanGroup).name);
+					charArray.setString(ima.set(rowNum, 1), Integer.toString(this.channel_groups.get(chanGroup).channels[chanNum]));
+					rowNum++;
+				}
+			}
+			writer.write(v, charArray);
+		}
+		catch (Exception e) {
+			System.out.println("Could not write channel_groups to netCDF output file. Skipping.");
+		}
 		
 		// barriers
-		v = writer.findVariable("barriersCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "nodeID");
-		ac.setString(ima.set(2), "waterbodyID");
-		for(int i=3; i<shape[0]; i++) {
-			ac.setString(ima.set(i), this.barriers.get(0).schedule_header[i-3]);
-		}
-		writer.write(v, ac);
-		
-		v = writer.findVariable("barriers");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(int b=0; b<this.barriers.size(); b++) {
-			for(int sched=0; sched<this.barriers.get(b).schedule.size(); sched++) {
-				for(int j=0; j<shape[1]; j++) {
-					if(j==0) {
-						charArray.setString(ima.set(rowNum, j), this.barriers.get(b).name);
-					}
-					else if(j==1) {
-						charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).nodeID));
-					}
-					else if(j==2) {
-						charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).waterbodyID));
-					}
-					else {
-						charArray.setString(ima.set(rowNum, j), this.barriers.get(b).schedule.get(sched).get(j-3).toString());
-					}
-				}
-				rowNum++;
+		try {
+			v = writer.findVariable("barriersCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "nodeID");
+			ac.setString(ima.set(2), "waterbodyID");
+			for(int i=3; i<shape[0]; i++) {
+				ac.setString(ima.set(i), this.barriers.get(0).schedule_header[i-3]);
 			}
+			writer.write(v, ac);
+			
+			v = writer.findVariable("barriers");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(int b=0; b<this.barriers.size(); b++) {
+				for(int sched=0; sched<this.barriers.get(b).schedule.size(); sched++) {
+					for(int j=0; j<shape[1]; j++) {
+						if(j==0) {
+							charArray.setString(ima.set(rowNum, j), this.barriers.get(b).name);
+						}
+						else if(j==1) {
+							charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).nodeID));
+						}
+						else if(j==2) {
+							charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).waterbodyID));
+						}
+						else {
+							charArray.setString(ima.set(rowNum, j), this.barriers.get(b).schedule.get(sched).get(j-3).toString());
+						}
+					}
+					rowNum++;
+				}
+			}
+			writer.write(v,  charArray);
 		}
-		writer.write(v,  charArray);
+		catch (Exception e) {
+			System.out.println("Could not write barriers to netCDF output file. Skipping.");
+		}
 		
 		// start_stations
-		v = writer.findVariable("startStationsCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "number");
-		ac.setString(ima.set(2), "channel");
-		ac.setString(ima.set(3), "distance");
-		writer.write(v, ac);
-		
-		v = writer.findVariable("survival_groups:start_stations");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		for(int i=0; i<shape[0]; i++) {
-			for(int j=0; j<shape[1]; j++) {
-				if(j==0) {
-					charArray.setString(ima.set(i, j), this.survival_groups.get(i).name);
-				}
-				else if(j==1) {
-					charArray.setString(ima.set(i, j), Integer.toString(this.survival_groups.get(i).number));
-				}
-				else {
-					charArray.setString(ima.set(i, j), this.survival_groups.get(i).start_stations.get(0).get(j-2).toString());
-				}
-			}
-		}
-		writer.write(v, charArray);
-		
-		// end_stations
-		v = writer.findVariable("endStationsCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "number");
-		ac.setString(ima.set(2), "channel");
-		ac.setString(ima.set(3), "distance");
-		writer.write(v, ac);
-		
-		v = writer.findVariable("survival_groups:end_stations");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(SurvivalGroup sG : this.survival_groups) {
-			for(int eS=0; eS<sG.end_stations.size(); eS++) {
+		try {
+			v = writer.findVariable("startStationsCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "number");
+			ac.setString(ima.set(2), "channel");
+			ac.setString(ima.set(3), "distance");
+			writer.write(v, ac);
+			
+			v = writer.findVariable("survival_groups:start_stations");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			for(int i=0; i<shape[0]; i++) {
 				for(int j=0; j<shape[1]; j++) {
 					if(j==0) {
-						charArray.setString(ima.set(rowNum, j), sG.name);
+						charArray.setString(ima.set(i, j), this.survival_groups.get(i).name);
 					}
 					else if(j==1) {
-						charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
+						charArray.setString(ima.set(i, j), Integer.toString(this.survival_groups.get(i).number));
 					}
 					else {
-						charArray.setString(ima.set(rowNum, j), sG.end_stations.get(eS).get(j-2).toString());
+						charArray.setString(ima.set(i, j), this.survival_groups.get(i).start_stations.get(0).get(j-2).toString());
 					}
 				}
-				rowNum++;
 			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write start_stations to netCDF output file. Skipping.");
+		}
 		
-		// exchangeable_start_stations
-		v = writer.findVariable("exchStationsCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "number");
-		ac.setString(ima.set(2), "channel");
-		ac.setString(ima.set(3), "distance");
-		writer.write(v, ac);
-		
-		v = writer.findVariable("survival_groups:exchangeable_start_stations");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(SurvivalGroup sG : this.survival_groups) {
-			if(sG.exchangeable_start_stations!=null) {
-				for(int eS=0; eS<sG.exchangeable_start_stations.size(); eS++) {
+		// end_stations
+		try {
+			v = writer.findVariable("endStationsCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "number");
+			ac.setString(ima.set(2), "channel");
+			ac.setString(ima.set(3), "distance");
+			writer.write(v, ac);
+			
+			v = writer.findVariable("survival_groups:end_stations");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(SurvivalGroup sG : this.survival_groups) {
+				for(int eS=0; eS<sG.end_stations.size(); eS++) {
 					for(int j=0; j<shape[1]; j++) {
 						if(j==0) {
 							charArray.setString(ima.set(rowNum, j), sG.name);
@@ -845,90 +855,150 @@ public class Config {
 							charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
 						}
 						else {
-							charArray.setString(ima.set(rowNum, j), sG.exchangeable_start_stations.get(eS).get(j-2).toString());
+							charArray.setString(ima.set(rowNum, j), sG.end_stations.get(eS).get(j-2).toString());
 						}
 					}
 					rowNum++;
 				}
 			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write end_stations to netCDF output file. Skipping.");
+		}
+		
+		// exchangeable_start_stations
+		try {
+			v = writer.findVariable("exchStationsCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "number");
+			ac.setString(ima.set(2), "channel");
+			ac.setString(ima.set(3), "distance");
+			writer.write(v, ac);
+			
+			v = writer.findVariable("survival_groups:exchangeable_start_stations");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(SurvivalGroup sG : this.survival_groups) {
+				if(sG.exchangeable_start_stations!=null) {
+					for(int eS=0; eS<sG.exchangeable_start_stations.size(); eS++) {
+						for(int j=0; j<shape[1]; j++) {
+							if(j==0) {
+								charArray.setString(ima.set(rowNum, j), sG.name);
+							}
+							else if(j==1) {
+								charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
+							}
+							else {
+								charArray.setString(ima.set(rowNum, j), sG.exchangeable_start_stations.get(eS).get(j-2).toString());
+							}
+						}
+						rowNum++;
+					}
+				}
+			}
+			writer.write(v, charArray);
+		}
+		catch (Exception e) {
+			System.out.println("Could not write exchangeable_start_stations to netCDF output file. Skipping.");
+		}
 		
 		// survival_params
-		v = writer.findVariable("survParamsCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "name");
-		ac.setString(ima.set(1), "number");
-		for(int i=2; i<shape[0]; i++) {
-			ac.setString(ima.set(i), this.survival_groups.get(0).survival_params_header[i-2]);
-		}
-		writer.write(v, ac);
-		
-		v = writer.findVariable("survival_groups:survival_params");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(SurvivalGroup sG : this.survival_groups) {
-			for(int sP=0; sP<sG.survival_params.size(); sP++) {
-				for(int j=0; j<shape[1]; j++) {
-					if(j==0) {
-						charArray.setString(ima.set(rowNum, j), sG.name);
-					}
-					else if(j==1) {
-						charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
-					}
-					else {
-						charArray.setString(ima.set(rowNum, j), sG.survival_params.get(sP).get(j-2).toString());
-					}
-				}
-				rowNum++;
+		try {
+			v = writer.findVariable("survParamsCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "name");
+			ac.setString(ima.set(1), "number");
+			for(int i=2; i<shape[0]; i++) {
+				ac.setString(ima.set(i), this.survival_groups.get(0).survival_params_header[i-2]);
 			}
+			writer.write(v, ac);
+			
+			v = writer.findVariable("survival_groups:survival_params");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(SurvivalGroup sG : this.survival_groups) {
+				for(int sP=0; sP<sG.survival_params.size(); sP++) {
+					for(int j=0; j<shape[1]; j++) {
+						if(j==0) {
+							charArray.setString(ima.set(rowNum, j), sG.name);
+						}
+						else if(j==1) {
+							charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
+						}
+						else {
+							charArray.setString(ima.set(rowNum, j), sG.survival_params.get(sP).get(j-2).toString());
+						}
+					}
+					rowNum++;
+				}
+			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write survival_params to netCDF output file. Skipping.");
+		}
 		
 		// exit_stations
-		v = writer.findVariable("exit_stations");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		for(int i=0; i<shape[0]; i++) {
-			System.out.println("exit_stations: " + this.exit_stations[i]);
-			ac.setString(ima.set(i), this.exit_stations[i]);
+		try {
+			v = writer.findVariable("exit_stations");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			for(int i=0; i<shape[0]; i++) {
+				System.out.println("exit_stations: " + this.exit_stations[i]);
+				ac.setString(ima.set(i), this.exit_stations[i]);
+			}
+			writer.write(v, ac);
 		}
-		writer.write(v, ac);
+		catch (Exception e) {
+			System.out.println("Could not write exit_stations to netCDF output file. Skipping.");
+		}
 		
 		// io_file
-		v = writer.findVariable("ioFileCol");
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		ac.setString(ima.set(0), "type");
-		ac.setString(ima.set(1), "interval");
-		ac.setString(ima.set(2), "file");
-		writer.write(v, ac);
-		
-		v = writer.findVariable("io_file");
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		rowNum = 0;
-		for(int i=0; i<shape[0]; i++) {
-			for(int j=0; j<shape[1]; j++) {
-				if(j==0) {
-					charArray.setString(ima.set(i, j), this.io_file.get(i).type);
-				}
-				else if(j==1) {
-					charArray.setString(ima.set(i, j), this.io_file.get(i).interval);
-				}
-				else {
-					charArray.setString(ima.set(i, j), this.io_file.get(i).file);
+		try {
+			v = writer.findVariable("ioFileCol");
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			ac.setString(ima.set(0), "type");
+			ac.setString(ima.set(1), "interval");
+			ac.setString(ima.set(2), "file");
+			writer.write(v, ac);
+			
+			v = writer.findVariable("io_file");
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			rowNum = 0;
+			for(int i=0; i<shape[0]; i++) {
+				for(int j=0; j<shape[1]; j++) {
+					if(j==0) {
+						charArray.setString(ima.set(i, j), this.io_file.get(i).type);
+					}
+					else if(j==1) {
+						charArray.setString(ima.set(i, j), this.io_file.get(i).interval);
+					}
+					else {
+						charArray.setString(ima.set(i, j), this.io_file.get(i).file);
+					}
 				}
 			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write io_file to netCDF output file. Skipping.");
+		}
+
 	}
 	
 	/**
@@ -939,20 +1009,26 @@ public class Config {
 	 * @throws InvalidRangeException 
 	 * @throws IOException 
 	 */
-	public void setColDim(NetcdfFormatWriter writer, String varName, String[] header) throws IOException, InvalidRangeException {
+	public void setColDim(NetcdfFormatWriter writer, String varName, String[] header) {
 		Variable v;
 		int[] shape;
 		ArrayChar ac;
 		Index ima;
 		
-		v = writer.findVariable(varName);
-		shape = v.getShape();
-		ac = new ArrayChar.D2(shape[0], shape[1]);
-		ima = ac.getIndex();
-		for (int i=0; i<shape[0]; i++) {
-			ac.setString(ima.set(i), header[i]);
+		try {
+			v = writer.findVariable(varName);
+			shape = v.getShape();
+			ac = new ArrayChar.D2(shape[0], shape[1]);
+			ima = ac.getIndex();
+			for (int i=0; i<shape[0]; i++) {
+				ac.setString(ima.set(i), header[i]);
+			}
+			writer.write(v, ac);
 		}
-		writer.write(v, ac);
+		catch (Exception e) {
+			System.out.println("Could not write " + varName + " to netCDF output file. Skipping.");
+		}
+
 	}
 	
 	/**
@@ -963,7 +1039,7 @@ public class Config {
 	 * @throws InvalidRangeException 
 	 * @throws IOException 
 	 */
-	public void writeStr(NetcdfFormatWriter writer, String varName, String val) throws IOException, InvalidRangeException {
+	public void writeStr(NetcdfFormatWriter writer, String varName, String val) {
 		Variable v;
 		int[] shape;
 		int len;
@@ -971,12 +1047,19 @@ public class Config {
 		
 		if(val==null) {return;}
 		
-		v = writer.findVariable(varName);
-		shape = v.getShape();
-		len = shape[0];
-		ac = new ArrayChar.D1(len);
-		ac.setString(val);
-		writer.write(v, ac);
+		try {
+			v = writer.findVariable(varName);
+			shape = v.getShape();
+			len = shape[0];
+			ac = new ArrayChar.D1(len);
+			ac.setString(val);
+			writer.write(v, ac);
+		}
+		catch (Exception e) {
+			System.out.println("Could not write " + varName + " to netCDF output file. Skipping.");
+		}
+		
+
 	}
 	
 	/**
@@ -987,7 +1070,7 @@ public class Config {
 	 * @throws IOException
 	 * @throws InvalidRangeException
 	 */
-	public void writeStrArray(NetcdfFormatWriter writer, String varName, List<List<Object>> valArray) throws IOException, InvalidRangeException {
+	public void writeStrArray(NetcdfFormatWriter writer, String varName, List<List<Object>> valArray) {
 		Variable v;
 		int[] shape;
 		ArrayChar.D3 charArray;
@@ -995,16 +1078,22 @@ public class Config {
 		
 		if(valArray==null) {return;}
 
-		v = writer.findVariable(varName);
-		shape = v.getShape();
-		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-		ima = charArray.getIndex();
-		for (int i=0; i<shape[0]; i++) {
-			for(int j=0; j<shape[1]; j++) {
-				charArray.setString(ima.set(i, j), valArray.get(i).get(j).toString());
+		try {
+			v = writer.findVariable(varName);
+			shape = v.getShape();
+			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+			ima = charArray.getIndex();
+			for (int i=0; i<shape[0]; i++) {
+				for(int j=0; j<shape[1]; j++) {
+					charArray.setString(ima.set(i, j), valArray.get(i).get(j).toString());
+				}
 			}
+			writer.write(v, charArray);
 		}
-		writer.write(v, charArray);
+		catch (Exception e) {
+			System.out.println("Could not write " + varName + " to netCDF output file. Skipping.");
+		}
+
 	}
 	
 	/**
@@ -1015,7 +1104,7 @@ public class Config {
 	 * @throws IOException
 	 * @throws InvalidRangeException
 	 */
-	public void writeIntArray(NetcdfFormatWriter writer, String varName, List<List<Integer>> valArray) throws IOException, InvalidRangeException {
+	public void writeIntArray(NetcdfFormatWriter writer, String varName, List<List<Integer>> valArray) {
 		Variable v;
 		int[] shape;
 		ArrayInt.D2 intArray;
@@ -1023,16 +1112,21 @@ public class Config {
 		
 		if(valArray==null) {return;}
 		
-		v = writer.findVariable(varName);
-		shape = v.getShape();
-		intArray = new ArrayInt.D2(shape[0], shape[1], false);
-		ima = intArray.getIndex();
-		for(int i=0; i<shape[0]; i++) {
-			for(int j=0; j<shape[1]; j++) {
-				intArray.set(ima.set(i, j), valArray.get(i).get(j));
+		try {
+			v = writer.findVariable(varName);
+			shape = v.getShape();
+			intArray = new ArrayInt.D2(shape[0], shape[1], false);
+			ima = intArray.getIndex();
+			for(int i=0; i<shape[0]; i++) {
+				for(int j=0; j<shape[1]; j++) {
+					intArray.set(ima.set(i, j), valArray.get(i).get(j));
+				}
 			}
+			writer.write(v, intArray);
 		}
-		writer.write(v, intArray);
+		catch (Exception e) {
+			System.out.println("Could not write " + varName + " to netCDF output file. Skipping.");
+		}
 	}
 	
 	/**
@@ -1043,16 +1137,22 @@ public class Config {
 	 * @throws IOException
 	 * @throws InvalidRangeException
 	 */
-	public void writeScalar(NetcdfFormatWriter writer, String varName, Double val) throws IOException, InvalidRangeException {
+	public void writeScalar(NetcdfFormatWriter writer, String varName, Double val) {
 		Variable v;
 		ArrayDouble.D0 datas;
 		
 		if(val==null) {return;}
 		
-		v = writer.findVariable(varName);
-		datas = new ArrayDouble.D0();
-		datas.set(val);
-		writer.write(v, datas);
+		try {
+			v = writer.findVariable(varName);
+			datas = new ArrayDouble.D0();
+			datas.set(val);
+			writer.write(v, datas);
+		}
+		catch (Exception e) {
+			System.out.println("Could not write " + varName + " to netCDF output file. Skipping.");
+		}
+
 	}
 	
 	/**
