@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Handle communication of insertion (reinsertion) specs to (from) bioPTM.
+ * Handle communication of insertion (reinsertion) specs to (from) alternative routing model.
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
@@ -85,7 +85,7 @@ public class AltRouteInterface {
 	}
 	
 	/**
-	 * Schedule the specified insertions to run in the bioPTM junction model
+	 * Schedule the specified insertions to run in the alternative junction model
 	 */
 	public void runInsertions() {
 		
@@ -164,7 +164,7 @@ public class AltRouteInterface {
 	}
 	
 	/**
-	 * Assemble the insertion spec to send to the bioPTM junction model.
+	 * Assemble the insertion spec to send to the alternative junction model.
 	 */
 	public void assembleInsertionSpec() {
 		ZonedDateTime datetime;

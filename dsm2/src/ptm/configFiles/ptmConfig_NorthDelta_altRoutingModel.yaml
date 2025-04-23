@@ -190,7 +190,7 @@ channel_name_lookup:
 # Class_Name is a junction model class name.  The class will be located and instantiated and the junction model will be used when a fish particle reaches the junction
 special_behavior_header: [NodeID, Class_Name, Percent_Increase_Decrease]
 special_behavior:
-  - [343, BioPTMrouteBehaviorGS, 100]
+  - [343, AltRouteBehaviorGS, 100]
   - [339, SalmonSutterJRouteBehavior, 100]
   - [340, SalmonSTMJRouteBehavior, 100]
   - [342, SalmonDCCRouteBehavior, 100]

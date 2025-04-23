@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Abstract class extending SalmonUpSacRouteBehavior and containing the basic methods shared by all bioPTM junctions.
+ * Abstract class extending SalmonUpSacRouteBehavior and containing the basic methods shared by all alternative routing model junctions.
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
@@ -61,7 +61,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 	}
 
 	/**
-	 * Run the bioPTM junction model to make the route decision for the particle.
+	 * Run the alternative junction model to make the route decision for the particle.
 	 */
 	public void makeRouteDecision(Particle p) {
 		int PTMtimeStep, subTimeStep, upId, downId, branchId, reinsertionChannelID, confusionFactor;
@@ -108,7 +108,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
         
         reinsertion = junctionInterface.getReinsertion(p.Id);
         
-        // Check if this particle is waiting to be reinserted. If not, schedule an insertion into the bioPTM junction model
+        // Check if this particle is waiting to be reinserted. If not, schedule an insertion into the alternative junction model
         if(reinsertion!=null) {
         	fields = reinsertion.split(",");
         	reinsertionDatetime = ZonedDateTime.parse(fields[1], DateTimeFormatter.ISO_ZONED_DATE_TIME);
@@ -118,7 +118,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
         	// Check if the reinsertion time is equal to or before the current PTM time
         	if(reinsertionEvent.startsWith("failed")){
         		System.out.println("Routing model for particle " + p.Id + " failed. Setting particle state to 'dead'");
-        		System.out.println("Message from bioPTM: " + reinsertionEvent);
+        		System.out.println("Message from alternative routing model: " + reinsertionEvent);
         		p.setParticleDead();
         		
         		// Add an entry to this particle's _tracks to ensure that it's not empty
@@ -151,7 +151,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
         	}
         }
         else if (p.inJunctionModel) {
-        	// This code explicitly ensures that a particle isn't inserted into the bioPTM junction model multiple times
+        	// This code explicitly ensures that a particle isn't inserted into the alternative junction model multiple times
         	// in a single ECO-PTM-D time step.
         	p.particleWait = true;
         }
@@ -189,7 +189,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
         	else {
             	switch(crossStreamFracMethodEnum.valueOf(config.cross_stream_frac_method)) {
             	case DSM2POSITION:
-                	// In bioPTM, crossSectionFrac is generally zero at the right-hand bank when facing downstream. In ECO-PTM
+                	// In the bioPTM alternative routing model, crossSectionFrac is generally zero at the right-hand bank when facing downstream. In ECO-PTM
                 	// it's generally the opposite => need to take 1 - yFrac
                 	crossSectionFrac = Math.min(1,  Math.max(0,  1 - (0.5 + p.y/((Channel) p.wb).getWidth(p.x))));
             		break;
@@ -262,7 +262,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 	}
 	
 	/**
-	 * Verify that the behavior inputs are appropriate for bioPTM
+	 * Verify that the behavior inputs are appropriate for alternative routing model
 	 */
 	public void checkInputs() {
 		ConcurrentHashMap<Integer, String> specialBehaviorNames;
@@ -282,12 +282,12 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 		}
 
 		if (routeInputs.getPercentToModify(nodeID)!=100) {
-			PTMUtil.systemExit("Percent_Increase_Increase for bioPTM junctions must be 100. Check behavior input file for " + className);
+			PTMUtil.systemExit("Percent_Increase_Increase for alternative routing model junctions must be 100. Check behavior input file for " + className);
 		}
 		
 		// Abort if a barrier is installed at this node
 		if (Globals.Environment.getNode(nodeID).isBarrierInstalled()) {
-			PTMUtil.systemExit("Barrier cannot be installed at bioPTM junctions. Check behavior input file for nodeID " + extNodeID);
+			PTMUtil.systemExit("Barrier cannot be installed at alternative routing model junctions. Check behavior input file for nodeID " + extNodeID);
 		}
 	}
 	

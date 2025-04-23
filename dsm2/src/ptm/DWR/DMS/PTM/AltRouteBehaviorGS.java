@@ -2,7 +2,7 @@ package DWR.DMS.PTM;
 import java.util.HashMap;
 
 /**
- * BioPTMrouteBehavior subclass configured for the Georgiana Slough junction.
+ * AltRouteBehavior subclass configured for the Georgiana Slough junction.
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
@@ -11,10 +11,10 @@ public class AltRouteBehaviorGS extends AltRouteBehavior {
 	public AltRouteBehaviorGS(RouteInputs rIn, Integer nodeId) {
 		super(rIn, nodeId);
 		
-		className = "BioPTMrouteBehaviorGS";
+		className = "AltRouteBehaviorGS";
 		junction = "GS";
         
-        // Verify that the behavior inputs are appropriate for bioPTM
+        // Verify that the behavior inputs are appropriate for the alternative routing model
         checkInputs();        
 		
 		channelNames = new String[] {"SACUPDCC", "SACUPGS", "DCC", "GS", "SACDOWNGS"};
