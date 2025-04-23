@@ -182,7 +182,7 @@ public class MainPTM {
 				Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
 				
 				// Trigger any scheduled insertions into an external routing model
-				BioPTMinterface.runAllInsertions();
+				AltRouteInterface.runAllInsertions();
 
 				// get latest hydro information using Global/model time in minutes!!!!!!
 				Environment.getHydroInfo(Globals.currentModelTime);

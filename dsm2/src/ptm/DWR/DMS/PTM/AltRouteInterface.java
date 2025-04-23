@@ -14,9 +14,9 @@ import java.time.format.DateTimeFormatter;
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
-public class BioPTMinterface {
+public class AltRouteInterface {
 	
-	private static List<BioPTMinterface> junctions;
+	private static List<AltRouteInterface> junctions;
 	private String junction;
 	private List<Integer> particleIDs;
 	private Set<String> crossSections;
@@ -40,10 +40,10 @@ public class BioPTMinterface {
 	private static final double ftToM = 0.3048;
 	
 	static {
-		junctions = new ArrayList<BioPTMinterface>();
+		junctions = new ArrayList<AltRouteInterface>();
 	}
 	
-	public BioPTMinterface(String junction) {
+	public AltRouteInterface(String junction) {
 		SwimInputs swimInputs;
 		
 		this.junction = junction;
@@ -289,7 +289,7 @@ public class BioPTMinterface {
 	 * Trigger all of the scheduled insertions.
 	 */
 	public static void runAllInsertions() {
-		for (BioPTMinterface junction : junctions) {
+		for (AltRouteInterface junction : junctions) {
 			junction.runInsertions();
 		}
 	}

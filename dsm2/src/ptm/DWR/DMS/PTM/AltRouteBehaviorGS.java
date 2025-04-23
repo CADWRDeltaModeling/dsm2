@@ -6,9 +6,9 @@ import java.util.HashMap;
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
-public class BioPTMrouteBehaviorGS extends BioPTMrouteBehavior {
+public class AltRouteBehaviorGS extends AltRouteBehavior {
 	
-	public BioPTMrouteBehaviorGS(RouteInputs rIn, Integer nodeId) {
+	public AltRouteBehaviorGS(RouteInputs rIn, Integer nodeId) {
 		super(rIn, nodeId);
 		
 		className = "BioPTMrouteBehaviorGS";
@@ -29,7 +29,7 @@ public class BioPTMrouteBehaviorGS extends BioPTMrouteBehavior {
 		branchChannelIndex = 3;
 		
         // Create the junction interface
-        junctionInterface = new BioPTMinterface(junction);
+        junctionInterface = new AltRouteInterface(junction);
                 
         System.out.println("Created " + className);
 	}

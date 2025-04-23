@@ -15,11 +15,11 @@ import java.time.format.DateTimeFormatter;
  *
  * @author Doug Jackson, QEDA Consulting, LLC
  */
-public abstract class BioPTMrouteBehavior extends SalmonUpSacRouteBehavior {
+public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 	
 	protected Map<String, String> channelCrossSectionMap;
 	
-	protected BioPTMinterface junctionInterface;
+	protected AltRouteInterface junctionInterface;
 	
 	protected String className;
 	protected String junction;
@@ -56,7 +56,7 @@ public abstract class BioPTMrouteBehavior extends SalmonUpSacRouteBehavior {
 		config = PTMFixedData.getConfig();
 	}
 	
-	public BioPTMrouteBehavior(RouteInputs rIn, Integer nodeId) {
+	public AltRouteBehavior(RouteInputs rIn, Integer nodeId) {
 		super(rIn, nodeId);
 	}
 
@@ -179,7 +179,7 @@ public abstract class BioPTMrouteBehavior extends SalmonUpSacRouteBehavior {
         	// Determine which channel the particle is entering from
         	insertionChannelName = channelMap.get(p.wb.getEnvIndex());
 
-        	downstreamSwimSpeed_msec = BioPTMinterface.fpsToMps(p.getSwimmingVelocity());
+        	downstreamSwimSpeed_msec = AltRouteInterface.fpsToMps(p.getSwimmingVelocity());
         	
         	// Specify crossSectionFrac using selected method
         	if(!PTMFixedData.getConfig().isSet("cross_stream_frac_method")) {
