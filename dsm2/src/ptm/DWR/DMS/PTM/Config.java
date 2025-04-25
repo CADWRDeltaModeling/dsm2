@@ -376,8 +376,12 @@ public class Config {
 		strLen300 = builder.addDimension("strLen300", 300);
 		strLen10000 = builder.addDimension("strLen10000", 10000);
 		
-		travelTimeColDim = addDimension(builder, "travelTimeCol", this.travel_time_header);
-		travelTimeRowDim = addDimension(builder, "travelTimeRow", this.travel_time);
+		if(this.travel_time_header!=null && this.travel_time!=null) {
+			travelTimeColDim = addDimension(builder, "travelTimeCol", this.travel_time_header);
+			travelTimeRowDim = addDimension(builder, "travelTimeRow", this.travel_time);
+			builder.addVariable("travel_time", DataType.CHAR, "travelTimeRow travelTimeCol strLen10");
+			builder.addVariable("traveltimeCol", DataType.CHAR, "travelTimeCol strLen50");
+		}
 		
 		// Dimensions for release_groups:release_loc and release_groups:releases
 		// Include one column for the group name
@@ -388,60 +392,80 @@ public class Config {
 			for(ReleaseGroup rG : this.release_groups) {
 				totalReleases+=rG.releases.size();
 			}
+			releaseLocRowDim = addDimension(builder, "releaseLocRow", this.release_groups);
+			releasesRowDim = builder.addDimension("releasesRow", totalReleases);
+			
+			builder.addVariable("release_groups:release_loc", DataType.CHAR, "releaseLocRow releaseLocCol strLen50");
+			builder.addVariable("release_groups:releases", DataType.CHAR, "releasesRow releasesCol strLen10");
+			builder.addVariable("releaseLocCol", DataType.CHAR, "releaseLocCol strLen50");
+			builder.addVariable("releasesCol", DataType.CHAR, "releasesCol strLen50");
+			
 		}
-		else {
-			releaseLocColDim = builder.addDimension("releaseLocCol", 0);
-			releasesColDim = builder.addDimension("releasesCol", 0);
+
+		if(this.swimming_vel_header!=null && this.swimming_vel!=null) {
+			swimmingVelColDim = addDimension(builder, "swimmingVelCol", this.swimming_vel_header);
+			swimmingVelRowDim = addDimension(builder, "swimmingVelRow", this.swimming_vel);
+			builder.addVariable("swimming_vel", DataType.CHAR, "swimmingVelRow swimmingVelCol strLen50");
+			builder.addVariable("swimmingVelCol", DataType.CHAR, "swimmingVelCol strLen50");
 		}
-		releaseLocRowDim = addDimension(builder, "releaseLocRow", this.release_groups);
-		releasesRowDim = builder.addDimension("releasesRow", totalReleases);
-		
-		swimmingVelColDim = addDimension(builder, "swimmingVelCol", this.swimming_vel_header);
-		swimmingVelRowDim = addDimension(builder, "swimmingVelRow", this.swimming_vel);
-		
-		channelNameLookupColDim = addDimension(builder, "channelNameLookupCol", this.channel_name_lookup_header);
-		channelNameLookupRowDim = addDimension(builder, "channelNameLookupRow", this.channel_name_lookup);
-		
-		specialBehaviorColDim = addDimension(builder, "specialBehaviorCol", this.special_behavior_header);
-		specialBehaviorRowDim = addDimension(builder, "specialBehaviorRow", this.special_behavior);
-		
+
+		if(this.channel_name_lookup_header!=null && this.channel_name_lookup!=null) {
+			channelNameLookupColDim = addDimension(builder, "channelNameLookupCol", this.channel_name_lookup_header);
+			channelNameLookupRowDim = addDimension(builder, "channelNameLookupRow", this.channel_name_lookup);
+			builder.addVariable("channel_name_lookup", DataType.CHAR, "channelNameLookupRow channelNameLookupCol strLen50");
+			builder.addVariable("channelNameLookupCol", DataType.CHAR, "channelNameLookupCol strLen10");
+		}
+
+		if(this.special_behavior_header!=null && this.special_behavior!=null) {
+			specialBehaviorColDim = addDimension(builder, "specialBehaviorCol", this.special_behavior_header);
+			specialBehaviorRowDim = addDimension(builder, "specialBehaviorRow", this.special_behavior);
+			builder.addVariable("special_behavior", DataType.CHAR, "specialBehaviorRow specialBehaviorCol strLen50");
+			builder.addVariable("specialBehaviorCol", DataType.CHAR, "specialBehaviorCol strLen50");
+		}
+
 		// Dimensions for channel_groups
 		// Include one column for the group name
-		channelGroupsColDim = builder.addDimension("channelGroupsCol", 2);
-		totalChannelGroups = 0;
 		if(this.channel_groups!=null) {
+			channelGroupsColDim = builder.addDimension("channelGroupsCol", 2);
+			totalChannelGroups = 0;
 			for(ChannelGroup cG : this.channel_groups) {
 				totalChannelGroups+=cG.channels.length;
 			}
+			channelGroupsRowDim = builder.addDimension("channelGroupsRow", totalChannelGroups);
+			builder.addVariable("channel_groups", DataType.CHAR, "channelGroupsRow channelGroupsCol strLen50");
+			builder.addVariable("channelGroupsCol", DataType.CHAR, "channelGroupsCol strLen50");
 		}
-		channelGroupsRowDim = builder.addDimension("channelGroupsRow", totalChannelGroups);
-		
+				
 		// Dimensions for barriers
 		// Include columns for name, nodeID, and waterbodyID
-		totalBarrierSchedules = 0;
 		if(this.barriers!=null) {
+			totalBarrierSchedules = 0;
 			barriersColDim = addDimension(builder, "barriersCol", this.barriers.get(0).schedule_header, 3);
 			for(Barrier b : this.barriers) {
 				totalBarrierSchedules+=b.schedule.size();
 			}
+			barriersRowDim = builder.addDimension("barriersRow", totalBarrierSchedules);
+			builder.addVariable("barriers", DataType.CHAR, "barriersRow barriersCol strLen50");
+			builder.addVariable("barriersCol", DataType.CHAR, "barriersCol strLen50");
 		}
-		else {
-			barriersColDim = builder.addDimension("barriersCol", 0);
+		
+		if(this.fish_screens_header!=null && this.fish_screens!=null) {
+			fishScreensColDim = addDimension(builder, "fishScreensCol", this.fish_screens_header);
+			fishScreensRowDim = addDimension(builder, "fishScreensRow", this.fish_screens);
+			builder.addVariable("fish_screens", DataType.INT, "fishScreensRow fishScreensCol");
+			builder.addVariable("fishScreensCol", DataType.CHAR, "fishScreensCol strLen50");
 		}
-		barriersRowDim = builder.addDimension("barriersRow", totalBarrierSchedules);
-		
-		fishScreensColDim = addDimension(builder, "fishScreensCol", this.fish_screens_header);
-		fishScreensRowDim = addDimension(builder, "fishScreensRow", this.fish_screens);
-		
+	
 		// Dimensions for survival_groups
 		// Include columns for group number and name
-		totalSurvivalGroups = this.survival_groups!=null ? this.survival_groups.size() : 0;
-		startStationsRowDim = builder.addDimension("startStationsRow", totalSurvivalGroups);
-		// Use a 4 here (name, number, channel, distance) because we can't know which group will actually have exchangeable_start_stations
-		exchStationsColDim = builder.addDimension("exchStationsCol", 4);
-		totalEndStations = 0;
-		totalExchStations = 0;
 		if(this.survival_groups!=null) {
+			totalSurvivalGroups = this.survival_groups!=null ? this.survival_groups.size() : 0;
+			startStationsRowDim = builder.addDimension("startStationsRow", totalSurvivalGroups);
+			// Use a 4 here (name, number, channel, distance) because we can't know which group will actually have exchangeable_start_stations
+			exchStationsColDim = builder.addDimension("exchStationsCol", 4);
+			totalEndStations = 0;
+			totalExchStations = 0;
+			
 			startStationsColDim = addDimension(builder, "startStationsCol", this.survival_groups.get(0).start_stations.get(0), 2);
 			endStationsColDim = addDimension(builder, "endStationsCol", this.survival_groups.get(0).end_stations.get(0), 2);
 			survParamsColDim = addDimension(builder, "survParamsCol", this.survival_groups.get(0).survival_params_header, 2);
@@ -451,78 +475,93 @@ public class Config {
 					totalExchStations+=sG.exchangeable_start_stations.size();
 				}
 			}
+			endStationsRowDim = builder.addDimension("endStationsRow", totalEndStations);
+			exchStationsRowDim = builder.addDimension("exchStationsRow", totalExchStations);
+			survParamsRowDim = builder.addDimension("survParamsRow", totalEndStations);
+			builder.addVariable("survival_groups:start_stations", DataType.CHAR, "startStationsRow startStationsCol strLen10");
+			builder.addVariable("survival_groups:end_stations", DataType.CHAR, "endStationsRow endStationsCol strLen10");
+			builder.addVariable("survival_groups:exchangeable_start_stations", DataType.CHAR, "exchStationsRow exchStationsCol strLen10");
+			builder.addVariable("survival_groups:survival_params", DataType.CHAR, "survParamsRow survParamsCol strLen50");
+			builder.addVariable("startStationsCol", DataType.CHAR, "startStationsCol strLen10");
+			builder.addVariable("endStationsCol", DataType.CHAR, "endStationsCol strLen10");
+			builder.addVariable("exchStationsCol", DataType.CHAR, "exchStationsCol strLen10");
+			builder.addVariable("survParamsCol", DataType.CHAR, "survParamsCol strLen50");
 		}
-		else {
-			startStationsColDim = builder.addDimension("startStationsCol", 0);
-			endStationsColDim = builder.addDimension("endStationsCol", 0);
-			survParamsColDim = builder.addDimension("survParamsCol", 0);
+		
+		if(this.particle_flux_header!=null && this.particle_flux!=null) {
+			particleFluxColDim = addDimension(builder, "particleFluxCol", this.particle_flux_header);
+			particleFluxRowDim = addDimension(builder, "particleFluxRow", this.particle_flux);	
+			builder.addVariable("particle_flux", DataType.CHAR, "particleFluxRow particleFluxCol strLen10");
+			builder.addVariable("particleFluxCol", DataType.CHAR, "particleFluxCol strLen50");
 		}
-		endStationsRowDim = builder.addDimension("endStationsRow", totalEndStations);
-		exchStationsRowDim = builder.addDimension("exchStationsRow", totalExchStations);
-		survParamsRowDim = builder.addDimension("survParamsRow", totalEndStations);
 		
-		particleFluxColDim = addDimension(builder, "particleFluxCol", this.particle_flux_header);
-		particleFluxRowDim = addDimension(builder, "particleFluxRow", this.particle_flux);
+		if(this.individual_route_survival_header!=null && this.individual_route_survival!=null) {
+			indRouteSurvColDim = addDimension(builder, "indRouteSurvCol", this.individual_route_survival_header);
+			indRouteSurvRowDim = addDimension(builder, "indRouteSurvRow", this.individual_route_survival);
+			builder.addVariable("individual_route_survival", DataType.CHAR, "indRouteSurvRow indRouteSurvCol strLen50");
+			builder.addVariable("indRouteSurvCol", DataType.CHAR, "indRouteSurvCol strLen50");
+		}
+
+		if(this.route_survival_equations_header!=null && this.route_survival_equations!=null) {
+			routeSurvEqColDim = addDimension(builder, "routeSurvEqCol", this.route_survival_equations_header);
+			routeSurvEqRowDim = addDimension(builder, "routeSurvEqRow", this.route_survival_equations);
+			builder.addVariable("route_survival_equations", DataType.CHAR, "routeSurvEqRow routeSurvEqCol strLen10000");
+			builder.addVariable("routeSurvEqCol", DataType.CHAR, "routeSurvEqCol strLen50");
+		}
+
+		if(this.individual_reach_survival_header!=null && this.individual_reach_survival!=null) {
+			indReachSurvColDim = addDimension(builder, "indReachSurvCol", this.individual_reach_survival_header);
+			indReachSurvRowDim = addDimension(builder, "indReachSurvRow", this.individual_reach_survival);
+			builder.addVariable("individual_reach_survival", DataType.CHAR, "indReachSurvRow indReachSurvCol strLen50");
+			builder.addVariable("indReachSurvCol", DataType.CHAR, "indReachSurvCol strLen50");
+		}
+
+		if(this.exit_stations!=null) {
+			exitStationsDim = addDimension(builder, "exitStationsDim", this.exit_stations);
+			builder.addVariable("exit_stations", DataType.CHAR, "exitStationsDim strLen10");
+		}
 		
-		indRouteSurvColDim = addDimension(builder, "indRouteSurvCol", this.individual_route_survival_header);
-		indRouteSurvRowDim = addDimension(builder, "indRouteSurvRow", this.individual_route_survival);
+		if(this.particle_group_output_header!=null && this.particle_group_output!=null) {
+			particleGroupOutputColDim = addDimension(builder, "particleGroupOutputCol", this.particle_group_output_header);
+			particleGroupOutputRowDim = addDimension(builder, "particleGroupOutputRow", this.particle_group_output);
+			builder.addVariable("particle_group_output", DataType.CHAR, "particleGroupOutputRow particleGroupOutputCol strLen50");
+			builder.addVariable("particleGroupOutputCol", DataType.CHAR, "particleGroupOutputCol strLen10");
+		}
+
+		if(this.particle_flux_output_header!=null && this.particle_flux_output!=null) {
+			particleFluxOutputColDim = addDimension(builder, "particleFluxOutputCol", this.particle_flux_output_header);
+			particleFluxOutputRowDim = addDimension(builder, "particleFluxOutputRow", this.particle_flux_output);
+			builder.addVariable("particle_flux_output", DataType.CHAR, "particleFluxOutputRow particleFluxOutputCol strLen50");
+			builder.addVariable("particleFluxOutputCol", DataType.CHAR, "particleFluxOutputCol strLen10");
+		}
 		
-		routeSurvEqColDim = addDimension(builder, "routeSurvEqCol", this.route_survival_equations_header);
-		routeSurvEqRowDim = addDimension(builder, "routeSurvEqRow", this.route_survival_equations);
-		
-		indReachSurvColDim = addDimension(builder, "indReachSurvCol", this.individual_reach_survival_header);
-		indReachSurvRowDim = addDimension(builder, "indReachSurvRow", this.individual_reach_survival);
-		
-		exitStationsDim = addDimension(builder, "exitStationsDim", this.exit_stations);
-		
-		particleGroupOutputColDim = addDimension(builder, "particleGroupOutputCol", this.particle_group_output_header);
-		particleGroupOutputRowDim = addDimension(builder, "particleGroupOutputRow", this.particle_group_output);
-		
-		particleFluxOutputColDim = addDimension(builder, "particleFluxOutputCol", this.particle_flux_output_header);
-		particleFluxOutputRowDim = addDimension(builder, "particleFluxOutputRow", this.particle_flux_output);
-		
-		groupsColDim = addDimension(builder, "groupsCol", this.groups_header);
-		groupsRowDim = addDimension(builder, "groupsRow", this.groups);
-		
-		// columns: type, interval, file
-		ioFileColDim = builder.addDimension("ioFileCol", 3);
-		ioFileRowDim = this.io_file!=null ? builder.addDimension("ioFileRow", this.io_file.size()) : builder.addDimension("ioFileRow", 0);
-		
+		if(this.groups_header!=null && this.groups!=null) {
+			groupsColDim = addDimension(builder, "groupsCol", this.groups_header);
+			groupsRowDim = addDimension(builder, "groupsRow", this.groups);
+			builder.addVariable("groups", DataType.CHAR, "groupsRow groupsCol strLen50");
+			builder.addVariable("groupsCol", DataType.CHAR, "groupsCol strLen50");
+		}
+
+		if (this.io_file!=null) {
+			ioFileColDim = builder.addDimension("ioFileCol", 3);
+			ioFileRowDim = builder.addDimension("ioFileRow", this.io_file.size());
+			builder.addVariable("io_file", DataType.CHAR, "ioFileRow ioFileCol strLen300");
+			builder.addVariable("ioFileCol", DataType.CHAR, "ioFileCol strLen10");
+		}
+
 		builder.addVariable("simulation_start_date", DataType.CHAR, "strLen50");
 		builder.addVariable("simulation_scenario", DataType.CHAR, "strLen50");
 		builder.addVariable("particle_type", DataType.CHAR, "strLen100");
-		builder.addVariable("travel_time", DataType.CHAR, "travelTimeRow travelTimeCol strLen10");
-		builder.addVariable("release_groups:release_loc", DataType.CHAR, "releaseLocRow releaseLocCol strLen50");
-		builder.addVariable("release_groups:releases", DataType.CHAR, "releasesRow releasesCol strLen10");
-		builder.addVariable("swimming_vel", DataType.CHAR, "swimmingVelRow swimmingVelCol strLen50");
-		builder.addVariable("channel_groups", DataType.CHAR, "channelGroupsRow channelGroupsCol strLen50");
-		builder.addVariable("channel_name_lookup", DataType.CHAR, "channelNameLookupRow channelNameLookupCol strLen50");
-		builder.addVariable("special_behavior", DataType.CHAR, "specialBehaviorRow specialBehaviorCol strLen50");
-		builder.addVariable("barriers", DataType.CHAR, "barriersRow barriersCol strLen50");
-		builder.addVariable("fish_screens", DataType.INT, "fishScreensRow fishScreensCol");
-		builder.addVariable("survival_groups:start_stations", DataType.CHAR, "startStationsRow startStationsCol strLen10");
-		builder.addVariable("survival_groups:end_stations", DataType.CHAR, "endStationsRow endStationsCol strLen10");
-		builder.addVariable("survival_groups:exchangeable_start_stations", DataType.CHAR, "exchStationsRow exchStationsCol strLen10");
-		builder.addVariable("survival_groups:survival_params", DataType.CHAR, "survParamsRow survParamsCol strLen50");
-		builder.addVariable("particle_flux", DataType.CHAR, "particleFluxRow particleFluxCol strLen10");
-		builder.addVariable("individual_route_survival", DataType.CHAR, "indRouteSurvRow indRouteSurvCol strLen50");
-		builder.addVariable("route_survival_equations", DataType.CHAR, "routeSurvEqRow routeSurvEqCol strLen10000");
-		builder.addVariable("individual_reach_survival", DataType.CHAR, "indReachSurvRow indReachSurvCol strLen50");
-		builder.addVariable("exit_stations", DataType.CHAR, "exitStationsDim strLen10");
-		builder.addVariable("particle_group_output", DataType.CHAR, "particleGroupOutputRow particleGroupOutputCol strLen50");
-		builder.addVariable("particle_flux_output", DataType.CHAR, "particleFluxOutputRow particleFluxOutputCol strLen50");
-		builder.addVariable("groups", DataType.CHAR, "groupsRow groupsCol strLen50");
-		builder.addVariable("io_file", DataType.CHAR, "ioFileRow ioFileCol strLen300");
-		
+
 		// strLen10
 		for(String s: new String[] {"time_zone", "use_new_random_seed", "sunrise", "sunset", "random_assess", "ptm_end_date", 
-				"ptm_end_time", "ptm_time_step", "display_intvl", "show_route_survival_detail", "ptm_start_date", "ptm_start_time"}) {
+				"ptm_end_time", "ptm_time_step", "display_intvl", "show_route_survival_detail", "ptm_start_date", "ptm_start_time"}) {	
 			builder.addVariable(s, DataType.CHAR, "strLen10");
 		}
 		
 		// strLen300
 		for(String s: new String[] {"tidefile", "travel_time_output_path", "output_path_entrainment", "trans_probs_path",
-				"output_path_flux", "survival_output_path", "route_survival_output_path", "fates_output_path"}) {
+				"output_path_flux", "survival_output_path", "route_survival_output_path", "fates_output_path"}) {		
 			builder.addVariable(s, DataType.CHAR, "strLen300");
 		}
 		
@@ -539,17 +578,6 @@ public class Config {
 				"ptm_trans_b_coef", "ptm_trans_c_coef", "ptm_num_animated"}) {
 			builder.addVariable(varName, DataType.DOUBLE, new ArrayList<Dimension>());
 		}	
-		
-		// Create column header dimensions
-		for(String s : new String[] {"channelNameLookupCol", "startStationsCol", "endStationsCol", "exchStationsCol",
-				"particleGroupOutputCol", "particleFluxOutputCol", "ioFileCol"}) {
-			builder.addVariable(s, DataType.CHAR, s + " strLen10");
-		}
-		for(String s : new String[] {"travelTimeCol", "releaseLocCol", "releasesCol", "swimmingVelCol",
-				"channelGroupsCol", "specialBehaviorCol", "barriersCol", "fishScreensCol", "survParamsCol",
-				"particleFluxCol", "indRouteSurvCol", "routeSurvEqCol", "indReachSurvCol", "groupsCol"}) {
-			builder.addVariable(s, DataType.CHAR, s + " strLen50");
-		}
 	}
 	
 	/**
@@ -620,273 +648,243 @@ public class Config {
 		writeScalar(writer, "ptm_trans_b_coef", (double) this.ptm_trans_b_coef);
 		writeScalar(writer, "ptm_trans_c_coef", (double) this.ptm_trans_c_coef);
 		writeScalar(writer, "ptm_num_animated", (double) this.ptm_num_animated);
+				
+		// travel_time
+		if(this.travel_time_header!=null && this.travel_time!=null) {
+			writeStrArray(writer, "travel_time", this.travel_time);
+			setColDim(writer, "travelTimeCol", this.travel_time_header);
+		}
 		
-		writeStrArray(writer, "travel_time", this.travel_time);		
-		writeStrArray(writer, "swimming_vel", this.swimming_vel);
-		writeStrArray(writer, "channel_name_lookup", this.channel_name_lookup);
-		writeStrArray(writer, "special_behavior", this.special_behavior);
-		writeStrArray(writer, "particle_flux", this.particle_flux);
-		writeStrArray(writer, "individual_route_survival", this.individual_route_survival);
-		writeStrArray(writer, "route_survival_equations", this.route_survival_equations);
-		writeStrArray(writer, "individual_reach_survival", this.individual_reach_survival);
-		writeStrArray(writer, "particle_group_output", this.particle_group_output);
-		writeStrArray(writer, "particle_flux_output", this.particle_flux_output);
-		writeStrArray(writer, "groups", this.groups);
-				
-		writeIntArray(writer, "fish_screens", this.fish_screens);
-				
-		// Set header dimensions
-		setColDim(writer, "travelTimeCol", this.travel_time_header);
-		setColDim(writer, "swimmingVelCol", this.swimming_vel_header);
-		setColDim(writer, "channelNameLookupCol", this.channel_name_lookup_header);
-		setColDim(writer, "specialBehaviorCol", this.special_behavior_header);
-		setColDim(writer, "fishScreensCol", this.fish_screens_header);
-		setColDim(writer, "particleFluxCol", this.particle_flux_header);
-		setColDim(writer, "indRouteSurvCol", this.individual_route_survival_header);
-		setColDim(writer, "routeSurvEqCol", this.route_survival_equations_header);
-		setColDim(writer, "indReachSurvCol", this.individual_reach_survival_header);
-		setColDim(writer, "particleGroupOutputCol", this.particle_group_output_header);
-		setColDim(writer, "particleFluxOutputCol", this.particle_flux_output_header);
-		setColDim(writer, "groupsCol", this.groups_header);
-
 		// release_loc
-		try {
-			v = writer.findVariable("releaseLocCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			for(int i=1; i<shape[0]; i++) {
-				ac.setString(ima.set(i), this.release_groups.get(0).release_loc_header[i-1]);
-			}
-			writer.write(v, ac);
-			
-			v = writer.findVariable("release_groups:release_loc");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
-				for(int j=0; j<shape[1]; j++) {
-					if(j==0) {
-						charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
-					}
-					else {
-						charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).release_loc.get(j-1).toString());
-					}
+		if(this.release_groups!=null) {			
+			try {
+				v = writer.findVariable("releaseLocCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				for(int i=1; i<shape[0]; i++) {
+					ac.setString(ima.set(i), this.release_groups.get(0).release_loc_header[i-1]);
 				}
-				rowNum++;
-			}
-			writer.write(v, charArray);
-		}
-		catch (Exception e) {
-			System.out.println("Could not write release_loc to netCDF output file. Skipping.");
-		}
-
-		// releases
-		try {
-			v = writer.findVariable("releasesCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			for (int i=1; i<shape[0]; i++) {
-				ac.setString(ima.set(i), this.release_groups.get(0).releases_header[i-1]);
-			}
-			writer.write(v, ac);
-			
-			v = writer.findVariable("release_groups:releases");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
+				writer.write(v, ac);
 				
-				for(int rel=0; rel<this.release_groups.get(relGroup).releases.size(); rel++) {
-					
+				v = writer.findVariable("release_groups:release_loc");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
 					for(int j=0; j<shape[1]; j++) {
-						
 						if(j==0) {
 							charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
 						}
 						else {
-							charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).releases.get(rel).get(j-1).toString());
+							charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).release_loc.get(j-1).toString());
 						}
 					}
 					rowNum++;
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
+			catch (Exception e) {
+				System.out.println("Could not write release_loc to netCDF output file. Skipping.");
+			}
+	
+			// releases
+			try {
+				v = writer.findVariable("releasesCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				for (int i=1; i<shape[0]; i++) {
+					ac.setString(ima.set(i), this.release_groups.get(0).releases_header[i-1]);
+				}
+				writer.write(v, ac);
+				
+				v = writer.findVariable("release_groups:releases");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(int relGroup=0; relGroup<this.release_groups.size(); relGroup++) {
+					
+					for(int rel=0; rel<this.release_groups.get(relGroup).releases.size(); rel++) {
+						
+						for(int j=0; j<shape[1]; j++) {
+							
+							if(j==0) {
+								charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).name);
+							}
+							else {
+								charArray.setString(ima.set(rowNum, j), this.release_groups.get(relGroup).releases.get(rel).get(j-1).toString());
+							}
+						}
+						rowNum++;
+					}
+				}
+				writer.write(v, charArray);
+			}
+			catch (Exception e) {
+				System.out.println("Could not write releases to netCDF output file. Skipping.");
+			}
 		}
-		catch (Exception e) {
-			System.out.println("Could not write releases to netCDF output file. Skipping.");
+		
+		// swimming_vel
+		if(this.swimming_vel_header!=null && this.swimming_vel!=null) {
+			writeStrArray(writer, "swimming_vel", this.swimming_vel);
+			setColDim(writer, "swimmingVelCol", this.swimming_vel_header);
+			
+		}
+		
+		// channel_name_lookup
+		if(this.channel_name_lookup_header!=null && this.channel_name_lookup!=null) {
+			writeStrArray(writer, "channel_name_lookup", this.channel_name_lookup);
+			setColDim(writer, "channelNameLookupCol", this.channel_name_lookup_header);
+		}
+		
+		// special_behavior
+		if(this.special_behavior_header!=null && this.special_behavior!=null) {
+			writeStrArray(writer, "special_behavior", this.special_behavior);
+			setColDim(writer, "specialBehaviorCol", this.special_behavior_header);			
 		}
 
 		// channel_groups
-		try {
-			v = writer.findVariable("channelGroupsCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "channel");
-			
-			v = writer.findVariable("channel_groups");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(int chanGroup=0; chanGroup<this.channel_groups.size(); chanGroup++) {
-				for(int chanNum=0; chanNum<this.channel_groups.get(chanGroup).channels.length; chanNum++) {
-					charArray.setString(ima.set(rowNum, 0), this.channel_groups.get(chanGroup).name);
-					charArray.setString(ima.set(rowNum, 1), Integer.toString(this.channel_groups.get(chanGroup).channels[chanNum]));
-					rowNum++;
+		if(this.channel_groups!=null) {
+			try {
+				v = writer.findVariable("channelGroupsCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "channel");
+				
+				v = writer.findVariable("channel_groups");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(int chanGroup=0; chanGroup<this.channel_groups.size(); chanGroup++) {
+					for(int chanNum=0; chanNum<this.channel_groups.get(chanGroup).channels.length; chanNum++) {
+						charArray.setString(ima.set(rowNum, 0), this.channel_groups.get(chanGroup).name);
+						charArray.setString(ima.set(rowNum, 1), Integer.toString(this.channel_groups.get(chanGroup).channels[chanNum]));
+						rowNum++;
+					}
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
+			catch (Exception e) {
+				System.out.println("Could not write channel_groups to netCDF output file. Skipping.");
+			}
 		}
-		catch (Exception e) {
-			System.out.println("Could not write channel_groups to netCDF output file. Skipping.");
-		}
-		
+
 		// barriers
-		try {
-			v = writer.findVariable("barriersCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "nodeID");
-			ac.setString(ima.set(2), "waterbodyID");
-			for(int i=3; i<shape[0]; i++) {
-				ac.setString(ima.set(i), this.barriers.get(0).schedule_header[i-3]);
+		if(this.barriers!=null) {
+			try {
+				v = writer.findVariable("barriersCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "nodeID");
+				ac.setString(ima.set(2), "waterbodyID");
+				for(int i=3; i<shape[0]; i++) {
+					ac.setString(ima.set(i), this.barriers.get(0).schedule_header[i-3]);
+				}
+				writer.write(v, ac);
+				
+				v = writer.findVariable("barriers");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(int b=0; b<this.barriers.size(); b++) {
+					for(int sched=0; sched<this.barriers.get(b).schedule.size(); sched++) {
+						for(int j=0; j<shape[1]; j++) {
+							if(j==0) {
+								charArray.setString(ima.set(rowNum, j), this.barriers.get(b).name);
+							}
+							else if(j==1) {
+								charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).nodeID));
+							}
+							else if(j==2) {
+								charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).waterbodyID));
+							}
+							else {
+								charArray.setString(ima.set(rowNum, j), this.barriers.get(b).schedule.get(sched).get(j-3).toString());
+							}
+						}
+						rowNum++;
+					}
+				}
+				writer.write(v,  charArray);
 			}
-			writer.write(v, ac);
-			
-			v = writer.findVariable("barriers");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(int b=0; b<this.barriers.size(); b++) {
-				for(int sched=0; sched<this.barriers.get(b).schedule.size(); sched++) {
+			catch (Exception e) {
+				System.out.println("Could not write barriers to netCDF output file. Skipping.");
+			}
+		}
+		
+		// fish_screens
+		if(this.fish_screens_header!=null && this.fish_screens!=null) {
+			writeIntArray(writer, "fish_screens", this.fish_screens);
+			setColDim(writer, "fishScreensCol", this.fish_screens_header);
+		}
+		
+		if(this.survival_groups!=null) {
+			// start_stations
+			try {
+				v = writer.findVariable("startStationsCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "number");
+				ac.setString(ima.set(2), "channel");
+				ac.setString(ima.set(3), "distance");
+				writer.write(v, ac);
+				
+				v = writer.findVariable("survival_groups:start_stations");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				for(int i=0; i<shape[0]; i++) {
 					for(int j=0; j<shape[1]; j++) {
 						if(j==0) {
-							charArray.setString(ima.set(rowNum, j), this.barriers.get(b).name);
+							charArray.setString(ima.set(i, j), this.survival_groups.get(i).name);
 						}
 						else if(j==1) {
-							charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).nodeID));
-						}
-						else if(j==2) {
-							charArray.setString(ima.set(rowNum, j), Integer.toString(this.barriers.get(b).waterbodyID));
+							charArray.setString(ima.set(i, j), Integer.toString(this.survival_groups.get(i).number));
 						}
 						else {
-							charArray.setString(ima.set(rowNum, j), this.barriers.get(b).schedule.get(sched).get(j-3).toString());
+							charArray.setString(ima.set(i, j), this.survival_groups.get(i).start_stations.get(0).get(j-2).toString());
 						}
-					}
-					rowNum++;
-				}
-			}
-			writer.write(v,  charArray);
-		}
-		catch (Exception e) {
-			System.out.println("Could not write barriers to netCDF output file. Skipping.");
-		}
-		
-		// start_stations
-		try {
-			v = writer.findVariable("startStationsCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "number");
-			ac.setString(ima.set(2), "channel");
-			ac.setString(ima.set(3), "distance");
-			writer.write(v, ac);
-			
-			v = writer.findVariable("survival_groups:start_stations");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			for(int i=0; i<shape[0]; i++) {
-				for(int j=0; j<shape[1]; j++) {
-					if(j==0) {
-						charArray.setString(ima.set(i, j), this.survival_groups.get(i).name);
-					}
-					else if(j==1) {
-						charArray.setString(ima.set(i, j), Integer.toString(this.survival_groups.get(i).number));
-					}
-					else {
-						charArray.setString(ima.set(i, j), this.survival_groups.get(i).start_stations.get(0).get(j-2).toString());
 					}
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
-		}
-		catch (Exception e) {
-			System.out.println("Could not write start_stations to netCDF output file. Skipping.");
-		}
-		
-		// end_stations
-		try {
-			v = writer.findVariable("endStationsCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "number");
-			ac.setString(ima.set(2), "channel");
-			ac.setString(ima.set(3), "distance");
-			writer.write(v, ac);
-			
-			v = writer.findVariable("survival_groups:end_stations");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(SurvivalGroup sG : this.survival_groups) {
-				for(int eS=0; eS<sG.end_stations.size(); eS++) {
-					for(int j=0; j<shape[1]; j++) {
-						if(j==0) {
-							charArray.setString(ima.set(rowNum, j), sG.name);
-						}
-						else if(j==1) {
-							charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
-						}
-						else {
-							charArray.setString(ima.set(rowNum, j), sG.end_stations.get(eS).get(j-2).toString());
-						}
-					}
-					rowNum++;
-				}
+			catch (Exception e) {
+				System.out.println("Could not write start_stations to netCDF output file. Skipping.");
 			}
-			writer.write(v, charArray);
-		}
-		catch (Exception e) {
-			System.out.println("Could not write end_stations to netCDF output file. Skipping.");
-		}
-		
-		// exchangeable_start_stations
-		try {
-			v = writer.findVariable("exchStationsCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "number");
-			ac.setString(ima.set(2), "channel");
-			ac.setString(ima.set(3), "distance");
-			writer.write(v, ac);
 			
-			v = writer.findVariable("survival_groups:exchangeable_start_stations");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(SurvivalGroup sG : this.survival_groups) {
-				if(sG.exchangeable_start_stations!=null) {
-					for(int eS=0; eS<sG.exchangeable_start_stations.size(); eS++) {
+			// end_stations
+			try {
+				v = writer.findVariable("endStationsCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "number");
+				ac.setString(ima.set(2), "channel");
+				ac.setString(ima.set(3), "distance");
+				writer.write(v, ac);
+				
+				v = writer.findVariable("survival_groups:end_stations");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(SurvivalGroup sG : this.survival_groups) {
+					for(int eS=0; eS<sG.end_stations.size(); eS++) {
 						for(int j=0; j<shape[1]; j++) {
 							if(j==0) {
 								charArray.setString(ima.set(rowNum, j), sG.name);
@@ -895,110 +893,189 @@ public class Config {
 								charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
 							}
 							else {
-								charArray.setString(ima.set(rowNum, j), sG.exchangeable_start_stations.get(eS).get(j-2).toString());
+								charArray.setString(ima.set(rowNum, j), sG.end_stations.get(eS).get(j-2).toString());
 							}
 						}
 						rowNum++;
 					}
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
-		}
-		catch (Exception e) {
-			System.out.println("Could not write exchangeable_start_stations to netCDF output file. Skipping.");
-		}
-		
-		// survival_params
-		try {
-			v = writer.findVariable("survParamsCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "name");
-			ac.setString(ima.set(1), "number");
-			for(int i=2; i<shape[0]; i++) {
-				ac.setString(ima.set(i), this.survival_groups.get(0).survival_params_header[i-2]);
+			catch (Exception e) {
+				System.out.println("Could not write end_stations to netCDF output file. Skipping.");
 			}
-			writer.write(v, ac);
 			
-			v = writer.findVariable("survival_groups:survival_params");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(SurvivalGroup sG : this.survival_groups) {
-				for(int sP=0; sP<sG.survival_params.size(); sP++) {
-					for(int j=0; j<shape[1]; j++) {
-						if(j==0) {
-							charArray.setString(ima.set(rowNum, j), sG.name);
-						}
-						else if(j==1) {
-							charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
-						}
-						else {
-							charArray.setString(ima.set(rowNum, j), sG.survival_params.get(sP).get(j-2).toString());
+			// exchangeable_start_stations
+			try {
+				v = writer.findVariable("exchStationsCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "number");
+				ac.setString(ima.set(2), "channel");
+				ac.setString(ima.set(3), "distance");
+				writer.write(v, ac);
+				
+				v = writer.findVariable("survival_groups:exchangeable_start_stations");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(SurvivalGroup sG : this.survival_groups) {
+					if(sG.exchangeable_start_stations!=null) {
+						for(int eS=0; eS<sG.exchangeable_start_stations.size(); eS++) {
+							for(int j=0; j<shape[1]; j++) {
+								if(j==0) {
+									charArray.setString(ima.set(rowNum, j), sG.name);
+								}
+								else if(j==1) {
+									charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
+								}
+								else {
+									charArray.setString(ima.set(rowNum, j), sG.exchangeable_start_stations.get(eS).get(j-2).toString());
+								}
+							}
+							rowNum++;
 						}
 					}
-					rowNum++;
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
+			catch (Exception e) {
+				System.out.println("Could not write exchangeable_start_stations to netCDF output file. Skipping.");
+			}
+			
+			// survival_params
+			try {
+				v = writer.findVariable("survParamsCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "name");
+				ac.setString(ima.set(1), "number");
+				for(int i=2; i<shape[0]; i++) {
+					ac.setString(ima.set(i), this.survival_groups.get(0).survival_params_header[i-2]);
+				}
+				writer.write(v, ac);
+				
+				v = writer.findVariable("survival_groups:survival_params");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(SurvivalGroup sG : this.survival_groups) {
+					for(int sP=0; sP<sG.survival_params.size(); sP++) {
+						for(int j=0; j<shape[1]; j++) {
+							if(j==0) {
+								charArray.setString(ima.set(rowNum, j), sG.name);
+							}
+							else if(j==1) {
+								charArray.setString(ima.set(rowNum, j), Integer.toString(sG.number));
+							}
+							else {
+								charArray.setString(ima.set(rowNum, j), sG.survival_params.get(sP).get(j-2).toString());
+							}
+						}
+						rowNum++;
+					}
+				}
+				writer.write(v, charArray);
+			}
+			catch (Exception e) {
+				System.out.println("Could not write survival_params to netCDF output file. Skipping.");
+			}
 		}
-		catch (Exception e) {
-			System.out.println("Could not write survival_params to netCDF output file. Skipping.");
+
+		if(this.particle_flux_header!=null && this.particle_flux!=null) {
+			writeStrArray(writer, "particle_flux", this.particle_flux);
+			setColDim(writer, "particleFluxCol", this.particle_flux_header);			
+		}
+		
+		if(this.individual_route_survival_header!=null && this.individual_route_survival!=null) {
+			writeStrArray(writer, "individual_route_survival", this.individual_route_survival);
+			setColDim(writer, "indRouteSurvCol", this.individual_route_survival_header);
+		}
+		
+		if(this.route_survival_equations_header!=null && this.route_survival_equations!=null) {
+			writeStrArray(writer, "route_survival_equations", this.route_survival_equations);
+			setColDim(writer, "routeSurvEqCol", this.route_survival_equations_header);			
+		}
+		
+		if(this.individual_reach_survival_header!=null && this.individual_reach_survival!=null) {
+			writeStrArray(writer, "individual_reach_survival", this.individual_reach_survival);
+			setColDim(writer, "indReachSurvCol", this.individual_reach_survival_header);
 		}
 		
 		// exit_stations
-		try {
-			v = writer.findVariable("exit_stations");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			for(int i=0; i<shape[0]; i++) {
-				System.out.println("exit_stations: " + this.exit_stations[i]);
-				ac.setString(ima.set(i), this.exit_stations[i]);
+		if(this.exit_stations!=null) {
+			try {
+				v = writer.findVariable("exit_stations");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				for(int i=0; i<shape[0]; i++) {
+					System.out.println("exit_stations: " + this.exit_stations[i]);
+					ac.setString(ima.set(i), this.exit_stations[i]);
+				}
+				writer.write(v, ac);
 			}
-			writer.write(v, ac);
+			catch (Exception e) {
+				System.out.println("Could not write exit_stations to netCDF output file. Skipping.");
+			}			
 		}
-		catch (Exception e) {
-			System.out.println("Could not write exit_stations to netCDF output file. Skipping.");
+		
+		if(this.particle_group_output_header!=null && this.particle_group_output!=null) {
+			writeStrArray(writer, "particle_group_output", this.particle_group_output);
+			setColDim(writer, "particleGroupOutputCol", this.particle_group_output_header);
+		}
+		
+		if(this.particle_flux_output_header!=null && this.particle_flux_output!=null) {
+			writeStrArray(writer, "particle_flux_output", this.particle_flux_output);
+			setColDim(writer, "particleFluxOutputCol", this.particle_flux_output_header);
+		}
+
+		if(this.groups_header!=null && this.groups!=null) {
+			writeStrArray(writer, "groups", this.groups);
+			setColDim(writer, "groupsCol", this.groups_header);
 		}
 		
 		// io_file
-		try {
-			v = writer.findVariable("ioFileCol");
-			shape = v.getShape();
-			ac = new ArrayChar.D2(shape[0], shape[1]);
-			ima = ac.getIndex();
-			ac.setString(ima.set(0), "type");
-			ac.setString(ima.set(1), "interval");
-			ac.setString(ima.set(2), "file");
-			writer.write(v, ac);
-			
-			v = writer.findVariable("io_file");
-			shape = v.getShape();
-			charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
-			ima = charArray.getIndex();
-			rowNum = 0;
-			for(int i=0; i<shape[0]; i++) {
-				for(int j=0; j<shape[1]; j++) {
-					if(j==0) {
-						charArray.setString(ima.set(i, j), this.io_file.get(i).type);
-					}
-					else if(j==1) {
-						charArray.setString(ima.set(i, j), this.io_file.get(i).interval);
-					}
-					else {
-						charArray.setString(ima.set(i, j), this.io_file.get(i).file);
+		if (this.io_file!=null) {
+			try {
+				v = writer.findVariable("ioFileCol");
+				shape = v.getShape();
+				ac = new ArrayChar.D2(shape[0], shape[1]);
+				ima = ac.getIndex();
+				ac.setString(ima.set(0), "type");
+				ac.setString(ima.set(1), "interval");
+				ac.setString(ima.set(2), "file");
+				writer.write(v, ac);
+				
+				v = writer.findVariable("io_file");
+				shape = v.getShape();
+				charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
+				ima = charArray.getIndex();
+				rowNum = 0;
+				for(int i=0; i<shape[0]; i++) {
+					for(int j=0; j<shape[1]; j++) {
+						if(j==0) {
+							charArray.setString(ima.set(i, j), this.io_file.get(i).type);
+						}
+						else if(j==1) {
+							charArray.setString(ima.set(i, j), this.io_file.get(i).interval);
+						}
+						else {
+							charArray.setString(ima.set(i, j), this.io_file.get(i).file);
+						}
 					}
 				}
+				writer.write(v, charArray);
 			}
-			writer.write(v, charArray);
+			catch (Exception e) {
+				System.out.println("Could not write io_file to netCDF output file. Skipping.");
+			}
 		}
-		catch (Exception e) {
-			System.out.println("Could not write io_file to netCDF output file. Skipping.");
-		}
-
 	}
 	
 	/**

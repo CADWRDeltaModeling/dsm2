@@ -30,7 +30,7 @@ class ProcessOutput:
         surv = dat["surv"].to_dataframe().reset_index()
         surv["survGroup"] = [s.decode("utf8") for s in surv["survGroup"]]
 
-        outputPath = os.path.join(os.path.dirname(survivalFile), "surv.csv"))
+        outputPath = os.path.join(os.path.dirname(survivalFile), "surv.csv")
         surv.to_csv(outputPath, index=False)
         print(f"Saved survival to {outputPath}")
 
