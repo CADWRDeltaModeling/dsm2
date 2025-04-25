@@ -1,0 +1,367 @@
+
+# ====================== Files used in simulation ========================
+
+# Entry file (top priority):  ptm.inp
+# Other files, increasing priority: 
+# 1    config.inp
+
+
+
+#===================      Simulation input data    =====================
+
+ENVVAR
+NAME  VALUE  
+DSM2MODIFIER                        diversion_in    
+DSM2OUTPUTDIR                       ./output    
+DSM2_STUDY_NAME                     diversion_in    
+END_TIME                            0000    
+PTMOUTFILE                          ./output/diversion_in.pof    
+PTMOUTPUTFILE                       ./output/ptmout.dss    
+PTM_END_DATE                        04JUN2017    
+PTM_START_DATE                      20APR2017    
+TEMPDIR                             ./temp    
+END
+
+SCALAR
+NAME  VALUE  
+binary_output                       false    
+display_intvl                       1day    
+dss_direct                          true    
+flush_output                        15day    
+printlevel                          1    
+ptm_flux_cumulative                 t    
+ptm_flux_percent                    t    
+ptm_group_percent                   t    
+ptm_iey                             t    
+ptm_iez                             t    
+ptm_itrans                          t    
+ptm_ivert                           t    
+ptm_no_animated                     2000    
+ptm_random_seed                     32001    
+ptm_time_step                       15min    
+ptm_trans_a_coef                    1.2    
+ptm_trans_b_coef                    0.3    
+ptm_trans_c_coef                    -1.5    
+ptm_trans_constant                  0.6    
+ptm_vert_constant                   0.067    
+run_end_date                        04JUN2017    
+run_end_time                        0000    
+run_start_date                      20APR2017    
+run_start_time                      0000    
+temp_dir                            ./temp    
+theta                               0.6    
+title                               "PTM SIMULATION: diversion_in"  
+END
+
+IO_FILE
+MODEL  TYPE  IO  INTERVAL  FILE  
+ptm         behavior      in          none          ptm_behavior_inputs.inp    
+ptm         echo        out         none          ./output/ptm_echo_diversion_in.inp    
+ptm         output      out         none          ./output/diversion_in.pof    
+ptm         trace       out         none          ./output/trace.out    
+END
+
+TIDEFILE
+START_DATE  END_DATE  FILE  
+runtime             length              Z:/JavaIOReplace/run_with_diversions/tidefiles/diversion_in.h5    
+END
+
+GROUP
+NAME  
+BethIs    
+CacheSl_LibertyIs    
+Columb_Turnr    
+DiscBay    
+DispmntSl    
+Dut_False_Fish    
+FranksTract    
+GLC_OldRiver    
+HollandCut    
+HonkerBay    
+LibIs    
+LowerSAC    
+LowerSJR    
+MIDR_Mouth_chan    
+Mid_SuisunBay    
+MiddleR    
+MildIs    
+MildredIs    
+NSForks_MoklmR    
+Old_River    
+RockSl_DiscBay    
+SACR_RioVista    
+SACR_Ryde    
+SACR_ShipCh    
+SJR_MIDR_Mouth    
+SJR_OLDR_Head    
+SJR_OLDR_Mouth    
+SJR_PrisonersPt    
+SJR_Stockton    
+SJR_Trnr_Col    
+SJR_TwitchellIs    
+SJR_West    
+SuisunMarsh    
+UpperSAC    
+UpperSJR    
+VictoriaCanal    
+WestSuisunBay    
+ag_bbid    
+ag_div    
+cache_complex    
+cache_miner    
+ccf_east    
+chipps_east    
+chipps_west    
+clfct    
+cvp    
+delta_seep    
+drain    
+franks    
+mtz    
+nba    
+other_div    
+sac_at_3mi    
+sac_at_dcc    
+sac_at_geo    
+sac_at_stmbt    
+sac_at_sut    
+sac_dwsc    
+sut_at_min    
+sut_elk    
+sut_stm_min_elk    
+swp    
+whole    
+whole_chan    
+whole_res    
+END
+
+GROUP_MEMBER
+GROUP_NAME  MEMBER_TYPE  PATTERN  
+BethIs              reservoir           little_franks_tract    
+CacheSl_LibertyIs    reservoir           (liberty)    
+CacheSl_LibertyIs    reservoir           (yolo_flyway)    
+CacheSl_LibertyIs    channel             range:388-390    
+CacheSl_LibertyIs    channel             range:395-409    
+CacheSl_LibertyIs    channel             range:713-714    
+Columb_Turnr        channel             (160|172)    
+DiscBay             reservoir           discovery_bay    
+DispmntSl           channel             range:311-314    
+DispmntSl           channel             range:317-318    
+DispmntSl           channel             range:320-322    
+Dut_False_Fish      channel             (280|279|275|260)    
+FranksTract         reservoir           (Franks_Tract)    
+FranksTract         reservoir           (little_franks_tract)    
+FranksTract         channel             range:261-274    
+FranksTract         channel             range:276-280    
+GLC_OldRiver        channel             (214|216)    
+GLC_OldRiver        channel             range:125-134    
+GLC_OldRiver        channel             range:183-203    
+GLC_OldRiver        channel             range:204-213    
+GLC_OldRiver        channel             range:54-63    
+GLC_OldRiver        channel             range:65-80    
+HollandCut          channel             (107|108|111)    
+HollandCut          channel             (250|251)    
+HollandCut          channel             range:114-124    
+HonkerBay           channel             (442|443|437|570|574|575)    
+LibIs               reservoir           liberty    
+LowerSAC            channel             (299|301)    
+LowerSAC            channel             range:281-283    
+LowerSAC            channel             range:290-297    
+LowerSAC            channel             range:434-436    
+LowerSJR            channel             (215|260|275|300)    
+LowerSJR            channel             range:284-289    
+LowerSJR            channel             range:49-53    
+MIDR_Mouth_chan     channel             (162|163)    
+Mid_SuisunBay       channel             (438|439|444|445)    
+Mid_SuisunBay       reservoir           (tule_red)    
+Mid_SuisunBay       channel             range:447-449    
+Mid_SuisunBay       channel             range:450-453    
+Mid_SuisunBay       channel             range:571-573    
+MiddleR             channel             (178|233|234|258)    
+MiddleR             channel             range:135-149    
+MildIs              reservoir           mildred    
+MildredIs           channel             (248|249)    
+MildredIs           reservoir           (Mildred)    
+MildredIs           channel             range:150-161    
+MildredIs           channel             range:164-168    
+MildredIs           channel             range:172-177    
+MildredIs           channel             range:179-182    
+NSForks_MoklmR      channel             (319)    
+NSForks_MoklmR      channel             (549|550|552|553)    
+NSForks_MoklmR      channel             range:323-330    
+NSForks_MoklmR      channel             range:331-335    
+NSForks_MoklmR      channel             range:336-365    
+NSForks_MoklmR      channel             range:555-559    
+Old_River           channel             (91|92|101|102|235|236|259)    
+Old_River           channel             range:104-106    
+Old_River           channel             range:94-97    
+RockSl_DiscBay      reservoir           (Discovery_Bay)    
+RockSl_DiscBay      channel             range:237-247    
+SACR_RioVista       channel             (309|310)    
+SACR_RioVista       channel             range:430-433    
+SACR_Ryde           channel             range:366-374    
+SACR_Ryde           channel             range:422-424    
+SACR_Ryde           channel             range:426-429    
+SACR_ShipCh         channel             range:391-394    
+SJR_MIDR_Mouth      channel             (37|38|41|39)    
+SJR_OLDR_Head       channel             (7|8)    
+SJR_OLDR_Mouth      channel             (43|42)    
+SJR_PrisonersPt     channel             (162|163)    
+SJR_PrisonersPt     channel             range:35-45    
+SJR_Stockton        channel             (15|16|315|316|560|561)    
+SJR_Stockton        channel             range:169-171    
+SJR_Stockton        channel             range:18-34    
+SJR_Trnr_Col        channel             (35|33|32|27|30|26|25)    
+SJR_TwitchellIs     channel             (83|307|308)    
+SJR_TwitchellIs     channel             range:46-48    
+SJR_West            channel             (50|49|83|48|47|46)    
+SuisunMarsh         channel             (502|503|522|523|543|544)    
+SuisunMarsh         channel             (537|539|542)    
+SuisunMarsh         channel             range:455-466    
+SuisunMarsh         channel             range:467-473    
+SuisunMarsh         channel             range:474-481    
+SuisunMarsh         channel             range:483-491    
+SuisunMarsh         channel             range:497-501    
+SuisunMarsh         channel             range:505-509    
+SuisunMarsh         channel             range:511-513    
+SuisunMarsh         channel             range:515-517    
+SuisunMarsh         channel             range:527-532    
+UpperSAC            channel             range:375-387    
+UpperSAC            channel             range:410-421    
+UpperSAC            channel             range:700-705    
+UpperSJR            channel             (17)    
+UpperSJR            channel             range:6-14    
+VictoriaCanal       channel             (82|81|252|253|254|255|257)    
+VictoriaCanal       channel             range:217-232    
+VictoriaCanal       channel             range:84-86    
+VictoriaCanal       channel             range:88-90    
+WestSuisunBay       channel             (440|441|454)    
+ag_bbid             qext                dicu_div_bbid    
+ag_bbid             qext                dicu_drain_bbid    
+ag_bbid             qext                dicu_seep_bbid    
+ag_div              qext                bbid.*    
+ag_div              qext                dicu_div_.*    
+cache_complex       reservoir           (liberty)    
+cache_complex       reservoir           (yolo_flyway)    
+cache_complex       channel             range:399-409    
+cache_complex       channel             range:710-714    
+cache_miner         channel             (390|397|405)    
+ccf_east            channel             (232|217|82)    
+chipps_east         channel             (288|294|291)    
+chipps_west         channel             (442|437)    
+clfct               reservoir           clifton_court    
+cvp                 qext                cvp    
+delta_seep          qext                dicu_seep_.*    
+drain               qext                dicu_drain_.*    
+franks              reservoir           franks_tract    
+mtz                 stage               mtz.*    
+nba                 qext                (northbay|nb_sol|nb_fvb)    
+other_div           qext                antiochww    
+other_div           qext                ccc    
+other_div           qext                ccwdvc    
+other_div           qext                cosma1    
+other_div           qext                cosma2    
+other_div           qext                frwp_ebmud    
+other_div           qext                frwp_scwa    
+other_div           qext                oldr034    
+other_div           qext                vallejo    
+sac_at_3mi          channel             (431|432|433)    
+sac_at_dcc          channel             (422|421)    
+sac_at_geo          channel             (423|422)    
+sac_at_stmbt        channel             (419|420)    
+sac_at_sut          channel             (418|419)    
+sac_dwsc            channel             range:391-397    
+sut_at_min          channel             (381|382)    
+sut_elk             channel             (378|380)    
+sut_stm_min_elk     channel             range:375-390    
+swp                 qext                swp    
+whole               channel             .*    
+whole               reservoir           .*    
+whole_chan          channel             .*    
+whole_res           reservoir           .*    
+END
+
+PARTICLE_INSERTION
+NODE  NPARTS  DELAY  DURATION  
+335   1000    1day            1day            
+335   1000    2day            1day            
+END
+
+PARTICLE_FILTER
+NAME  NODE  AT_WB  FILLIN  FILE  PATH  
+END
+
+PARTICLE_RES_FILTER
+NAME  RES_NAME  AT_WB  FILLIN  FILE  PATH  
+END
+
+PARTICLE_GROUP_OUTPUT
+NAME  GROUP_NAME  INTERVAL  FILE  
+BethelIs            BethIs                      1hour         ./output/ptmout.dss    
+CacheSl_LibIs       CacheSl_LibertyIs           1hour         ./output/ptmout.dss    
+Disapp_Sl           DispmntSl                   1hour         ./output/ptmout.dss    
+DiscoveryBay        DiscBay                     1hour         ./output/ptmout.dss    
+FranksTract         FranksTract                 1hour         ./output/ptmout.dss    
+GLC_OldR            GLC_OldRiver                1hour         ./output/ptmout.dss    
+HollandCut          HollandCut                  1hour         ./output/ptmout.dss    
+Honker_Bay          HonkerBay                   1hour         ./output/ptmout.dss    
+LibertyIs           LibIs                       1hour         ./output/ptmout.dss    
+Low_SacR            LowerSAC                    1hour         ./output/ptmout.dss    
+LowerSJR            LowerSJR                    1hour         ./output/ptmout.dss    
+Mid_SuisunBay       Mid_SuisunBay               1hour         ./output/ptmout.dss    
+Middle_River        MiddleR                     1hour         ./output/ptmout.dss    
+MildredIs           MildIs                      1hour         ./output/ptmout.dss    
+Mildred_Island      MildredIs                   1hour         ./output/ptmout.dss    
+NS_Forks_MokeR      NSForks_MoklmR              1hour         ./output/ptmout.dss    
+Old_River           Old_River                   1hour         ./output/ptmout.dss    
+Oth_Div             other_div                   1hour         ./output/ptmout.dss    
+RockSl_DiscBay      RockSl_DiscBay              1hour         ./output/ptmout.dss    
+SJR_PrisonersPt     SJR_PrisonersPt             1hour         ./output/ptmout.dss    
+SJR_Stockton        SJR_Stockton                1hour         ./output/ptmout.dss    
+SJR_Twitchell_Island    SJR_TwitchellIs             1hour         ./output/ptmout.dss    
+SacR_DWSC           sac_dwsc                    1hour         ./output/ptmout.dss    
+SacR_RioVista       SACR_RioVista               1hour         ./output/ptmout.dss    
+SacR_Ryde           SACR_Ryde                   1hour         ./output/ptmout.dss    
+SacR_Shipchannel    SACR_ShipCh                 1hour         ./output/ptmout.dss    
+SuisunMarsh         SuisunMarsh                 1hour         ./output/ptmout.dss    
+Upper_SACR          UpperSAC                    1hour         ./output/ptmout.dss    
+Upper_SJR           UpperSJR                    1hour         ./output/ptmout.dss    
+Victoria_Canal      VictoriaCanal               1hour         ./output/ptmout.dss    
+West_SuisunBay      WestSuisunBay               1hour         ./output/ptmout.dss    
+all_chan            whole_chan                  1hour         ./output/ptmout.dss    
+all_res             whole_res                   1hour         ./output/ptmout.dss    
+bbid                ag_bbid                     1hour         ./output/ptmout.dss    
+cachesl_complex     cache_complex               1hour         ./output/ptmout.dss    
+clifton             clfct                       1hour         ./output/ptmout.dss    
+del_drain           drain                       1hour         ./output/ptmout.dss    
+del_seep            delta_seep                  1hour         ./output/ptmout.dss    
+franksT             franks                      1hour         ./output/ptmout.dss    
+sut_stmbt_min_elk    sut_stm_min_elk             1hour         ./output/ptmout.dss    
+whole               whole                       1hour         ./output/ptmout.dss    
+END
+
+PARTICLE_FLUX_OUTPUT
+NAME  FROM_WB  TO_WB  INTERVAL  FILE  
+Columb_Trnr         group:SJR_Trnr_Col          group:Columb_Turnr          1hour         ./output/ptmout.dss    
+Dut_Fal_fish        group:SJR_West              group:Dut_False_Fish        1hour         ./output/ptmout.dss    
+EXPORT_IF           chan:607                    chan:608                    1hour         ./output/ptmout.dss    
+MidR_Mouth          group:MIDR_Mouth_chan       chan:161                    1hour         ./output/ptmout.dss    
+OLDR_Head           group:sjr_oldr_head         chan:54                     1hour         ./output/ptmout.dss    
+OLDR_Mouth          group:sjr_oldr_mouth        chan:124                    1hour         ./output/ptmout.dss    
+To_NBA              chan:406                    group:nba                   1hour         ./output/ptmout.dss    
+To_Suisun           chan:511                    chan:512                    1hour         ./output/ptmout.dss    
+cache_yolo          group:cache_miner           chan:398                    1hour         ./output/ptmout.dss    
+diversion_ag        group:all                   group:ag_div                1hour         ./output/ptmout.dss    
+export_ccf          group:ccf_east              res:clifton_court           1hour         ./output/ptmout.dss    
+export_cvp          chan:216                    group:cvp                   1hour         ./output/ptmout.dss    
+export_swp          res:clifton_court           group:swp                   1hour         ./output/ptmout.dss    
+past_chipps         group:chipps_east           group:chipps_west           1hour         ./output/ptmout.dss    
+past_mtz            chan:441                    group:mtz                   1hour         ./output/ptmout.dss    
+sac_to_3mi          group:sac_at_3mi            chan:309                    1hour         ./output/ptmout.dss    
+sac_to_DCC          group:sac_at_dcc            chan:365                    1hour         ./output/ptmout.dss    
+sac_to_GEO          group:sac_at_geo            chan:366                    1hour         ./output/ptmout.dss    
+sac_to_stm          group:sac_at_stmbt          chan:383                    1hour         ./output/ptmout.dss    
+sac_to_sut          chan:379                    group:sut_elk               1hour         ./output/ptmout.dss    
+stmbt_n_to_s        chan:385                    chan:386                    1hour         ./output/ptmout.dss    
+END
+

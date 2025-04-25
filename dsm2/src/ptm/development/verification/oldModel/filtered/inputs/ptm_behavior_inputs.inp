@@ -1,0 +1,25 @@
+Particle_Type_Inputs
+neutrally_buoyant_particle
+End_Particle_Type_Inputs
+
+Random_Sequence_Inputs
+# Yes will use System.currentTimeMills as the random seed;
+# No will use a default seed (usually for a debugging or tuning purpose)
+Use_New_Random_Seed: No
+End_Random_Sequence_Inputs
+
+Route_Inputs
+Output_Path_Entrainment: 
+TransProbsPath:
+DICU_Filter
+# not allow any particles to DICU
+Filter_Efficiency: 0.0
+End_DICU_Filter
+Fish_Screens
+NodeID          ChannelID/ReservoirName/Obj2objName 
+330              700
+# DCP intakes
+337              603
+338              605
+End_Fish_Screens
+End_Route_Inputs

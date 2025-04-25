@@ -1,0 +1,18 @@
+# Description
+# Planning study working with Calsim 3
+# 2020 Existing Condition
+# 20201108
+ENVVAR
+NAME                        VALUE
+DSM2_STUDY_NAME				diversion_in
+PTM_START_DATE           20APR2017
+PTM_END_DATE                 04JUN2017
+END_TIME                 0000
+DSM2MODIFIER                ${DSM2_STUDY_NAME}                                  # Study name used for DSM2 and prepro 
+# Output
+TEMPDIR                     ./temp
+DSM2OUTPUTDIR               ./output                                             # output location
+#PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.pof
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.dss
+END

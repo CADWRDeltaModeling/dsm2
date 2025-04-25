@@ -98,3 +98,6 @@ build.out
 # VS Code
 *.code-workspace
 .vscode/
+
+# macOS folder attributes
+.DS_Store
