@@ -19,8 +19,12 @@ workingDir = "/Users/djackson/Documents/QEDA/DWR/programs/dsm2_master/dsm2/dsm2/
 # Map from new to old flux indices
 iMap = {0:11, 1:2, 2:14, 3:13, 4:4, 5:7, 6:6, 7:3, 8:9, 9:5, 10:1, 11:11, 12:6, 13:12, 14:15, 15:19, 16:18, 17:20, 18:17, 19:8}
 
-figWidth = 10
-figHeight = 8
+figWidth = 8
+figHeight = 6
+
+legendFontsize = 12
+tickFontsize = 10
+labelFontsize = 12
 ####################################################################################################
 # Run
 ####################################################################################################
@@ -66,19 +70,27 @@ for runType in ["filtered", "not_filtered"]:
     # Generate comparison plots
     for node in nodes:
         fig, ax = plt.subplots(figsize=[figWidth, figHeight])
-        ax.plot(nodeFlux["datetime"], nodeFlux[node], label="Java I/O")
-        ax.plot(oldNodeFlux["datetime"], oldNodeFlux[node], label="Xiao")
-        ax.legend()
-        ax.set_title(f"nodeFlux, {node}")
+        ax.plot(nodeFlux["datetime"], nodeFlux[node], label="Java I/O (new model)")
+        ax.plot(oldNodeFlux["datetime"], oldNodeFlux[node], label="Fortran I/O (old model)")
+        ax.legend(fontsize=legendFontsize)
+        ax.tick_params(axis="both", which="both", labelsize=tickFontsize)
+        ax.set_ylabel("particle counts", fontsize=labelFontsize)
+        ax.set_title(f"Flux: {node}")
+        ax.tick_params(axis="x", labelrotation=45)
+        plt.tight_layout()
         plt.savefig(os.path.join(outputDir, f"nodeFlux_{node}.png"))
         plt.close("all")
         
     for group in groups:
         fig, ax = plt.subplots(figsize=[figWidth, figHeight])
-        ax.plot(groupFlux["datetime"], groupFlux[group], label="Java I/O")
-        ax.plot(oldGroupFlux["datetime"], oldGroupFlux[group], label="Xiao")
-        ax.legend()
-        ax.set_title(f"groupFlux, {group}")
+        ax.plot(groupFlux["datetime"], groupFlux[group], label="Java I/O (new model)")
+        ax.plot(oldGroupFlux["datetime"], oldGroupFlux[group], label="Fortran I/O (old model)")
+        ax.legend(fontsize=legendFontsize)
+        ax.tick_params(axis="both", which="both", labelsize=tickFontsize)
+        ax.set_ylabel("particle counts", fontsize=labelFontsize)
+        ax.set_title(f"Flux: {group}")
+        ax.tick_params(axis="x", labelrotation=45)
+        plt.tight_layout()
         plt.savefig(os.path.join(outputDir, f"groupFlux_{group}.png"))
         plt.close("all")
 
