@@ -151,7 +151,7 @@ public class Output {
 		  }
 		  
 		  // Append survival outputs to survival outputs CSV file
-		  survOutput.writeOutputCSV();
+		  if(survOutput!=null) {survOutput.writeOutputCSV();}
 	  }
 }
 

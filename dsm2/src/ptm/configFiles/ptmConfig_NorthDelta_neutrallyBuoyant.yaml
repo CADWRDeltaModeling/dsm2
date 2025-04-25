@@ -1,0 +1,309 @@
+---
+#tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_noSZIP.h5
+tidefile: 'D:/QEDA/DWR/ECO_PTM_scenarios/DCP_fromXiao_12sep24/diversion_in_noSZIP.h5'
+
+# ECO-PTM behavior configuration
+particle_type: neutrally_buoyant_particle
+
+# timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
+time_zone: PST
+
+# true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
+use_new_random_seed: true
+
+# Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
+output_path_entrainment:
+trans_probs_path: 
+output_path_flux: ./output/flux.csv
+
+dicu_filter_efficiency: 0.0
+
+fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
+fish_screens:
+  - [330, 700]
+
+display_simulation_timestep_write_all: true
+flux_write_all: true
+entrainment_write_all: true
+survival_write_all: true
+route_survival_write_all: true
+fates_write_all: true
+
+display_intvl: 1day
+
+particle_insertion_header: [node, nparts, delay, duration]
+particle_insertion:
+  - [335, 1000, 1day, 1day]
+  - [335, 1000, 2day, 1day]
+
+# PTM configuration
+ptm_start_date: 21APR2015
+ptm_start_time: 0000
+ptm_end_date: 28SEP2015
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
+
+theta: 0.6                            # Theta to interpolate velocity
+
+# Boolean variables
+ptm_ivert: true                       # Use vertical velocity profile
+ptm_itrans: true                      # Use transverse velocity profile
+ptm_iey: true                         # Use transverse mixing
+ptm_iez: true                         # Use vertical mixing
+ptm_iprof: false                      # 
+
+# Set this to false for now. In the Fortran code, it is set by process_fixed.f90. See 22jul24 Obsidian
+ptm_igroup: false
+
+ptm_flux_percent: true                # Output flux as a percentage
+ptm_group_percent: true               # Output groups as a percentage
+ptm_flux_cumulative: true             # Output flux as cumulative values
+
+# Numeric variables
+ptm_random_seed: 32001                # Random number seed
+ptm_trans_constant: 0.6               # Transverse mixing constant 
+ptm_vert_constant: 0.067              # Vertical mixing constant
+
+ptm_trans_a_coef: 1.2                 # Transverse a coefficient
+ptm_trans_b_coef: 0.3                 # Transverse b coefficient
+ptm_trans_c_coef: -1.5                # Transverse c coefficient
+
+ptm_num_animated: 2000                # Maximum number of particles to animate
+
+particle_group_output_header: [name, groupName]
+particle_group_output:
+  - [clifton, clfct]
+  - [franksT, franks]
+  - [whole, whole]
+  - [all_chan, whole_chan]
+  - [all_res, whole_res]
+  - [cachesl_complex, cache_complex]
+  - [SacR_DWSC, sac_dwsc]
+  - [sut_stmbt_min_elk, sut_stm_min_elk]
+  - [CacheSl_LibIs, CacheSl_LibertyIs]
+  - [Disapp_Sl, DispmntSl]
+  - [FranksTract, FranksTract]
+  - [GLC_OldR, GLC_OldRiver]
+  - [HollandCut, HollandCut]
+  - [Honker_Bay, HonkerBay]
+  - [Low_SacR, LowerSAC]
+  - [LowerSJR, LowerSJR]
+  - [Mid_SuisunBay, Mid_SuisunBay]
+  - [Middle_River, MiddleR]
+  - [NS_Forks_MokeR, NSForks_MoklmR]
+  - [Old_River, Old_River]
+  - [RockSl_DiscBay, RockSl_DiscBay]
+  - [SacR_RioVista, SACR_RioVista]
+  - [SacR_Ryde, SACR_Ryde]
+  - [SacR_Shipchannel, SACR_ShipCh]
+  - [SJR_PrisonersPt, SJR_PrisonersPt]
+  - [SJR_Stockton, SJR_Stockton]
+  - [SJR_Twitchell_Island, SJR_TwitchellIs]
+  - [SuisunMarsh, SuisunMarsh]
+  - [Upper_SJR, UpperSJR]
+  - [Upper_SACR, UpperSAC]
+  - [Victoria_Canal, VictoriaCanal]
+  - [West_SuisunBay, WestSuisunBay]
+  - [Mildred_Island, MildredIs]
+  - [Oth_Div, other_div]    
+  - [del_seep, delta_seep]    
+  - [bbid, ag_bbid]
+  - [del_drain, drain]
+  - [BethelIs, BethIs]
+  - [MildredIs, MildIs]
+  - [LibertyIs, LibIs]
+  - [DiscoveryBay, DiscBay]
+
+particle_flux_output_header: [name, from_wb, from_wb_type, to_wb, to_wb_type]
+particle_flux_output:
+  - [export_ccf, ccf_east, group, clifton_court, res]
+  - [export_cvp, 216, chan, cvp, group]
+  - [past_mtz, 441, chan, mtz, group]
+  - [past_chipps, chipps_east, group, chipps_west, group]
+  - [diversion_ag, all, group, ag_div, group]
+  - [To_Suisun, 511, chan, 512, chan]
+  - [export_swp, clifton_court, res, swp, group]
+  # Channel 607 isn't in diversion_off.h5
+  # - [EXPORT_IF, 607, chan, 608, chan]
+  - [To_NBA, 406, chan, nba, group]
+  - [sac_to_DCC, sac_at_dcc, group, 365, chan]
+  - [OLDR_Mouth, sjr_oldr_mouth, group, 124, chan]
+  - [Dut_Fal_fish, SJR_West, group, Dut_False_Fish, group]
+  - [MidR_Mouth, MIDR_Mouth_chan, group, 161, chan]
+  - [Columb_Trnr, SJR_Trnr_Col, group, Columb_Turnr, group]
+  - [OLDR_Head, sjr_oldr_head, group, 54, chan]
+  - [sac_to_3mi, sac_at_3mi, group, 309, chan]
+  - [sac_to_sut, 379, chan, sut_elk, group]
+  - [sac_to_stm, sac_at_stmbt, group, 383, chan]
+  - [stmbt_n_to_s, 385, chan, 386, chan]
+  - [sac_to_GEO, sac_at_geo, group, 366, chan]
+  - [cache_yolo, cache_miner, group, 398, chan]
+
+groups_header: [name, type, pattern]
+groups:
+  - [BethIs, res, little_franks_tract]
+  - [MildIs, res, mildred]
+  - [DiscBay, res, discovery_bay]
+  - [LibIs, res, liberty]
+  - [clfct, res, clifton_court]
+  - [ccf_east, chan, (232|217|82)]
+  - [chipps_east, chan, (288|294|291)]
+  - [chipps_west, chan, (442|437)]
+  - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
+  - [swp, qext, swp]
+  - [cvp, qext, cvp]
+  - [mtz, stage, mtz.*]
+  - [franks, res, franks_tract]
+  - [whole_chan, chan, .*]
+  - [whole_res, res, .*]
+  - [whole, chan, .*]
+  - [whole, res, .*]
+  - [nba, qext, (northbay|nb_sol|nb_fvb)]
+  - [Dut_False_Fish, chan, (280|279|275|260)]
+  - [SJR_OLDR_Mouth, chan, (43|42)]
+  - [SJR_MIDR_Mouth, chan, (37|38|41|39)]
+  - [MIDR_Mouth_chan, chan, (162|163)]
+  - [Columb_Turnr, chan, (160|172)]
+  - [SJR_OLDR_Head, chan, (7|8)]
+  - [SJR_West, chan, (50|49|83|48|47|46)]
+  - [SJR_Trnr_Col, chan, (35|33|32|27|30|26|25)]
+  - [sac_at_3mi, chan, (431|432|433)]
+  - [sac_at_geo, chan, (423|422)]
+  - [sac_at_dcc, chan, (422|421)]
+  - [sac_at_sut, chan, (418|419)]
+  - [sac_at_stmbt, chan, (419|420)]
+  - [sut_at_min, chan, (381|382)]
+  - [cache_miner, chan, (390|397|405)]
+ #add restoration area yolo_flyway, add channels 710-714
+  - [cache_complex, chan, range:399-409]
+  - [cache_complex, chan, range:710-714]
+  - [cache_complex, res, (liberty)]
+  - [cache_complex, res, (yolo_flyway)]
+  - [sac_dwsc, chan, range:391-397]
+  - [sut_stm_min_elk, chan, range:375-390]
+  - [sut_elk, chan, (378|380)]
+  ## USFWS Delta Smelt Lifecycle Model Sub-regions
+  #add restoration area Yolo Flyway, add channels 713-714
+  - [CacheSl_LibertyIs, res, (liberty)]
+  - [CacheSl_LibertyIs, res, (yolo_flyway)]
+  - [CacheSl_LibertyIs, chan, range:388-390]
+  - [CacheSl_LibertyIs, chan, range:395-409]
+  - [CacheSl_LibertyIs, chan, range:713-714]
+  #
+  - [DispmntSl, chan, range:311-314]
+  - [DispmntSl, chan, range:317-318]
+  - [DispmntSl, chan, range:320-322]
+  - [FranksTract, res, (Franks_Tract)]
+  - [FranksTract, res, (little_franks_tract)]
+  - [FranksTract, chan, range:261-274]
+  - [FranksTract, chan, range:276-280]
+  - [GLC_OldRiver, chan, range:54-63]
+  - [GLC_OldRiver, chan, range:65-80]
+  - [GLC_OldRiver, chan, range:125-134]
+  - [GLC_OldRiver, chan, range:204-213]
+  - [GLC_OldRiver, chan, (214|216)]
+  - [GLC_OldRiver, chan, range:183-203]
+  - [HollandCut, chan, (107|108|111)]
+  - [HollandCut, chan, range:114-124]
+  - [HollandCut, chan, (250|251)]
+  - [HonkerBay, chan, (442|443|437|570|574|575)]
+  - [LowerSAC, chan, range:281-283]
+  - [LowerSAC, chan, (299|301)]
+  - [LowerSAC, chan, range:290-297]
+  - [LowerSAC, chan, range:434-436]
+  - [LowerSJR, chan, range:49-53]
+  - [LowerSJR, chan, (215|260|275|300)]
+  - [LowerSJR, chan, range:284-289]
+  #add restoration area Tule Red
+  - [Mid_SuisunBay, chan, range:447-449]
+  - [Mid_SuisunBay, chan, (438|439|444|445)]
+  - [Mid_SuisunBay, chan, range:450-453]
+  - [Mid_SuisunBay, chan, range:571-573]
+  - [Mid_SuisunBay, res, (tule_red)]
+  #
+  - [MiddleR, chan, range:135-149]
+  - [MiddleR, chan, (178|233|234|258)]
+  - [MildredIs, res, (Mildred)]
+  - [MildredIs, chan, range:150-161]
+  - [MildredIs, chan, (248|249)]
+  - [MildredIs, chan, range:164-168]
+  - [MildredIs, chan, range:172-177]
+  - [MildredIs, chan, range:179-182]
+  - [NSForks_MoklmR, chan, range:323-330]
+  - [NSForks_MoklmR, chan, (319)]
+  - [NSForks_MoklmR, chan, range:331-335]
+  - [NSForks_MoklmR, chan, range:336-365]
+  - [NSForks_MoklmR, chan, (549|550|552|553)]
+  - [NSForks_MoklmR, chan, range:555-559]
+  - [Old_River, chan, range:94-97]
+  - [Old_River, chan, (91|92|101|102|235|236|259)]
+  - [Old_River, chan, range:104-106]
+  - [RockSl_DiscBay, res, (Discovery_Bay)]
+  - [RockSl_DiscBay, chan, range:237-247]
+  - [SACR_RioVista, chan, range:430-433]
+  - [SACR_RioVista, chan, (309|310)]
+  - [SACR_Ryde, chan, range:366-374]
+  - [SACR_Ryde, chan, range:422-424]
+  - [SACR_Ryde, chan, range:426-429]
+  - [SACR_ShipCh, chan, range:391-394]
+  - [SJR_PrisonersPt, chan, range:35-45]
+  - [SJR_PrisonersPt, chan, (162|163)]
+  - [SJR_Stockton, chan, range:18-34]
+  - [SJR_Stockton, chan, (15|16|315|316|560|561)]
+  - [SJR_Stockton, chan, range:169-171]
+  - [SJR_TwitchellIs, chan, range:46-48]
+  - [SJR_TwitchellIs, chan, (83|307|308)]
+  - [SuisunMarsh, chan, range:455-466]
+  - [SuisunMarsh, chan, (502|503|522|523|543|544)]
+  - [SuisunMarsh, chan, range:467-473]
+  - [SuisunMarsh, chan, range:474-481]
+  - [SuisunMarsh, chan, range:483-491]
+  - [SuisunMarsh, chan, range:497-501]
+  - [SuisunMarsh, chan, range:505-509]
+  - [SuisunMarsh, chan, range:511-513]
+  - [SuisunMarsh, chan, range:515-517]
+  - [SuisunMarsh, chan, range:527-532]
+  - [SuisunMarsh, chan, (537|539|542)]
+  - [UpperSJR, chan, (17)]
+  - [UpperSJR, chan, range:6-14]
+  - [UpperSAC, chan, range:375-387]
+  - [UpperSAC, chan, range:410-421]
+  - [UpperSAC, chan, range:700-705]
+  - [VictoriaCanal, chan, range:84-86]
+  - [VictoriaCanal, chan, (82|81|252|253|254|255|257)]
+  - [VictoriaCanal, chan, range:88-90]
+  - [VictoriaCanal, chan, range:217-232]
+  - [WestSuisunBay, chan, (440|441|454)]
+  - [other_div, qext, ccc]
+  - [other_div, qext, oldr034]
+  - [other_div, qext, ccwdvc]
+  - [other_div, qext, cosma1]
+  - [other_div, qext, cosma2]
+  - [other_div, qext, vallejo]
+  - [other_div, qext, antiochww]
+  - [other_div, qext, frwp_ebmud]
+  - [other_div, qext, frwp_scwa]
+  - [delta_seep, qext, dicu_seep_.*]
+  - [ag_bbid, qext, dicu_div_bbid]
+  - [ag_bbid, qext, dicu_seep_bbid]
+  - [ag_bbid, qext, dicu_drain_bbid]
+  - [drain, qext, dicu_drain_.*]
+
+io_file:
+#  - type: anim
+#    interval: 15min
+#    file: ./output/anim_db.bin
+  - type: trace
+    interval: none
+    file: ./output/trace.out
+  - type: flux
+    interval: 1hour
+    file: ./output/ptm_out.ncd
+  - type: echoConfig
+    interval: none
+    file: ./output/echoConfig.yaml
+  - type: echoConfigNetCDF
+    interval: none
+    file: ./output/ptm_out.ncd    
