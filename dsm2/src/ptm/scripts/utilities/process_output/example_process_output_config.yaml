@@ -1,5 +1,8 @@
 createFluxDat: true
-fluxDatLocs: ["EXPORT_CVP", "EXPORT_CCF"]
+fluxFile: "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_neutrallyBuoyant_25apr25/output/ptm_out.ncd"
+fluxSimLoc: 1
+fluxDatLocs: ["EXPORT_CVP", "EXPORT_CCF", "EXPORT_IF", "Past_MTZ", "Past_Chipps",
+              "Diversion_Ag", "To_NBA"]
 fluxDatDays: [30, 90]
 processSurvival: false
 survivalFile: "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_master_JavaIO_17apr25/output/ptm_out.ncd"

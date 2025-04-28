@@ -2,6 +2,8 @@
 #tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_noSZIP.h5
 tidefile: 'D:/QEDA/DWR/ECO_PTM_scenarios/DCP_fromXiao_12sep24/diversion_in_noSZIP.h5'
 
+simulation_scenario: test simulation scenario
+
 # ECO-PTM behavior configuration
 particle_type: neutrally_buoyant_particle
 

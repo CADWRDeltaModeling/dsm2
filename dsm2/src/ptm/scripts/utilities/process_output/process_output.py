@@ -4,11 +4,15 @@ __author__ = "Doug Jackson, QEDA Consulting, LLC"
 __email__ = "doug@QEDAconsulting.com"
 __version__ = "0.1"
 import os
-import xarray
+import sys
+import xarray as xr
 import pandas as pd
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime as dt
+from datetime import timedelta
+import yaml
 
 class ProcessOutput:
 
@@ -16,6 +20,69 @@ class ProcessOutput:
         """Initialize a ProcessOutput object""" 
         self.figWidth = 6
         self.figHeight = 6
+    
+    def createFluxDat(self, fluxFile, fluxSimLoc, fluxDatLocs, fluxDatDays):
+        """Create dat file of flux outputs
+        
+        Keyword arguments:
+        fluxFile (str) -- path to the netCDF flux output file
+        """
+        print("="*80)
+        print(f"Creating *.dat flux output file using outputs in {fluxFile}")
+
+        ds = xr.open_dataset(fluxFile)
+
+        nodeFlux = ds["nodeFlux"].to_pandas()
+        nodeFlux.columns = [c.decode("utf8") for c in nodeFlux.columns]
+        nodeFlux.index = [i.decode("utf8") for i in nodeFlux.index]
+        
+        nodes = nodeFlux.columns
+        nodeFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in nodeFlux.index]
+        
+        groupFlux = ds["groupFlux"].to_pandas()
+        groupFlux.columns = [c.decode("utf8") for c in groupFlux.columns]
+        groupFlux.index = [i.decode("utf8") for i in groupFlux.index]
+        
+        groups = groupFlux.columns
+        groupFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in groupFlux.index]
+        
+        ds.close()
+
+        outputDir = os.path.dirname(fluxFile)
+
+        try:
+            scenario = ds["simulation_scenario"].item().decode("utf8")
+        except:
+            scenario = "NA"
+
+        flux = pd.merge(nodeFlux, groupFlux, on="datetime", how="outer")
+        flux["datetime"] = pd.to_datetime(flux["datetime"])
+        startDatetime = flux["datetime"].min()
+        flux["daysFromStart"] = [(d - startDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
+
+        for days in fluxDatDays:
+            outputFile = os.path.join(outputDir, f"ptm_fate_results_{days}day.dat")
+
+            thisFlux = flux[flux["daysFromStart"]>=days].iloc[0]
+
+            with open(outputFile, "w") as fH:
+                print(f"Saving flux output to {outputFile}")
+                print(f"{days}-day PTM Output - {scenario}", file=fH)
+                header = "SimPeriod,SimLoc"
+                for loc in fluxDatLocs:
+                    header+=f",{loc.upper()}"
+                print(header, file=fH)
+
+                row = f"{dt.strftime(startDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
+                for loc in fluxDatLocs:
+                    try:
+                        row+=f", {thisFlux[loc.upper()]}"
+                    except:
+                        row+=","
+                print(row, file=fH)
+            
+        nodeFlux.to_csv(os.path.join(outputDir, "nodeFlux.csv"), index=False)
+        groupFlux.to_csv(os.path.join(outputDir, "groupFlux.csv"), index=False)
 
     def processSurvival(self, survivalFile):
         """Process survival output
@@ -26,7 +93,7 @@ class ProcessOutput:
         print("="*80)
         print(f"Processing survival output in {survivalFile}")
 
-        dat = xarray.open_dataset(survivalFile)
+        dat = xr.open_dataset(survivalFile)
         surv = dat["surv"].to_dataframe().reset_index()
         surv["survGroup"] = [s.decode("utf8") for s in surv["survGroup"]]
 
@@ -63,7 +130,7 @@ class ProcessOutput:
         print("="*80)
         print(f"Echoing configuration values in {echoConfigNetCDF}")
 
-        dat = xarray.open_dataset(echoConfigNetCDF)
+        dat = xr.open_dataset(echoConfigNetCDF)
         for varName in ["tidefile", "particle_type", "time_zone", "use_new_random_seed", "travel_time_output_path",
                         "sunrise", "sunset", "random_assess", "output_path_entrainment", "trans_probs_path",
                         "output_path_flux", "survival_output_path", "simulation_start_date", "show_route_survival_detail",
@@ -124,14 +191,29 @@ if __name__=="__main__":
 
     # Read in command line arguments
     parser = argparse.ArgumentParser(description="Script to perform basic post-processing of ECO-PTM output.")
-    parser.add_argument("--survivalFile", action="store", dest="survivalFile", required=False)
-    parser.add_argument("--echoConfigNetCDF", action="store", dest="echoConfigNetCDF", required=False)
+    parser.add_argument("--configFile", action="store", dest="configFile", required=True)
     args = parser.parse_args()
 
     p = ProcessOutput()
 
-    if args.survivalFile is not None:
-        p.processSurvival(args.survivalFile)
+    configFile = args.configFile
+
+    # Read YAML configuration file
+    try:
+        with open(configFile) as fH:
+            config = yaml.safe_load(fH)
+    except IOError as e:
+        print(f"Could not load configuration file {configFile}. Does it exist? {e}")
+        sys.exit()
+    except yaml.YAMLError as e:
+        print(f"Error while parsing process_output configuration file: {e}")
+        sys.exit()
+
+    if config["createFluxDat"]:
+        p.createFluxDat(config["fluxFile"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
+
+    if  config["processSurvival"]:
+        p.processSurvival(config["survivalFile"])
     
-    if args.echoConfigNetCDF is not None:
-        p.printConfig(args.echoConfigNetCDF)
+    if config["echoConfig"]:
+        p.printConfig(config["echoConfigNetCDF"])
