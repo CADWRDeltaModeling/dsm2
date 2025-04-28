@@ -1,5 +1,7 @@
 createFluxDat: true
-fluxFile: "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_neutrallyBuoyant_25apr25/output/ptm_out.ncd"
+fluxOutputDir: "C:/Users/admin/Documents/QEDA/DWR/programs/dsm2/dsm2/src/ptm/scripts/utilities/process_output"
+fluxFiles: ["C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_neutrallyBuoyant_25apr25/output/ptm_out.ncd",
+            "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_neutrallyBuoyant_25apr25/output/ptm_out.ncd"]
 fluxSimLoc: 1
 fluxDatLocs: ["EXPORT_CVP", "EXPORT_CCF", "EXPORT_IF", "Past_MTZ", "Past_Chipps",
               "Diversion_Ag", "To_NBA"]

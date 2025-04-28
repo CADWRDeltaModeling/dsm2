@@ -21,49 +21,25 @@ class ProcessOutput:
         self.figWidth = 6
         self.figHeight = 6
     
-    def createFluxDat(self, fluxFile, fluxSimLoc, fluxDatLocs, fluxDatDays):
+    def createFluxDat(self, fluxOutputDir, fluxFiles, fluxSimLoc, fluxDatLocs, fluxDatDays):
         """Create dat file of flux outputs
         
         Keyword arguments:
-        fluxFile (str) -- path to the netCDF flux output file
+        fluxFiles (list) -- list of paths to the netCDF flux output files
         """
         print("="*80)
-        print(f"Creating *.dat flux output file using outputs in {fluxFile}")
 
-        ds = xr.open_dataset(fluxFile)
-
-        nodeFlux = ds["nodeFlux"].to_pandas()
-        nodeFlux.columns = [c.decode("utf8") for c in nodeFlux.columns]
-        nodeFlux.index = [i.decode("utf8") for i in nodeFlux.index]
-        
-        nodes = nodeFlux.columns
-        nodeFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in nodeFlux.index]
-        
-        groupFlux = ds["groupFlux"].to_pandas()
-        groupFlux.columns = [c.decode("utf8") for c in groupFlux.columns]
-        groupFlux.index = [i.decode("utf8") for i in groupFlux.index]
-        
-        groups = groupFlux.columns
-        groupFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in groupFlux.index]
-        
-        ds.close()
-
-        outputDir = os.path.dirname(fluxFile)
-
+        # Read the scenario from the first file
         try:
+            ds = xr.open_dataset(fluxFiles[0])
             scenario = ds["simulation_scenario"].item().decode("utf8")
+            ds.close()
         except:
             scenario = "NA"
 
-        flux = pd.merge(nodeFlux, groupFlux, on="datetime", how="outer")
-        flux["datetime"] = pd.to_datetime(flux["datetime"])
-        startDatetime = flux["datetime"].min()
-        flux["daysFromStart"] = [(d - startDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
-
         for days in fluxDatDays:
-            outputFile = os.path.join(outputDir, f"ptm_fate_results_{days}day.dat")
 
-            thisFlux = flux[flux["daysFromStart"]>=days].iloc[0]
+            outputFile = os.path.join(fluxOutputDir, f"ptm_fate_results_{days}day.dat")
 
             with open(outputFile, "w") as fH:
                 print(f"Saving flux output to {outputFile}")
@@ -73,17 +49,43 @@ class ProcessOutput:
                     header+=f",{loc.upper()}"
                 print(header, file=fH)
 
-                row = f"{dt.strftime(startDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
-                for loc in fluxDatLocs:
-                    try:
-                        row+=f", {thisFlux[loc.upper()]}"
-                    except:
-                        row+=","
-                print(row, file=fH)
-            
-        nodeFlux.to_csv(os.path.join(outputDir, "nodeFlux.csv"), index=False)
-        groupFlux.to_csv(os.path.join(outputDir, "groupFlux.csv"), index=False)
+            for fluxFile in fluxFiles:
+                print(f"Creating *.dat flux output file using outputs in {fluxFile}")
 
+                ds = xr.open_dataset(fluxFile)
+
+                nodeFlux = ds["nodeFlux"].to_pandas()
+                nodeFlux.columns = [c.decode("utf8") for c in nodeFlux.columns]
+                nodeFlux.index = [i.decode("utf8") for i in nodeFlux.index]
+                
+                nodes = nodeFlux.columns
+                nodeFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in nodeFlux.index]
+                
+                groupFlux = ds["groupFlux"].to_pandas()
+                groupFlux.columns = [c.decode("utf8") for c in groupFlux.columns]
+                groupFlux.index = [i.decode("utf8") for i in groupFlux.index]
+                
+                groups = groupFlux.columns
+                groupFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in groupFlux.index]
+                
+                ds.close()
+
+                flux = pd.merge(nodeFlux, groupFlux, on="datetime", how="outer")
+                flux["datetime"] = pd.to_datetime(flux["datetime"])
+                startDatetime = flux["datetime"].min()
+                flux["daysFromStart"] = [(d - startDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
+
+                thisFlux = flux[flux["daysFromStart"]>=days].iloc[0]
+
+                with open(outputFile, "a") as fH:
+                    row = f"{dt.strftime(startDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
+                    for loc in fluxDatLocs:
+                        try:
+                            row+=f", {thisFlux[loc.upper()]}"
+                        except:
+                            row+=","
+                    print(row, file=fH)
+                
     def processSurvival(self, survivalFile):
         """Process survival output
 
@@ -210,7 +212,7 @@ if __name__=="__main__":
         sys.exit()
 
     if config["createFluxDat"]:
-        p.createFluxDat(config["fluxFile"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
+        p.createFluxDat(config["fluxOutputDir"], config["fluxFiles"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
 
     if  config["processSurvival"]:
         p.processSurvival(config["survivalFile"])
