@@ -1,0 +1,8 @@
+createFluxDat: true
+fluxDatLocs: ["EXPORT_CVP", "EXPORT_CCF"]
+fluxDatDays: [30, 90]
+processSurvival: false
+survivalFile: "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_master_JavaIO_17apr25/output/ptm_out.ncd"
+echoConfig: false
+echoConfig: false
+echoConfigNetCDF: "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_master_JavaIO_17apr25/output/echoConfig.yaml"
