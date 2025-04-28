@@ -25,9 +25,16 @@ class ProcessOutput:
         """Create dat file of flux outputs
         
         Keyword arguments:
+        fluxOutputDir (str) -- full path to the directory where the dat file should be created
         fluxFiles (list) -- list of paths to the netCDF flux output files
+        fluxSimLoc (str) -- insertion location
+        fluxDatLocs (list) -- list of flux locations
+        fluxDatDays (list) -- list of integer days from simulation start to record flux
         """
         print("="*80)
+
+        # Make sure the output directory exists
+        os.makedirs(fluxOutputDir, exist_ok=True)
 
         # Read the scenario from the first file
         try:
@@ -86,6 +93,59 @@ class ProcessOutput:
                             row+=","
                     print(row, file=fH)
                 
+    def createSurvDat(self, survOutputDir, survFiles, survDatLocs):
+        """Create dat file of survival estimates
+        
+        Keyword arguments:
+        survOutputDir (str) -- full path to the directory where the dat file should be created
+        survFiles (list) -- list of patsh to the netCDF survival output files
+        survDatLocs (list) -- list of survival estimates to include
+        """
+        print("="*80)
+
+        # Make sure the output directory exists
+        os.makedirs(survOutputDir, exist_ok=True)
+
+        outputFile = os.path.join(survOutputDir, "eco-ptm_survival.dat")
+
+        with open(outputFile, "w") as fH:
+            print(f"Saving survival output to {outputFile}")
+            header = "Date,Scenario"
+            for loc in survDatLocs:
+                header+=f",{loc}"
+            print(header, file=fH)
+
+        for survFile in survFiles:
+            print(f"Creating *.dat survival output file using outputs from {survFile}")
+
+            ds = xr.open_dataset(survFile)
+
+            try:
+                startDate = ds["ptm_start_date"].item().decode("utf8")
+            except:
+                startDate = "NA"
+
+            try:
+                scenario = ds["simulation_scenario"].item().decode("utf8")
+            except:
+                scenario = "NA"
+
+            surv = ds["surv"].to_dataframe().reset_index()
+            surv["survGroup"] = [s.decode("utf8") for s in surv["survGroup"]]
+
+            ds.close()
+
+            with open(outputFile, "a") as fH:
+                row = f"{startDate},{scenario}"
+                for loc in survDatLocs:
+                    try:
+                        thisSurv = surv.loc[surv["survGroup"]==loc, "surv"].values[0]
+                    except:
+                        print(f"Could not read survival for {loc}")
+                        thisSurv = "NA"
+                    row+=f",{thisSurv}"
+                print(row, file=fH)
+
     def processSurvival(self, survivalFile):
         """Process survival output
 
@@ -95,8 +155,8 @@ class ProcessOutput:
         print("="*80)
         print(f"Processing survival output in {survivalFile}")
 
-        dat = xr.open_dataset(survivalFile)
-        surv = dat["surv"].to_dataframe().reset_index()
+        ds = xr.open_dataset(survivalFile)
+        surv = ds["surv"].to_dataframe().reset_index()
         surv["survGroup"] = [s.decode("utf8") for s in surv["survGroup"]]
 
         outputPath = os.path.join(os.path.dirname(survivalFile), "surv.csv")
@@ -111,8 +171,8 @@ class ProcessOutput:
         plt.savefig(outputPath)
         print(f"Saved survival plot to {outputPath}")
 
-        if "survDetails" in dat:
-            survDetails = dat["survDetails"].to_dataframe().reset_index()
+        if "survDetails" in ds:
+            survDetails = ds["survDetails"].to_dataframe().reset_index()
             survDetails["survDetailsKey"] = [s.decode("utf8") for s in survDetails["survDetailsKey"]]
             survDetails["survDetails"] = [s.decode("utf8") for s in survDetails["survDetails"]]
             survDetails[["component", "variable"]] = survDetails["survDetailsKey"].str.split("-", expand=True)
@@ -132,7 +192,7 @@ class ProcessOutput:
         print("="*80)
         print(f"Echoing configuration values in {echoConfigNetCDF}")
 
-        dat = xr.open_dataset(echoConfigNetCDF)
+        ds = xr.open_dataset(echoConfigNetCDF)
         for varName in ["tidefile", "particle_type", "time_zone", "use_new_random_seed", "travel_time_output_path",
                         "sunrise", "sunset", "random_assess", "output_path_entrainment", "trans_probs_path",
                         "output_path_flux", "survival_output_path", "simulation_start_date", "show_route_survival_detail",
@@ -141,14 +201,14 @@ class ProcessOutput:
                         "ptm_end_date", "ptm_end_time", "ptm_time_step", "display_intvl", "ptm_ivert",
                         "ptm_itrans", "ptm_iey", "ptm_iez", "ptm_iprof", "ptm_igroup", "ptm_flux_percent", 
                         "ptm_group_percent", "ptm_flux_cumulative"]:
-            self.printVal(dat, varName)
+            self.printVal(ds, varName)
         
         # Scalars
         for varName in ["stst_threshold", "tidal_cycles_to_calculate_channel_direction", "confusion_probability_constant",
                         "max_confusion_probability", "confusion_probability_slope", "assess_probability", "stuck_threshold",
                         "dicu_filter_efficiency", "theta", "ptm_random_seed", "ptm_trans_constant", "ptm_vert_constant", 
                         "ptm_trans_a_coef", "ptm_trans_b_coef", "ptm_trans_c_coef", "ptm_num_animated"]:
-            self.printScalar(dat, varName)
+            self.printScalar(ds, varName)
         
         # Arrays 
         for varName in ["travel_time", "release_groups:release_loc", "release_groups:releases", "swimming_vel",
@@ -157,24 +217,24 @@ class ProcessOutput:
                         "survival_groups:survival_params", "particle_flux", "individual_route_survival", "route_survival_equations",
                         "individual_reach_survival", "particle_group_output", "particle_flux_output", "groups", "io_file"]:
             print("-"*80)
-            thisVar = self.decodeDF(dat[varName])
+            thisVar = self.decodeDF(ds[varName])
             print(thisVar)
 
-        exitStations = [c.decode("utf8") for c in dat["exit_stations"].to_pandas()]
+        exitStations = [c.decode("utf8") for c in ds["exit_stations"].to_pandas()]
         print(f"exit_stations: {exitStations}")
 
-    def printVal(self, dat, varName):
+    def printVal(self, ds, varName):
         """Read a value from the output and print it"""
         try:
-            thisVal = dat[varName].item().decode("utf8")
+            thisVal = ds[varName].item().decode("utf8")
             print(f"{varName}: {thisVal}")
         except:
             print(f"Unable to read {varName}")
     
-    def printScalar(self, dat, varName):
+    def printScalar(self, ds, varName):
         """Read a scalar value from the output and print it"""
         try:
-            thisVal = np.double(dat[varName])
+            thisVal = np.double(ds[varName])
             print(f"{varName}: {thisVal}")
         except:
             print(f"Unable to read {varName}")
@@ -213,6 +273,9 @@ if __name__=="__main__":
 
     if config["createFluxDat"]:
         p.createFluxDat(config["fluxOutputDir"], config["fluxFiles"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
+    
+    if config["createSurvDat"]:
+        p.createSurvDat(config["survOutputDir"], config["survFiles"], config["survDatLocs"])
 
     if  config["processSurvival"]:
         p.processSurvival(config["survivalFile"])
