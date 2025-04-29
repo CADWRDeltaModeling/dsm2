@@ -35,8 +35,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Doug Jackson, QEDA Consulting, LLC
  * Calculate route-specific survival based on equations defined in behavior configuration file.
+ * 
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class SurvivalCalculation {
 
@@ -76,7 +77,6 @@ public class SurvivalCalculation {
 
 	/**
 	 * Evaluate the survival equations using GraalJS engine
-	 * @param  
 	 */
 	public void run() {
 		String thisSurvEq;

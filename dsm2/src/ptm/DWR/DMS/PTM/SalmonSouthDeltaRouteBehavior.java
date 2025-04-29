@@ -9,8 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @author Doug Jackson, QEDA Consulting, LLC
  * Common methods used for the South Delta river junction models
+ * 
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBehavior {
 	private int _nodeId;

@@ -11,9 +11,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * @author Doug Jackson, QEDA Consulting, LLC
  * Read preprocessed transition probabilities for Turner Cut based on
- * continuous time multistate Markov model in [CITATION]
+ * continuous time multistate Markov model
+ * 
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 

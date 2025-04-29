@@ -17,8 +17,8 @@ import ucar.nc2.dataset.NetcdfDatasets;
 
 /**
  * Class containing channel, node, reservoir, qext, and conveyor objects corresponding to the DSM2 HYDRO grid
+ * 
  * @author Doug Jackson (QEDA Consulting, LLC)
- *
  */
 public class Grid {
 	

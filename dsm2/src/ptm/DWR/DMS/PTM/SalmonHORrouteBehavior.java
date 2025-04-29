@@ -11,9 +11,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * @author Doug Jackson, QEDA Consulting, LLC
  * Read preprocessed transition probabilities for Head of Old River based on
- * continuous time multistate Markov model in [CITATION]
+ * continuous time multistate Markov model
+ * 
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 

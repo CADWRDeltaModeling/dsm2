@@ -583,8 +583,6 @@ public class Config {
 	/**
 	 * Write survival components of netCDF output file
 	 * @param writer				NetcdfFormatWriter
-	 * @throws IOException			
-	 * @throws InvalidRangeException
 	 */
 	public void writeOutput(NetcdfFormatWriter writer) {		
 		Variable v;
@@ -1083,8 +1081,6 @@ public class Config {
 	 * @param writer				NetcdfFormatWriter			
 	 * @param varName				name of the variable (dimension)
 	 * @param header				String[] containing headers
-	 * @throws InvalidRangeException 
-	 * @throws IOException 
 	 */
 	public void setColDim(NetcdfFormatWriter writer, String varName, String[] header) {
 		Variable v;
@@ -1113,8 +1109,6 @@ public class Config {
 	 * @param writer				NetcdfFormatWriter
 	 * @param varName				name of the variable
 	 * @param val					value of the variable
-	 * @throws InvalidRangeException 
-	 * @throws IOException 
 	 */
 	public void writeStr(NetcdfFormatWriter writer, String varName, String val) {
 		Variable v;
@@ -1144,8 +1138,6 @@ public class Config {
 	 * @param writer				NetcdfFormatWriter
 	 * @param varName				name of variable
 	 * @param valArray				array containing values
-	 * @throws IOException
-	 * @throws InvalidRangeException
 	 */
 	public void writeStrArray(NetcdfFormatWriter writer, String varName, List<List<Object>> valArray) {
 		Variable v;
@@ -1178,8 +1170,6 @@ public class Config {
 	 * @param writer				NetcdfFormatWriter
 	 * @param varName				name of variable
 	 * @param valArray				array containing values
-	 * @throws IOException
-	 * @throws InvalidRangeException
 	 */
 	public void writeIntArray(NetcdfFormatWriter writer, String varName, List<List<Integer>> valArray) {
 		Variable v;
@@ -1211,8 +1201,6 @@ public class Config {
 	 * @param writer				NetcdfFormatWriter
 	 * @param varName				name of variable
 	 * @param val					value
-	 * @throws IOException
-	 * @throws InvalidRangeException
 	 */
 	public void writeScalar(NetcdfFormatWriter writer, String varName, Double val) {
 		Variable v;

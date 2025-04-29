@@ -154,9 +154,9 @@ public class PTMHydroInput{
 	}
 
 	/**
-	 * Create a List<Integer> of Julian minutes using the time dimension of the specified array
+	 * Create an Integer List of Julian minutes using the time dimension of the specified array
 	 * @param path					String specifying the complete HDF5 path to the variable
-	 * @return						List<Integer> containing Julian minutes
+	 * @return						Integer List containing Julian minutes
 	 */
 	public List<Integer> createJulMin(String path) {
 		Variable var;

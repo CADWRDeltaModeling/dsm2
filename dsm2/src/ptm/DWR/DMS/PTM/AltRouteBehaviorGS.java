@@ -4,7 +4,7 @@ import java.util.HashMap;
 /**
  * AltRouteBehavior subclass configured for the Georgiana Slough junction.
  *
- * @author Doug Jackson, QEDA Consulting, LLC
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class AltRouteBehaviorGS extends AltRouteBehavior {
 	

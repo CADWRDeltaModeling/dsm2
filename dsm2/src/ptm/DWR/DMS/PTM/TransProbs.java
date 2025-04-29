@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * Read transition probabilities for Head of Old River and Turner Cut from a CSV file.
  *
- * @author Doug Jackson, QEDA Consulting, LLC
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class TransProbs {
 
@@ -51,8 +51,6 @@ public class TransProbs {
 	/**
 	 * Open the CSV file, read the header line, and read the datetime from the first chunk
 	 * @param inputFilePath		the full path to the directory containing the CSV file
-	 * @param filename		the name of the CSV file
-	 * @throws IOException
 	 */
 	public static void openFile(String inputFilePath) {
 		File file;

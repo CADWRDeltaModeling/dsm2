@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Handle communication of insertion (reinsertion) specs to (from) alternative routing model.
  *
- * @author Doug Jackson, QEDA Consulting, LLC
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class AltRouteInterface {
 	
@@ -43,6 +43,10 @@ public class AltRouteInterface {
 		junctions = new ArrayList<AltRouteInterface>();
 	}
 	
+	/**
+	 * Create the alternative routing model interface for the specified junction
+	 * @param junction
+	 */
 	public AltRouteInterface(String junction) {
 		SwimInputs swimInputs;
 		
@@ -143,10 +147,6 @@ public class AltRouteInterface {
 	 * @param crossSectionFrac				fraction of the cross section at which to insert the particle
 	 * @param depthFrac						fraction of the depth at which to insert the particle
 	 * @param downstreamSwimSpeed_msec		downstream swimming speed (m/sec)
-	 * @param crossStreamSwimSpeed_msec		cross-stream swimming speed (m/sec)
-	 * @param probSeekLowSVG				probability of turning toward the direction of lowest spatial velocity gradient
-	 * @param meanLogRad					mean of radians in log space of the additional random rotation applied in the binary collision algorithm
-	 * @param sdLogRad						standard deviation of radians in log space of the additional random rotation applied in the binary collision algorithm
 	 * @param dielActivity					diel activity mode (nightOnly, dayOnly, or nightAndDay)
 	 */
 	public void addInsertion(int particleID, String crossSection, String datetime, double crossSectionFrac, double depthFrac,
@@ -244,7 +244,7 @@ public class AltRouteInterface {
 	/**
 	 * Obtain the reinsertion spec for the specified particle, if available.
 	 * @param particleID					the particle's unique ID
-	 * @return
+	 * @return								reinsertion spec for the specified particle
 	 */
 	public String getReinsertion(int particleID) {		
 		// Return reinsertion spec if it exists

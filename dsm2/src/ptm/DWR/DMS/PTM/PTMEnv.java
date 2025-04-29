@@ -49,7 +49,6 @@ public class PTMEnv{
 	private static boolean DEBUG = false;
 	/**
 	 * Construct the network of nodes and waterbodies
-	 * @param fixedInputFilename File containing fixed input information
 	 */
 	public PTMEnv(){
 		//Input files

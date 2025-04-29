@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Abstract class extending SalmonUpSacRouteBehavior and containing the basic methods shared by all alternative routing model junctions.
  *
- * @author Doug Jackson, QEDA Consulting, LLC
+ * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 	

@@ -87,7 +87,7 @@ public class GridConveyor extends GridWaterbody {
 	
 	/**
 	 * Set the conveyor number using the specified conveyor number
-	 * @param reservoirNum			reservoir number
+	 * @param conveyorNum			conveyor number
 	 */
 	public void setConveyorNum(int conveyorNum) {
 		this.conveyorNum = conveyorNum;
