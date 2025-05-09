@@ -13,7 +13,7 @@ from datetime import datetime as dt
 ####################################################################################################
 # Constants
 ####################################################################################################
-workingDir = "/Users/djackson/Documents/QEDA/DWR/programs/dsm2_master/dsm2/dsm2/src/ptm/development/verification"
+workingDir = "C:/Users/admin/Documents/QEDA/DWR/programs/dsm2/dsm2/src/ptm/development/verification"
 
 
 # Map from new to old flux indices
