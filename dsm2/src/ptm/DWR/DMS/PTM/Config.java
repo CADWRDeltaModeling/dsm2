@@ -185,6 +185,7 @@ public class Config {
 		this.stst_threshold = stst_threshold;
 		valuesSet.add("stst_threshold");
 	}
+
 	public void setTidal_cycles_to_calculate_channel_direction(int tidal_cycles_to_calculate_channel_direction) {
 		this.tidal_cycles_to_calculate_channel_direction = tidal_cycles_to_calculate_channel_direction;
 		valuesSet.add("tidal_cycles_to_calculate_channel_direction");
@@ -581,7 +582,7 @@ public class Config {
 	}
 	
 	/**
-	 * Write survival components of netCDF output file
+	 * Write configuration variables to netCDF file
 	 * @param writer				NetcdfFormatWriter
 	 */
 	public void writeOutput(NetcdfFormatWriter writer) {		

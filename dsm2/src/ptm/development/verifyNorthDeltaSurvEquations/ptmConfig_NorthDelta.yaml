@@ -1,0 +1,535 @@
+---
+tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_noSZIP.h5
+#tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_GZIP9.h5
+
+# ECO-PTM behavior configuration
+particle_type: Salmon_Particle
+
+# timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
+time_zone: PST
+
+# true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
+use_new_random_seed: true
+
+# Node has to be upnode, and distance in feet is from upnode.
+# In DSM2 map, upstream of a flow arrow is upnode, downstream is downnode.
+# Only one travel time output location can be specified. 
+travel_time_output_path: .\output\travel_time_in_min, .csv
+travel_time_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
+travel_time:
+  - [339, 379, 951, Sutter]
+  - [340, 383, 2215, Steamboat]
+  - [340, 420, 1731, SacR_Steamboat]
+
+release_groups:
+  - name: Group_1
+    release_loc_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
+    release_loc: [331, 411, 0, SacAboveFreeport]
+    releases_header: [Release_Date, Release_Time, Particle_Number, Release_Style]
+    releases:
+      - [RELEASE_DATE_PLACEHOLDER, 1:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 1:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 1:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 1:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 2:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 2:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 2:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 2:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 3:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 3:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 3:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 3:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 4:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 4:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 4:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 4:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 5:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 5:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 5:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 5:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 6:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 6:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 6:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 6:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 7:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 7:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 7:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 7:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 8:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 8:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 8:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 8:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 9:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 9:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 9:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 9:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 10:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 10:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 10:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 10:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 11:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 11:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 11:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 11:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 12:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 12:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 12:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 12:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 13:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 13:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 13:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 13:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 14:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 14:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 14:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 14:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 15:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 15:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 15:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 15:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 16:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 16:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 16:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 16:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 17:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 17:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 17:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 17:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 18:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 18:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 18:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 18:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 19:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 19:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 19:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 19:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 20:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 20:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 20:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 20:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 21:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 21:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 21:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 21:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 22:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 22:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 22:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 22:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 23:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 23:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 23:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 23:45, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 24:00, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 24:15, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 24:30, 10, Random]
+      - [RELEASE_DATE_PLACEHOLDER, 24:45, 10, Random]
+
+# Swim inputs
+# North Delta sunrise: 6:31
+# North Delta sunset: 18:39 
+sunrise: 6:31
+sunset: 18:39
+
+stst_threshold: -10.0
+tidal_cycles_to_calculate_channel_direction: 2
+confusion_probability_constant: 1.04
+max_confusion_probability: 1.0
+confusion_probability_slope: -0.55
+random_assess: true
+assess_probability: 0.01
+
+# If a particle is detected at the same channel after #Stuck_Threshold, the particle is considered stuck and removed from the system.
+# The unit for Stuck threshold is day. 
+stuck_threshold: 30
+
+# User can define channel groups and assign a swimming velocity to each group. 
+# The group names have to be consistent with the names in the Channel_list
+# Rearing holding in hours
+# Behavior parameter values updated 25oct24
+swimming_vel_header: [Group_Name, Constant_Swimming_Velocity, Standard_Deviation_Particles, Standard_Deviation_Times, Rearing_Holding_Mean, Day_time_not_swim_percent]
+swimming_vel:
+  - [All, -0.60796, 0.53012, 0.03448, 0.0, 0.60081]
+  - [Riverine, -0.13495, 0.53012, 0.03448, 0.0, 0.50269]
+  - [Transitional, -0.27595, 0.53012, 0.03448, 0.0, 0.72489]
+channel_groups:
+  - name: Riverine
+    channels: [700,701,702,703,410,411,412,413,414,415,416,417]
+  - name: Transitional
+    channels: [323,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,
+              350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,
+              370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,
+              390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,
+              418,419,420,421,422,423,424,426,427,428,429,430,549,550,552,553,555,556,557,558,559]
+
+# Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
+output_path_entrainment: .\output\entrainment.csv
+trans_probs_path: 
+output_path_flux: ./output/flux.csv
+
+channel_name_lookup_header: [Name, ChanneID]
+channel_name_lookup:
+  - [GS, 366]
+  - [SACUPGS, 422]
+  - [SACDOWNGS, 423]
+  - [DCC, 365]
+  - [SACUPDCC, 421]
+  - [SACUPSUT, 418]
+  - [SACDOWNSUT, 419]
+  - [SUT, 379]
+  - [STM, 383]
+  - [SACDOWNSTM, 420]
+  - [TC_U, 25]
+  - [TC_T, 172]
+  - [TC_D, 31]
+  - [HOR_U, 7]
+  - [HOR_T, 54]
+  - [HOR_D, 8]
+
+# Users are allowed to modify calculated entrainment rates. 100 means no change,150 means calculated_chance*1.5, and 50 means calculated_chance*0.5
+# except for STM & SUT if and only if pct > 100, pct is added e.g. 110 means calculated_chance + 0.1 
+# Class_Name is a junction model class name.  The class will be located and instantiated and the junction model will be used when a fish particle reaches the junction
+special_behavior_header: [NodeID, Class_Name, Percent_Increase_Decrease]
+special_behavior:
+  - [343, SalmonGSJRouteBehavior, 100]
+  - [339, SalmonSutterJRouteBehavior, 100]
+  - [340, SalmonSTMJRouteBehavior, 100]
+  - [342, SalmonDCCRouteBehavior, 100]
+
+barriers:
+  - name: Barrier1
+    nodeID: 343
+    waterbodyID: 366
+    schedule_header: [Date, Time, On/Off]
+    schedule:
+      - [1/1/1980, 0:00, 0]
+      - [12/31/2022, 21:20, 0]
+
+dicu_filter_efficiency: 0.0
+
+fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
+fish_screens:
+  - [330, 700]
+
+survival_output_path: .\output\survival.csv
+
+# Station is defined by (channel number, distance from upstream node)
+# The group number for a start station will be used as the key to search for the calculation group
+# Lambda and X in feet, Omega in feet/second
+# Survival parameters from SD_Survival_sts-start-end - 9Oct24.xlsx
+survival_groups:
+  - number: 1
+    name: SAC
+    start_stations:
+      - [412, 0]  
+    end_stations:
+      - [415, 0]    
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [415, 1208005.29, 0.558198472, 65616.8]
+  - number: 2 
+    name: FPT
+    start_stations: 
+      - [415, 0]  
+    end_stations: 
+      - [379, 951]
+      - [383, 0]
+      - [420, 0]    
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [379, 1563320.26, 0.558198472, 68110.2384]
+      - [383, 1563320.26, 0.558198472, 68110.2384]
+      - [420, 1563320.26, 0.558198472, 68110.2384]
+  - number: 3
+    name: SACUP
+    start_stations: 
+      - [420, 0]  
+    end_stations: 
+      - [365, 0] 
+      - [423, 0]
+      - [366, 0]    
+    exchangeable_start_stations:  
+      - [379, 951]
+      - [383, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [365, 1563320.26, 0.558198472, 31791.3396]
+      - [423, 1563320.26, 0.558198472, 31791.3396]
+      - [366, 1563320.26, 0.558198472, 31791.3396]
+  - number: 4 
+    name: SUT
+    start_stations: 
+      - [379, 951]  
+    end_stations: 
+      - [430, 0]    
+    exchangeable_start_stations:  
+      - [420, 0]
+      - [383, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [430, 972112.89, 1.727757176, 78740.16]
+  - number: 5 
+    name: STM
+    start_stations: 
+      - [383, 0]  
+    end_stations: 
+      - [430, 0]    
+    exchangeable_start_stations:  
+      - [420, 0]
+      - [379, 951]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [430, 1972112.92, 1.727757176, 59055.12]
+  - number: 6
+    name: GEO1
+    start_stations: 
+      - [423, 0]  
+    end_stations: 
+      - [430, 0]  
+    exchangeable_start_stations:  
+      - [366, 0]
+      - [365, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [430, 1622703.46, 1.727757176, 76377.9552]
+  - number: 7 
+    name: GEO2
+    start_stations: 
+      - [366, 0]  
+    end_stations: 
+      - [374, 6080]
+      - [364, 7126]
+      - [347, 10249]
+      - [345, 0]
+      - [344, 7088] 
+    exchangeable_start_stations:  
+      - [423, 0]
+      - [365, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [374, 574803.17, 1.727757176, 66141.7344]
+      - [364, 574803.17, 1.727757176, 66141.7344]
+      - [347, 574803.17, 1.727757176, 66141.7344]
+      - [345, 574803.17, 1.727757176, 66141.7344]
+      - [344, 574803.17, 1.727757176, 66141.7344]
+  - number: 8 
+    name: DCC
+    start_stations: 
+      - [365, 0]  
+    end_stations: 
+      - [374, 6080]
+      - [364, 7126]
+      - [347, 10249]
+      - [345, 0]
+      - [344, 7088]   
+    exchangeable_start_stations: 
+      - [423, 0]
+      - [366, 0]  
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [374, 479330.72, 1.727757176, 70439.6348]
+      - [364, 479330.72, 1.727757176, 70439.6348]
+      - [347, 479330.72, 1.727757176, 70439.6348]
+      - [345, 479330.72, 1.727757176, 70439.6348]
+      - [344, 479330.72, 1.727757176, 70439.6348]
+  - number: 9
+    name: RIO
+    start_stations: 
+      - [430, 0]  
+    end_stations: 
+      - [291, 4657]
+      - [294, 4836]
+      - [288, 10323]
+    exchangeable_start_stations:    
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [291, 405511.82, 0.254416991, 87368.7692]
+      - [294, 405511.82, 0.254416991, 87368.7692]
+      - [288, 405511.82, 0.254416991, 87368.7692]
+  - number: 10
+    name: MOK
+    start_stations: 
+      - [374, 6080]
+      - [364, 7126]
+      - [347, 10249]
+      - [345, 0]
+      - [344, 7088] 
+    end_stations: 
+      - [291, 4657]
+      - [294, 4836]
+      - [288, 10323]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [291, 257217.86, 0.254416991, 126049.8728]
+      - [294, 257217.86, 0.254416991, 126049.8728]
+      - [288, 257217.86, 0.254416991, 126049.8728]
+  - number: 11
+    name: Chipps1
+    start_stations:
+      - [291, 4657]
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+  - number: 12
+    name: Chipps2
+    start_stations:
+      - [294, 4863]
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+  - number: 13
+    name: Chipps3
+    start_stations:
+      - [288, 10323] 
+    end_stations:
+      - [441, 0]
+    survival_params_header: [End_Station, Lambda, Omega, X]
+    survival_params:
+      - [441, -999, -999, -999]
+
+simulation_start_date: INSERTION_DATE
+simulation_scenario: STUDY_SCENARIO
+
+particle_flux_header: [Name, From_Survival_Calculation_Group, To_Survival_Calculation_Group]
+particle_flux:
+  - [sut_ratio, 2, 4]
+  - [stm_ratio, 2, 5]
+  - [sacr_ss_ratio, 2, 3]
+  - [sacr_geo_ratio, 3, 6]
+  - [geo_ratio, 3, 7]
+  - [dcc_ratio, 3, 8]
+
+individual_route_survival_header: [Name, Route_Survival_Calculation_Group_List]
+individual_route_survival:
+  - [SUT_suv, "(2,4,9)"]
+  - [STM_suv, "(2,5,9)"]
+  - [SAC_suv, "(2,3,6,9)"]
+  - [GEO_suv, "(2,3,7,10)"]
+  - [DCC_suv, "(2,3,8,10)"]
+
+show_route_survival_detail: true
+route_survival_equations_header: [Name, Route_Survival_Equation]
+route_survival_equations:
+  - [SAC, "S(FPT_SUT.STM.SACUP)*S(SACUP_GEO1.GEO2.DCC)*frac(FPT_SACUP/FPT_SUT.STM.SACUP)*S(GEO1_RIO)*frac(SACUP_GEO1/SACUP_GEO1.GEO2.DCC)*S(RIO_Chipps#)"]
+  - [SUT, "S(FPT_SUT.STM.SACUP)*S(SUT_RIO)*frac(FPT_SUT/FPT_SUT.STM.SACUP)*S(RIO_Chipps#)"]
+  - [STM, "S(FPT_SUT.STM.SACUP)*S(STM_RIO)*frac(FPT_STM/FPT_SUT.STM.SACUP)*S(RIO_Chipps#)"]
+  - [DCC, "S(FPT_SUT.STM.SACUP)*S(SACUP_GEO1.GEO2.DCC)*frac(FPT_SACUP/FPT_SUT.STM.SACUP)*S(DCC_MOK)*frac(SACUP_DCC/SACUP_GEO1.GEO2.DCC)*S(MOK_Chipps#)"]
+  - [GS, "S(FPT_SUT.STM.SACUP)*S(SACUP_GEO1.GEO2.DCC)*frac(FPT_SACUP/FPT_SUT.STM.SACUP)*S(GEO2_MOK)*frac(SACUP_GEO2/SACUP_GEO1.GEO2.DCC)*S(MOK_Chipps#)"]
+  - [overall, "S(SAC)+S(SUT)+S(STM)+S(DCC)+S(GS)"]
+  - [fracSUT, "frac(FPT_SUT/FPT_SUT.STM.SACUP)"]
+individual_reach_survival_header: [fromStation_toStations, survival]
+individual_reach_survival:
+
+exit_stations: [Chipps1, Chipps2, Chipps3]
+
+display_simulation_timestep_write_all: true
+flux_write_all: true
+entrainment_write_all: true
+survival_write_all: true
+route_survival_write_all: true
+fates_write_all: true
+
+# PTM configuration
+ptm_start_date: PTM_START_DATE_PLACEHOLDER
+ptm_start_time: 0000
+ptm_end_date: PTM_END_DATE_PLACEHOLDER
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
+
+theta: 0.6                            # Theta to interpolate velocity
+
+# Boolean variables
+ptm_ivert: true                       # Use vertical velocity profile
+ptm_itrans: true                      # Use transverse velocity profile
+ptm_iey: true                         # Use transverse mixing
+ptm_iez: true                         # Use vertical mixing
+ptm_iprof: false                      # 
+
+# Set this to false for now. In the Fortran code, it is set by process_fixed.f90. See 22jul24 Obsidian
+ptm_igroup: false
+
+ptm_flux_percent: true                # Output flux as a percentage
+ptm_group_percent: true               # Output groups as a percentage
+ptm_flux_cumulative: true             # Output flux as cumulative values
+
+# Numeric variables
+ptm_random_seed: 32001                # Random number seed
+ptm_trans_constant: 0.6               # Transverse mixing constant 
+ptm_vert_constant: 0.067              # Vertical mixing constant
+
+ptm_trans_a_coef: 1.2                 # Transverse a coefficient
+ptm_trans_b_coef: 0.3                 # Transverse b coefficient
+ptm_trans_c_coef: -1.5                # Transverse c coefficient
+
+ptm_num_animated: 2000                # Maximum number of particles to animate
+
+particle_group_output_header: [name, groupName]
+particle_group_output:
+  - [GS, GS]
+  - [SUT, SUT]
+  - [STM, STM]
+  - [RIO, RIO]
+  - [franks, franks]
+  - [whole, whole]
+
+particle_flux_output_header: [name, from_wb, from_wb_type, to_wb, to_wb_type]
+particle_flux_output:
+  - [SUT_flux, SUT_UP, group, 379, chan]
+  - [STM_flux, STM_UP, group, 383, chan]
+  - [GS_flux, GS_UP, group, 366, chan]
+  - [pass_rio, RIO_UP, group, 430, chan]
+  - [export_swp, clifton_court, res, swp, group]
+  - [export_cvp, 216, chan, cvp, group]
+  - [past_mtz, 441, chan, mtz, group]
+  - [past_chipps, chipps_east, group, chipps_west, group]
+  - [diversion_ag, all, group, ag_div, group]
+
+groups_header: [name, type, pattern]
+groups:
+  - [SUT_UP, chan, (418|419)]
+  - [SUT, chan, (379)]
+  - [STM_UP, chan, (419|420)]
+  - [STM, chan, (383)]
+  - [GS_UP, chan, (422|423)]
+  - [GS, chan, (366)]
+  - [RIO_UP, chan, (387|398|429)]
+  - [RIO, chan, (430)]
+  - [chipps_east, chan, (288|294|291)]
+  - [chipps_west, chan, (442|437)]
+  - [ag_div, qext, dicu_div_.*]
+  - [swp, qext, swp]
+  - [cvp, qext, cvp]
+  - [mtz, stage, mtz.*]
+  - [franks, res, franks_tract]
+  - [whole, chan, .*]
+  - [whole, res, .*]
+
+io_file:
+#  - type: anim
+#    interval: 15min
+#    file: ./output/anim_db.bin
+  - type: trace
+    interval: none
+    file: ./output/trace.out
+  - type: flux
+    interval: 1hour
+    file: ./output/ptm_out.ncd
+  - type: survival
+    interval: none
+    file: ./output/ptm_out.ncd
+  - type: echoConfig
+    interval: none
+    file: ./output/echoConfig.yaml
+  - type: echoConfigNetCDF
+    interval: none
+    file: ./output/ptm_out.ncd    
+  - type: routeSurvival
+    interval: none
+    file: ./output/routeSurvival.csv
+  - type: fates
+    interval: none
+    file: ./output/fates.csv
