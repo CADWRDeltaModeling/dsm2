@@ -1,5 +1,6 @@
 runRoutingPreprocessor: true
-runTidefilePreprocessor: false
+runTidefilePreprocessor: true
+runTidefilePreprocessorQA: false
 tideFile: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_scratch/v1.1.88.4_2009.h5 
 routingPreprocessor:
   runInCondaEnv: true
@@ -25,3 +26,7 @@ tidefilePreprocessor:
   GZIPlevel: 6
   overwriteOrigTideFile: false
   overwriteNewTideFile: true
+tidefilePreprocessorQA:
+  runInCondaEnv: true
+  origFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_orig/v1.1.88.4_2011.h5
+  preprocessedFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_post_tidefilePreprocessor/v1.1.88.4_2011.h5

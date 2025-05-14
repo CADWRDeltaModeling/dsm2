@@ -81,6 +81,21 @@ class RunPreprocessors:
             # Print stdout line-by-line
             for line in p.stdout:
                 print(line, end="")
+
+    def runTidefilePreprocessorQA(self):
+        """Run the tide file preprocessor QA script."""
+        print("="*80)
+        print("Launching tide file preprocessor QA")  
+        Rcommand = f"Rscript {self.workingDir}/tidefilePreprocessorQA.R {self.configFile}"
+        
+        print(f"Rcommand: {Rcommand}")
+
+        with subprocess.Popen(Rcommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=self.shell,
+                            bufsize=1, universal_newlines=True) as p:
+
+            # Print stdout line-by-line
+            for line in p.stdout:
+                print(line, end="")                
         
     def setRoutingPreprocessorArgs(self, routingPreprocessorArgs):
         """Override specific routing preprocessor arguments"""
@@ -181,6 +196,7 @@ if __name__=="__main__":
     try:
         runRoutingPreprocessor = config["runRoutingPreprocessor"]
         runTidefilePreprocessor = config["runTidefilePreprocessor"]
+        runTidefilePreprocessorQA = config["runTidefilePreprocessorQA"]
     except ValueError as e:
         print("Unable to read all parameter values from configuration file.")
         print(e)
@@ -227,3 +243,6 @@ if __name__=="__main__":
     if runTidefilePreprocessor:
         r.setTidefilePreprocessorArgs(tidefilePreprocessorArgs)
         r.runTidefilePreprocessor()
+    
+    if runTidefilePreprocessorQA:
+        r.runTidefilePreprocessorQA()
