@@ -30,10 +30,10 @@ class RunPreprocessors:
         self.workingDir = workingDir
         self.configFile = configFile
 
-        if platform.system() == "Linux":
-            self.shell = True
-        else:
+        if platform.system() == "Windows":
             self.shell = False
+        else:
+            self.shell = True
 
         # Read YAML configuration file
         try:
