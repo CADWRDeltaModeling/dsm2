@@ -83,7 +83,7 @@ newChannel <- newChannelH[]
 
 bothChannel <- right_join(origChannel, newChannel, by="chan_no", suffix=c("_orig", "_preprocessed"))
 
-bothChannel <- bothChannel %>% select(chan_no, length_orig, length_new) %>% filter(length_new!=length_orig) %>% 
+bothChannel <- bothChannel %>% select(chan_no, length_orig, length_preprocessed) %>% filter(length_preprocessed!=length_orig) %>% 
     pivot_longer(cols=-chan_no, names_to="version", values_to="length") %>% 
     mutate(chan_no=as.factor(chan_no))
 
@@ -120,14 +120,14 @@ for(chan_no in checkFlowChan) {
         p <- ggplot(thisFlowUp) + geom_point(aes(x=origFlowUp, y=newFlowUp)) +
             geom_abline(slope=1, intercept=0, color="red") +
             theme_light()
-        ggsave(file.path(outputDir, paste0(f, "_flowUp_chan_", chan_no, ".png")))
+        ggsave(file.path(outputDir, paste0(f, "_flowUp_chan_", chan_no, ".png")), width=7, height=7)
     }                 
 
     if(chan_no %in% checkFlowDownChan) {
         p <- ggplot(thisFlowDown) + geom_point(aes(x=origFlowDown, y=newFlowDown)) +
             geom_abline(slope=1, intercept=0, color="red") +
             theme_light()
-        ggsave(file.path(outputDir, paste0(f, "_flowDown_chan_", chan_no, ".png")))
+        ggsave(file.path(outputDir, paste0(f, "_flowDown_chan_", chan_no, ".png")), width=7, height=7)
         
     }
 
