@@ -21,6 +21,7 @@
 !>@ingroup gtm_driver
 module dsm2gtm
 
+    use iso_c_binding
     use gtm_precision
     use error_handling
     use gtm_logging
@@ -136,7 +137,7 @@ module dsm2gtm
     logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
 
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
-    character(len=130) :: gtm_init_input_file                     ! initial input file on command line [optional]
+    character(kind=c_char, len=130), bind(c, name='gtm_init_input_file') :: gtm_init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name, restart_outfn
     character(len=14) :: cdt
     character(len=9) :: prev_day
@@ -146,7 +147,7 @@ module dsm2gtm
 
 contains
 
-subroutine gtm_prepare1()
+subroutine gtm_prepare1() bind(C, name="gtm_prepare1")
 !-----module, name and version
     dsm2_module = gtm
     dsm2_name = 'GTM'
@@ -163,7 +164,7 @@ subroutine gtm_prepare1()
         ) !! <NT>
 end subroutine
 
-subroutine gtm_prepare2(tidefile_id)
+subroutine gtm_prepare2(tidefile_id) bind(C, name="gtm_prepare2")
     !-----get optional starting input file from command line and
     !-----simulation name for Database read
     use hdf_util, only : hydro_file_id, hydro_id
@@ -220,7 +221,7 @@ subroutine gtm_prepare2(tidefile_id)
 
 end subroutine
 
-subroutine gtm_prepare_loop()
+subroutine gtm_prepare_loop() bind(C, name="gtm_prepare_loop")
     ! assigen the initial concentration to cells and reservoirs
     restart_file_name = trim(gtm_io(1,1)%filename)
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
@@ -399,7 +400,7 @@ subroutine gtm_prepare_loop()
     endif
 end subroutine
 
-subroutine gtm_loop()
+subroutine gtm_loop() bind(C, name="gtm_loop")
     ! gtm simulation within each time step
     LL = LL + 1
     time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1
@@ -787,7 +788,7 @@ subroutine gtm_loop()
 
 end subroutine
 
-subroutine gtm_wrapup()
+subroutine gtm_wrapup() bind(C, name="gtm_wrapup")
     use runtime_data, only: dsm2_name
     ! modify print_last_stage to write hotstart output file.
     restart_outfn = trim(gtm_io(1,2)%filename)

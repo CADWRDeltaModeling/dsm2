@@ -39,6 +39,10 @@ endmacro()
 set(HYDRO_PYMODULE_NAME "pydsm2hydro")
 add_cython_module(${HYDRO_PYMODULE_NAME} "${HYDRO_PYMODULE_NAME}.pyx")
 
+# Common variables for gtm
+set(GTM_PYMODULE_NAME "pydsm2gtm")
+add_cython_module(${GTM_PYMODULE_NAME} "${GTM_PYMODULE_NAME}.pyx")
+
 # Link with the common libraries first
 target_link_libraries(
   ${HYDRO_PYMODULE_NAME}
@@ -69,3 +73,42 @@ target_link_libraries(
   ${HEClib_LIBRARIES}
 )
 target_link_libraries(${HYDRO_PYMODULE_NAME} PRIVATE "$<LINK_ONLY:MKL::MKL>")
+
+# Link with the common libraries first
+target_link_libraries(
+  ${GTM_PYMODULE_NAME}
+  PRIVATE
+    ${GTM_MAIN}
+    mercury
+    ${GTM_SEDIMENT_BED}
+    ${GTM_SEDIMENT_BED_CORE}
+    ${GTM_SEDIMENT}
+    ${GTM_TRANSPORT}
+    ${GTM_CORE}
+    ${GTM_PROCESS_IO}
+    hydrolib
+    fixed
+    hdf_tidefile
+    hdf_tidefile_cpp
+    oprule_interface_cpp
+    oprule_interface
+    gtm_main
+    process_io
+    transport
+    gtm_core
+    dsm2_input_storage
+    dsm2_input_storage_cpp
+    klu_fortran
+    common
+    pattern_match
+    input_storage
+    oprule_parser
+    oprule
+    ${Boost_LIBRARIES}
+    ${HDF5_HL_LIBRARIES}
+    ${HDF5_LIBRARIES}
+    ${KLU_LIBRARIES}
+    ${HEClib_LIBRARIES}
+)
+add_dependencies(${GTM_PYMODULE_NAME} mercury sediment_bed sediment gtm_core)
+target_link_libraries(${GTM_PYMODULE_NAME} PRIVATE "$<LINK_ONLY:MKL::MKL>")

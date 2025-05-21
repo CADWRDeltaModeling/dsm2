@@ -23,6 +23,7 @@
 !>@ingroup gtm_core
 module common_variables
 
+     use iso_c_binding
      use gtm_precision
      use gtm_logging
      use grid_data, only: chan_geom !@# declaration of chan_geom moved to module grid_data.
@@ -75,10 +76,10 @@ module common_variables
      integer :: hydro_end_jmin = LARGEINT              !< hydro end time in hydro tidefile
      integer :: hydro_time_interval = LARGEINT         !< hydro time interval in hydro tidefile
      integer :: hydro_ntideblocks = LARGEINT           !< hydro time blocks in hydro tidefile
-     real(gtm_real) :: gtm_start_jmin = LARGEREAL      !< gtm start time
-     real(gtm_real) :: gtm_end_jmin = LARGEREAL        !< gtm end time
+     real(c_double), bind(C, name="gtm_start_jmin") :: gtm_start_jmin = LARGEREAL      !< gtm start time
+     real(c_double), bind(C, name="gtm_end_jmin") :: gtm_end_jmin = LARGEREAL        !< gtm end time
      integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
-     real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
+     real(c_double), bind(C, name="gtm_time_interval") :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
      logical :: debug_print = .false.
      logical :: apply_diffusion = .false.              !< turn on/off dispersion
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)

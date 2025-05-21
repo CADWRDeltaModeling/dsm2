@@ -1,4 +1,5 @@
 program dsm2gtm_driver
+    use iso_c_binding
     use dsm2gtm
     use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     implicit none
