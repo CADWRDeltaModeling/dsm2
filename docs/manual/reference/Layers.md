@@ -20,14 +20,7 @@ are thematically related.
 
   
 
-<img src="/attachments/87228551/87228550.png"
-data-image-src="/attachments/87228551/87228550.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228550"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="layer_system.png"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228551"
-data-linked-resource-container-version="1" height="250" />
+![Layer system example](../../attachments/87228551/87228550.png)
 
 ------------------------------------------------------------------------
 
