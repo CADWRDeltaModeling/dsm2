@@ -1,0 +1,4138 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../faqs/Generating_DSM2_Hydro_boundary_conditions_from_the_DCR_2017_CALSIM_II_output/">
+      
+      
+        <link rel="next" href="../DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping/">
+      
+      
+      <link rel="icon" href="../../images/dsm2-icon_32-24.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Suisun Marsh Operating Rules - DSM2 Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dsm2-bay-delta-tutorial-5-suisun-marsh-operating-rules" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="DSM2 Documentation" class="md-header__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  <img src="../../images/dsm2-icon_32-24.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DSM2 Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Suisun Marsh Operating Rules
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="DSM2 Documentation" class="md-nav__button md-logo" aria-label="DSM2 Documentation" data-md-component="logo">
+      
+  <img src="../../images/dsm2-icon_32-24.png" alt="logo">
+
+    </a>
+    DSM2 Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CADWRDeltaModeling/dsm2" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dsm2_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Layers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Operating_Rule_Guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operating Rule
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Manual
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Manual
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Boundary_Flow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Boundary Flow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Boundary_Stage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Boundary Stage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Channel_Initial_Condition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Channel Initial Condition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Channels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Channels
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/ENVVARS_Section/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ENVVARS Section
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Gate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Gate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Groups/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Groups
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/IO_Files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IO Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Input_Climate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Input Climate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Input_Gate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Input Gate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Input_Transfer_Flow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Input Transfer Flow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Node_Concentration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Node Concentration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Operating_Rule/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operating Rule
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/EC_based_Operating_Rule/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operating Rule (EC-based)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Output_Channel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Output Channel
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Output_Gate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Output Gate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Output_Reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Output Reservoir
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/PTM_Output_Files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PTM Output Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Particle_Filter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Filter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Particle_Flux_Output/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Flux Output
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Particle_Group_Output/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Group Output
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Particle_Insertion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Insertion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Particle_Reservoir_Filter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Reservoir Filter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Rate_Coefficients/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rate Coefficients
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reservoir
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Reservoir_Concentration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reservoir Concentration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Reservoir_Initial_Condition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reservoir Initial Condition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Scalar/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Scalar
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Source_Flow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Flow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Source_Flow_Reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Flow Reservoir
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Source_Tracking/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Tracking
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Tidefile/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tidefile
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/Transfer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Transfer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_34" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_34" id="__nav_3_5_34_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_34_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_34">
+            <span class="md-nav__icon md-icon"></span>
+            ECO-PTM
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Fish_Release_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fish Release Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Particle_Type_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Particle Type Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Random_Sequence_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Random Sequence Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Route_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Route Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Survival_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Survival Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Swim_Inputs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Swim Inputs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Time_Zone/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Time Zone
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/reference/eco_ptm/Travel_Time_Output/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Travel Time Output
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    CSDP
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            CSDP
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/CSDP_Network_File_Format/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CSDP Network File Format
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/CSDP_Network_Summary_Report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CSDP Network Summary Report
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Creating_DSM2_v8.2_GIS_grid_map/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating DSM2 GIS Grid Map
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/DSM2_Geo_referenced_grid/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 Geo-referenced Grid
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/DSM2_Sacramento_San-Joaquin_Delta_Grid/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 Sacramento San-Joaquin Delta Grid
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Exporting_Channel_Lengths_from_CSDP_Network_file/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exporting Channel Lengths
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Exporting_CSDP_Information_into_GIS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exporting CSDP Information
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Extracting_Bathymetry_Data_From_An_Irregularly_Shaped_Region/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extracting Bathymetry Data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Importing_Digital_Elevation_Maps_DEMs_into_CSDP/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Importing DEMs into CSDP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Merging_multiple_versions_of_network_files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Merging Network Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Schematics_and_Boundaries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Schematics and Boundaries
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/Symbology/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Symbology
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Developer Guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Developer Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_guide/overview.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Build
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Build
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/CMake_Build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CMake Build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Cloud_Notes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cloud Notes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Developer_and_Build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Developer and Build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/DSM2_v82_Compiling_and_Packaging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 v82 Compiling and Packaging
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Docker_Builds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docker Builds
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    PTM code
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            PTM code
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_guide/java_code.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Java
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Debugging_JNI_code_with_Eclipse_and_Visual_Studio_20xx_/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging JNI Code
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/DSM2_v82_PTM_Compiling_with_Eclipse/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 v82 PTM Compiling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/HDF5_CMake_Static_Build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HDF5 CMake Static Build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/PTM_DLL_Static_Build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PTM DLL Static Build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../build/Troubleshooting_Eclipse/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting Eclipse
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer_guide/python.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Python
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Best Practices
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Best Practices
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Organizing_a_Study/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Organizing a Study
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Checklists/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Checklists
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Planning_Simulation_Checklist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Simulation Checklist
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Historical_Simulation_Checklist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Historical Simulation Checklist
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/CALSIM_-_DSM2_Integration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CALSIM-DSM2 Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/RKI_Referenced_Output/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RKI Referenced Output
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Scripts_and_input_files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Scripts and Input Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Post_processing_and_Visualization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Post-processing and Visualization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Supporting_Tools_and_QAQC/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Supporting Tools and QAQC
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/DSM2_Cloud_Setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 Cloud Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Update_DSM2_historical_simulation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Update DSM2 Historical Simulation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Background_Material_and_References/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Background Material and References
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Presentations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Presentations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Training Materials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Training Materials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_1" id="__nav_7_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Learning Series 🌟
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_1">
+            <span class="md-nav__icon md-icon"></span>
+            Learning Series 🌟
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning_series/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning_series/quick_start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning_series/planning_studies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Studies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning_series/eco_ptm_studies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ECO-PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../An_Introduction_to_DSM2_Tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2_2" id="__nav_7_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Basic Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Basic Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_1_Channels/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Channels
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_2_Reservoirs_Gates_Transfers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reservoir Gates Transfers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_3_Layering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layering
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_4_Time_Varying_Data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Time Varying Data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_5_Advanced_Output_and_Source_Tracking/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced Output and Source Tracking
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Tutorial_6_Operating_Rules/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operating Rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7_2_3" id="__nav_7_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Bay-Delta Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Bay-Delta Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSM2_Bay-Delta_Tutorial_1_Historical_Simulation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Historical Simulation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSM2_Bay-Delta_Tutorial_2_Source_Tracking_Fingerprinting_/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Source Tracking Fingerprinting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSM2_Bay-Delta_Tutorial_3_Planning_Simulation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Planning Simulation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSM2_Bay-Delta_Tutorial_4_Batch_Preprocessing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Batch Preprocessing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/Generating_DSM2_Hydro_boundary_conditions_from_the_DCR_2017_CALSIM_II_output/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generating Hydro Boundary Conditions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Suisun Marsh Operating Rules
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Suisun Marsh Operating Rules
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-the-objective-of-this-tutorial-is-to-learn-about-the-suisun-marsh-salinity-control-gate-and-practice-tuning-an-operating-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose: The objective of this tutorial is to learn about the Suisun Marsh Salinity Control Gate and practice tuning an operating rule.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-suisun-marsh-salinity-control-gates-smscg-were-completed-and-began-operating-in-october-1988-the-first-year-of-operation-was-used-to-test-the-gates-and-official-operation-began-in-november-1989-the-facility-consists-of-a-boat-lock-a-series-of-three-radial-gates-and-flashboards-the-smscg-control-salinity-by-restricting-the-flow-of-higher-salinity-water-from-grizzly-bay-into-montezuma-slough-during-incoming-tides-and-retaining-lower-salinity-sacramento-river-water-from-the-previous-ebb-tide-operation-of-the-smscg-in-this-fashion-lowers-salinity-in-suisun-marsh-channels-and-results-in-a-net-movement-of-water-from-east-to-west-when-delta-outflow-is-low-to-moderate-and-the-smscg-are-not-operating-net-movement-of-water-is-from-west-to-east-resulting-in-higher-salinity-water-in-montezuma-slough" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Suisun Marsh Salinity Control Gates (SMSCG) were completed and began operating in October 1988. The first year of operation was used to test the gates, and official operation began in November 1989. The facility consists of a boat lock, a series of three radial gates, and flashboards. The SMSCG control salinity by restricting the flow of higher salinity water from Grizzly Bay into Montezuma Slough during incoming tides and retaining lower salinity Sacramento River water from the previous ebb tide. Operation of the SMSCG in this fashion lowers salinity in Suisun Marsh channels and results in a net movement of water from east to west. When Delta outflow is low to moderate and the SMSCG are not operating, net movement of water is from west to east, resulting in higher salinity water in Montezuma Slough.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-smscg-usually-begin-operating-in-early-october-and-depending-on-salinity-conditions-may-continue-operating-through-the-end-of-the-control-season-in-may-when-the-channel-water-salinity-decreases-sufficiently-below-the-salinity-standards-or-at-the-end-of-the-control-season-the-flashboards-are-removed-and-the-smscg-raised-to-allow-unrestricted-movement-through-montezuma-slough-details-of-annual-smscg-operations-can-be-found-in-summary-of-salinity-conditions-in-suisun-marsh-during-water-years-19841992-dwr-1994b-or-the-suisun-marsh-monitoring-program-data-summary-produced-annually-by-dwrs-environmental-services-office" class="md-nav__link">
+    <span class="md-ellipsis">
+      The SMSCG usually begin operating in early October and, depending on salinity conditions, may continue operating through the end of the control season in May. When the channel water salinity decreases sufficiently below the salinity standards, or at the end of the control season, the flashboards are removed and the SMSCG raised to allow unrestricted movement through Montezuma Slough. Details of annual SMSCG operations can be found in Summary of Salinity Conditions in Suisun Marsh During Water Years 1984–1992 (DWR 1994b), or the Suisun Marsh Monitoring Program Data Summary produced annually by DWR's Environmental Services Office.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-tidal-operation-of-the-gate-should-open-the-gate-when-a-water-level-drop-of-03-ft-exists-across-the-gate-upstream-to-downstream-and-to-close-the-gate-when-velocity-is-less-than-01-impending-flood-tide-the-boat-lock-is-held-open-whenever-the-radial-gates-are-operated-tidally-the-flashboard-is-typically-in-place-when-the-gates-are-operated-and-removed-when-the-gate-is-fully-open-note-that-in-the-historical-record-these-relationships-do-not-always-hold-there-have-been-numerous-operating-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      The tidal operation of the gate should open the gate when a water level drop of 0.3 ft exists across the gate (upstream to downstream) and to close the gate when velocity is less than 0.1 (impending flood tide). The boat lock is held open whenever the radial gates are operated tidally. The flashboard is typically in place when the gates are operated and removed when the gate is fully open. Note that in the historical record these relationships do not always hold – there have been numerous operating experiments.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#we-will-use-martinez-ec-as-a-surrogate-to-determine-when-ec-compliance-is-an-issue-and-the-gates-need-to-be-operated-tidally" class="md-nav__link">
+    <span class="md-ellipsis">
+      We will use Martinez EC as a surrogate to determine when EC compliance is an issue and the gates need to be operated tidally.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-simplified-version-of-the-marsh-standards-is-given-below-the-units-are-millisiemens-per-square-cm-which-are-a-thousand-times-the-microsiemens-used-in-dsm2-modeling-there-is-a-water-year-dependence-in-the-full-set-of-standards-the-levels-given-in-the-table-apply-to-1974-1976-but-not-to-1977-which-is-a-deficiency-year-in-this-tutorial-we-will-consider-only-the-site-s-42-suisun-slough-volanti-slough-the-rki-for-this-location-is-slsus012-and-the-location-is-channel-494-distance-4681ft" class="md-nav__link">
+    <span class="md-ellipsis">
+      A simplified version of the Marsh standards is given below. The units are millisiemens per square cm, which are a thousand times the microsiemens used in DSM2 modeling. There is a water year dependence in the full set of standards – the levels given in the table apply to 1974-1976 but not to 1977 which is a "deficiency year". In this tutorial, we will consider only the site S-42, Suisun Slough @ Volanti Slough. The RKI for this location is SLSUS012, and the location is channel 494 distance 4681ft.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steps:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DSM2_Bay-Delta_Tutorial_7_Clifton_Court_Diurnal_Pumping/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clifton Court Diurnal Pumping
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2_4" id="__nav_7_2_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Delta Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            Delta Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Delta_Tutorial_8_-_Temperature_Simulation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Temperature Simulation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Delta_Tutorial_9_-_DO_Simulation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DO Simulation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_2_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2_5" id="__nav_7_2_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    CSDP Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            CSDP Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../csdp/CSDP_Tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CSDP Tutorial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    FAQs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            FAQs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/PTM_Frequently_Asked_Questions_FAQ_/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PTM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    How-tos
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            How-tos
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/DSM2_-_How_to_read_hdf5_output_files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to Read HDF5 Output Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/How_does_DSM2-Hydro_calculate_channel_volume_/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How DSM2-Hydro Calculates Channel Volume
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/DSM2_Seems_to_indicate_missing_irregular_gate_position_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Missing Irregular Gate Position Data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faqs/DSM2_inputs_are_off_by_1DAY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DSM2 Inputs Off by 1 Day
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Release Notes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releasenotes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/Versions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Versions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose-the-objective-of-this-tutorial-is-to-learn-about-the-suisun-marsh-salinity-control-gate-and-practice-tuning-an-operating-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Purpose: The objective of this tutorial is to learn about the Suisun Marsh Salinity Control Gate and practice tuning an operating rule.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-suisun-marsh-salinity-control-gates-smscg-were-completed-and-began-operating-in-october-1988-the-first-year-of-operation-was-used-to-test-the-gates-and-official-operation-began-in-november-1989-the-facility-consists-of-a-boat-lock-a-series-of-three-radial-gates-and-flashboards-the-smscg-control-salinity-by-restricting-the-flow-of-higher-salinity-water-from-grizzly-bay-into-montezuma-slough-during-incoming-tides-and-retaining-lower-salinity-sacramento-river-water-from-the-previous-ebb-tide-operation-of-the-smscg-in-this-fashion-lowers-salinity-in-suisun-marsh-channels-and-results-in-a-net-movement-of-water-from-east-to-west-when-delta-outflow-is-low-to-moderate-and-the-smscg-are-not-operating-net-movement-of-water-is-from-west-to-east-resulting-in-higher-salinity-water-in-montezuma-slough" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Suisun Marsh Salinity Control Gates (SMSCG) were completed and began operating in October 1988. The first year of operation was used to test the gates, and official operation began in November 1989. The facility consists of a boat lock, a series of three radial gates, and flashboards. The SMSCG control salinity by restricting the flow of higher salinity water from Grizzly Bay into Montezuma Slough during incoming tides and retaining lower salinity Sacramento River water from the previous ebb tide. Operation of the SMSCG in this fashion lowers salinity in Suisun Marsh channels and results in a net movement of water from east to west. When Delta outflow is low to moderate and the SMSCG are not operating, net movement of water is from west to east, resulting in higher salinity water in Montezuma Slough.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-smscg-usually-begin-operating-in-early-october-and-depending-on-salinity-conditions-may-continue-operating-through-the-end-of-the-control-season-in-may-when-the-channel-water-salinity-decreases-sufficiently-below-the-salinity-standards-or-at-the-end-of-the-control-season-the-flashboards-are-removed-and-the-smscg-raised-to-allow-unrestricted-movement-through-montezuma-slough-details-of-annual-smscg-operations-can-be-found-in-summary-of-salinity-conditions-in-suisun-marsh-during-water-years-19841992-dwr-1994b-or-the-suisun-marsh-monitoring-program-data-summary-produced-annually-by-dwrs-environmental-services-office" class="md-nav__link">
+    <span class="md-ellipsis">
+      The SMSCG usually begin operating in early October and, depending on salinity conditions, may continue operating through the end of the control season in May. When the channel water salinity decreases sufficiently below the salinity standards, or at the end of the control season, the flashboards are removed and the SMSCG raised to allow unrestricted movement through Montezuma Slough. Details of annual SMSCG operations can be found in Summary of Salinity Conditions in Suisun Marsh During Water Years 1984–1992 (DWR 1994b), or the Suisun Marsh Monitoring Program Data Summary produced annually by DWR's Environmental Services Office.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-tidal-operation-of-the-gate-should-open-the-gate-when-a-water-level-drop-of-03-ft-exists-across-the-gate-upstream-to-downstream-and-to-close-the-gate-when-velocity-is-less-than-01-impending-flood-tide-the-boat-lock-is-held-open-whenever-the-radial-gates-are-operated-tidally-the-flashboard-is-typically-in-place-when-the-gates-are-operated-and-removed-when-the-gate-is-fully-open-note-that-in-the-historical-record-these-relationships-do-not-always-hold-there-have-been-numerous-operating-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      The tidal operation of the gate should open the gate when a water level drop of 0.3 ft exists across the gate (upstream to downstream) and to close the gate when velocity is less than 0.1 (impending flood tide). The boat lock is held open whenever the radial gates are operated tidally. The flashboard is typically in place when the gates are operated and removed when the gate is fully open. Note that in the historical record these relationships do not always hold – there have been numerous operating experiments.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#we-will-use-martinez-ec-as-a-surrogate-to-determine-when-ec-compliance-is-an-issue-and-the-gates-need-to-be-operated-tidally" class="md-nav__link">
+    <span class="md-ellipsis">
+      We will use Martinez EC as a surrogate to determine when EC compliance is an issue and the gates need to be operated tidally.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-simplified-version-of-the-marsh-standards-is-given-below-the-units-are-millisiemens-per-square-cm-which-are-a-thousand-times-the-microsiemens-used-in-dsm2-modeling-there-is-a-water-year-dependence-in-the-full-set-of-standards-the-levels-given-in-the-table-apply-to-1974-1976-but-not-to-1977-which-is-a-deficiency-year-in-this-tutorial-we-will-consider-only-the-site-s-42-suisun-slough-volanti-slough-the-rki-for-this-location-is-slsus012-and-the-location-is-channel-494-distance-4681ft" class="md-nav__link">
+    <span class="md-ellipsis">
+      A simplified version of the Marsh standards is given below. The units are millisiemens per square cm, which are a thousand times the microsiemens used in DSM2 modeling. There is a water year dependence in the full set of standards – the levels given in the table apply to 1974-1976 but not to 1977 which is a "deficiency year". In this tutorial, we will consider only the site S-42, Suisun Slough @ Volanti Slough. The RKI for this location is SLSUS012, and the location is channel 494 distance 4681ft.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steps:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="dsm2-bay-delta-tutorial-5-suisun-marsh-operating-rules">DSM2 Bay-Delta Tutorial 5: Suisun Marsh Operating Rules</h1>
+<h2 id="purpose-the-objective-of-this-tutorial-is-to-learn-about-the-suisun-marsh-salinity-control-gate-and-practice-tuning-an-operating-rule">Purpose: <strong><em>The objective of this tutorial is to learn about the Suisun Marsh Salinity Control Gate and practice tuning an operating rule.</em></strong></h2>
+<h2 id="background">Background:</h2>
+<h2 id="the-suisun-marsh-salinity-control-gates-smscg-were-completed-and-began-operating-in-october-1988-the-first-year-of-operation-was-used-to-test-the-gates-and-official-operation-began-in-november-1989-the-facility-consists-of-a-boat-lock-a-series-of-three-radial-gates-and-flashboards-the-smscg-control-salinity-by-restricting-the-flow-of-higher-salinity-water-from-grizzly-bay-into-montezuma-slough-during-incoming-tides-and-retaining-lower-salinity-sacramento-river-water-from-the-previous-ebb-tide-operation-of-the-smscg-in-this-fashion-lowers-salinity-in-suisun-marsh-channels-and-results-in-a-net-movement-of-water-from-east-to-west-when-delta-outflow-is-low-to-moderate-and-the-smscg-are-not-operating-net-movement-of-water-is-from-west-to-east-resulting-in-higher-salinity-water-in-montezuma-slough"><strong><em>The Suisun Marsh Salinity Control Gates (SMSCG) were completed and began operating in October 1988.</em></strong> <strong><em>The first year of operation was used to test the gates, and official operation began in November 1989. The</em></strong> <strong><em>facility consists of a boat lock, a series of three radial gates, and flashboards. The SMSCG control salinity</em></strong> <strong><em>by restricting the flow of higher salinity water from Grizzly</em></strong> <strong><em>Bay into Montezuma Slough during incoming</em></strong> <strong><em>tides and retaining lower salinity Sacramento River water from the previous ebb tide. Operation of the</em></strong> <strong><em>SMSCG in this fashion lowers salinity in Suisun Marsh channels and results in a net movement of water</em></strong> <strong><em>from east to west. When Delta outflow is low to moderate and the SMSCG are not operating, net movement</em></strong> <strong><em>of water is from west to east, resulting in higher salinity water in Montezuma Slough.</em></strong></h2>
+<h2 id="the-smscg-usually-begin-operating-in-early-october-and-depending-on-salinity-conditions-may-continue-operating-through-the-end-of-the-control-season-in-may-when-the-channel-water-salinity-decreases-sufficiently-below-the-salinity-standards-or-at-the-end-of-the-control-season-the-flashboards-are-removed-and-the-smscg-raised-to-allow-unrestricted-movement-through-montezuma-slough-details-of-annual-smscg-operations-can-be-found-in-summary-of-salinity-conditions-in-suisun-marsh-during-water-years-19841992-dwr-1994b-or-the-suisun-marsh-monitoring-program-data-summary-produced-annually-by-dwrs-environmental-services-office"><strong><em>The SMSCG usually begin operating in early October and, depending on salinity conditions, may continue</em></strong> <strong><em>operating through the end of the control season in May. When the channel water salinity decreases sufficiently</em></strong> <strong><em>below the salinity standards, or at the end of the control season, the flashboards are removed and</em></strong> <strong><em>the SMSCG raised to allow unrestricted movement through Montezuma Slough. Details of annual SMSCG</em></strong> <strong><em>operations can be found in Summary of Salinity Conditions in Suisun Marsh During Water Years 1984–1992 (DWR 1994b), or the Suisun Marsh Monitoring Program Data Summary produced annually by</em></strong> <strong><em>DWR's Environmental Services Office.</em></strong></h2>
+<h2 id="the-tidal-operation-of-the-gate-should-open-the-gate-when-a-water-level-drop-of-03-ft-exists-across-the-gate-upstream-to-downstream-and-to-close-the-gate-when-velocity-is-less-than-01-impending-flood-tide-the-boat-lock-is-held-open-whenever-the-radial-gates-are-operated-tidally-the-flashboard-is-typically-in-place-when-the-gates-are-operated-and-removed-when-the-gate-is-fully-open-note-that-in-the-historical-record-these-relationships-do-not-always-hold-there-have-been-numerous-operating-experiments"><strong><em>The tidal operation of the gate should open the gate when a water level drop of 0.3 ft exists across the gate (upstream to downstream) and to close the gate when velocity is less than 0.1 (impending flood tide). The boat lock is held open whenever the radial gates are operated tidally. The flashboard is typically in place when the gates are operated and removed when the gate is fully open. Note that in the historical record these relationships do not always hold – there have been numerous operating experiments.</em></strong></h2>
+<h2 id="we-will-use-martinez-ec-as-a-surrogate-to-determine-when-ec-compliance-is-an-issue-and-the-gates-need-to-be-operated-tidally"><strong><em>We will use Martinez EC as a surrogate to determine when EC compliance is an issue and the gates need to be operated tidally.</em></strong></h2>
+<h2 id="a-simplified-version-of-the-marsh-standards-is-given-below-the-units-are-millisiemens-per-square-cm-which-are-a-thousand-times-the-microsiemens-used-in-dsm2-modeling-there-is-a-water-year-dependence-in-the-full-set-of-standards-the-levels-given-in-the-table-apply-to-1974-1976-but-not-to-1977-which-is-a-deficiency-year-in-this-tutorial-we-will-consider-only-the-site-s-42-suisun-slough-volanti-slough-the-rki-for-this-location-is-slsus012-and-the-location-is-channel-494-distance-4681ft"><strong><em>A simplified version of the Marsh standards is given below. The units are millisiemens per square cm, which are a thousand times the microsiemens used in DSM2 modeling. There is a water year dependence in the full set of standards – the levels given in the table apply to 1974-1976 but not to 1977 which is a "deficiency year". In this tutorial, we will consider only the site S-42, Suisun Slough @ Volanti Slough. The RKI for this location is SLSUS012, and the location is channel 494 distance 4681ft.</em></strong></h2>
+<table class="wrapped confluenceTable">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td class="confluenceTd"><div class="content-wrapper">
+<p> </p>
+</div></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><strong>D-1641 STANDARD</strong></p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p>OCT</p></td>
+<td class="confluenceTd"><p>NOV</p></td>
+<td class="confluenceTd"><p>DEC</p></td>
+<td class="confluenceTd"><p>JAN</p></td>
+<td class="confluenceTd"><p>FEB-MAR</p></td>
+<td class="confluenceTd"><p>APR-MAY</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p><em>Eastern</em></p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><strong>C-2</strong></p></td>
+<td class="confluenceTd"><p>19.0</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>12.5</p></td>
+<td class="confluenceTd"><p>8.0</p></td>
+<td class="confluenceTd"><p>11.0</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p><strong>S-64</strong></p></td>
+<td class="confluenceTd"><p>19.0</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>12.5</p></td>
+<td class="confluenceTd"><p>8.0</p></td>
+<td class="confluenceTd"><p>11.0</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><strong>S-49</strong></p></td>
+<td class="confluenceTd"><p>19.0</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>12.5</p></td>
+<td class="confluenceTd"><p>8.0</p></td>
+<td class="confluenceTd"><p>11.0</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p><em>Western</em></p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><strong>S-42</strong></p></td>
+<td class="confluenceTd"><p>19.0</p></td>
+<td class="confluenceTd"><p>16.5</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>12.5</p></td>
+<td class="confluenceTd"><p>8.0</p></td>
+<td class="confluenceTd"><p>11.0</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p><strong>S-21</strong></p></td>
+<td class="confluenceTd"><p>19.0</p></td>
+<td class="confluenceTd"><p>16.5</p></td>
+<td class="confluenceTd"><p>15.5</p></td>
+<td class="confluenceTd"><p>12.5</p></td>
+<td class="confluenceTd"><p>8.0</p></td>
+<td class="confluenceTd"><p>11.0</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><strong>S-35</strong></p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p><strong>S-97</strong></p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p>N/A*</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+<tr class="odd">
+<td class="confluenceTd"><p>*In a good faith effort, DWR will<br />
+consider S35 and S97<br />
+monitoring stations</p></td>
+<td class="confluenceTd"><p>*In a good faith effort, DWR will consider
+S35 and S97 monitoring stations</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td></td>
+</tr>
+<tr class="even">
+<td class="confluenceTd"><p>when deciding gate operations.</p></td>
+<td class="confluenceTd"><p>when deciding gate operations.</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+<td class="confluenceTd"><p><br />
+</p></td>
+</tr>
+</tbody>
+</table>
+
+<p><img alt="Suisun Marsh Operating Rules" src="../../attachments/Tutorial5_SuisunMarsh_Figure.png" /></p>
+<h2 id="steps">Steps:</h2>
+<ol>
+<li><strong>Copy the study and configuration files:</strong><ol>
+<li>In windows, navigate to
+    <em>\{DSM2_home}\study_templates\ocap_sdip</em>.</li>
+<li>Copy the planning study to the <em>\{DSM2_home}\tutorials</em>
+    directory.</li>
+<li>Rename <em>config_sdip_ocap_71.inp</em> as config_suisun.inp.</li>
+<li>In the configuration file, make sure the study dates cover the
+    full 1974-1991 period for planning runs. It is usually a good
+    idea to preprocess the full period of the inputs, even if you
+    are going to do run dsm2 on a subset of the simulation period.</li>
+<li>Set DSM2MODIFIER to suisun.</li>
+<li>Run prepro on the file config_suisun.inp:</li>
+</ol>
+</li>
+</ol>
+<p>&gt; prepro config_suisun.inp</p>
+<ol>
+<li><strong>Examine and correct the Suisun Marsh operating rule.</strong></li>
+</ol>
+<p>The Montezuma Slough velocity close rule in
+<em>oprule_montezuma_planning_gate.inp</em> is based on flow (note this file
+name will have a version date appended to it. The rule requires
+correction to be based on velocity.</p>
+<ol>
+<li>
+<ol>
+<li>Add a file representing a "correction layer" to the operating
+        rules called oprule_revised_montezuma.inp.</li>
+<li>Correct the <em>velclose</em> part of the rule to be based on channel
+    velocity. You can look up the correct variable name in the
+    Operating Rule Guide in the html help system.</li>
+<li>Note the Martinez EC path used in the operating rule to
+    determine whether the gate needs to be operated tidally. Open
+    the suisun.dss input file and tidally or daily average this
+    path. Then substitute the tidally averaged version of EC in the
+    operating rule by overriding the time series definition in the
+    Operation Time Series table.</li>
+<li>Note that the threshold for operating the gate is in the
+    configuration file: MSCS_EC_THRESH 20000</li>
+</ol>
+</li>
+<li>
+<p><strong>Run DSM2:</strong></p>
+<ol>
+<li>In the configuration file, set the run dates to 1974 – 1977.</li>
+<li>Add the output you will need to examine the S42 site using the
+    information given in the introduction and the techniques you
+    have learned from the other tutorials.</li>
+<li>Point the CONFIGURATION include file in <em>hydro.inp</em> to
+    <em>config_suisun.inp</em>.</li>
+</ol>
+</li>
+</ol>
+<p>d. Launch HYDRO with the command:<br />
+&gt;hydro hydro.inp</p>
+<ol>
+<li><strong>Examine the output.</strong><ol>
+<li>Compare EC output to the standard presented in the introduction.
+    Is the gate over operating or underoperating?</li>
+<li>How can you further enhance the operating rule? Discuss the
+    boatlock and flashboards.</li>
+</ol>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
