@@ -34,28 +34,12 @@ CSDP supports bathymetry data as point features in XYZ format along with columns
     <tr class="header">
     <th class="confluenceTh"><div class="content-wrapper">
     <p>Select Bathymetry-Import Bathymetry from ASCII Raster</p>
-    <p><img src="attachments/87228847/87228848.png"
-    data-image-src="attachments/87228847/87228848.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228848"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2019-6-14_11-20-28.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228847"
-    data-linked-resource-container-version="1" height="250" /></p>
+    <p>![DEM Figure 1](../attachments/DEM_Figure1.png)</p>
     </div></th>
     <th class="confluenceTh"><div class="content-wrapper">
     <p>Fill in the dialog. If dataset is more dense than you need, you can
     enter a factor greater than 1</p>
-    <p><img src="attachments/87228847/87228846.png"
-    data-image-src="attachments/87228847/87228846.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228846"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2019-6-14_11-20-44.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228847"
-    data-linked-resource-container-version="1" height="250" /></p>
+    <p>![DEM Figure 2](../attachments/DEM_Figure2.png)</p>
     </div></th>
     </tr>
     &#10;</tbody>
@@ -63,9 +47,4 @@ CSDP supports bathymetry data as point features in XYZ format along with columns
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-6-14_11-20-44.png](attachments/87228847/87228846.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-6-14_11-20-28.png](attachments/87228847/87228848.png)
-(image/png)
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)

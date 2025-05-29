@@ -19,18 +19,9 @@ Transport Model](../attachments/87229010/87229014.pdf) (BLTM) written by Harvey 
 
 ## References:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" /> [QUAL2E
-Documentation - Basis for QUAL Nonconservative Constituent
-Kinetics.pdf](../attachments/87229010/87229009.pdf)<BR>
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[D1641rev.pdf](../attachments/87229010/87229011.pdf)<BR>
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[EC_chloride_bromide_05_29_01.pdf](../attachments/87229010/87229012.pdf)<BR>
-<img src="images/icons/bullet_blue.gif" width="8" height="8" /> [Delta
-D1641 Water Quality Standards Full
-Reference.pdf](../attachments/87229010/87229013.pdf)<BR>
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[BLTMenhancements-USGSWRI97_4050.pdf](../attachments/87229010/87229014.pdf)<BR>
-<img src="images/icons/bullet_blue.gif" width="8" height="8" /> [Four
-Point memo from USGS-basis for DSM2
-HYDRO.pdf](../attachments/87229010/87229015.pdf)<BR>
+- [QUAL2E Documentation - Basis for QUAL Nonconservative Constituent Kinetics.pdf](../attachments/87229010/87229009.pdf)
+- [D1641rev.pdf](../attachments/87229010/87229011.pdf)
+- [EC_chloride_bromide_05_29_01.pdf](../attachments/87229010/87229012.pdf)
+- [Delta D1641 Water Quality Standards Full Reference.pdf](../attachments/87229010/87229013.pdf)
+- [BLTMenhancements-USGSWRI97_4050.pdf](../attachments/87229010/87229014.pdf)
+- [Four Point memo from USGS-basis for DSM2 HYDRO.pdf](../attachments/87229010/87229015.pdf)

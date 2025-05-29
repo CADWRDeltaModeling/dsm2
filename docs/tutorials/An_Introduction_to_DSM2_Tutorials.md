@@ -29,7 +29,7 @@ The goal of the **Basic Tutorials** (Tutorials 1-6, see Figure 1) is to familiar
 
 > **Recommendation:** Complete the tutorials in order for the best learning experience. However, each tutorial is self-contained and can be completed independently.
 
-![Figure 1: DSM2 Basic Tutorials](../../attachments/87228733/87228736.png)
+![Figure 1: DSM2 Basic Tutorials](../../attachments/IntroDSM2_BasicTutorials_Figure1.png)
 
 ### Delta Tutorials
 
@@ -37,7 +37,7 @@ The goal of the **Delta Tutorials** (Tutorials 1-5, see Figure 2) is to familiar
 
 In addition, a DSM2 Overview document is provided, which describes the DSM2 modules (**HYDRO**, **QUAL**, and **PTM**) and their typical modes of application (historical, real-time, and planning).  
 
-![Figure 2: DSM2 Delta Tutorials](../../attachments/87228733/87228735.png)
+![Figure 2: DSM2 Delta Tutorials](../../attachments/IntroDSM2_DeltaTutorials_Figure2.png)
 
 ---
 
@@ -82,9 +82,9 @@ Learn how to use Operating Rule Language (ORL) statements to set gate operations
 
 ## Icons Used in Tutorials
 
-- ![Gotcha Icon](../../attachments/87228733/87228734.png)  
+- ![Gotcha Icon](../../attachments/IntroDSM2_Gotcha_Icon.png)  
   Indicates a DSM2 "gotcha" moment where extra care is necessary.  
 
-- ![Question Icon](../../attachments/87228733/87228732.png)  
+- ![Question Icon](../../attachments/IntroDSM2_Question_Icon.png)  
   Indicates a question to test your new DSM2 knowledge.
 

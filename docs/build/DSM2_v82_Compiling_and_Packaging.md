@@ -12,15 +12,7 @@ releases.
 git commit number is also embedded for developer's record, and could be
 used to check thru '-version' command.
 
-<img src="attachments/87228896/87228900.png"
-data-image-src="attachments/87228896/87228900.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228900"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="vers.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![vers.PNG](../attachments/87228896/87228900.png)
 
 The Git number is embedded automatically at compilation time. The
 following 3 files contains relevant version info:  
@@ -45,27 +37,11 @@ Checkout DSM2 from github:
 **<a href="https://github.com/CADWRDeltaModeling/dsm2.git"
 rel="nofollow">https://github.com/CADWRDeltaModeling/dsm2.git</a>**
 
-<img src="attachments/87228896/87228903.png"
-data-image-src="attachments/87228896/87228903.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228903"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="github.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![github.PNG](../attachments/87228896/87228903.png)
 
 place the project in local directory, e.g. D:\dev\dsm2_master\\
 
-<img src="attachments/87228896/87228905.png"
-data-image-src="attachments/87228896/87228905.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228905"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="local0.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![local0.PNG](../attachments/87228896/87228905.png)
 
   
 
@@ -76,15 +52,7 @@ Check out could be conduct at command line
 Or use software sourceTree (recommended for later use). Note which
 branch you're checking out (master by default).
 
-<img src="attachments/87228896/87228904.png"
-data-image-src="attachments/87228896/87228904.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228904"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="srctree0.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![srctree0.PNG](../attachments/87228896/87228904.png)
 
   
 
@@ -103,15 +71,7 @@ cmake build of oprule, input_storage, then DSM2 sequentially.
 The building results are exe of hydro and qual, with dll of ptm, under
 path \BUILD\Release or Debug
 
-<img src="attachments/87228896/87228902.png"
-data-image-src="attachments/87228896/87228902.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228902"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="local1.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![local1.PNG](../attachments/87228896/87228902.png)
 
 The major part of PTM module is written in Java programming language and
 placed in the source code folder: \dsm2_v8_1\src\ptm. It could be
@@ -141,15 +101,7 @@ lib: input storage, oprule, and third parties
 If compiling is required, refer their compile details at [CMake
 Build](CMake_Build).  
   
-<img src="attachments/87228896/87228901.png"
-data-image-src="attachments/87228896/87228901.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228901"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="lib.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![lib.PNG](../attachments/87228896/87228901.png)
 
   
 
@@ -179,38 +131,14 @@ See the following example for debug setting in Visual Studio 2015.
 
   
 
-<img src="attachments/87228896/87228898.png"
-data-image-src="attachments/87228896/87228898.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228898"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="debug1.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![debug1.png](../attachments/87228896/87228898.png)
 
-<img src="attachments/87228896/87228899.png"
-data-image-src="attachments/87228896/87228899.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228899"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="debug.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![debug.png](../attachments/87228896/87228899.png)
 
 Make sure the 'debug info' is on the project you're working on (the
 current VS set it as off by default).
 
-<img src="attachments/87228896/87228895.png"
-data-image-src="attachments/87228896/87228895.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228895"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="debug_on.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![debug_on.PNG](../attachments/87228896/87228895.png)
 
   
 
@@ -220,15 +148,7 @@ Download from share folder and change folder name to dsm2_distribute\\
 
 under branch (e.g. master), aside with dsm2
 
-<img src="attachments/87228896/87228897.png"
-data-image-src="attachments/87228896/87228897.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228897"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="package1.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />
+![package1.PNG](../attachments/87228896/87228897.png)
 
   
 
@@ -254,15 +174,7 @@ previous section
 b\) Run the batch file "copy_hydro_qual_ptmDLL_notepad_style.bat".
 
   
- <img src="attachments/87228896/87228908.png"
-data-image-src="attachments/87228896/87228908.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228908"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2017-6-13_15-47-35.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />  
+ ![image2017-6-13_15-47-35.png](../attachments/87228896/87228908.png)  
    
 Manually copy hydro.exe, qual.exe, ptm.dll, ptm.jar to the folder  
  \dsm2_distribute\dsm2\bin
@@ -289,15 +201,7 @@ b\) Run this Python script to generate Inno Setup script
  Run "DSM2setup_v8.iss" with Inno Setup Compiler v5.2.3  
 The installation file named "DSM2setup_8.X.Xrelease.XXXX.exe" will be
 created in the same folder, \dsm2_distribute\dsm2\install\\  
- <img src="attachments/87228896/87228906.png"
-data-image-src="attachments/87228896/87228906.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228906"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2017-6-13_15-47-59.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" />  
+ ![image2017-6-13_15-47-59.png](../attachments/87228896/87228906.png)  
  
 
   
@@ -316,15 +220,8 @@ Create release tag for both "dsm2" source code on github and
 
   
    
-<img src="attachments/87228896/87228911.png"
-data-image-src="attachments/87228896/87228911.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228911"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="worddav07c1c902559a15d9cb8d941d966322cb.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228896"
-data-linked-resource-container-version="1" width="631" height="487" />  
+![worddav07c1c902559a15d9cb8d941d966322cb.png](../attachments/87228896/87228911.png)
+  
  
 
 For future usage, immediately increment DSM2 version number (3rd digit
@@ -346,7 +243,7 @@ to the next odd number) in the following three files:
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [debug_on.PNG](attachments/87228896/87228895.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[package1.PNG](attachments/87228896/87228897.png) (image/png)  
+[package1.PNG](attachments/87228896/87228997.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [debug1.png](attachments/87228896/87228898.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
@@ -404,4 +301,4 @@ to the next odd number) in the following three files:
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [worddava9503121f9ac50fd0060de1b95c6decc.png](attachments/87228896/87228919.png)
-(image/png)  
+(image/png)

@@ -72,6 +72,6 @@ We need a georeferenced grid map. It should have the following features:
 
 ## Attachments
 
-- [DSM2_Grid2.0.pdf](attachments/87228652/87228654.pdf)
-- [DSM2_Grid_191029.kml](attachments/87228639/87228638.kml)
-- [CSDP_vs_Channels_inp_Lengths.xlsx](attachments/87228641/87228640.xlsx)
+- [DSM2_Grid2.0.pdf](../attachments/DSM2_Grid2.0.pdf)
+- [DSM2_Grid_191029.kml](../attachments/DSM2_Grid_191029.kml)
+- [CSDP_vs_Channels_inp_Lengths.xlsx](../attachments/CSDP_vs_Channels_inp_Lengths.xlsx)

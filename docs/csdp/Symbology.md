@@ -19,36 +19,18 @@ points should always be in order from upstream to downstream.
 
 To modify the symbol:
 
-1.  double-click on the symbol below the layer name (see image
-    below).<img src="attachments/87228666/87228667.png"
-    data-image-src="attachments/87228666/87228667.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228667"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-14_15-14-8.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228666"
-    data-linked-resource-container-version="1" height="250" />
-2.  In the Symbology Panel, under Gallery, select "Arrow Right
-    Middle". <img src="attachments/87228666/87228665.png"
-    data-image-src="attachments/87228666/87228665.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228665"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-14_15-15-14.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228666"
-    data-linked-resource-container-version="1" height="250" />
+1.  double-click on the symbol below the layer name (see image below).
+   ![Arrow Symbol](../attachments/87228666/87228667.png)
+2.  In the Symbology Panel, under Gallery, select "Arrow Right Middle".
+   ![Arrow Right Middle](../attachments/87228666/87228665.png)
 3.  Then click on Properties, set the color, and set line width to 15 pt
     (or whatever you want, and select "Enable scale-based sizing".
 
-  
-
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [image2020-5-14_15-15-14.png](attachments/87228666/87228665.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [image2020-5-14_15-14-8.png](attachments/87228666/87228667.png)
-(image/png)  
+(image/png)

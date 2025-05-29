@@ -51,27 +51,11 @@ case, a record is required that has a timestamp of 31DEC2000 2400.
 <li>Tabulate the data in HEC-DssVue. There is no beginning of decade
 timestamp.</li>
 </ol>
-<p><img src="attachments/87228880/87228886.png"
-data-image-src="attachments/87228880/87228886.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228886"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2020-3-25_10-36-6.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228880"
-data-linked-resource-container-version="1" height="250" /></p>
+<p>![Missing Gate Data Figure 1](../attachments/FAQ_MissingGateData_Figure1.png)</p>
 </div></th>
 <th class="confluenceTh"><div class="content-wrapper">
 <p>2. Turn on "Allow Editing"</p>
-<p><img src="attachments/87228880/87228885.png"
-data-image-src="attachments/87228880/87228885.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228885"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2020-3-25_10-37-42.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228880"
-data-linked-resource-container-version="1" height="250" /></p>
+<p>![Missing Gate Data Figure 2](../attachments/FAQ_MissingGateData_Figure2.png)</p>
 </div></th>
 </tr>
 &#10;<tr class="odd">
@@ -141,24 +125,11 @@ data-linked-resource-container-version="1" height="250" /></p>
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_11-0-58.png](attachments/87228880/87228879.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-39-44.png](attachments/87228880/87228881.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-39-7.png](attachments/87228880/87228882.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-38-32.png](attachments/87228880/87228883.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-38-16.png](attachments/87228880/87228884.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-37-42.png](attachments/87228880/87228885.png)
-(image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-3-25_10-36-6.png](attachments/87228880/87228886.png)
-(image/png)  
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
+![Missing Gate Data Figure 3](../attachments/FAQ_MissingGateData_Figure3.png)
+![Missing Gate Data Figure 4](../attachments/FAQ_MissingGateData_Figure4.png)
+![Missing Gate Data Figure 5](../attachments/FAQ_MissingGateData_Figure5.png)
+![Missing Gate Data Figure 6](../attachments/FAQ_MissingGateData_Figure6.png)
+![Missing Gate Data Figure 7](../attachments/FAQ_MissingGateData_Figure7.png)
+![Missing Gate Data Figure 8](../attachments/FAQ_MissingGateData_Figure8.png)
+![Missing Gate Data Figure 9](../attachments/FAQ_MissingGateData_Figure9.png)

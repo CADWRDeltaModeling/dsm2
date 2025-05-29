@@ -4,7 +4,7 @@
 
 ## Background: ***The Banks pumping facility is often operated on a diurnal schedule, emphasizing pumping during off-peak electricity hours. An example of summer electricity prices for the year 2005 is shown in Figure*** ***1:***
 
-<img src="../../attachments/87228791/87228792.png" width="646" height="371" />  
+![Clifton Court Diurnal Pumping 1](../../attachments/Tutorial7_CliftonCourt_Figure1.png)  
 **Figure 1: Example wholesale electricity prices in July 2005 (CWEMF, KT
 Shum)**
 
@@ -17,7 +17,7 @@ total that satisfies the daily average requested by CALSIM. We will use
 the ACCUMULATE function to track the total. In a later step we will
 attenuate pumping to avoid drawing Clifton Court Forebay below -2ft
 NGVD.  
-<img src="../../attachments/87228791/87228790.png" width="624" height="428" />  
+![Clifton Court Diurnal Pumping 2](../../attachments/Tutorial7_CliftonCourt_Figure2.png)  
 **Figure 2: Diurnal Variation in Pumping, July-August 2004 (CWEMF, KT
 Shum)**
 

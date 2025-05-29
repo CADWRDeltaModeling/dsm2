@@ -162,135 +162,135 @@ Compare observed EC to simulated EC at other key locations
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavdba6ec7d80d8e6d0f248fa3e9c1a9f2c.png](attachments/87229300/87229299.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav1c660f167bf01e13f8c74d8d923445b8.png](attachments/87229300/87229301.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavc1eb73f1cc8b69c78afeeda15ca65f9f.png](attachments/87229300/87229302.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavffb24ad6008690b469796d092cb3e822.png](attachments/87229300/87229303.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav7e51b7bfbf042cd6018456316774c8ac.png](attachments/87229300/87229304.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav46b8e2022c959a0ec4979c9f7a8a9b76.png](attachments/87229300/87229305.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav096303e2931d512411acda589b39c3cb.png](attachments/87229300/87229306.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavac6c9b93520fd08679d0ccfdc60b7b66.png](attachments/87229300/87229307.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav417450fd7fccb9d246170ebb7f24d040.png](attachments/87229300/87229308.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddava898e0b2ae4581b97e766bf78287b5c1.png](attachments/87229300/87229309.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav68b2cbedb7a858f3c9b7f1a1e3ab74ac.png](attachments/87229300/87229310.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav5b3d61166388b0d6b2f355755006cda2.png](attachments/87229300/87229311.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav8c7ed9ee05ac17e5e96e011f3f2618cd.png](attachments/87229300/87229312.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav1767755d061f0eab1f3ca3f72ac8cef2.png](attachments/87229300/87229313.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavf80c76565c2ad18b4d77a1e3e7d95206.png](attachments/87229300/87229314.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavcbc13ea92d122ff1199746fedcb5d095.png](attachments/87229300/87229315.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavbec1a14c56fb496c1411aa3f37418f8f.png](attachments/87229300/87229316.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav7b88059002b010dabef7c4b1535bb124.png](attachments/87229300/87229317.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav5bb8f683823e3bf73c38767313d66e71.png](attachments/87229300/87229318.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavc305fa1a938290814fd2248549ba4430.png](attachments/87229300/87229319.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavdfbad699bc5178a523225eb4db224138.png](attachments/87229300/87229320.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav4ea5b554fecf90d7309db37a565d3a27.png](attachments/87229300/87229321.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav97cef626ad442220331e25e5e8e8107f.png](attachments/87229300/87229322.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddave19a27a3183a9cd911129f634e5785e1.png](attachments/87229300/87229323.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavcafee77d96b6996a2ba1b263d685acf2.png](attachments/87229300/87229324.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav586bb64e084e848f881c6b85898711d9.png](attachments/87229300/87229325.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav06a87c364207da504d16cfe87f616b71.png](attachments/87229300/87229326.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavfed7fe74c73acf86c9270728c405a08c.png](attachments/87229300/87229327.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav1b9bd5a7d0e6c5fe479a6a2f41178b3d.png](attachments/87229300/87229328.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav252bc8a83f17f3aaf5122fc24dc34a7b.png](attachments/87229300/87229329.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavaefc8f4547e26bc30a4e1e2e6d9649e4.png](attachments/87229300/87229330.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav43dc9470b95f7adadead62075f065c27.png](attachments/87229300/87229331.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav44b58de538e094cc6f56fa252e0b3775.png](attachments/87229300/87229332.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavf81ccfffae04537644dbc328afa65327.png](attachments/87229300/87229333.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavfb16076aa13e127fd8eb1d3b049dec6e.png](attachments/87229300/87229334.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav9a6b20dc0a73de6bf9dab0456647125f.png](attachments/87229300/87229335.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav230f2ffdb48f91fc3c31cb101e946de0.png](attachments/87229300/87229336.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddave2ddaa02d082a0f4038f1aa1cae93a47.png](attachments/87229300/87229337.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav41ab2bbaa193e682b05098057d919df2.png](attachments/87229300/87229338.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddavcb34498bae50e99b02ddf21594a946c0.png](attachments/87229300/87229339.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav248f48ce932b6488517e2109896fdb56.png](attachments/87229300/87229340.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddave25679296b7bc483b7fb1156d722e8b6.png](attachments/87229300/87229341.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav44d59b8b5a711866ad8dde94f0d42d27.png](attachments/87229300/87229342.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [worddav660ebda068b8ef166732e0aef200cc6e.png](attachments/87229300/87229343.png)
-(image/png)  
+(image/png)

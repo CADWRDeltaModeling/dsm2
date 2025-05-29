@@ -11,7 +11,7 @@ Add reservoirs, gates, and object-to-object flow transfers to the simple channel
 
 The purpose of this tutorial is to learn how to add reservoirs, gates, and flow transfers to the simple channel-only grid created in Tutorial 1 (Figure 1). The grid we are going to create has the following configuration and specifications. The channel portion is identical to the simple channel model from Tutorial 1. Note that each tutorial is self-contained, so it is not necessary to complete Tutorial 1 before starting this tutorial.
 
-![Simple channel with a new reservoir, gate, and flow transfer](../../attachments/87228759/87228764.png)
+![Simple channel with a new reservoir, gate, and flow transfer](../../attachments/Tutorial2_SimpleChannel_ReservoirGateTransfer.png)
 **Figure 1 - Simple channel with a new reservoir, gate, and flow transfer.**
 
 The following steps will instruct you on how to create these new features and add them to the simple channel system.

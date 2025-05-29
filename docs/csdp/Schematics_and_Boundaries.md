@@ -3,23 +3,11 @@
 CalSIM II schematic is retrieved from BDO Central Valley modeling
 website
 
-<a
-href="http://baydeltaoffice.water.ca.gov/modeling/hydrology/CalSim/Downloads/CalSimDownloads/BST_CALSIMII_schematic_040110.pdf"
-rel="nofollow">http://baydeltaoffice.water.ca.gov/modeling/hydrology/CalSim/Downloads/CalSimDownloads/BST_CALSIMII_schematic_040110.pdf</a>
+[CalSIM II schematic (PDF)](http://baydeltaoffice.water.ca.gov/modeling/hydrology/CalSim/Downloads/CalSimDownloads/BST_CALSIMII_schematic_040110.pdf)
 
-<a
-href="/download/attachments/87228608/BST_CALSIMII_schematic_040110.pdf?version=1&amp;modificationDate=1611798672885&amp;api=v2"
-data-nice-type="PDF Document"
-data-file-src="/download/attachments/87228608/BST_CALSIMII_schematic_040110.pdf?version=1&amp;modificationDate=1611798672885&amp;api=v2"
-data-linked-resource-id="87228609"
-data-linked-resource-type="attachment"
-data-linked-resource-container-id="87228608"
-data-linked-resource-default-alias="BST_CALSIMII_schematic_040110.pdf"
-data-mime-type="application/pdf" data-has-thumbnail="true"
-data-linked-resource-version="1" data-can-edit="true"
-aria-label="BST_CALSIMII_schematic_040110.pdf"><img
-src="rest/documentConversion/latest/conversion/thumbnail/87228609/1"
-height="250" /></a>
+[BST_CALSIMII_schematic_040110.pdf](../attachments/87228608/87228609.pdf)
+
+![BST_CALSIMII_schematic_040110 thumbnail](../attachments/87228608/87228609.pdf)
 
   
 
@@ -252,9 +240,9 @@ DSM2 inputs are retrieved from CalSIM output
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [DSM2_Grid2.0.pdf](attachments/87228608/87228607.pdf)
 (application/pdf)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
 [BST_CALSIMII_schematic_040110.pdf](attachments/87228608/87228609.pdf)
-(application/pdf)  
+(application/pdf)

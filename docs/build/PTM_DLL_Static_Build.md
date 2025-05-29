@@ -35,18 +35,8 @@ The libraries ignored are 
 If you ever need to see all the libraries being used turn the /VERBOSE
 feature on the linker options in Visual Studio
 
-<img src="attachments/87228961/87228960.png"
-data-image-src="attachments/87228961/87228960.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228960"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="image2019-4-29_12-54-20.png"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228961"
-data-linked-resource-container-version="1" height="250" />
+![PTM DLL Static Build Figure 1](../attachments/PTM_DLL_StaticBuild_Figure1.png)
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-4-29_12-54-20.png](attachments/87228961/87228960.png)
-(image/png)  
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)

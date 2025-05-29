@@ -256,7 +256,7 @@ S35 and S97 monitoring stations</p></td>
 
   
   
-<img src="../../attachments/87228788/87228787.png" width="594" height="457" />
+![Suisun Marsh Operating Rules](../../attachments/Tutorial5_SuisunMarsh_Figure.png)
 
 ## Steps:
 

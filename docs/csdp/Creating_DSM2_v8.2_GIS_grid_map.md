@@ -15,96 +15,24 @@ The goal is to display the PDF grid map as a background image in ArcGIS to verif
 2. Create a copy of the TIFF file with "marsh" in the filename. This is because the PDF grid map has the Suisun Marsh disconnected from the delta and printed in a different scale.
 3. Identify a few landmarks that are easily identifiable on both the PDF grid map and the basemap in ArcGIS. Choose three points: one in the north delta, near the confluence, and in the south delta.
 4. In QGIS, select `Plugins > Manage and Install Plugins`:
-    <img src="attachments/87228656/87228664.png"
-    data-image-src="attachments/87228656/87228664.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228664"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-12-43.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="151" />
+   ![QGIS Plugin Manager](../attachments/87228656/87228664.png)
 5. Search for "GDAL", check the box "Georeferencer GDAL", then click close:
-    <img src="attachments/87228656/87228663.png"
-    data-image-src="attachments/87228656/87228663.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228663"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-14-8.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="250" />
+   ![GDAL Plugin](../attachments/87228656/87228663.png)
 6. Select `Raster > Georeferencer`:
-    <img src="attachments/87228656/87228662.png"
-    data-image-src="attachments/87228656/87228662.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228662"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-14-51.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="246" />
+   ![Georeferencer](../attachments/87228656/87228662.png)
 7. Click the Open Raster button:
-    <img src="attachments/87228656/87228661.png"
-    data-image-src="attachments/87228656/87228661.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228661"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-15-45.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="94" />
+   ![Open Raster](../attachments/87228656/87228661.png)
 8. Select the PDF file.
 9. Select `Settings > Transformation Settings`:
-    <img src="attachments/87228656/87228660.png"
-    data-image-src="attachments/87228656/87228660.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228660"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-16-53.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="131" />
+   ![Transformation Settings](../attachments/87228656/87228660.png)
 10. Use the following settings, including an output filename:
-    <img src="attachments/87228656/87228659.png"
-    data-image-src="attachments/87228656/87228659.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228659"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-17-15.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="250" />
+    ![Settings Example](../attachments/87228656/87228659.png)
 11. Click on a point in the map, and enter UTM coordinates, then click OK:
-    <img src="attachments/87228656/87228658.png"
-    data-image-src="attachments/87228656/87228658.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228658"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-17-47.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="250" />
+    ![Enter Coordinates](../attachments/87228656/87228658.png)
 12. When you have specified coordinates for all your points, click the start georeferencing button. A TIFF file will be created, which you can load into ArcGIS:
-    <img src="attachments/87228656/87228657.png"
-    data-image-src="attachments/87228656/87228657.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228657"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_7-18-51.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="99" />
+    ![Start Georeferencing](../attachments/87228656/87228657.png)
 13. In ArcGIS, adjust the layer transparency:
-    <img src="attachments/87228656/87228655.png"
-    data-image-src="attachments/87228656/87228655.png"
-    data-unresolved-comment-count="0" data-linked-resource-id="87228655"
-    data-linked-resource-version="1" data-linked-resource-type="attachment"
-    data-linked-resource-default-alias="image2020-5-12_9-25-2.png"
-    data-base-url="http://msb-confluence"
-    data-linked-resource-content-type="image/png"
-    data-linked-resource-container-id="87228656"
-    data-linked-resource-container-version="1" height="250" />
+    ![Adjust Transparency](../attachments/87228656/87228655.png)
 14. Now you can easily compare the PDF grid map to the GIS data.
 
 ## Attachments

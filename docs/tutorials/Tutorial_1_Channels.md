@@ -13,7 +13,7 @@ The purpose of this tutorial is twofold: to get a start with the DSM2 model and 
 
 For the tutorial, the channels have the following configuration and specifications:  
 
-![Channel Configuration](../attachments/5931233/5931232.png)  
+![Channel Configuration](../attachments/Tutorial1_Channel_Configuration.png)  
 
 **Figure 1 - Simple channel configuration and specifications.**  
 
@@ -25,7 +25,7 @@ Note that there are two cross-section geometries labeled A and B, which will be 
 
 DSM2 assumes a piecewise linear cross-sectional bathymetry. Width, area, and wetted perimeter are tabulated according to elevation. Each elevation lists the data (width) or cumulative data (wetted perimeter and area) below the given elevation. Anything above the top elevation is extrapolated using a slope given by a global scalar called *levee_slope*.  
 
-![Piecewise Linear Bathymetry](../attachments/5931233/5931234.png)  
+![Piecewise Linear Bathymetry](../attachments/Tutorial1_PiecewiseLinear_Bathymetry.png)  
 **Figure 2: Piecewise linear bathymetry**
 
 For instance, for a cross-section halfway downstream in a fictitious channel 123, the five layers of a cross-section with elevations given by Figure 2 might be tabulated as follows:

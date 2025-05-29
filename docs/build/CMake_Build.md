@@ -90,15 +90,7 @@ re-build. Note DSM2 only requires some specific subsets in these
 libraries and these specification could be found in
 CmakeLibraryMacro.txt
 
-<img src="attachments/87228956/87228957.png"
-data-image-src="attachments/87228956/87228957.png"
-data-unresolved-comment-count="0" data-linked-resource-id="87228957"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="sum.PNG"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/png"
-data-linked-resource-container-id="87228956"
-data-linked-resource-container-version="1" height="217" />
+![sum.PNG](../attachments/87228956/87228957.png)
 
   
 
@@ -152,18 +144,10 @@ Build heclib\windows_sources\windows_build_MT_default_settings.bat
 Install Visual Studio 2017:
 
 In addition to the standard Visual Studio 2017 installation, download
-individual components from the VS2017 installer.  The individual
+individual components from the VS2017 installer.  The individual
 components needed are:
 
-<img src="attachments/87228956/87228955.jpg"
-data-image-src="attachments/87228956/87228955.jpg"
-data-unresolved-comment-count="0" data-linked-resource-id="87228955"
-data-linked-resource-version="1" data-linked-resource-type="attachment"
-data-linked-resource-default-alias="VS2017_individaul_components.jpg"
-data-base-url="http://msb-confluence"
-data-linked-resource-content-type="image/jpeg"
-data-linked-resource-container-id="87228956"
-data-linked-resource-container-version="1" height="250" />
+![VS2017_individaul_components.jpg](../attachments/87228956/87228955.jpg)
 
 Run the installer, and click on Modify, then Individual components tab,
 and check the components, finally click on Modify.
@@ -200,8 +184,5 @@ Rerun the build scripts as instructed above.
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[VS2017_individaul_components.jpg](attachments/87228956/87228955.jpg)
-(image/jpeg)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[sum.PNG](attachments/87228956/87228957.png) (image/png)  
+- [VS2017_individaul_components.jpg](../attachments/87228956/87228955.jpg) (image/jpeg)
+- [sum.PNG](../attachments/87228956/87228957.png) (image/png)

@@ -27,15 +27,7 @@ Here's how I use it to merge changes into an existing network file:
         checkbox. **Make sure this option is selected before you click
         OK**. When you click OK, CSDP will create a new network file
         containing all centerlines EXCEPT the ones you specified.  
-        <img src="attachments/87228850/87228851.png"
-        data-image-src="attachments/87228850/87228851.png"
-        data-unresolved-comment-count="0" data-linked-resource-id="87228851"
-        data-linked-resource-version="1" data-linked-resource-type="attachment"
-        data-linked-resource-default-alias="image2018-12-21_12-0-36.png"
-        data-base-url="http://msb-confluence"
-        data-linked-resource-content-type="image/png"
-        data-linked-resource-container-id="87228850"
-        data-linked-resource-container-version="1" height="250" />
+        ![image2018-12-21_12-0-36.png](../attachments/87228850/87228851.png)
 5.  Now load the new network file.
     1.  Select Network-Save Specified Channels.
     2.  In the file selector dialog, enter a filename for a temporary
@@ -45,15 +37,8 @@ Here's how I use it to merge changes into an existing network file:
         Channel Numbers field. (The list will be tab delimited, which is
         fine). You may not be able to see all the centerline names in
         the text field (I'll have to work on that), but it will
-        work.<img src="attachments/87228850/87228849.png"
-        data-image-src="attachments/87228850/87228849.png"
-        data-unresolved-comment-count="0" data-linked-resource-id="87228849"
-        data-linked-resource-version="1" data-linked-resource-type="attachment"
-        data-linked-resource-default-alias="image2018-12-21_12-8-47.png"
-        data-base-url="http://msb-confluence"
-        data-linked-resource-content-type="image/png"
-        data-linked-resource-container-id="87228850"
-        data-linked-resource-container-version="1" height="250" />
+        work.
+        ![image2018-12-21_12-8-47.png](../attachments/87228850/87228849.png)
     4.  Before clicking OK, **make sure the "Don't export specified
         channels" checkbox is NOT selected**. When you click OK, CSDP
         will create a new network file containing only the centerlines
@@ -65,12 +50,9 @@ Here's how I use it to merge changes into an existing network file:
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [image2018-12-21_12-8-47.png](attachments/87228850/87228849.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [image2018-12-21_12-0-36.png](attachments/87228850/87228851.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
 [image2018-12-21_11-49-11.png](attachments/87228850/87228852.png)
-(image/png)  
+(image/png)
