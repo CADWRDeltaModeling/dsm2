@@ -48,6 +48,8 @@ public class Globals{
    * binary constant
    */
   public static final int BINARY = 2;
+  public static final int NETCDF = 3;
+  
   /**
    * returns current model data as a string
    */

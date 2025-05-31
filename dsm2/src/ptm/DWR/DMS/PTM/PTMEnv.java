@@ -560,10 +560,15 @@ public class PTMEnv{
 	 *  returns type of file ASCII/BINARY
 	 */
 	public final int getFileType(String fileName){
-		if (fileName.endsWith(".bin"))
+		if (fileName.endsWith(".bin")) {
 			return Globals.BINARY;
-		else
+		}
+		else if (fileName.toUpperCase().endsWith(".NCD")) {
+			return Globals.NETCDF;
+		}
+		else {
 			return Globals.ASCII;
+		}
 	}
 
 	public ParticleBehavior getBehavior(){
