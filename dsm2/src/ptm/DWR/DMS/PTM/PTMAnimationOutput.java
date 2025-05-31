@@ -46,6 +46,20 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import ucar.ma2.ArrayChar;
+import ucar.ma2.ArrayFloat;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.ArrayShort;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Variable;
+import ucar.nc2.write.NetcdfFormatWriter;
 /**
  * This class outputs information for animation. At any
  * given instant of time the Particle Id
@@ -56,6 +70,31 @@ import java.io.*;
  * @version $Id: PTMAnimationOutput.java,v 1.7 2000/08/07 17:00:27 miller Exp $
  */
 public class PTMAnimationOutput extends PTMOutput{
+
+	private final int MAX_NUMBER_OF_PARTICLES=20000;
+
+	// number of outputs for instantaneous
+	private int numberOfParticles;
+
+	// Particle pointer array
+	private Particle [] particlePtrArray;
+
+	// keeps track of last output time
+	private int previousOutputTime;
+
+	// output interval
+	private int outputInterval;
+
+	 // End of File tag
+	private String endOfFile = "EOF";
+	
+	int outputType;
+	
+	// Variables to hold animation output so they can be written to a netCDF file
+	private ArrayList<String> modelDates, modelTimes;
+	private ArrayList<Integer> particleNumbers;
+	private ArrayList<Short> channelNumbers, xDists;
+	
 	/**
 	 *
 	 * @param filename Name of animation output file
@@ -73,6 +112,15 @@ public class PTMAnimationOutput extends PTMOutput{
 		super(filename, type);
 		outputInterval = interval;
 		setOutputParameters(numberOfParticles, requestedNumberOfParticles, particleArray);
+		
+		outputType = type;
+		if (outputType==Globals.NETCDF) {
+			modelDates = new ArrayList<>();
+			modelTimes = new ArrayList<>();
+			particleNumbers = new ArrayList<>();
+			channelNumbers = new ArrayList<>();
+			xDists = new ArrayList<>();
+		}
 	}
 
 	/**
@@ -98,11 +146,10 @@ public class PTMAnimationOutput extends PTMOutput{
 	 */
 	public void output() throws IOException{
 		InstantaneousOutput [] outputData = new InstantaneousOutput[MAX_NUMBER_OF_PARTICLES];
-		int julianMin = Globals.currentModelTime;
 		if(Globals.currentModelTime >= previousOutputTime+outputInterval){
 			previousOutputTime = Globals.currentModelTime;
 			updateOutputStructure(outputData);
-			int outputType = getOutputType();
+
 			if (outputType == Globals.ASCII) {
 				// write out into ascii file
 				writeOutputAscii(outputData);
@@ -110,6 +157,9 @@ public class PTMAnimationOutput extends PTMOutput{
 			else if (outputType == Globals.BINARY) {
 				// write out into binary file
 				writeBinary(outputData);
+			}
+			else if (outputType==Globals.NETCDF) {
+				recordNetCDF(outputData);
 			}
 		}
 	}
@@ -160,6 +210,23 @@ public class PTMAnimationOutput extends PTMOutput{
 			outputWriter.newLine();
 		}
 	}
+	
+	public void recordNetCDF(InstantaneousOutput[] outputData) {
+		int julianMin;
+		String modelDate, modelTime;
+
+		julianMin = Globals.currentModelTime;
+		modelDate = Globals.getModelDate(julianMin);
+		modelTime = Globals.getModelTime(julianMin);
+		modelDates.add(modelDate);
+		modelTimes.add(modelTime);
+		
+		for (int i=0; i<numberOfParticles; i++) {
+			particleNumbers.add(outputData[i].particleNumber);
+			channelNumbers.add(outputData[i].channelNumber);
+			xDists.add(outputData[i].normXDistance);
+		}
+	}
 
 	/**
 	 *  fill up output data structure with current information
@@ -203,8 +270,6 @@ public class PTMAnimationOutput extends PTMOutput{
 	}
 
 	public void FlushAndClose() {
-
-		int outputType = getOutputType();
 		try {
 			if (outputType == Globals.ASCII) {
 				outputWriter.write(endOfFile, 0, endOfFile.length());
@@ -219,34 +284,43 @@ public class PTMAnimationOutput extends PTMOutput{
 			}
 		} catch(IOException e){System.out.println(e); }
 	}
+	
+	public void buildOutput(NetcdfFormatWriter.Builder builder) {
+		Dimension particleNumDim, animColsDim;
 
-	private final int DEFAULT_OUTPUT_INTERVAL = 15;
+		particleNumDim = builder.addDimension("particleNum", particleNumbers.size());
+		builder.addVariable("particleNum", DataType.INT, "particleNum");
 
-	private final int MAX_NUMBER_OF_PARTICLES=20000;
-
-	/**
-	 *  number of outputs for instantaneous
-	 */
-	private int numberOfParticles;
-
-	/**
-	 *  Particle pointer array
-	 */
-	private Particle [] particlePtrArray;
-
-	/**
-	 *  keeps track of last output time
-	 */
-	private int previousOutputTime;
-
-	/**
-	 *  output interval
-	 */
-	private int outputInterval;
-
-	/**
-	 *  End of File tag
-	 */
-	private String endOfFile = "EOF";
-
+		animColsDim = builder.addDimension("animCols", 2);
+		builder.addVariable("anim", DataType.SHORT, "particleNum animCols");
+	}
+	
+	public void writeOutput(NetcdfFormatWriter writer) throws IOException, InvalidRangeException {
+		Variable v;
+		int[] shape;
+		Index ima;
+		ArrayInt intArray;
+		ArrayShort shortArray;
+		
+		// Set particle dimension
+		v = writer.findVariable("particleNum");
+		shape = v.getShape();
+		intArray = new ArrayInt.D1(shape[0], false);
+		ima = intArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			intArray.set(ima.set(i), particleNumbers.get(i));
+		}
+		writer.write(v, intArray);
+		
+		// Set anim:channelNum
+		v = writer.findVariable("anim");
+		shape = v.getShape();
+		shortArray = new ArrayShort.D2(shape[0], shape[1], false);
+		ima = shortArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			shortArray.set(ima.set(i, 0), channelNumbers.get(i));
+			shortArray.set(ima.set(i, 1), xDists.get(i));
+		}
+		writer.write(v, shortArray);
+	}
 }

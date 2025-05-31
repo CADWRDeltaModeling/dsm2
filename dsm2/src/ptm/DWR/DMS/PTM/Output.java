@@ -34,12 +34,12 @@ import ucar.nc2.write.NetcdfFormatWriter;
  */
 public class Output {
 
-	  public Output(Particle [] particleArray) {
+	  public Output(Particle [] particleArray, PTMAnimationOutput animationOutput) {
 		  PTMEnv Environment;
 		  PTMFluxOutput fluxOutput;
 		  SurvivalCalculation survOutput;
 		  Set<String> netCDFoutputFiles;
-		  List<String> fileTypes = Arrays.asList(new String[]{"flux", "survival", "echoConfigNetCDF"});
+		  List<String> fileTypes = Arrays.asList(new String[]{"flux", "survival", "echoConfigNetCDF", "anim"});
 		  Map<String, String> fileTypeToPath;
 		  NetcdfFormatWriter.Builder builder;
 		  Variable v;	  
@@ -72,7 +72,7 @@ public class Output {
 		  fileTypeToPath = new HashMap<>();
 		  for(String f : fileTypes) {
 			  thisPath = Environment.getPTMFixedInput().getFileName(f);
-			  if(!(thisPath.equalsIgnoreCase(""))) {
+			  if(!(thisPath.equalsIgnoreCase("")) && thisPath.toUpperCase().endsWith("NCD")) {
 				  thisAbsPath = Paths.get(thisPath).toAbsolutePath().normalize().toString();
 				  netCDFoutputFiles.add(thisAbsPath);
 				  fileTypeToPath.put(f, thisAbsPath);
@@ -122,6 +122,11 @@ public class Output {
 				  config.buildOutput(builder);
 			  }
 			  
+			  System.out.println("fileTypeToPath.get('anim'): " + fileTypeToPath.get("anim"));
+			  if(path.equals(fileTypeToPath.get("anim")) && animationOutput!=null) {
+				  animationOutput.buildOutput(builder);
+			  }
+			  
 			  // Write output
 			  try (NetcdfFormatWriter writer = builder.build()) {
 				  v = writer.findVariable("timestamp");
@@ -143,6 +148,10 @@ public class Output {
 				  
 				  if(path.equals(fileTypeToPath.get("echoConfigNetCDF"))) {
 					  config.writeOutput(writer);
+				  }
+				  
+				  if(path.equals(fileTypeToPath.get("anim")) && animationOutput!=null) {
+					  animationOutput.writeOutput(writer);
 				  }
 				  
 			  } catch (Exception e) {

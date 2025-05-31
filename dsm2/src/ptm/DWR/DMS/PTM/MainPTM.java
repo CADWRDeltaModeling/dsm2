@@ -235,7 +235,7 @@ public class MainPTM {
 			if ( outRestart != null ) outRestart.output();
 
 			// Write outputs to netCDF file
-			Output output = new Output(particleArray);
+			Output output = new Output(particleArray, animationOutput);
 
 			// clean up after run is over
 			observer = null;
