@@ -186,6 +186,7 @@ subroutine gtm_prepare2(tidefile_id)
 
 !----- Read input specification from *.inp text file -----
     call read_input_text(gtm_init_input_file)                  ! read input specification text
+    call zset('MLEVEL', '', print_level)
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
     call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files
 
