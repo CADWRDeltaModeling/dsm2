@@ -53,6 +53,7 @@ import ucar.ma2.ArrayChar;
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.ArrayShort;
+import ucar.ma2.ArrayString;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
@@ -291,13 +292,22 @@ public class PTMAnimationOutput extends PTMOutput{
 	}
 	
 	public void buildOutput(NetcdfFormatWriter.Builder builder) {
-		Dimension particleNumDim, animColsDim;
+		Dimension particleNumDim, animColsDim, timestepDim, modelDateCharLen, modelTimeCharLen;
 
 		particleNumDim = builder.addDimension("particleNum", particleNumbers.size());
 		builder.addVariable("particleNum", DataType.INT, "particleNum");
 
 		animColsDim = builder.addDimension("animCols", 2);
 		builder.addVariable("anim", DataType.SHORT, "particleNum animCols");
+		
+		timestepDim = builder.addDimension("timestep", modelDates.size());
+		builder.addVariable("timestep", DataType.INT, "timestep");
+		
+		modelDateCharLen = builder.addDimension("modelDateChar", 9);
+		builder.addVariable("modelDate", DataType.CHAR, "timestep modelDateChar");
+		
+		modelTimeCharLen = builder.addDimension("modelTimeChar", 4);
+		builder.addVariable("modelTime", DataType.CHAR, "timestep modelTimeChar");
 	}
 	
 	public void writeOutput(NetcdfFormatWriter writer) throws IOException, InvalidRangeException {
@@ -306,6 +316,7 @@ public class PTMAnimationOutput extends PTMOutput{
 		Index ima;
 		ArrayInt intArray;
 		ArrayShort shortArray;
+		ArrayChar charArray;
 		
 		// Set particle dimension
 		v = writer.findVariable("particleNum");
@@ -327,5 +338,34 @@ public class PTMAnimationOutput extends PTMOutput{
 			shortArray.set(ima.set(i, 1), xDists.get(i));
 		}
 		writer.write(v, shortArray);
+		
+		// Set timestep dimension
+		v = writer.findVariable("timestep");
+		shape = v.getShape();
+		intArray = new ArrayInt.D1(shape[0], false);
+		ima = intArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			intArray.set(ima.set(i), i);
+		}
+		writer.write(v,  intArray);
+		
+		// Set modelDate
+		v = writer.findVariable("modelDate");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			charArray.setString(ima.set(i), modelDates.get(i));
+		}
+		writer.write(v, charArray);
+		
+		v = writer.findVariable("modelTime");
+		shape = v.getShape();
+		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		ima = charArray.getIndex();
+		for (int i=0; i<shape[0]; i++) {
+			charArray.setString(ima.set(i), modelTimes.get(i));
+		}
+		writer.write(v, charArray);
 	}
 }
