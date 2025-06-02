@@ -223,7 +223,12 @@ public class PTMAnimationOutput extends PTMOutput{
 		
 		for (int i=0; i<numberOfParticles; i++) {
 			particleNumbers.add(outputData[i].particleNumber);
-			channelNumbers.add(outputData[i].channelNumber);
+			if(outputData[i].channelNumber!=-1) {
+				channelNumbers.add((short) PTMFixedData.getExtChanNum(outputData[i].channelNumber));
+			} 
+			else {
+				channelNumbers.add(outputData[i].channelNumber);
+			}
 			xDists.add(outputData[i].normXDistance);
 		}
 	}
@@ -312,7 +317,7 @@ public class PTMAnimationOutput extends PTMOutput{
 		}
 		writer.write(v, intArray);
 		
-		// Set anim:channelNum
+		// Set anim
 		v = writer.findVariable("anim");
 		shape = v.getShape();
 		shortArray = new ArrayShort.D2(shape[0], shape[1], false);
