@@ -1,8 +1,7 @@
-"""Script to do some basic post-processing of ECO-PTM outputs
+"""script to do some basic post-processing of eco-ptm outputs
 """
 __author__ = "Doug Jackson, QEDA Consulting, LLC"
-__email__ = "doug@QEDAconsulting.com"
-__version__ = "0.1"
+__email__ = "doug@qedaconsulting.com"
 import os
 import sys
 import xarray as xr

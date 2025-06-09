@@ -122,7 +122,6 @@ public class Output {
 				  config.buildOutput(builder);
 			  }
 			  
-			  System.out.println("fileTypeToPath.get('anim'): " + fileTypeToPath.get("anim"));
 			  if(path.equals(fileTypeToPath.get("anim")) && animationOutput!=null) {
 				  animationOutput.buildOutput(builder);
 			  }
