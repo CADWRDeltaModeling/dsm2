@@ -23,6 +23,7 @@ if __name__=="__main__":
     # Read in command line arguments
     parser = argparse.ArgumentParser(description="Script to plot particle and vFish positions.")
     parser.add_argument("--animatePlot", action="store_true", dest="animatePlot", required=False)
+    parser.add_argument("--animationStep", action="store", dest="animationStep", required=False)
     parser.add_argument("--animFile1", action="store", dest="animFile1", required=True)
     parser.add_argument("--animFile2", action="store", dest="animFile2", required=False)
     parser.add_argument("--fluxFile1", action="store", dest="fluxFile1", required=False)
@@ -45,6 +46,11 @@ if __name__=="__main__":
         animFile2 = args.animFile2
         fluxFile1 = args.fluxFile1
         fluxFile2 = args.fluxFile2
+
+    if args.animationStep is not None:
+        animationStep = int(args.animationStep)
+    else:
+        animationStep = 1
 
     if args.shapeFile is not None:
         DSM2flowlineShapefile = args.shapeFile
@@ -211,8 +217,8 @@ if animatePlot:
     chans, extents = getChans()
     chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange")
 
-    datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetimePlayer",
-        loop_policy="loop", interval=1, align="center")
+    datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), visible_buttons=["play", "pause"], 
+                                       name="Animation controls", loop_policy="loop", step=animationStep, interval=0, align="center", show_loop_controls=False)
     anim1rx = pn.rx(anim1)
     anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", 
                                                                     y="northing", 
@@ -231,9 +237,9 @@ else:
     
     pn.config.throttled = True
 
-    # Spatial plots
     datetimeIndexSlider = pn.widgets.IntSlider(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetime index")
 
+    # Spatial plots
     rdf1 = pn.rx(anim1)
     p1 = plotMap*rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
                                                                     y="northing", 
