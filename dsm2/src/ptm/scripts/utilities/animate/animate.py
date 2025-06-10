@@ -13,6 +13,7 @@ import geopandas
 import panel as pn
 import xarray as xr
 from datetime import datetime as dt
+import logging
 
 workingDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -21,6 +22,7 @@ if __name__=="__main__":
 
     # Read in command line arguments
     parser = argparse.ArgumentParser(description="Script to plot particle and vFish positions.")
+    parser.add_argument("--animatePlot", action="store_true", dest="animatePlot", required=False)
     parser.add_argument("--animFile1", action="store", dest="animFile1", required=True)
     parser.add_argument("--animFile2", action="store", dest="animFile2", required=False)
     parser.add_argument("--fluxFile1", action="store", dest="fluxFile1", required=False)
@@ -31,10 +33,18 @@ if __name__=="__main__":
     parser.add_argument("--figHeight", action="store", dest="figHeight", required=False)
     args = parser.parse_args()
 
-    animFile1 = args.animFile1
-    animFile2 = args.animFile2
-    fluxFile1 = args.fluxFile1
-    fluxFile2 = args.fluxFile2
+    if args.animatePlot:
+        animatePlot = True
+        animFile1 = args.animFile1
+        animFile2 = None
+        fluxFile1 = None
+        fluxFile2 = None
+    else:
+        animatePlot = False
+        animFile1= args.animFile1
+        animFile2 = args.animFile2
+        fluxFile1 = args.fluxFile1
+        fluxFile2 = args.fluxFile2
 
     if args.shapeFile is not None:
         DSM2flowlineShapefile = args.shapeFile
@@ -59,12 +69,8 @@ if __name__=="__main__":
 ####################################################################################################
 # Functions
 ####################################################################################################
-def createAnimDF(animFile):
-    ds = xr.open_dataset(animFile)
-    anim = ds["anim"].to_pandas().reset_index()
-    anim.columns = ["particleNum", "extChannel", "normXdist"]
-
-    # Obtain geocoordinates of channels
+def getChans():
+    """Obtain the channel coordinates"""
     DSM2chans = geopandas.read_file(DSM2flowlineShapefile).to_crs(epsg=3857)
     chanList = []
     upNodeXlist = []
@@ -91,6 +97,22 @@ def createAnimDF(animFile):
     chans = pd.concat([pd.DataFrame([{"extChannel":-1, "upNodeX":extents[0], "upNodeY":extents[1],
                                              "downNodeX":extents[0], "downNodeY":extents[1]}]), 
                        chans])
+    
+    return chans, extents
+
+def createAnimDF(animFile):
+    """Create data frame of animation outputs
+
+    Keyword arguments:
+    animFile (str) -- full path to the animation output file
+    """
+    print(f"Processing animation file: {animFile}")
+
+    ds = xr.open_dataset(animFile)
+    anim = ds["anim"].to_pandas().reset_index()
+    anim.columns = ["particleNum", "extChannel", "normXdist"]
+
+    chans, extents = getChans()
 
     # Merge coordinates with records
     anim = pd.merge(anim, chans, how="left", on="extChannel")
@@ -119,7 +141,6 @@ def createAnimDF(animFile):
     anim["easting"] = anim["upNodeX"] + (anim["normXdist"]/100)*(anim["downNodeX"] - anim["upNodeX"])
     anim["northing"] = anim["upNodeY"] + (anim["normXdist"]/100)*(anim["downNodeY"] - anim["upNodeY"])
     
-    print(f"Processing {animFile}")
     print(f"PTM animation file has {numRecords} records")
     print(f"Animation start at {modelDatetime[0]}")
     print(f"Animation ends at {modelDatetime[-1]}")
@@ -133,6 +154,8 @@ def createFluxDF(fluxFile):
     Keyword arguments:
     fluxFile (str) -- full path to the flux output file
     """
+    print(f"Processing flux file: {fluxFile}")
+
     ds = xr.open_dataset(fluxFile)
 
     nodeFlux = ds["nodeFlux"].to_pandas()
@@ -158,6 +181,8 @@ def createFluxDF(fluxFile):
 ####################################################################################################
 # Run
 ####################################################################################################
+logging.basicConfig(level=logging.ERROR)
+
 print("="*100)
 anim1, extents1, numRecords1 = createAnimDF(animFile1)
 if animFile2 is not None:
@@ -182,48 +207,65 @@ if fluxFile2 is not None:
 fluxLocs = list(fluxLocs)
 fluxLocs.sort()
 
-# Tiles always in pseudo mercator epsg=3857
-plotMap = hv.element.tiles.CartoLight().opts(width=figWidth, height=figHeight)
-plotMap.extents = extents1
- 
-pn.config.throttled = True
+if animatePlot:
+    chans, extents = getChans()
+    chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange")
 
-# Spatial plots
-datetimeIndexSlider = pn.widgets.IntSlider(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetime index")
+    datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetimePlayer",
+        loop_policy="loop", interval=1, align="center")
+    anim1rx = pn.rx(anim1)
+    anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", 
+                                                                    y="northing", 
+                                                                    kind="scatter").opts(title=animFile1,
+                                                                                            fontsize={"title": titleFont},
+                                                                                            width=figWidth,
+                                                                                            height=figHeight,
+                                                                                            aspect="equal",
+                                                                                            xlim=(extents1[0], extents1[2]),
+                                                                                            ylim=(extents1[1], extents1[3])) 
+    animPane = pn.panel(anim1, widget_location="top")
+else:
+    # Tiles always in pseudo mercator epsg=3857
+    plotMap = hv.element.tiles.CartoLight().opts(width=figWidth, height=figHeight)
+    plotMap.extents = extents1
+    
+    pn.config.throttled = True
 
-rdf1 = pn.rx(anim1)
-p1 = plotMap*rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
-                                                                   y="northing", 
-                                                                   kind="scatter").opts(title=animFile1,
-                                                                                        fontsize={"title": titleFont}) 
+    # Spatial plots
+    datetimeIndexSlider = pn.widgets.IntSlider(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetime index")
 
-col1 = pn.Column(pn.panel(p1, widget_location="top"))
-col2 = pn.Column()
-if animFile2 is not None:
-    rdf2 = pn.rx(anim2)
+    rdf1 = pn.rx(anim1)
+    p1 = plotMap*rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
+                                                                    y="northing", 
+                                                                    kind="scatter").opts(title=animFile1,
+                                                                                            fontsize={"title": titleFont}) 
 
-    p2 = plotMap*rdf2[rdf2["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
-                                                                        y="northing", 
-                                                                        kind="scatter").opts(title=animFile2,
-                                                                                            fontsize={"title": titleFont})
-    col2.append(pn.panel(p2, widget_location="top"))
+    col1 = pn.Column(pn.panel(p1, widget_location="top"))
+    col2 = pn.Column()
+    if animFile2 is not None:
+        rdf2 = pn.rx(anim2)
 
-# Flux plots
-selectFluxLoc = pn.widgets.Select(name="loc", options=fluxLocs)
+        p2 = plotMap*rdf2[rdf2["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
+                                                                            y="northing", 
+                                                                            kind="scatter").opts(title=animFile2,
+                                                                                                fontsize={"title": titleFont})
+        col2.append(pn.panel(p2, widget_location="top"))
 
-fluxPane = pn.Row()
-if fluxFile1 is not None:
-    flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
-    flux1rx = pn.rx(flux1long)
-    flux1plot = flux1rx[flux1rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
-    col1.append(pn.panel(flux1plot, widget_location="top"))
-if fluxFile2 is not None:
-    flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
-    flux2rx = pn.rx(flux2long)
-    flux2plot = flux2rx[flux2rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
-    col2.append(pn.panel(flux2plot, widget_location="top"))
+    # Flux plots
+    selectFluxLoc = pn.widgets.Select(name="loc", options=fluxLocs)
 
-animPane = pn.Row(col1, col2)
+    fluxPane = pn.Row()
+    if fluxFile1 is not None:
+        flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
+        flux1rx = pn.rx(flux1long)
+        flux1plot = flux1rx[flux1rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
+        col1.append(pn.panel(flux1plot, widget_location="top"))
+    if fluxFile2 is not None:
+        flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
+        flux2rx = pn.rx(flux2long)
+        flux2plot = flux2rx[flux2rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
+        col2.append(pn.panel(flux2plot, widget_location="top"))
+
+    animPane = pn.Row(col1, col2)
 
 server = animPane.show()
-
