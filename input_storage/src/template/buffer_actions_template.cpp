@@ -84,11 +84,11 @@ _TRAP_EXCEPT(*ierror,
   ofstream outfile;
   if (doAppend)
   {
-      outfile.open(file,std::ios_base::app);
+      outfile.open(path.string(),std::ios_base::app);
   }
   else
   {
-      outfile.open(file);
+      outfile.open(path.string());
   }
   outfile << "\n# ====================== Files used in simulation ========================\n";
   outfile << endl;
@@ -106,7 +106,7 @@ _TRAP_EXCEPT(*ierror,
     {
         string buf=bufs[ibuf];
         to_lower(buf);
-        write_buffer_to_text(buf.c_str(),file,&doAppend,ierror,(int)buf.size(),filelen);
+        write_buffer_to_text(buf.c_str(),path.string().c_str(),&doAppend,ierror,(int)buf.size(),filelen);
     }
   ) // end exception trap
 }

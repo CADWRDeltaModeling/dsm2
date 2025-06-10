@@ -423,6 +423,13 @@ module gtm_subs
         integer, intent(in) :: ivar
         integer :: down_cell, up_cell
 
+        if (.not. allocated(conc)) then
+            write(*,*) "Error!"
+            write(*,*) "Trying to access concentration array without valid values in GTM!"
+            write(*,*) "Possibel cause: using 'chan_ec' when only running Hydro."
+            call exit(-1)
+        end if
+
         if (calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
             down_cell = cell(icell)%down_cell
             output_val = conc(icell,ivar)+                                       &
