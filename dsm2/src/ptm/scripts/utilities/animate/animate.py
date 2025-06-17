@@ -218,11 +218,11 @@ if animatePlot:
     chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange")
 
     datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), visible_buttons=["play", "pause"], 
-                                       name="Animation controls", loop_policy="loop", step=animationStep, interval=0, align="center", show_loop_controls=False)
+                                       name="Animation controls", loop_policy="loop", step=animationStep, interval=0, align="center", 
+                                       show_loop_controls=False, show_value=True)
     anim1rx = pn.rx(anim1)
-    anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", 
-                                                                    y="northing", 
-                                                                    kind="scatter").opts(title=animFile1,
+    anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", y="northing", kind="scatter",
+                                                                    xlabel="", ylabel="", xticks=0, yticks=0).opts(title=animFile1,
                                                                                             fontsize={"title": titleFont},
                                                                                             width=figWidth,
                                                                                             height=figHeight,
