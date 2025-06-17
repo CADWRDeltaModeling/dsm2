@@ -258,18 +258,27 @@ else:
         col2.append(pn.panel(p2, widget_location="top"))
 
     # Flux plots
-    selectFluxLoc = pn.widgets.Select(name="loc", options=fluxLocs)
+    selectFluxLoc = pn.widgets.MultiSelect(name="loc", options=fluxLocs, value=[fluxLocs[0]])
+
+    # Define a callback function to prevent unselecting all options
+    def preventUnselectAll(event):
+        if len(selectFluxLoc.value) == 0:
+            # Revert to the previous selection
+            selectFluxLoc.value = event.old
+
+    # Attach the callback to the MultiSelect widget
+    selectFluxLoc.param.watch(preventUnselectAll, "value")
 
     fluxPane = pn.Row()
     if fluxFile1 is not None:
         flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
         flux1rx = pn.rx(flux1long)
-        flux1plot = flux1rx[flux1rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
+        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"])
         col1.append(pn.panel(flux1plot, widget_location="top"))
     if fluxFile2 is not None:
         flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
         flux2rx = pn.rx(flux2long)
-        flux2plot = flux2rx[flux2rx["loc"]==selectFluxLoc].hvplot.line(x="datetime", y="flux")
+        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"])
         col2.append(pn.panel(flux2plot, widget_location="top"))
 
     animPane = pn.Row(col1, col2)
