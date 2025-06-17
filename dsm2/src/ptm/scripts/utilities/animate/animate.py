@@ -216,7 +216,6 @@ if fluxFile1 is not None:
     thisLocs = list(flux1.columns)
     thisLocs.remove("datetime")
     fluxLocs = fluxLocs | set(thisLocs)
-    print(f"fluxLocs: {fluxLocs}")
 
     # Create an array of flux1 datetimes to be used for looking up the closest entry for each animation modelDatetime
     flux1datetime = pn.rx(np.array(flux1["datetime"]))
@@ -274,8 +273,16 @@ else:
 
         col2.append(pn.panel(p2, widget_location="top"))
     
+    animPane = pn.Column(pn.Row(col1, col2, sizing_mode="stretch_both"))
+
     # Flux plots
-    selectFluxLoc = pn.widgets.MultiSelect(name="loc", options=fluxLocs, value=[fluxLocs[0]], size=8)
+    initFluxLocs = []
+    for loc in ["EXPORT_CVP", "EXPORT_SWP", "PAST_CHIPPS"]:
+        initFluxLocs.append(loc)
+    if len(initFluxLocs)==0:
+        initFluxLocs = [fluxLocs[0]]
+
+    selectFluxLoc = pn.widgets.MultiSelect(name="loc", options=fluxLocs, value=initFluxLocs, size=8)
 
     # Define a callback function to prevent unselecting all options
     def preventUnselectAll(event):
@@ -292,7 +299,7 @@ else:
     if fluxFile1 is not None:
         flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
         flux1rx = pn.rx(flux1long)
-        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=figHeight)
+        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux1plot, widget_location="top"))
 
         flux1long["file"] = 1
@@ -301,7 +308,7 @@ else:
     if fluxFile2 is not None:
         flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
         flux2rx = pn.rx(flux2long)
-        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=figHeight)
+        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux2plot, widget_location="top"))
 
         flux2long["file"] = 2
@@ -315,9 +322,8 @@ else:
                                         (fluxLongRx["datetime"]==flux1datetime[np.abs(rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider]["modelDatetime"].values[0] - 
                                                                                            flux1datetime).argmin()])].hvplot.bar(x="loc", y="flux", by="file",
                                                                                                                                  width=figWidth, height=int(figHeight/2))
-        col1.append(pn.panel(fluxFiltered, widget_location="left"))
+        animPane.append(pn.Row(pn.panel(fluxFiltered, widget_location="left"), sizing_mode="stretch_width"))
 
-    animPane = pn.Row(col1, col2, sizing_mode="stretch_both")
 
     tabs = pn.Tabs(("Animation", animPane), ("Time series", fluxLinePane))
 
