@@ -196,6 +196,23 @@ def createFluxDF(fluxFile):
     flux["datetime"] = pd.to_datetime(flux["datetime"])
 
     return flux
+
+def getDatetime1(value):
+    try:
+        valDatetime = dt.strptime(str(anim1[anim1["datetimeIndex"]==value]["modelDatetime"].values[0])[:26], "%Y-%m-%dT%H:%M:%S.%f")
+        valStr = dt.strftime(valDatetime, "%Y-%m-%d, %H:%M")
+        return valStr
+    except:
+        return anim1[anim1["datetimeIndex"]==value]["modelDatetime"].values[0]
+
+def getDatetime2(value):
+    try:
+        valDatetime = dt.strptime(str(anim2[anim2["datetimeIndex"]==value]["modelDatetime"].values[0])[:26], "%Y-%m-%dT%H:%M:%S.%f")
+        valStr = dt.strftime(valDatetime, "%Y-%m-%d, %H:%M")
+        return valStr
+    except:
+        return anim2[anim2["datetimeIndex"]==value]["modelDatetime"].values[0]
+
 ####################################################################################################
 # Run
 ####################################################################################################
@@ -258,19 +275,19 @@ else:
     rdf1 = pn.rx(anim1)
     p1 = plotMap*rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
                                                                     y="northing", 
-                                                                    kind="scatter").opts(title=animFile1,
-                                                                                            fontsize={"title": titleFont}) 
+                                                                    kind="scatter").opts(title=animFile1, fontsize={"title": titleFont}) 
 
-    col1 = pn.Column(pn.panel(p1, widget_location="top"))
+    col1 = pn.Column(pn.bind(getDatetime1, value=datetimeIndexSlider), pn.panel(p1, widget_location="top"))
+
     col2 = pn.Column()
     if animFile2 is not None:
         rdf2 = pn.rx(anim2)
 
         p2 = plotMap*rdf2[rdf2["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
                                                                             y="northing", 
-                                                                            kind="scatter").opts(title=animFile2,
-                                                                                                fontsize={"title": titleFont})
+                                                                            kind="scatter").opts(title=animFile2, fontsize={"title": titleFont})
 
+        col2.append(pn.bind(getDatetime2, value=datetimeIndexSlider))
         col2.append(pn.panel(p2, widget_location="top"))
     
     animPane = pn.Column(pn.Row(col1, col2, sizing_mode="stretch_both"))
@@ -302,7 +319,7 @@ else:
         flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux1plot, widget_location="top"))
 
-        flux1long["file"] = 1
+        flux1long["file"] = "file 1"
         fluxLongList.append(flux1long)
 
     if fluxFile2 is not None:
@@ -311,7 +328,7 @@ else:
         flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux2plot, widget_location="top"))
 
-        flux2long["file"] = 2
+        flux2long["file"] = "file 2"
         fluxLongList.append(flux2long)
     
     if len(fluxLongList)>0:
