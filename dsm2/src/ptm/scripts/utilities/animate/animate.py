@@ -72,6 +72,18 @@ if __name__=="__main__":
         figHeight = int(args.figHeight)
     else:
         figHeight = 600
+    
+    """ 
+    # Settings for testing in IDE
+    animFile1 = "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_23apr25/output/ptm_out.ncd"
+    animFile2 = animFile1
+    fluxFile1 = animFile1
+    fluxFile2 = animFile1
+    animatePlot = False
+    DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "DSM2_Flowline_Segments.shp")
+    """
+
+
 ####################################################################################################
 # Functions
 ####################################################################################################
@@ -205,6 +217,10 @@ if fluxFile1 is not None:
     thisLocs.remove("datetime")
     fluxLocs = fluxLocs | set(thisLocs)
     print(f"fluxLocs: {fluxLocs}")
+
+    # Create an array of flux1 datetimes to be used for looking up the closest entry for each animation modelDatetime
+    flux1datetime = pn.rx(np.array(flux1["datetime"]))
+
 if fluxFile2 is not None:
     flux2 = createFluxDF(fluxFile2)
     thisLocs = list(flux2.columns)
@@ -255,8 +271,9 @@ else:
                                                                             y="northing", 
                                                                             kind="scatter").opts(title=animFile2,
                                                                                                 fontsize={"title": titleFont})
-        col2.append(pn.panel(p2, widget_location="top"))
 
+        col2.append(pn.panel(p2, widget_location="top"))
+    
     # Flux plots
     selectFluxLoc = pn.widgets.MultiSelect(name="loc", options=fluxLocs, value=[fluxLocs[0]])
 
@@ -270,17 +287,34 @@ else:
     selectFluxLoc.param.watch(preventUnselectAll, "value")
 
     fluxPane = pn.Row()
+    fluxLongList = []
     if fluxFile1 is not None:
         flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
         flux1rx = pn.rx(flux1long)
         flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"])
         col1.append(pn.panel(flux1plot, widget_location="top"))
+
+        flux1long["file"] = 1
+        fluxLongList.append(flux1long)
+
     if fluxFile2 is not None:
         flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
         flux2rx = pn.rx(flux2long)
         flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"])
         col2.append(pn.panel(flux2plot, widget_location="top"))
 
-    animPane = pn.Row(col1, col2)
+        flux2long["file"] = 2
+        fluxLongList.append(flux2long)
+    
+    if len(fluxLongList)>0:
+        fluxLong = pd.concat(fluxLongList, ignore_index=True)
+
+        fluxLongRx = pn.rx(fluxLong)
+        fluxFiltered = fluxLongRx[(fluxLongRx["loc"].isin(selectFluxLoc)) & 
+                                        (fluxLongRx["datetime"]==flux1datetime[np.abs(rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider]["modelDatetime"].values[0] - 
+                                                                                           flux1datetime).argmin()])].hvplot.bar(x="loc", y="flux", by="file")
+        col1.append(pn.panel(fluxFiltered, widget_location="top"))
+
+    animPane = pn.Row(col1, col2, sizing_mode="stretch_both")
 
 server = animPane.show()
