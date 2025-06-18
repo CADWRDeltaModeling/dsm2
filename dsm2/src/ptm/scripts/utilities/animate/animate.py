@@ -262,6 +262,9 @@ if animatePlot:
                                                                                             xlim=(extents1[0], extents1[2]),
                                                                                             ylim=(extents1[1], extents1[3])) 
     animPane = pn.panel(anim1, widget_location="top")
+
+    server = animPane.show()
+
 else:
     # Tiles always in pseudo mercator epsg=3857
     plotMap = hv.element.tiles.CartoLight().opts(width=figWidth, height=figHeight)
@@ -316,7 +319,7 @@ else:
     if fluxFile1 is not None:
         flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
         flux1rx = pn.rx(flux1long)
-        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
+        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", xlabel="", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux1plot, widget_location="top"))
 
         flux1long["file"] = "file 1"
@@ -325,7 +328,7 @@ else:
     if fluxFile2 is not None:
         flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
         flux2rx = pn.rx(flux2long)
-        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", by=["loc"], width=figWidth, height=int(figHeight/2))
+        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", xlabel="", by=["loc"], width=figWidth, height=int(figHeight/2))
         fluxLinePane.append(pn.panel(flux2plot, widget_location="top"))
 
         flux2long["file"] = "file 2"
@@ -338,10 +341,11 @@ else:
         fluxFiltered = fluxLongRx[(fluxLongRx["loc"].isin(selectFluxLoc)) & 
                                         (fluxLongRx["datetime"]==flux1datetime[np.abs(rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider]["modelDatetime"].values[0] - 
                                                                                            flux1datetime).argmin()])].hvplot.bar(x="loc", y="flux", by="file",
+                                                                                                                                 xlabel="", ylabel="flux",
                                                                                                                                  width=figWidth, height=int(figHeight/2))
         animPane.append(pn.Row(pn.panel(fluxFiltered, widget_location="left"), sizing_mode="stretch_width"))
 
 
     tabs = pn.Tabs(("Animation", animPane), ("Time series", fluxLinePane))
 
-server = tabs.show()
+    server = tabs.show()

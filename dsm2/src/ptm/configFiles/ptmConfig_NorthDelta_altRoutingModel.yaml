@@ -509,9 +509,9 @@ groups:
   - [whole, res, .*]
 
 io_file:
-#  - type: anim
-#    interval: 15min
-#    file: ./output/anim_db.bin
+  - type: anim
+    interval: 15min
+    file: ./output/ptm_out.ncd
   - type: trace
     interval: none
     file: ./output/trace.out
