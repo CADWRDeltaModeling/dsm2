@@ -56,7 +56,6 @@ if __name__=="__main__":
         DSM2flowlineShapefile = args.shapeFile
     else:
         DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "DSM2_Flowline_Segments.shp")
-    print(f"DSM2 flowline shapefile: {DSM2flowlineShapefile}")
     
     if args.titleFont is not None:
         titleFont = int(args.titleFont)
@@ -82,7 +81,6 @@ if __name__=="__main__":
     animatePlot = False
     DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "DSM2_Flowline_Segments.shp")
     """
-
 
 ####################################################################################################
 # Functions
@@ -219,6 +217,9 @@ def getDatetime2(value):
 logging.basicConfig(level=logging.ERROR)
 
 print("="*100)
+print(f"DSM2 flowline shapefile: {DSM2flowlineShapefile}")
+
+print("="*100)
 anim1, extents1, numRecords1 = createAnimDF(animFile1)
 if animFile2 is not None:
     print("-"*100)
@@ -280,7 +281,7 @@ else:
                                                                     y="northing", 
                                                                     kind="scatter").opts(title=animFile1, fontsize={"title": titleFont}) 
 
-    col1 = pn.Column(pn.bind(getDatetime1, value=datetimeIndexSlider), pn.panel(p1, widget_location="top"))
+    col1 = pn.Column(pn.panel(pn.bind(getDatetime1, value=datetimeIndexSlider), align="center"), pn.panel(p1, widget_location="top"))
 
     col2 = pn.Column()
     if animFile2 is not None:
@@ -290,7 +291,7 @@ else:
                                                                             y="northing", 
                                                                             kind="scatter").opts(title=animFile2, fontsize={"title": titleFont})
 
-        col2.append(pn.bind(getDatetime2, value=datetimeIndexSlider))
+        col2.append(pn.panel(pn.bind(getDatetime2, value=datetimeIndexSlider), align="center"))
         col2.append(pn.panel(p2, widget_location="top"))
     
     animPane = pn.Column(pn.Row(col1, col2, sizing_mode="stretch_both"))
