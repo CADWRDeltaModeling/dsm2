@@ -989,7 +989,7 @@ module common_variables
              chan_direction(chan_geom(i)%down_node,nchan2node(chan_geom(i)%down_node)) = 1
          enddo
          do i = 1, n_chan*2
-             if ((nchan2node(i).eq.2) .and. (chan_direction(i,2).eq.chan_direction(i,1))) write(*,*) "Channel Number Sequence Error, check channel no.", chan_geom(channo(i,1))%channel_num
+             if ((nchan2node(i).eq.2) .and. (chan_direction(i,2).eq.chan_direction(i,1))) write(*,*) "Warning! Non-Sequential Channel Number, check channel no.", chan_geom(channo(i,1))%channel_num
              if ((nchan2node(i).eq.2) .and. (channo(i,1)-channo(i,2))*(chan_direction(i,2)-chan_direction(i,1)).ne.1) n_non_sequential = n_non_sequential + 1
          end do
          j = 0
