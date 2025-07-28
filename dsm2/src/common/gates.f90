@@ -64,13 +64,14 @@ module Gates
         real*8 :: opCoefFromNode = 1. !  0 = closed, 1 = fully open
         integer*4 :: structureType ! type of gate structure (pipe, weir)%
         ! See structureType constants above for acceptable values
-        integer*4 :: nDuplicate = 0 ! number of identical structures treated as one device
+        real*8 :: nDuplicate = 0. ! number of identical structures treated as one device
         integer*4 :: gate         ! index of gate in which device appears (fixme: why?)
         integer*4 :: calcRow      ! Row (equation) in which gate device equation is expressed
         character :: name*32 = ' ' ! index of device in gate
         type(datasource_t) height_datasource  ! datasource that controls
         type(datasource_t) width_datasource  ! datasource that controls
         type(datasource_t) elev_datasource  ! datasource that controls
+        type(datasource_t) nduplicate_datasource  ! datasource that controls
         type(datasource_t) op_to_node_datasource   ! datasource that controls op
         type(datasource_t) op_from_node_datasource ! in the direction indicated
 
@@ -328,7 +329,6 @@ contains  !!========================================================!
             gateID, &              ! gate ID
             gateno, &             ! counter for gates
             devno, &
-            nduplicate, &          ! number of dublicate structures
             struct_type, &         ! type of structure (weir,pipe)
             control_type, &        ! flow control device (type of gate)
             count, &
@@ -342,6 +342,7 @@ contains  !!========================================================!
         real*8 &
             max_width, &
             base_elev, height, &
+            nduplicate, &          ! number of dublicate structures
             CFfrom, CFto, &
             from_op, to_op
 
@@ -421,6 +422,9 @@ contains  !!========================================================!
         gateArray(gateNo)%devices(devNo)%elev_datasource%source_type = const_data
         gateArray(gateNo)%devices(devNo)%elev_datasource%indx_ptr = 0    !fixme: is this OK?
         gateArray(gateNo)%devices(devNo)%elev_datasource%value = base_elev
+        gateArray(gateNo)%devices(devNo)%nduplicate_datasource%source_type = const_data
+        gateArray(gateNo)%devices(devNo)%nduplicate_datasource%indx_ptr = 0 !fixme: is this OK?
+        gateArray(gateNo)%devices(devNo)%nduplicate_datasource%value = nduplicate
 
         return
     end subroutine

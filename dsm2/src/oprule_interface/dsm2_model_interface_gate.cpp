@@ -65,6 +65,12 @@ double DeviceNDuplicateInterface::eval(){
    return get_device_nduplicate(ndx,devndx);
 }
 
+void DeviceNDuplicateInterface::setDataExpression(DoubleNodePtr express){
+   set_device_nduplicate_datasource( ndx, devndx,
+       register_express_for_data_source(express),
+      express->eval(), express->isTimeDependent()); //todo: finish this up
+}
+
 bool DeviceNDuplicateInterface::operator==( const DeviceNDuplicateInterface& rhs){
    return ndx == rhs.ndx && devndx == rhs.ndx;
 }

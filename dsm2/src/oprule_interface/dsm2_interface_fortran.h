@@ -80,6 +80,7 @@
 #define set_device_elev_datasource set_device_elev_datasource_
 #define set_device_nduplicate set_device_nduplicate_
 #define get_device_nduplicate get_device_nduplicate_
+#define set_device_nduplicate_datasource set_device_nduplicate_datasource_
 #define set_device_flow_coef set_device_flow_coef_
 #define get_device_flow_coef get_device_flow_coef_
 #define get_surf_elev chstatus_mp_globalstreamsurfaceelevation_
@@ -229,6 +230,11 @@ extern "C" double STDCALL get_device_nduplicate(const int& ndx,
 extern "C" void STDCALL set_device_nduplicate(const int& ndx,
                                            const int& devndx,
                                            const double& val);
+extern "C" void STDCALL set_device_nduplicate_datasource(const int& ndx,
+                                           const int& devndx,
+                                           const int& expr,
+                                           const double& val,
+                                           const bool& timedep);
 
 extern "C" double STDCALL get_device_flow_coef(const int& ndx,
                                              const int& devndx,
