@@ -210,7 +210,9 @@ public:
     friend class DSM2ModelInterfaceResolver;
     virtual void set(double);
     virtual double eval();
-    virtual bool isTimeDependent() const{ return false; }
+    virtual bool isTimeDependent() const{ return true; }
+    virtual void setDataExpression(
+        oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceNDuplicateInterface(){};
     virtual bool operator==( const DeviceNDuplicateInterface &);
 

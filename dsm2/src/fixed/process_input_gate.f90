@@ -279,6 +279,18 @@ subroutine process_input_gate(LocName, &
                                       gateArray( &
                                       pathinput(ninpaths)%obj_no &
                                       )%Devices(devNo)%elev_datasource)
+                else if (param(1:10) .eq. 'nduplicate') then
+                    pathinput(ninpaths)%gate_param = gate_nduplicate
+                    pathinput(ninpaths)%locnum = devNo
+                    call datasource_from_path( &
+                        gateArray(gateNo)%Devices( &
+                        devNo)%nduplicate_datasource, &
+                        ninpaths, pathinput(ninpaths))
+                    gateArray(pathinput(ninpaths)%obj_no)%Devices( &
+                        devNo)%nduplicate = fetch_data( &
+                                      gateArray( &
+                                      pathinput(ninpaths)%obj_no &
+                                      )%Devices(devNo)%nduplicate_datasource)
 
                 else
                     write (unit_error, *) &

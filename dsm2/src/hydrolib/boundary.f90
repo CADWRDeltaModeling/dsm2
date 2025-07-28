@@ -231,6 +231,8 @@ contains
                                                 currentGate%Devices(j)%height_datasource)
                 currentGate%Devices(j)%maxWidth = fetch_data( &
                                                   currentGate%Devices(j)%width_datasource)
+                currentGate%Devices(j)%nduplicate = fetch_data( &
+                                                  currentGate%Devices(j)%nduplicate_datasource)
                 install = fetch_data(currentGate%install_datasource)
                 !            call setFree(currentGate,install.eq. 0.D0)
             end do

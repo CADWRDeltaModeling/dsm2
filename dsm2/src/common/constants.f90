@@ -84,6 +84,7 @@ module constants
     integer, parameter :: gate_height = 130
     integer, parameter :: gate_width = 131
     integer, parameter :: gate_elev = 132
+    integer, parameter :: gate_nduplicate = 133
 
     !-----constants representing different kinds of data sources
     integer, parameter :: &

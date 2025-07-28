@@ -54,7 +54,7 @@ subroutine buffer_input_grid() !process_text_grid_input()
        character(len=32) :: device_name
        character(len=16) :: default_op
        character(len=8) :: struct_name
-       integer :: nduplicate
+       real(8) :: nduplicate
        !real(8) :: width
        !real(8) :: elev
        real(8) :: height

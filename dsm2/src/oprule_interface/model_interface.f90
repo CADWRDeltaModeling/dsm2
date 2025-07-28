@@ -511,6 +511,18 @@ subroutine set_device_nduplicate(gndx, devndx, val)
     return
 end subroutine
 
+subroutine set_device_nduplicate_datasource(gndx, devndx, expr, val, timedep)
+    use Gates, only: GateArray
+    implicit none
+    integer gndx, devndx
+    integer expr
+    real*8 val
+    logical timedep
+    call set_datasource( &
+        GateArray(gndx)%Devices(devndx)%nduplicate_datasource, expr, val, timedep)
+    return
+end subroutine
+
 real(8) function get_device_elev(gndx, devndx)
     use Gates, only: GateArray
     implicit none
