@@ -1,4 +1,4 @@
-#ifndef oprule_parser_EXPRESSIONPTR_H__INCLUDED_
+#ifndef oprule_expression_EXPRESSIONPTR_H__INCLUDED_
 #define oprule_expression_EXPRESSIONPTR_H__INCLUDED_
 #include "boost/shared_ptr.hpp"
 // trailing space is critical in template <> marks
