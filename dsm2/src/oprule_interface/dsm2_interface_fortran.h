@@ -33,6 +33,7 @@
 #define set_device_elev_datasource SET_DEVICE_ELEV_DATASOURCE
 #define set_device_nduplicate SET_DEVICE_NDUPLICATE
 #define get_device_nduplicate GET_DEVICE_NDUPLICATE
+#define set_device_nduplicate_datasource SET_DEVICE_NDUPLICATE_DATASOURCE
 #define set_device_flow_coef SET_DEVICE_FLOW_COEF
 #define get_device_flow_coef GET_DEVICE_FLOW_COEF
 
