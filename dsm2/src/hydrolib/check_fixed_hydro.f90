@@ -116,6 +116,9 @@ subroutine check_fixed_hydro(istat)
 612 format(/'Warning--Variable Density reset to false because' &
         ' flow method is not Dynamic Wave.')
 
+613 format(/'Warning--Variable Density reset to true because' &
+        ' flow method is Dynamic Wave and Vardensity turned on.')
+
 614 format(/'Warning--Variable Sinuosity reset to true because' &
         ' flow method is Dynamic Wave.')
 
@@ -259,6 +262,11 @@ subroutine check_fixed_hydro(istat)
         ) then
         variabledensity=.false.
         write(unit_error, 612)
+    endif
+
+    if (variabledensity .and. terms == 1) then
+        variabledensity=.true.
+        write(unit_error, 613)
     endif
 
     if ( &
