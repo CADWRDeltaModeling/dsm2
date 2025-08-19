@@ -201,12 +201,18 @@ module subroutine process_scalar(Param, Val)
         end if
 
     elseif (Param .eq. 'vardensity') then
-        read (Val, '(l2)', err=810) variabledensity
-        if (variabledensity .and. terms .ne. 1) then
+        if ((Val .eq. 'true') .and. (terms .eq. 1)) then
+            variabledensity = .true.
+        else
             variabledensity = .false.
-            write (unit_error, 630) &
-                'Warning: Variable Density allowed only with dynamic wave.'
         end if
+
+        ! read (Val, '(l2)', err=810) variabledensity
+        ! if (variabledensity .and. terms .ne. 1) then
+        !     variabledensity = .false.
+        !     write (unit_error, 630) &
+        !         'Warning: Variable Density allowed only with dynamic wave.'
+        ! end if
 
     elseif (Param .eq. 'varsinuosity') then
         read (Val, '(l2)', err=810) variablesinuosity

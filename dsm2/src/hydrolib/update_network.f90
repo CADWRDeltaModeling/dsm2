@@ -240,7 +240,7 @@ contains
         use IO_Units
         use channel_schematic, only: UpstreamPointer, DownstreamPointer
         use floweq1d, only: DynamicWaveEq, DynamicWaveEqDS
-        use netcntrl, only: VariableStreamSinuosity
+        use netcntrl, only: VariableStreamSinuosity, VariableStreamDensity
         implicit none
 
         !   Purpose:  Update dependent variables defining a channel.  In this
@@ -282,7 +282,7 @@ contains
 
         Node = 0
 
-        if (.not. VariableStreamSinuosity()) then
+        if (.not. (VariableStreamSinuosity() .and. VariableStreamDensity())) then !DynamicWaveEqDS uses both density and sinuosity
 
             !--------Constant sinuosity and water density.
 
