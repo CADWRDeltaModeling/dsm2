@@ -1529,7 +1529,7 @@ contains
         !-----Implementation -----------------------------------------------------
 
         N = 1
-        do I=UpstreamPointer(),DownstreamPointer()-1 !Value of DownstreamPointer is always greater than UpstreamPointer     
+        do I=UpstreamPointer(),DownstreamPointer()-1 !Value of DownstreamPointer is always greater than UpstreamPointer
             N = N + 1
             if(StreamDistance(N) >= DownstreamDistance) then
                 XUp = StreamDistance(N-1)
@@ -1539,7 +1539,7 @@ contains
                 return
             end if
         end do
-        print *, 'EstOldStreamDensity: DowstreamDistance is bigger than the channel length:', DownstreamDistance
+        print *, 'EstOldStreamDensity: DownstreamDistance is bigger than the channel length:', DownstreamDistance
         call exit(1)
     return
 end function
