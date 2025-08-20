@@ -1528,24 +1528,19 @@ contains
 
         !-----Implementation -----------------------------------------------------
 
-        N = 0
-        do 100 I=UpstreamPointer(),DownstreamPointer()
+        N = 1
+        do I=UpstreamPointer(),DownstreamPointer()-1 !Value of DownstreamPointer is always greater than UpstreamPointer     
             N = N + 1
-            if(StreamDistance(N) <= DownstreamDistance ) then
-            else
-                go to 102
+            if(StreamDistance(N) >= DownstreamDistance) then
+                XUp = StreamDistance(N-1)
+                dX = StreamDistance(N) - XUp
+                Shape = (DownstreamDistance - XUp) / dX
+                EstOldStreamDensity = Rho1(N) * Shape + Rho1(N-1) * (1.0 - Shape)
+                return
             end if
-100     continue
-        write(UNIT_ERROR,*) ' Range error...(EstOldStreamDensity)'
-        write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-        write(UNIT_ERROR,*) ' Downstream distance ...', DownstreamDistance
-102 continue
-
-    XUp = StreamDistance(N-1)
-    dX = StreamDistance(N) - XUp
-    Shape = (DownstreamDistance - XUp) / dX
-    EstOldStreamDensity = Rho1(N) * Shape + Rho1(N-1) * (1.0 - Shape)
-
+        end do
+        print *, 'EstOldStreamDensity: DowstreamDistance is bigger than the channel length:', DownstreamDistance
+        call exit(1)
     return
 end function
 
