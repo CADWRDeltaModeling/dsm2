@@ -55,7 +55,6 @@ set(DSM2_INPUT_STORAGE input_storage)
 set(DSM2_KLU_FORTRAN klu_fortran)
 set(DSM2_OPRULE_INTERFACE oprule_interface)
 set(DSM2_PATTERN_MATCH pattern_match)
-set(DSM2_PTM ptm)
 
 set(DSM2_TIMEVAR timevar)
 set(DSM2_PYTHON python)
@@ -138,60 +137,6 @@ target_link_libraries(
           ${KLU_LIBRARIES}
           ${HEClib_LIBRARIES})
 
-# Build PTM dynamic library (.dll or .so). Better to move to a subdirectory.
-set(PTM_FORTRAN ptm_fortran)
-# Better to move this into the subdirectroy later.
-file(GLOB PTM_FORTRAN_SOURCES src/ptm/native/*.f90)
-add_library(${PTM_FORTRAN} STATIC ${PTM_FORTRAN_SOURCES})
-add_dependencies(${PTM_FORTRAN} hydrolib hdf_tidefile common)
-target_include_directories(${PTM_FORTRAN} PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
-
-set(PTM_DYNLIB ptm)
-file(GLOB PTM_JAVA_CPP_SOURCES src/ptm/native/*.cpp)
-add_library(${PTM_DYNLIB} SHARED ${PTM_JAVA_CPP_SOURCES})
-if(NOT WIN32)
-  set_target_properties(${PTM_DYNLIB} PROPERTIES INSTALL_RPATH
-                                                 "\${ORIGIN}/../lib")
-endif()
-target_link_libraries(
-  ${PTM_DYNLIB}
-  PRIVATE ${PTM_FORTRAN}
-          fixed
-          hydrolib
-          hdf_tidefile
-          hdf_tidefile_cpp
-          gtm_core
-          oprule_interface_cpp
-          oprule_interface
-          dsm2_input_storage
-          dsm2_input_storage_cpp
-          common
-          pattern_match
-          input_storage
-          ${Boost_LIBRARIES}
-          ${HDF5_HL_LIBRARIES}
-          ${HDF5_LIBRARIES}
-          ${HEClib_LIBRARIES})
-find_package(JNI REQUIRED)
-target_include_directories(${PTM_DYNLIB} PUBLIC ${JNI_INCLUDE_DIRS})
-
-# Build PTM Java
-find_package(Java REQUIRED)
-message(STATUS "Found Java version ${Java_VERSION}")
-# Need to include UseJava to use add_jar.
-include(UseJava)
-get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-file(GLOB PTM_JAVA_SOURCES src/ptm/DWR/DMS/PTM/*.java
-     src/ptm/DWR/DMS/PTM/behave/*.java)
-file(GLOB PTM_JAVA_DEP_JARS src/ptm/lib/*.jar)
-add_jar(
-  ptm_jar
-  SOURCES ${PTM_JAVA_SOURCES}
-  INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
-  ENTRY_POINT "DWR/DMS/PTM/MainPTM"
-  OUTPUT_NAME ptm)
-add_dependencies(ptm_jar ${PTM_DYNLIB})
-
 # Build GTM
 set(GTM_BIN gtm)
 set(GTM_MAIN gtm_main)
@@ -247,7 +192,6 @@ add_subdirectory(src/hydro_gtm_driver)
 install(
   TARGETS ${HYDRO_BIN}
           ${QUAL_BIN}
-          ${PTM_DYNLIB}
           ${GTM_BIN}
           hydro_gtm
           sed_bed_init
@@ -255,9 +199,7 @@ install(
           RUNTIME_LIB
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib)
-install_jar(ptm_jar DESTINATION lib)
 
-install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION lib)
 if(NOT WIN32)
   # USing DIRECTORIES will raise CMake warnings, but no other way to grab Intel
   # runtime is found.
@@ -280,20 +222,13 @@ if(NOT WIN32)
     install(FILES ${INTELRUNTIME_DIR}/libcilkrts.so.5 TYPE LIB)
   endif()
 endif()
-if(WIN32)
-  install(PROGRAMS src/ptm/bin/ptm.bat DESTINATION bin)
-  message(
-    "Windows exes are static so Intel redistribution files are not needed.")
-else(WIN32)
-  install(PROGRAMS src/ptm/bin/ptm DESTINATION bin)
-endif(WIN32)
 
 # CPack
 set(CPACK_PACKAGE_NAME "DSM2")
 set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
-set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_MINOR "5")
 set(CPACK_PACKAGE_VERSION_PATCH "${GIT_HASH}")
 set(CPACK_PACKAGE_VERSION
     "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"

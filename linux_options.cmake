@@ -1,6 +1,3 @@
-set(JAVA_HOME
-    ${CMAKE_SOURCE_DIR}/deps/jdk-21.0.5
-    CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
     icx
     CACHE STRING "C compiler")

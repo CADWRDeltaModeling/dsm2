@@ -2,9 +2,6 @@
 # Example of CMake settings
 # Please change the values to match your environment
 # ~~~~
-set(JAVA_HOME
-    "C:/Program Files/Java/jdk-21"
-    CACHE PATH "Java home")
 set(CMAKE_C_COMPILER
     icc
     CACHE STRING "C compiler")
