@@ -598,7 +598,6 @@ def generate_dsm2():
                     "output_time_series"]
     qual_includes=["configuration","parameter","qual_time_series",\
                    "groups","qual_spatial","output_time_series"]
-    ptm_includes=["configuration","parameter","groups","particle"]
     gtm_includes=["configuration","parameter","gtm_time_series",\
                   "groups","gtm_spatial","output_time_series"]
     grid_includes=["grid"]
@@ -614,8 +613,6 @@ def generate_dsm2():
     define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
                          +groups_keywords+qual_spatial_keywords+water_body_output_keywords\
                          +source_group_output_keywords+qual_includes)
-    define_profile("PTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords\
-                         +groups_keywords+particle_keywords+ptm_includes)
     define_profile("GTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+gtm_time_series_keywords\
                          +groups_keywords+gtm_spatial_keywords+water_body_output_keywords\
                          +source_group_output_keywords+sediment_keywords+gtm_includes)

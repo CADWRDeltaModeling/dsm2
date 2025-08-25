@@ -27,7 +27,6 @@ subroutine process_scalar(Param, Val)
     use runtime_data
     use iopath_data
     use common_qual
-    use common_ptm
     use envvar
     use network
     use netcntrl_common
@@ -78,9 +77,6 @@ subroutine process_scalar(Param, Val)
         time_step_intvl_hydro = Val
     elseif (Param .eq. 'qual_time_step') then
         time_step_intvl_qual = Val
-    elseif (Param .eq. 'ptm_time_step') then
-        ptm_time_step_int = 1
-        time_step_intvl_ptm = Val
 
     elseif (Param .eq. 'mass_tracking') then
         read (Val, '(l2)', err=810) mass_tracking
@@ -250,54 +246,6 @@ subroutine process_scalar(Param, Val)
         read (Val, '(l2)', err=810) warn_question
     elseif (Param .eq. 'warn_bad') then
         read (Val, '(l2)', err=810) warn_bad
-    elseif (Param .eq. 'ptm_ivert') then
-        ptm_ivert_int = 1
-        read (Val, '(l2)', err=810) ptm_ivert
-    elseif (Param .eq. 'ptm_itrans') then
-        ptm_itrans_int = 1
-        read (Val, '(l2)', err=810) ptm_itrans
-    elseif (Param .eq. 'ptm_iey') then
-        ptm_iey_int = 1
-        read (Val, '(l2)', err=810) ptm_iey
-    elseif (Param .eq. 'ptm_iez') then
-        ptm_iez_int = 1
-        read (Val, '(l2)', err=810) ptm_iez
-    elseif (Param .eq. 'ptm_flux_percent') then
-        ptm_flux_percent_int = 1
-        read (Val, '(l2)', err=810) ptm_flux_percent
-    elseif (Param .eq. 'ptm_group_percent') then
-        ptm_group_percent_int = 1
-        read (Val, '(l2)', err=810) ptm_group_percent
-    elseif (Param .eq. 'ptm_flux_cumulative') then
-        ptm_flux_cumulative_int = 1
-        read (Val, '(l2)', err=810) ptm_flux_cumulative
-    elseif (Param .eq. 'ptm_random_seed') then
-        ptm_random_seed_int = 1
-        read (Val, '(i5)', err=810) ptm_random_seed
-    elseif (Param .eq. 'ptm_no_animated') then
-        ptm_no_animated_int = 1
-        read (Val, '(i5)', err=810) ptm_no_animated
-    elseif (Param .eq. 'ptm_trans_constant') then
-        ptm_trans_constant_int = 1
-        read (Val, '(f7.4)', err=810) ptm_trans_constant
-    elseif (Param .eq. 'ptm_vert_constant') then
-        ptm_vert_constant_int = 1
-        read (Val, '(f7.4)', err=810) ptm_vert_constant
-    elseif (Param .eq. 'ptm_iprof') then
-        ptm_iprof_int = 1
-        read (Val, '(l2)', err=810) ptm_iprof
-    elseif (Param .eq. 'ptm_trans_a_coef') then
-        ptm_trans_a_coef_int = 1
-        read (Val, '(f7.4)', err=810) ptm_trans_a_coef
-    elseif (Param .eq. 'ptm_trans_b_coef') then
-        ptm_trans_b_coef_int = 1
-        read (Val, '(f7.4)', err=810) ptm_trans_b_coef
-    elseif (Param .eq. 'ptm_trans_c_coef') then
-        ptm_trans_c_coef_int = 1
-        read (Val, '(f7.4)', err=810) ptm_trans_c_coef
-    elseif (Param .eq. 'ptm_shear_vel') then
-        write (unit_error, 610) "ptm_shear_vel not used in this version of PTM"
-        call exit(-2)
     elseif (Param .eq. 'repeating_tide') then
         write (unit_error, 610) "repeating_tide is deprecated"
     elseif (Param .eq. 'warmup_run') then

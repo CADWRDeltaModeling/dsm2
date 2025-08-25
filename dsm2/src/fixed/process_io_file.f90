@@ -23,8 +23,6 @@ subroutine process_io_file(model,filetype,io,interval,filename)
 !-----output file names
       use io_units
       use iopath_data
-      use constants_ptm
-      use common_ptm
       implicit none
 
 !-----local variables
@@ -51,8 +49,6 @@ subroutine process_io_file(model,filetype,io,interval,filename)
          i1=hydro
       else if (model(1:4) .eq. 'qual') then
          i1=qual
-      else if (model(1:3) .eq. 'ptm') then
-         i1=ptm
       else
          write(unit_error, "('Model not recognized: ',a)")model
          call exit(-1)
@@ -76,10 +72,6 @@ subroutine process_io_file(model,filetype,io,interval,filename)
          i2=io_trace
       else if (filetype(1:3) .eq. 'beh') then
          i2=io_behavior
-      else if (filetype(1:3) .eq. 'gro') then
-         i2=io_group
-         ptm_igroup_int=1
-         ptm_igroup=.true.
       else
          write(unit_error,*) "IO file type not recognized: ", filetype
          call exit(-1)

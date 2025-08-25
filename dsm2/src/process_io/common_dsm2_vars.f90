@@ -71,7 +71,6 @@ module common_dsm2_vars
        integer :: dsm2_module
        integer, parameter :: hydro = 1
        integer, parameter :: qual = 2
-       integer, parameter :: ptm = 3
        integer, parameter :: gtm = 4
        !FIXME: should be derived from git just like version.fi from dsm2/src/common - N. Sandhu
        !For now fixing by inserting values from 'git describe' command split at first '-' sign

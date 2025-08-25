@@ -54,7 +54,6 @@ module runtime_data
     !-----time step
     character*80:: time_step_intvl_hydro = ' '
     character*80:: time_step_intvl_qual = ' '
-    character*80:: time_step_intvl_ptm = ' '
 
     !-----flush output interval
     character*80:: flush_intvl = '5DAY'

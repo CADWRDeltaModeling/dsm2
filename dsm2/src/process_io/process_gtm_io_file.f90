@@ -50,8 +50,6 @@ module process_gtm_io_file
           i1 = hydro
        else if (model(1:4) .eq. 'qual') then
           i1 = qual
-       else if (model(1:3) .eq. 'ptm') then
-          i1 = ptm
        else if (model(1:3) .eq. 'gtm') then
           i1 = gtm
        else

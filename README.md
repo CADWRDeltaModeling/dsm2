@@ -25,17 +25,3 @@ equations which are solved simultaneously using an implicit algorithm
 The DSM2 water quality numerical solution (QUAL) is based on a model in which advection dispersion
 equation is solved numerically using a coordinate system where computational nodes
 move with the flow
-
-## PTM
-The DSM2 particle tracking component (PTM) computes the location of an individual particle at
-any time step within a channel based on velocity, flow and water level information provided by
-HYDRO. The longitudinal movement is based on transverse and vertical velocity
-profiles computed from mean channel velocity provided by HYDRO. Mean channel
-velocity is multiplied by a factor which depends on particle’s transverse location in the
-channel resulting in a transverse velocity profile resulting in slower moving particles
-closer to the shore. Mean channel velocity is also converted to vertical velocity profile
-using a logarithmic profile to account for slower particles closer to the channel bottom. The
-longitudinal movement is then the sum of transverse and vertical velocities multiplied by time
-step. Particles also move across the channel and in vertical direction along the depth due to
-mixing. A random factor and mixing coefficients and the length of time step is used to compute
-the movement of particle in transverse and vertical direction.
