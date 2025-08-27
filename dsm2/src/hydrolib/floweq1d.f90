@@ -38,6 +38,52 @@ module floweq1d
     implicit none
 
 contains
+    !Referece for density calculation:
+    !Equation 9 from https://www.jodc.go.jp/info/ioc_doc/UNESCO_tech/046148eb.pdf
+    subroutine ec_to_density(ec, density)
+        implicit none
+        real*8, intent(in) :: ec
+        real*8, intent(out) :: density
+        !local variables
+        real*8 :: K0, K1, K2, K3, K4, K5
+        real*8 :: b0, b1, b2, b3, b4
+        real*8 :: c0, c1, c2
+        real*8 :: d0
+        real*8 :: temp  !reference temperature for density calculation, deg C
+        real*8 :: pure_water_rho
+        real*8 :: ec_sea
+        real*8 :: ec_to_PSU
+        real*8 :: R
+
+        K0 = 0.012
+        K1 = -0.2174
+        K2 = 25.3283
+        K3 = 13.7714
+        K4 = -6.4788
+        K5 = 2.5842
+        temp = 25.0
+        ec_sea = 53087.0
+        R = ec/ec_sea
+        ec_to_PSU = K0 + K1*R**0.5 + K2*R + K3*R**1.5 + K4*R**2 + K5*R**2.5
+
+        pure_water_rho = 1000.0
+        b0 = 8.224493e-1
+        b1 = -4.0899e-3
+        b2 = 7.6438e-5
+        b3 = -8.2467e-7
+        b4 = 5.3875e-9
+        c0 = -5.72466e-3
+        c1 = 1.0227e-4
+        c2 = -1.6546e-6
+        d0 = 4.8314e-4
+
+        density = pure_water_rho + (b0 + b1*temp + b2*temp**2 + b3*temp**3 + b4*temp**4)*ec_to_PSU + &
+            (c0 + c1*temp + c2*temp**2)*(ec_to_PSU)**(1.5) + &
+            d0*(ec_to_PSU)**2
+
+        return
+    end subroutine
+
     !== Public (DynamicWaveEq) =============================================
 
     logical function DynamicWaveEq(Up, Down)
