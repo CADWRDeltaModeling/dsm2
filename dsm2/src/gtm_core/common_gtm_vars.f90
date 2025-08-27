@@ -224,14 +224,13 @@ module common_gtm_vars
        type(pathoutput_t), allocatable :: pathoutput(:)
 
 
-       type output_ec_oprule_t
+       type output_ec_t
           integer :: out_chan_cell                       ! output GTM cell no
           real(gtm_real) :: x_from_lo_face               ! output distance from lo face in that cell
           integer :: calc_option                         ! interpolation option (calculated by using upstream cell or downstream cell}
           integer :: i_var = 1                           ! constituent no of EC, default is 1 when only EC is modeled
        end type
 
-       type(output_ec_oprule_t) :: output_ec_oprule(1)
 
 
      !> From DSM2/common/logging.f
