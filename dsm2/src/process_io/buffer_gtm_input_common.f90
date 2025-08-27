@@ -129,23 +129,25 @@ module buffer_gtm_input_common
       enddo
 
       allocate(no_inp(nitem))
-      no_inp(1)= 1
-      do jcount =1, nitem-1
-        if ((sediment_bc(jcount+1)%name.eq.sediment_bc(jcount)%name) .and. (sediment_bc(jcount+1)%composition.ne.sediment_bc(jcount)%composition)) then
-           no_inp(jcount+1)=no_inp(jcount)+1
-        else
-           no_inp(jcount+1)=1
-        end if
-      end do
+      if (nitem .gt. 0) then
+        no_inp(1)= 1
+        do jcount =1, nitem-1
+          if ((sediment_bc(jcount+1)%name.eq.sediment_bc(jcount)%name) .and. (sediment_bc(jcount+1)%composition.ne.sediment_bc(jcount)%composition)) then
+             no_inp(jcount+1)=no_inp(jcount)+1
+          else
+             no_inp(jcount+1)=1
+          end if
+        end do
 
-      do kcount =1, nitem-1
-        if (no_inp(kcount+1).lt.no_inp(kcount)) then
-           if ((no_inp(kcount).ne.no_sed).or.(no_inp(nitem).ne.no_sed))then
-              write(*,*) 'input classes less than specified'
-              stop
-           end if
-        end if
-      end do
+        do kcount =1, nitem-1
+          if (no_inp(kcount+1).lt.no_inp(kcount)) then
+             if ((no_inp(kcount).ne.no_sed).or.(no_inp(nitem).ne.no_sed))then
+                write(*,*) 'input classes less than specified'
+                stop
+             end if
+          end if
+        end do
+      end if
 
 
 
