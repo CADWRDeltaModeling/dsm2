@@ -117,7 +117,7 @@ public class TransProbs {
 		fields = firstIndex.split("_");
 		firstDatetimeStr = fields[1];
 
-		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(America/Los_Angeles)",
+		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(UTC-08:00)",
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
 	}
 
