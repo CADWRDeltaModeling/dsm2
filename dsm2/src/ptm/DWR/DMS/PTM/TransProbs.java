@@ -122,7 +122,7 @@ public class TransProbs {
 	}
 
 	/**
-	 * Read transition probabitilies for a specified datetime (must be later than the current chunk)
+	 * Read transition probabilities for a specified datetime (must be later than the current chunk)
 	 * @param datetime		a ZonedDateTime containing the datetime to read
 	 * @return				a HashMap containing probabilities for all junctions and transitions in the specified datetime
 	 */

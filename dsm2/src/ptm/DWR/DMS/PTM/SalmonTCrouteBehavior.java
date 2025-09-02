@@ -73,8 +73,11 @@ public class SalmonTCrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		// Verify that the required transition probabilities are present
 		for (String transition : transitions) {
 			if (!transProbs.containsKey(transProbIndex + "_" + transition)) {
-				PTMUtil.systemExit("Transition probabilities input file does not contain " +
-						transProbIndex + "_" + transition + ". Exiting.");
+				PTMUtil.systemExit("\n=================================================================\n" +
+						"Transition probabilities input file does not contain " +
+						transProbIndex + "_" + transition + " in the expected location. Exiting.\n\n" +
+						"Transition probabilities read from file: " + transProbs.keySet() +
+						"\n=================================================================\n");
 			}
 		}
 

@@ -67,15 +67,17 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		modelDatetime = getModelDatetime();
 		transProbs = TransProbs.readTransProbs(modelDatetime);
 
-
 		// Obtain the relevant transition probabilities given fromChannelGroup
 		transProbIndex = "HOR_" + modelDatetime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:SS"));
 
 		// Verify that the required transition probabilities are present
 		for (String transition : transitions) {
 			if (!transProbs.containsKey(transProbIndex + "_" + transition)) {
-				PTMUtil.systemExit("Transition probabilities input file does not contain " +
-						transProbIndex + "_" + transition + ". Exiting.");
+				PTMUtil.systemExit("\n=================================================================\n" +
+						"Transition probabilities input file does not contain " +
+						transProbIndex + "_" + transition + " in the expected location. Exiting.\n\n" +
+						"Transition probabilities read from file: " + transProbs.keySet() +
+						"\n=================================================================\n");
 			}
 		}
 
