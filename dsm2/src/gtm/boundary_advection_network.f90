@@ -212,6 +212,8 @@ module boundary_advection_network
         integer :: network_id
         integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id
+        integer :: up_down
+            !! direction of flow at the junction, 0: coming to junction, 1: otherwise
         real(gtm_real) :: conc_ext(nvar)
         logical :: boundary_composition_not_found =.true.
         do ivar = 1, nvar
@@ -261,36 +263,65 @@ module boundary_advection_network
 
         do i = 1, n_node
             ! adjust flux for boundaries
+            up_down = dsm2_network(i)%up_down(1)
             if (dsm2_network(i)%boundary_no > 0) then
                 icell = dsm2_network(i)%cell_no(1)
-                if (( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).ge.zero)) then    ! upstream boundary
-                    flux_lo(icell,ivar) = conc_stip(icell,ivar)*flow_lo(icell)
-                elseif(( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).lt.zero)) then
-                    flux_lo(icell,ivar) = conc_lo(icell,ivar)*flow_lo(icell)
-                elseif(( dsm2_network(i)%up_down(1) .eq. 0).and.(flow_hi(icell).ge.zero)) then ! downstream boundary
-                    flux_hi(icell,ivar) = conc_hi(icell,ivar)*flow_hi(icell)   !outflow
+                ! Away from the node
+                if ((up_down .eq. 1)) then
+                    if (flow_lo(icell).ge.zero) then
+                        flux_lo(icell,ivar) = conc_stip(icell,ivar)*flow_lo(icell)
+                    else if (flow_lo(icell).lt.zero) then
+                        flux_lo(icell,ivar) = conc_lo(icell,ivar)*flow_lo(icell)
+                    end if
+                ! coming to the node
                 else
-                    flux_hi(icell,ivar) = conc_stip(icell,ivar)*flow_hi(icell) !inflow
+                    ! outflow
+                    if (flow_hi(icell).ge.zero) then
+                        flux_hi(icell,ivar) = conc_hi(icell,ivar)*flow_hi(icell)
+                    ! inflow
+                    else
+                        flux_hi(icell,ivar) = conc_stip(icell,ivar)*flow_hi(icell)
+                    end if
                 end if
             end if
             ! adjust flux for non-sequential adjacent cells
+            ! BUG This works only when there are only two cells connected to the node
             if (dsm2_network(i)%nonsequential.eq.1) then
-                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction
+                ! If the flow is toward to the node, meaning the node is the downstream of the cell (up_down == 0)
+                if (up_down .eq. 0) then
                     up_cell = dsm2_network(i)%cell_no(1)
                     down_cell = dsm2_network(i)%cell_no(2)
-                else                                          !cell at downstream of junction
+                    ! up_cell fix, outflow
+                    if (flow_hi(up_cell) .gt. zero) then
+                        flux_hi(up_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
+                    ! inflow
+                    else
+                        flux_hi(up_cell,ivar) = conc_hi(down_cell,ivar)*flow_hi(up_cell)
+                    end if
+                    ! down_cell fix, outflow
+                    if (flow_hi(down_cell) .gt. zero) then
+                        flux_hi(down_cell,ivar) = conc_hi(down_cell,ivar)*flow_hi(down_cell)
+                    ! inflow
+                    else
+                        flux_hi(down_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(down_cell)
+                    end if
+                else
                     up_cell = dsm2_network(i)%cell_no(2)
                     down_cell = dsm2_network(i)%cell_no(1)
-                end if
-                if (flow_hi(up_cell) .gt. zero) then
-                    flux_hi(up_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
-                else
-                    flux_hi(up_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
-                end if
-                if (flow_lo(down_cell) .gt. zero) then
-                    flux_lo(down_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
-                else
-                    flux_lo(down_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
+                    ! up_cell fix, inflow
+                    if (flow_lo(up_cell) .gt. zero) then
+                        flux_lo(up_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(up_cell)
+                    ! outflow
+                    else
+                        flux_lo(up_cell,ivar) = conc_lo(up_cell,ivar)*flow_lo(up_cell)
+                    end if
+                    ! Flow at the downstream (low) end, inflow
+                    if (flow_lo(down_cell) .gt. zero) then
+                        flux_lo(down_cell,ivar) = conc_lo(up_cell,ivar)*flow_lo(down_cell)
+                    ! outflow
+                    else
+                        flux_lo(down_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
+                    end if
                 end if
             end if
             ! adjust flux for junctions
