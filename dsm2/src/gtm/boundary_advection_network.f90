@@ -296,6 +296,10 @@ module boundary_advection_network
             ! adjust flux for non-sequential adjacent cells
             ! BUG This works only when there are only two cells connected to the node
             if (dsm2_network(i)%nonsequential.eq.1) then
+                if (dsm2_network(i)%n_conn_cell > 2) then
+                    write(*,*) 'Error: nonsequential with more than 2 connected cells is not supported'
+                    call exit(-1)
+                end if
                 ! If the flow is toward to the node, meaning the node is the downstream of the cell (up_down == 0)
                 if (up_down .eq. 0) then
                     up_cell = dsm2_network(i)%cell_no(1)
