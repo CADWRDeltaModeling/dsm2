@@ -236,17 +236,23 @@ module boundary_diffusion_network
                 end do
             end if
             if (dsm2_network(i)%nonsequential==1) then
+                ! Converging
                 if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction
                     up_cell = dsm2_network(i)%cell_no(1)
                     down_cell = dsm2_network(i)%cell_no(2)
+                    diffusive_flux_hi(up_cell,k) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
+                                 (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+                    diffusive_flux_hi(down_cell,k) = -(area_hi(down_cell)*disp_coef_hi(down_cell)* &
+                                 (conc(up_cell,k) - conc(down_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+                ! Diverging
                 else                                          !cell at downstream of junction
                     up_cell = dsm2_network(i)%cell_no(2)
                     down_cell = dsm2_network(i)%cell_no(1)
+                    diffusive_flux_lo(up_cell,k) = -(area_lo(up_cell)*disp_coef_lo(up_cell)*       &
+                                 (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+                    diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
+                                 (conc(up_cell,k) - conc(down_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
                 end if
-                diffusive_flux_hi(up_cell,k) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
-                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-                diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
-                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
             end if
           end do
           end if

@@ -68,20 +68,29 @@ module boundary_advection_network
             ! using the one for single channel.
             do i = 1, n_node
                 if (dsm2_network(i)%nonsequential.eq.1) then
+                    ! Converging
                     if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of node
                         up_cell = dsm2_network(i)%cell_no(1)
                         down_cell = dsm2_network(i)%cell_no(2)
+                        grad_hi(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell,ivar))/          &
+                                                (half*dx(down_cell)+half*dx(up_cell))
+                        grad_hi(down_cell,ivar) = -grad_hi(up_cell,ivar)
+                        grad_center(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell-1,ivar))/    &
+                                                    (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell-1))
+                        grad_center(down_cell,ivar) = (vals(up_cell,ivar)-vals(down_cell-1,ivar))/  &
+                                                      (half*dx(down_cell-1)+dx(down_cell)+half*dx(up_cell))
+                    ! Diverging
                     else                                          !cell at downstream of node
                         up_cell = dsm2_network(i)%cell_no(2)
                         down_cell = dsm2_network(i)%cell_no(1)
+                        grad_lo(up_cell,ivar) = (vals(up_cell,ivar)-vals(down_cell,ivar))/          &
+                                                (half*dx(down_cell)+half*dx(up_cell))
+                        grad_lo(down_cell,ivar) = -grad_lo(up_cell,ivar)
+                        grad_center(up_cell,ivar) = (vals(up_cell+1,ivar)-vals(down_cell,ivar))/    &
+                                                    (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell+1))
+                        grad_center(down_cell,ivar) = (vals(down_cell+1,ivar) - vals(up_cell,ivar))/  &
+                                                      (half*dx(up_cell)+dx(down_cell)+half*dx(down_cell+1))
                     end if
-                    grad_hi(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell,ivar))/          &
-                                            (half*dx(down_cell)+half*dx(up_cell))
-                    grad_lo(down_cell,ivar) = grad_hi(up_cell,ivar)
-                    grad_center(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell-1,ivar))/    &
-                                                (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell-1))
-                    grad_center(down_cell,ivar) = (vals(down_cell+1,ivar)-vals(up_cell,ivar))/  &
-                                                  (half*dx(down_cell+1)+dx(down_cell)+half*dx(up_cell))
                 end if
             end do
             end if
