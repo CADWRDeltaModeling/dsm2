@@ -217,14 +217,20 @@ module boundary_advection_network
         real(gtm_real) :: vol(n_resv)
         real(gtm_real) :: mass_resv(n_resv,nvar)
         real(gtm_real) :: conc_tmp0(nvar)                       ! when no flow flows into junction, use this temp value.
-        integer :: up_cell, down_cell
         integer :: network_id
         integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id
         integer :: up_down
-            !! direction of flow at the junction, 0: coming to junction, 1: otherwise
-        real(gtm_real) :: conc_ext(nvar)
+        real(gtm_real) :: conc_ext
         logical :: boundary_composition_not_found =.true.
+        integer :: up_cell, down_cell
+        real(gtm_real) :: flux_in
+            !! total flux into the junction
+        integer :: qext_path_id
+            !! path ID for external flow (qext)
+        real(gtm_real) :: qext_fl
+            !! external flow (qext) value
+
         do ivar = 1, nvar
         if (constituents(ivar)%simulate) then
         ! recalculate concentration for reservoirs
@@ -343,62 +349,44 @@ module boundary_advection_network
                 mass_tmp(ivar) = zero
                 conc_tmp(ivar) = zero
                 conc_tmp0(ivar) = zero
+                flux_in = zero
                 do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
-                        mass_tmp(ivar) = mass_tmp(ivar) + conc_hi(icell,ivar)*flow_hi(icell)
+                        flux_in = flux_in + conc_hi(icell,ivar)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
-                        mass_tmp(ivar) = mass_tmp(ivar) + conc_lo(icell,ivar)*abs(flow_lo(icell))
-                        flow_tmp = flow_tmp + abs(flow_lo(icell))
+                        flux_in = flux_in - conc_lo(icell,ivar)*flow_lo(icell)
+                        flow_tmp = flow_tmp - flow_lo(icell)
                     endif
-                    conc_tmp0(ivar) = conc_tmp0(ivar)+conc_prev(icell,ivar)/dsm2_network(i)%n_conn_cell
                 end do
 
-                ! temporarily calculated concentration to assign to seepage and diversion
-                if (flow_tmp .lt. no_flow) then
-                    !write(*,*) "WARNING: No flow flows into junction!!",icell
-                    conc_tmp(ivar) = conc_tmp0(ivar)
-                else
-                    conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
-                end if
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     ! loop through external flows
                     do j = 1, dsm2_network_extra(i)%n_qext
-                        if (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then    !drain
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
-                        elseif (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then !drain but node concentration is absent
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
-                            !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
-                        else     ! seepage and diversion
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
-                        end if
+                        qext_fl = qext_flow(dsm2_network_extra(i)%qext_no(j))
                         ! If drain and if there are associated data to it
-                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).ne.0)) then    !drain
-                            conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value
-                            ! If the associated data is SSC,
-                            if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
-                                ! Loop through all the sediment classes
-                                do st = 1, n_sediment
-                                    conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value &
-                                        * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
-                                end do
+                        qext_path_id = dsm2_network_extra(i)%qext_path(j,ivar)
+                        if (qext_fl > 0) then ! drain
+                            flow_tmp = flow_tmp + qext_fl
+                            if (qext_path_id /= 0) then
+                                conc_ext = pathinput(qext_path_id)%value
+                                ! If the associated data is SSC,
+                                if (trim(pathinput(qext_path_id)%variable).eq.'ssc') then
+                                    ! Loop through all the sediment classes
+                                    do st = 1, n_sediment
+                                        conc_ext = pathinput(qext_path_id)%value &
+                                            * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
+                                    end do
+                                end if
+                                flux_in = flux_in + conc_ext * qext_fl
+                            else !drain but node concentration is absent
+                                flux_in = flux_in + conc_ext * qext_fl
+                                write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                             end if
-                            mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
-                        elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).eq.0)) then !drain but node concentration is absent
-                            mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
-                            !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
-                        else     ! seepage and diversion
-                            mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                         end if
                     end do
-                    if (flow_tmp .lt. no_flow) then
-                        !write(*,*) "WARNING: No flow flows into junction!!",icell
-                        conc_tmp(ivar) = conc_tmp0(ivar)
-                    else
-                        conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
-                    end if
                 end if
 
                 ! add reservoir flows
@@ -406,23 +394,19 @@ module boundary_advection_network
                     reservoir_id = dsm2_network_extra(i)%reservoir_no
                     resv_conn_id = dsm2_network_extra(i)%resv_conn_no
                     vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
+                    ! Flow going out of the reservoir
                     if (resv_flow(resv_conn_id).gt.zero) then
                         mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,ivar)
-                        mass_tmp(ivar) = mass_tmp(ivar) + conc_resv_prev(reservoir_id,ivar)*resv_flow(resv_conn_id)
+                        flux_in = flux_in + conc_resv_prev(reservoir_id,ivar)*resv_flow(resv_conn_id)
                         flow_tmp = flow_tmp + resv_flow(resv_conn_id)
-                    else
-                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_tmp(ivar)
-                        mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*resv_flow(resv_conn_id)
-                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)
-                    end if
-                    if (flow_tmp .lt. no_flow) then
-                        !write(*,*) "WARNING: No flow flows into junction!!",icell
-                        conc_tmp(ivar) = conc_tmp0(ivar)
-                    else
-                        conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
                     end if
                 end if
 
+                if (flow_tmp < 0.01) then
+                    conc_tmp(ivar) = zero
+                else
+                    conc_tmp(ivar) = flux_in / flow_tmp
+                end if
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
@@ -436,6 +420,15 @@ module boundary_advection_network
                         conc_stip(icell,ivar) = conc_tmp(ivar)
                     endif
                 end do
+                ! assign the average concentration to the reservoir
+                if (dsm2_network_extra(i)%reservoir_no.ne.0) then
+                    reservoir_id = dsm2_network_extra(i)%reservoir_no
+                    resv_conn_id = dsm2_network_extra(i)%resv_conn_no
+                    ! Flow going into the reservoir
+                    if (resv_flow(resv_conn_id) < 0.0) then
+                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_tmp(ivar)
+                    end if
+                end if
             end if
         end do
 
