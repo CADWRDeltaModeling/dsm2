@@ -167,7 +167,7 @@ subroutine gtm_prepare2(tidefile_id)
     !-----get optional starting input file from command line and
     !-----simulation name for Database read
     use hdf_util, only : hydro_file_id, hydro_id
-    use common_variables, only : get_dsm2_network_info, assign_segment
+    use common_variables, only : set_dsm2_network_info, assign_segment
 
     integer(HID_T), intent(in), optional :: tidefile_id
     integer(HID_T) :: tidefile_id_
@@ -211,7 +211,7 @@ subroutine gtm_prepare2(tidefile_id)
         call read_gate_tbl
         call read_source_flow_tbl
         call read_boundary_tbl
-        call get_dsm2_network_info
+        call set_dsm2_network_info
     end if
 
     call check_runtime(num_blocks, memlen,                     &

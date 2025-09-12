@@ -566,7 +566,7 @@ module common_variables
          if (n_bfbs .ne. LARGEINT) call allocate_bfbs_property
          if (n_gate .ne. LARGEINT) call allocate_gate_property
          if (n_sflow .ne. LARGEINT) call allocate_source_flow_property
-         if (n_node .ne. LARGEINT) call get_dsm2_network_info
+         if (n_node .ne. LARGEINT) call set_dsm2_network_info
          return
      end subroutine
 
@@ -1265,7 +1265,7 @@ module common_variables
      !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
      !> This updates common variables: n_junc, n_boun and dsm2_network(:)
      !> use common_variables, only n_conn, conn as inputs
-     subroutine get_dsm2_network_info()
+     subroutine set_dsm2_network_info()
          implicit none
          integer :: sorted_conns(n_conn)
          integer, allocatable :: unique_num(:)

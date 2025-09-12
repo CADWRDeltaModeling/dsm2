@@ -47,7 +47,7 @@ implicit none
         !call read_gate_tbl
         !call read_source_flow_tbl
         !call read_boundary_tbl
-        call get_dsm2_network_info
+        call set_dsm2_network_info
     end subroutine
 
 
