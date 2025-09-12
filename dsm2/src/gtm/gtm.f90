@@ -789,7 +789,6 @@ subroutine gtm_loop()
 end subroutine
 
 subroutine gtm_wrapup()
-    use runtime_data, only: dsm2_name
     ! modify print_last_stage to write hotstart output file.
     restart_outfn = trim(gtm_io(1,2)%filename)
     if (run_pdaf) then
