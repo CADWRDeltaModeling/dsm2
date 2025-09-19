@@ -190,37 +190,40 @@ subroutine hdf5_write_attributes()
                             chan_location, label_len, 2)
 
     ! Write reservoir names
-    in_dims(1) = max(1, nreser)
-    allocate (names(max(1, nreser)))
-    names = ' '
-    do i = 1, max(1, nreser)
-        names(i) = res_geom(i)%name
-    end do
-    call Write1DStringArray(geom_id, "reservoir_names", names, &
-                            name_len, max(1, nreser))
-    deallocate (names)
+    if (nreser .gt. 0) then
+        allocate (names(max(1, nreser)))
+        names = ' '
+        do i = 1, max(1, nreser)
+            names(i) = res_geom(i)%name
+        end do
+        call Write1DStringArray(geom_id, "reservoir_names", names, &
+                                name_len, max(1, nreser))
+        deallocate (names)
+    end if
 
     ! Write transfer names
-    in_dims(1) = max(1, nobj2obj)
-    allocate (names(max(1, nobj2obj)))
-    names = ' '
-    do i = 1, max(1, nobj2obj)
-        names(i) = obj2obj(i)%name
-    end do
-    call Write1DStringArray(geom_id, "transfer_names", names, &
-                            name_len, max(1, nobj2obj))
-    deallocate (names)
+    if (nobj2obj .gt. 0) then
+        allocate (names(max(1, nobj2obj)))
+        names = ' '
+        do i = 1, max(1, nobj2obj)
+            names(i) = obj2obj(i)%name
+        end do
+        call Write1DStringArray(geom_id, "transfer_names", names, &
+                                name_len, max(1, nobj2obj))
+        deallocate (names)
+    end if
 
     ! Write external flow names
-    in_dims(1) = max(1, nqext)
-    allocate (names(max(1, nqext)))
-    names = ' '
-    do i = 1, max(1, nqext)
-        names(i) = qext(i)%name
-    end do
-    call Write1DStringArray(geom_id, "external_flow_names", names, &
-                            name_len, max(1, nqext))
-    deallocate (names)
+    if (nqext .gt. 0) then
+        allocate (names(max(1, nqext)))
+        names = ' '
+        do i = 1, max(1, nqext)
+            names(i) = qext(i)%name
+        end do
+        call Write1DStringArray(geom_id, "external_flow_names", names, &
+                                name_len, max(1, nqext))
+        deallocate (names)
+    end if
 
     if(not(allocated(bottom_el1)))allocate(bottom_el1(nchans))
     if(not(allocated(bottom_el2)))allocate(bottom_el2(nchans))
@@ -249,7 +252,7 @@ subroutine hdf5_write_attributes()
     call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
     call h5dwrite_f(cg_dset_id, H5T_NATIVE_REAL, bottom_el2, cg_data_dims, &
                     error, mem_space_id=memspace, file_space_id=cg_dspace_id)
-                    
+
     deallocate (bottom_el1, bottom_el2)
     ! Write out chan_dx
     cx_dims(1) = nchans
@@ -268,7 +271,7 @@ subroutine hdf5_write_attributes()
     call WriteReservoirNodeConnectionsHDF5
     call WriteComputationPointsHDF5
     call WriteVirtualXsectsHDF5
-7856 continue
+
     return
 end subroutine
 
