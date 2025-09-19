@@ -30,7 +30,7 @@ subroutine Write1DStringArray(dest_id,name,arr,strlen,nstr)
       implicit none
       integer(HID_T),intent(in) :: dest_id ! Destination group identifier
       character*(*) :: name       ! Name of array
-      integer       :: strlen     ! Length of string element
+      integer(SIZE_T) :: strlen     ! Length of string element
       integer       :: nstr       ! Dimension of string array
       character(LEN=strlen),dimension(nstr) :: arr
 
@@ -375,7 +375,44 @@ subroutine WriteQExtChangedToHDF5()
       return
 end subroutine
 
-!***********************************************************************
-!***********************************************************************
 
+subroutine write_gates_to_hdf5()
+    !! Write gate status to the tide file
+    use hdf5
+    use inclvars
+    use hdfvars
+    use gates, only: nGate
+    use common_tide, only: inst_device_flow
 
+    implicit none
+
+    integer(HSIZE_T), dimension(3) :: h_offset
+
+    integer        :: error   ! HDF5 Error flag
+!   real(kind=4), dimension(max_gates) :: gateposavg = 0.
+
+    integer::i
+
+    ! do i=1,ngates
+    !     gateposavg(i) = gatepos(i).avg
+    ! end do
+
+    h_offset(1) = 0
+    h_offset(2) = 0
+    h_offset(3) = hdf5point
+
+    ! write out the instantaneous value
+    if (output_inst) then
+        call h5dget_space_f(inst_deviceflow_dset_id, inst_deviceflow_fspace_id, error)
+        call h5sselect_hyperslab_f(inst_deviceflow_fspace_id, H5S_SELECT_SET_F,  &
+            h_offset, inst_deviceflow_fsubset_dims, error)
+        call h5dwrite_f(inst_deviceflow_dset_id, H5T_NATIVE_REAL, &
+            inst_device_flow(1:nGate, :), &
+            inst_deviceflow_mdata_dims, error, inst_deviceflow_memspace, &
+            inst_deviceflow_fspace_id)
+        call VerifyHDF5(error,"Instantaneous Gates position write")
+        call h5sclose_f (inst_deviceflow_fspace_id, error)
+    end if
+
+    return
+end subroutine

@@ -156,6 +156,8 @@ contains
         use netcntrl
         use channel_xsect_tbl, only: cxarea
         use netcntrl
+        use gates, only: gateArray, ngate
+
         implicit none
 
         !   Purpose:  To calculate the average flow in the channels and
@@ -170,6 +172,7 @@ contains
 
         !   Local Variables:
         integer i, j, Up, Down, iconnect, icp
+        integer n_dev
 
         !   Routines by module:
 
@@ -212,6 +215,8 @@ contains
                 Qcp(icp) = 0.
             end do
 
+            inst_device_flow(:, :) = 0.
+
         end if
 
         do Branch = 1, NumberofChannels()
@@ -236,6 +241,13 @@ contains
                 QResv(iconnect) = QResv(iconnect) + theta*Qres(i, j) + (1.-theta)* &
                                   QresOld(i, j)
                 inst_QResv(iconnect) = inst_QResv(iconnect) + Qres(i, j)
+            end do
+        end do
+
+        do i = 1, ngate
+            n_dev = gateArray(i)%nDevice
+            do j = 1, n_dev
+                inst_device_flow(i, j) = inst_device_flow(i, j) + gateArray(i)%devices(j)%flow
             end do
         end do
 
@@ -280,6 +292,11 @@ contains
                 inst_obj2obj(i) = inst_obj2obj(i)/dble(NSample)
             end do
 
+            do i = 1, ngate
+                do j = 1, max_dev
+                    inst_device_flow(i, j) = inst_device_flow(i, j) / dble(NSample)
+                end do
+            end do
         end if
         AverageFlow = .true.
 
@@ -397,6 +414,7 @@ contains
                 if (output_inst) then
                     call WriteCompPointToHDF5()
                 end if
+                call write_gates_to_hdf5()
             end if
         end if
         WriteHydroToTidefile = .true.
