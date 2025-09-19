@@ -24,6 +24,7 @@ module common_tide
     use constants
     use grid_data
     use network, only: MaxLocations
+    use gates, only: MAX_GATES, MAX_DEV
 
     implicit none
 
@@ -60,6 +61,7 @@ module common_tide
 
     real*4 :: inst_qext(max_qext)
     real*4 :: inst_obj2obj(max_obj2obj)
+    real*4 :: inst_device_flow(MAX_GATES, MAX_DEV)
 
     integer*4 :: TideTime        ! julian minute timestamp from tidefile
     integer*4 :: next_hydro_interval

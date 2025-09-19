@@ -270,6 +270,11 @@ subroutine CloseHDF5()
   	   if (error .ne. 0) then
 	       write(unit_error,*)"HDF5 error closing inst transfer data set: ",error
 	   end if
+
+	   call h5dclose_f(inst_deviceflow_dset_id, error)
+	   if (error .ne. 0) then
+	      write(unit_error,*)"HDF5 error closing inst gates data set: ",error
+	   end if
 	end if
 
 !-------Close the groups in the dataset
@@ -324,6 +329,8 @@ subroutine InitHDF5MemoryDims()
 	use grid_data
 	use common_tide  ! todo: this is only to allocate qresv
 	use chnlcomp, only: TotalCompLocations   ! to obtain the value for TotalComputations
+	use gates, only: nGate, MAX_DEV
+
 	implicit none
 	integer error
 	integer getHDF5NumberOfTimeIntervals
@@ -493,6 +500,18 @@ subroutine InitHDF5MemoryDims()
                                 inst_transfer_mdata_dims,inst_transfer_memspace,error);
          call VerifyHDF5(error,"inst transfer dataspace")
 
+		! gates
+		inst_deviceflow_fdata_dims(1) = max(1, nGate)
+		inst_deviceflow_fdata_dims(2) = max(1, MAX_DEV)
+		inst_deviceflow_fdata_dims(3) = getHDF5NumberOfTimeIntervals()
+		inst_deviceflow_fsubset_dims(1) = inst_deviceflow_fdata_dims(1)
+		inst_deviceflow_fsubset_dims(2) = inst_deviceflow_fdata_dims(2)
+		inst_deviceflow_fsubset_dims(3) = 1
+		inst_deviceflow_mdata_dims(1) = inst_deviceflow_fdata_dims(1)
+		inst_deviceflow_mdata_dims(2) = inst_deviceflow_fdata_dims(2)
+		call H5Screate_simple_f(inst_deviceflow_mdata_rank, &
+							    inst_deviceflow_mdata_dims, inst_deviceflow_memspace, error)
+		 call VerifyHDF5(error, "inst gates dataspace")
       end if
 
 	return
@@ -523,6 +542,7 @@ subroutine CloseMemoryDims()
 	   call H5Sclose_f(inst_res_q_memspace, error)
 	   call H5Sclose_f(inst_qext_memspace, error)
 	   call H5Sclose_f(inst_transfer_memspace, error)
+	   call H5Sclose_f(inst_deviceflow_memspace, error)
       endif
       call alloc_reservoir_connections(.false.)
 
@@ -551,7 +571,7 @@ subroutine AddTimeSeriesAttributes(dset_id, ts_start, ts_interval)
 	integer(HID_T) :: atype_id
 	integer(HID_T) :: attr_id
 	integer        :: error	! HDF5 Error flag
-	integer nlen
+	integer(SIZE_T) :: nlen
 
       character(LEN=32) :: buffer
 	integer(HSIZE_T), dimension(1) :: a_dims = (/1/)
@@ -1041,5 +1061,46 @@ subroutine InitQExtChangeHDF5()
 	return
 end subroutine
 
-!***********************************************************************
-!***********************************************************************
+
+subroutine init_gates_hdf5()
+	!! Initialize gate HDF5 variables
+	use HDF5		! HDF5 This module contains all necessary modules
+	use inclvars
+	use hdfvars
+	use grid_data
+	use runtime_data, only : tf_start_julmin
+	use common_tide, only : TideFileWriteInterval
+
+	implicit none
+
+	integer(HID_T) :: cparms !dataset creatation property identifier
+	integer        :: error	! HDF5 Error flag
+	! integer(HSIZE_T), dimension(gate_fdata_rank) ::&
+	! 	gate_chunk_dims = 0 ! Dataset dimensions
+	integer(HSIZE_T), dimension(inst_deviceflow_fdata_rank) ::&
+			inst_deviceflow_chunk_dims = 0 ! Dataset dimensions
+	integer getHDF5NumberOfTimeIntervals
+
+	if (output_inst) then
+		inst_deviceflow_chunk_dims(1) = inst_deviceflow_fdata_dims(1)
+		inst_deviceflow_chunk_dims(2) = inst_deviceflow_fdata_dims(2)
+		inst_deviceflow_chunk_dims(3) = min(TIME_CHUNK, inst_deviceflow_fdata_dims(2))
+
+		! Add chunking and compression
+		call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+		if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+			call h5pset_chunk_f(cparms, inst_deviceflow_fdata_rank, &
+				inst_deviceflow_chunk_dims, error)
+			call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,&
+				HDF_SZIP_PIXELS_PER_BLOCK, error)
+			end if
+
+		call h5screate_simple_f(inst_deviceflow_fdata_rank, &
+			inst_deviceflow_fdata_dims, inst_deviceflow_fspace_id, error)
+		call h5dcreate_f(data_id, "inst device flow", H5T_NATIVE_REAL,&
+			inst_deviceflow_fspace_id, inst_deviceflow_dset_id, error, cparms)
+		call AddTimeSeriesAttributes(inst_deviceflow_dset_id, tf_start_julmin, &
+			TideFileWriteInterval)
+		end if
+	return
+end subroutine

@@ -76,7 +76,7 @@ subroutine hdf5_write_attributes()
 
     integer, dimension(1) :: hdf5_dummy_integer
     integer(SIZE_T) :: hdf5_int_size
-    integer :: scalar
+    integer(SIZE_T) :: scalar
     real(gtm_real), dimension(1) :: hdf5_dummy_real
 
     integer cdt2jmin

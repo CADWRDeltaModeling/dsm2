@@ -187,6 +187,24 @@ module hdfvars
       integer(HSIZE_T), dimension(inst_transfer_mdata_rank) :: &
                         inst_transfer_mdata_dims = 0
 
+     ! Gate HDF5 variables
+     integer(HID_T) :: gate_dset_id ! Gate Dataset identifier
+     integer(HID_T) :: gate_fspace_id ! Dataspace identifier
+     integer(HID_T) :: gate_memspace ! memspace identifier for gate
+     integer,parameter :: gate_fdata_rank = 2 ! time by ngates
+     integer,parameter :: gate_mdata_rank = 1 ! values for one time step
+     integer(HSIZE_T), dimension(gate_fdata_rank) :: gate_fdata_dims = 0
+     integer(HSIZE_T), dimension(gate_fdata_rank) :: gate_fsubset_dims = 0
+     integer(HSIZE_T), dimension(gate_mdata_rank) :: gate_mdata_dims = 0
+
+     integer(HID_T) :: inst_deviceflow_dset_id ! Instantaneous Device flow Dataset identifier
+     integer(HID_T) :: inst_deviceflow_fspace_id ! Dataspace identifier
+     integer(HID_T) :: inst_deviceflow_memspace ! memspace identifier for device flow
+     integer,parameter :: inst_deviceflow_fdata_rank = 3
+     integer,parameter :: inst_deviceflow_mdata_rank = 2 ! values for one time
+     integer(HSIZE_T), dimension(inst_deviceflow_fdata_rank) :: inst_deviceflow_fdata_dims = 0
+     integer(HSIZE_T), dimension(inst_deviceflow_fdata_rank) :: inst_deviceflow_fsubset_dims = 0
+     integer(HSIZE_T), dimension(inst_deviceflow_mdata_rank) :: inst_deviceflow_mdata_dims = 0
 
 end module hdfvars
 
