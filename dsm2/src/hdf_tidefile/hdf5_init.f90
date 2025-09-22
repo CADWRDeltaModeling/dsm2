@@ -179,7 +179,8 @@ subroutine InitHDF5File()
 	call InitReservoirsHDF5
 	call InitTransferHDF5
 	call InitQExtChangeHDF5
-      call attach_hydro_dimscales(file_id);
+	! Dimension scales do not need to be attached.
+    ! call attach_hydro_dimscales(file_id);
       ! Calculate starting index for reading/writing
 	h5_time_start = tf_start_julmin
 	hdf5point = getHDF5IndexForTideTime(tf_start_julmin)
