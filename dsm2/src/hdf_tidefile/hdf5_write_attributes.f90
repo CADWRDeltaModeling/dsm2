@@ -68,8 +68,8 @@ subroutine hdf5_write_attributes()
     integer(HSIZE_T), dimension(2) :: h_offset
     integer(HID_T) :: memspace ! memspace identifier
 
-    integer, parameter :: label_len = 12
-    integer, parameter :: name_len = 32
+    integer(SIZE_T), parameter :: label_len = 12
+    integer(SIZE_T), parameter :: name_len = 32
     character(LEN=label_len), dimension(2) :: chan_location &
                                               = (/"upstream", "downstream"/)
     character(LEN=name_len), dimension(:), allocatable :: names
