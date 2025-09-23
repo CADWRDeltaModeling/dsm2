@@ -407,7 +407,7 @@ subroutine write_gates_to_hdf5()
         call h5sselect_hyperslab_f(inst_deviceflow_fspace_id, H5S_SELECT_SET_F,  &
             h_offset, inst_deviceflow_fsubset_dims, error)
         call h5dwrite_f(inst_deviceflow_dset_id, H5T_NATIVE_REAL, &
-            inst_device_flow(1:nGate, :), &
+            inst_device_flow(1:max(1, nGate), :), &
             inst_deviceflow_mdata_dims, error, inst_deviceflow_memspace, &
             inst_deviceflow_fspace_id)
         call VerifyHDF5(error,"Instantaneous Gates position write")
