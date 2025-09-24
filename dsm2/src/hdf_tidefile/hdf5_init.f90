@@ -179,6 +179,7 @@ subroutine InitHDF5File()
 	call InitReservoirsHDF5
 	call InitTransferHDF5
 	call InitQExtChangeHDF5
+	call init_gates_hdf5
 	! Dimension scales do not need to be attached.
     ! call attach_hydro_dimscales(file_id);
       ! Calculate starting index for reading/writing
