@@ -167,6 +167,9 @@ subroutine hdf5_read_attributes()
       cg_data_dims(2) = 1
       h_offset(1) = 0
       h_offset(2) = bottom_elIdx
+
+      if(not(allocated(bottom_el1)))allocate(bottom_el1(n_chan_tf))
+
       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
           h_offset, cg_data_dims, error)
       call h5screate_simple_f(cg_rank, cg_data_dims, memspace, error)
@@ -174,7 +177,6 @@ subroutine hdf5_read_attributes()
           error, memspace, filespace)
 
 
-      if(not(allocated(bottom_el1)))allocate(bottom_el1(n_chan_tf))
       if(not(allocated(bottom_el2)))allocate(bottom_el2(n_chan_tf))
 
       h_offset(2) = bottom_elIdx + 1
