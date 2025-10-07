@@ -227,9 +227,11 @@ module common_variables
          integer :: tran_no                          !< transfer flow number
          character*32 :: name                        !< transfer name
          integer :: from_obj                         !< from obj (2: node, 3: reservoir)
-         integer :: from_identifier                  !< from identifier
+         character*32 :: from_identifier                  !< from identifier
+         integer :: from_identifier_int                   !< from_identifier to its id
          integer :: to_obj                           !< to obj (2: node, 3: reservoir)
-         integer :: to_identifier                    !< to identifier
+         character*32 :: to_identifier                    !< to identifier
+         integer :: to_identifier_int                     !< to_identifier to its id
      end type
      type(transfer_flow_t), allocatable :: tran(:)
 
@@ -733,9 +735,11 @@ module common_variables
          tran%tran_no = 0
          tran%name = ' '
          tran%from_obj = 0
-         tran%from_identifier = 0
+         tran%from_identifier = ''
+         tran%from_identifier_int = 0
          tran%to_obj = 0
-         tran%to_identifier = 0
+         tran%to_identifier = ''
+         tran%to_identifier_int = 0
          return
      end subroutine
 
@@ -1287,6 +1291,7 @@ module common_variables
          dsm2_network_extra(:)%resv_conn_no = 0
          dsm2_network_extra(:)%n_qext = 0
          dsm2_network_extra(:)%boundary = 0
+         dsm2_network_extra(:)%n_tran = 0
          n_boun = 0
          n_junc = 0
          do i = 1, n_node
@@ -1366,19 +1371,21 @@ module common_variables
                      end if
                  end if
              end do
-
              do j = 1, n_tran
-                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) then
+                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier_int==unique_num(i)) then !get the number of transfer from one node
                      dsm2_network_extra(i)%n_tran = dsm2_network_extra(i)%n_tran + 1
                  end if
              end do
              allocate(dsm2_network_extra(i)%tran_no(dsm2_network_extra(i)%n_tran))
+             dsm2_network_extra(i)%tran_no(:) = 0
              k = 0
              do j = 1, n_tran
-                 if ((tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) .or. &
-                     (tran(j)%from_obj==2 .and. tran(j)%to_identifier==unique_num(i))) then
-                     k = k + 1
-                     dsm2_network_extra(i)%tran_no(k) = tran(j)%tran_no
+                if (tran(j)%to_obj==3) then
+                   tran(j)%to_identifier_int = dsm2_network_extra(i)%resv_conn_no
+                end if
+                if (tran(j)%from_obj==2 .and. tran(j)%from_identifier_int==unique_num(i)) then
+                    k = k + 1
+                    dsm2_network_extra(i)%tran_no(k) = tran(j)%tran_no
                  end if
              end do
 

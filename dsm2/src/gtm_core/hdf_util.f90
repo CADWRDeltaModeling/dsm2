@@ -613,15 +613,18 @@ module hdf_util
        integer(SIZE_T) :: typesize                      ! Size of the datatype
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: error                                 ! Error flag
-       integer :: i, from_i, to_i                       ! local variables
-       character*32 :: from_obj, from_identifier        ! local variables
-       character*32 :: to_obj, to_identifier            ! local variables
+       integer :: i                                     ! local variables
+       ! character*32 :: from_identifier, to_identifier      ! local variables
+       character*32, allocatable :: to_obj(:), from_obj(:)     ! local variables
+
+       call h5gopen_f(hydro_id, "input", input_id, error)
+       call h5dopen_f(input_id, "transfer", dset_id, error)
 
        data_dims(1) = n_tran
        call allocate_tran_property()
        if (n_tran > 0) then
-           call h5gopen_f(hydro_id, "input", input_id, error)
-           call h5dopen_f(input_id, "transfer", dset_id, error)
+           allocate(to_obj(n_tran))
+           allocate(from_obj(n_tran))
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
            call h5tset_size_f(dt_id, typesize, error)
@@ -633,20 +636,44 @@ module hdf_util
            call h5dread_f(dset_id, dt1_id, tran%name, data_dims, error)
 
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
-           call h5tinsert_f(dt2_id, "from_obj", offset, H5T_NATIVE_CHARACTER, error)
+           call h5tinsert_f(dt2_id, "from_obj", offset, dt_id, error)
            call h5dread_f(dset_id, dt2_id, from_obj, data_dims, error)
 
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
-           call h5tinsert_f(dt3_id, "from_identifier", offset, H5T_NATIVE_CHARACTER, error)
-           call h5dread_f(dset_id, dt3_id, from_identifier, data_dims, error)
+           call h5tinsert_f(dt3_id, "from_identifier", offset, dt_id, error)
+           call h5dread_f(dset_id, dt3_id, tran%from_identifier, data_dims, error)
 
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
-           call h5tinsert_f(dt4_id, "to_obj", offset, H5T_NATIVE_CHARACTER, error)
+           call h5tinsert_f(dt4_id, "to_obj", offset, dt_id, error)
            call h5dread_f(dset_id, dt4_id, to_obj, data_dims, error)
 
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt5_id, error)
-           call h5tinsert_f(dt5_id, "to_identifier", offset, H5T_NATIVE_CHARACTER, error)
-           call h5dread_f(dset_id, dt5_id, to_identifier, data_dims, error)
+           call h5tinsert_f(dt5_id, "to_identifier", offset, dt_id, error)
+           call h5dread_f(dset_id, dt5_id, tran%to_identifier, data_dims, error)
+
+
+
+           do i = 1, n_tran
+                tran(i)%tran_no = i
+               if ((trim((from_obj(i)))) .eq. 'Node') then !need to conver to upper case by using upcase()
+                    tran(i)%from_obj = 2 
+                    read(tran(i)%from_identifier,*) tran(i)%from_identifier_int
+               end if
+               if ((trim((from_obj(i)))) .eq. 'Reservoir') then !need to conver to upper case by using upcase()
+                   tran(i)%from_obj = 3
+               end if
+               if ((trim((to_obj(i)))) .eq. 'Node') then !need to conver to upper case by using upcase()
+                   tran(i)%to_obj = 2 
+                   read(tran(i)%to_identifier,*) tran(i)%to_identifier_int
+               end if
+               if ((trim((to_obj(i)))) .eq. 'Reservoir') then !need to conver to upper case by using upcase()
+                   tran(i)%to_obj = 3
+                end if
+               !read(from_identifier,*) from_i
+               !read(to_identifier,*) to_i
+               !tran(i)%from_identifier = from_i
+               !tran(i)%to_identifier = to_i
+           end do
 
            call h5tclose_f(dt5_id, error)
            call h5tclose_f(dt4_id, error)
@@ -656,18 +683,6 @@ module hdf_util
            call h5tclose_f(dt_id, error)
            call h5dclose_f(dset_id, error)
            call h5gclose_f(input_id, error)
-
-           do i = 1, n_tran
-               tran(i)%tran_no = i
-               if (trim(from_obj)=='NODE') tran(i)%from_obj = 2
-               if (trim(from_obj)=='RESERVOIR') tran(i)%from_obj = 3
-               if (trim(to_obj)=='NODE') tran(i)%from_obj = 2
-               if (trim(to_obj)=='RESERVOIR') tran(i)%from_obj = 3
-               read(from_identifier,*) from_i
-               read(to_identifier,*) to_i
-               tran(i)%from_identifier = from_i
-               tran(i)%to_identifier = to_i
-           end do
        end if
        return
    end subroutine
