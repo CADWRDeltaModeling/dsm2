@@ -10,21 +10,32 @@ endif()
 
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
 
-# Add Fortran-lang stdlib and fypp as submodules if they exist, otherwise fetch them
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/fypp/CMakeLists.txt)
-  add_subdirectory("fypp")
+if(WIN32)
+  # On Windows, require fypp to be installed and available in PATH
+  find_program(FYPP fypp)
+  if(NOT FYPP)
+    message(FATAL_ERROR "fypp not found. Please install fypp and ensure it is available in your PATH.")
+  endif()
 else()
-  set("fypp-url" "https://github.com/aradi/fypp")
-  message(STATUS "Retrieving fypp from ${fypp-url}")
-  include(FetchContent)
-  FetchContent_Declare(
-    "fypp"
-    GIT_REPOSITORY "${fypp-url}"
-    GIT_TAG "HEAD"
-  )
-  FetchContent_MakeAvailable("fypp")
-  list(PREPEND CMAKE_PROGRAM_PATH "${fypp_SOURCE_DIR}/bin")
+  # Add Fortran-lang stdlib and fypp as submodules if they exist, otherwise fetch them
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/fypp/CMakeLists.txt)
+    add_subdirectory("fypp")
+  else()
+    set("fypp-url" "https://github.com/aradi/fypp")
+    message(STATUS "Retrieving fypp from ${fypp-url}")
+    include(FetchContent)
+    FetchContent_Declare(
+      "fypp"
+      GIT_REPOSITORY "${fypp-url}"
+      GIT_TAG "HEAD"
+    )
+    FetchContent_MakeAvailable("fypp")
+    list(PREPEND CMAKE_PROGRAM_PATH "${fypp_SOURCE_DIR}/bin")
+  endif()
 endif()
+
+# Exit for debugging
+# return()
 
 # Include the stdlib project
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/CMakeLists.txt)
