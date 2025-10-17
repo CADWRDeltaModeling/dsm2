@@ -54,7 +54,7 @@ set(dsm2_input_storage_cpp_sources
 set(dsm2_input_storage_sources input_storage_fortran.f90)
 
 add_custom_command(
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
   OUTPUT ${dsm2_input_storage_cpp_sources} ${dsm2_input_storage_sources}
   DEPENDS
   generate.py

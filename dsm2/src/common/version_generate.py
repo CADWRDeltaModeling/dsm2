@@ -2,7 +2,7 @@ import os
 import subprocess
 
 VersionTemplate     = "      character*16 :: dsm2_version = '@{Version_GIT_DESCRIBE}', git_build = '@{Version_GIT}', git_uid = '@{GUID_GIT}'"
-VersionFile_path    = "dsm2_version.f90"
+VersionFile_path    = "dsm2_version.inc"
 
 try:
     p = subprocess.Popen("git describe", shell=True, stdout=subprocess.PIPE, universal_newlines=True)

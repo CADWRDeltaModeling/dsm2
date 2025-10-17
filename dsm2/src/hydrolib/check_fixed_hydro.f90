@@ -147,7 +147,7 @@ subroutine check_fixed_hydro(istat)
 830 format(/'Error: too many ',a,' flows connected to ',a,' ',a)
 
 
-&!-----check constants
+!!-----check constants
         if (.not. verify_gravity_terms()) then
         write(unit_error,*)"Error checking fixed data"
         istat=-3
