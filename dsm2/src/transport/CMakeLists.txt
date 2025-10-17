@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
-enable_language(CXX Fortran)
+enable_language(Fortran)
 file(GLOB SOURCES *.f90)
 add_library(transport ${SOURCES})
-target_include_directories(transport PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
+target_include_directories(transport PUBLIC
+    ${HDF5_Fortran_INCLUDE_DIRS})
 add_dependencies(transport gtm_core)
+target_link_libraries(transport PUBLIC gtm_core)

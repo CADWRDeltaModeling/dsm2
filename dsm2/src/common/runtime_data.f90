@@ -20,7 +20,7 @@
 
 module runtime_data
     use type_defs
-    include 'dsm2_version.f90'  ! version of hydro, qual, and ptm
+    include 'dsm2_version.inc'  ! version of hydro, qual, and ptm
 
     !-----dates, timestep
     !-----Note: julian minutes are minutes from 01jan1900 0000 (31dec1899 2400)
@@ -227,16 +227,16 @@ contains
 
         character init_input_file*(*)
         character gtm_init_input_file*(*)
-    
+
         !-----local variables
         logical &
             exst, &                 ! true if file exists
             echo_only
-    
+
         integer iarg               ! argument index
-    
+
         character*150 CLA         ! command line args
-    
+
         iarg = 1
         do while (iarg .le. 2)
             call getarg(iarg, CLA)
@@ -244,7 +244,7 @@ contains
              print *, 'DSM2-' // trim(dsm2_name) // ' ', dsm2_version
              print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
              call exit(1)
-    
+
             elseif (CLA(:2) .eq. "-v" .or.   &
                    CLA(:2) .eq. "-V" .or.   &
                    CLA(:2) .eq. "-h" .or.   &
