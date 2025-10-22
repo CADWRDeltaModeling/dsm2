@@ -1,15 +1,18 @@
 # ~~~~
 # Example of CMake settings
 # Please change the values to match your environment
+# This setting is used for building with MSVC 2022 and Intel compilers 2025.
 # ~~~~
 set(CMAKE_C_COMPILER
-    icc
+    cl
     CACHE STRING "C compiler")
 set(CMAKE_CXX_COMPILER
-    icpc
+    cl
     CACHE STRING "C++ compiler")
+# CMake often cannot find the Intel Fortran compiler automatically
+# You may need to set the full path manually
 set(CMAKE_Fortran_COMPILER
-    ifort
+    "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe"
     CACHE STRING "Fortran compiler")
 
 # set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
@@ -20,6 +23,7 @@ set(CMAKE_Fortran_FLAGS_INIT
     "/Dhydro_1000 /traceback"
     CACHE STRING "Fortran flags to use a large array for the dense dx")
 
+# Dependent libraries. Assuming they are under deps directory.
 set(THIRD_PARTY_DIR
     "${CMAKE_SOURCE_DIR}/deps"
     CACHE PATH "Third party directory")
