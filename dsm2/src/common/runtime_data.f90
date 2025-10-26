@@ -20,6 +20,8 @@
 
 module runtime_data
     use type_defs
+    use stdlib_logger, only: global_logger
+    implicit none
     include 'dsm2_version.inc'  ! version of hydro, qual, and ptm
 
     !-----dates, timestep
@@ -158,6 +160,7 @@ contains
         !-----then from environment variables,
         !-----then default
         use io_units
+        use logging
         implicit none
 
         !-----arguments
@@ -180,8 +183,8 @@ contains
 
         call getarg(1, CLA)
         if (len_trim(CLA) .eq. 0) then ! print version, usage, quit
-            print *, 'DSM2-'//trim(dsm2_name)//' ', dsm2_version
-            print *, 'Usage: '//trim(dsm2_name)//' input-file '
+            call logger%log_information('DSM2-'//trim(dsm2_name)//' '//trim(dsm2_version))
+            call logger%log_information('Usage: '//trim(dsm2_name)//' input-file ')
             call exit(1)
 
         elseif (CLA(:2) .eq. "-v" .or. &
