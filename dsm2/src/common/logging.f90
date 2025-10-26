@@ -19,22 +19,35 @@
 !!</license>
 
 module logging
-    integer,parameter :: LOG_ERROR = 0
-    integer,parameter :: LOG_WARNING = 1
-    integer,parameter :: LOG_INFO = 2
-    integer,parameter :: LOG_DEBUG = 2
+    use stdlib_logger, only: logger_type, error_level
+
+    implicit none
+    integer, parameter :: LOG_ERROR = 0
+    integer, parameter :: LOG_WARNING = 1
+    integer, parameter :: LOG_INFO = 2
+    integer, parameter :: LOG_DEBUG = 2
     integer:: print_level   ! diagnostic printout level
 
-!      contains:
+    type(logger_type) :: logger
+    type(logger_type) :: stderr_logger
 
-!      subroutine dsm2_log(level,message)
-!      implicit none
-!      character*(*) :: message
-!      integer :: level
-!      print *,"hello"
-!      return
-!      end subroutine
-!
-end module
+contains
 
+    subroutine init_loggers()
+    !! Initialize loggers for standard and error logging
+    !!
+    !! Sets up two loggers: one, logger, for general logging to screen and file,
+    !! and another, error_logger, for error logging to error unit and screen.
+    !! The error logging is sent to stderr while the general logging is sent to
+    !! stdout.
+    !! Both loggers are available via the module variables logger and error_logger.
+        use io_units, only: unit_error, unit_screen
+        integer :: unit
+        call logger%add_log_unit(unit=unit_screen)
+        call logger%add_log_file('dsm2.log', unit=unit)
+        call stderr_logger%add_log_unit(unit=unit_error)
+        call stderr_logger%add_log_unit(unit=unit)
+    end subroutine init_loggers
+
+end module logging
 

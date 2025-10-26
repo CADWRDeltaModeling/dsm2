@@ -8,5 +8,6 @@ add_custom_target(version_file
 
 file(GLOB SOURCES *.F90 *.f90)
 add_library(common ${SOURCES})
+target_link_libraries(common PRIVATE  fortran_stdlib::fortran_stdlib)
 set_source_files_properties(network.F90 PROPERTIES Fortran_PREPROCESS ON)
 add_dependencies(common version_file)

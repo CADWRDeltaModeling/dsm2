@@ -129,27 +129,19 @@ module fourpt
     data init_input_file/' '/
 contains
     subroutine prepare_hydro()
+    !! Set module name and initialize logging for hydro module
+        use logging
+        implicit none
         !-----DSM2 module, name and version number
         dsm2_module = hydro
         dsm2_name = 'Hydro'
-        open ( &
-            unit_screen, &
-            carriagecontrol='list', &
-            buffered='NO', &
-            iostat=istat &
-            )
-        open ( &
-            unit_error, &
-            carriagecontrol='list', &
-            buffered='NO', &
-            iostat=istat &
-            ) !! <NT>
-
-        !-----get optional starting input file from command line and
-        !-----simulation name for Database read
+        call init_loggers()
     end subroutine prepare_hydro
 
     subroutine fourpt_init()
+        use logging
+        implicit none
+
         !-----dsm2 initialization
         call dsm2_hydro_init
 
@@ -169,6 +161,7 @@ contains
             inquire (file=init_input_file, exist=file_exists)
             if (.not. file_exists) then
                 write (unit_error, *) "Input file does not exist: ", init_input_file
+                call stderr_logger%log_error("Input file does not exist: " // trim(init_input_file))
                 call exit(1)
             end if
             call input_text(init_input_file)  ! reads and echoes text

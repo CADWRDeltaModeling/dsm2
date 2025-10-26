@@ -104,7 +104,8 @@ target_link_libraries(
           ${HDF5_HL_LIBRARIES}
           ${HDF5_LIBRARIES}
           ${KLU_LIBRARIES}
-          ${HEClib_LIBRARIES})
+          ${HEClib_LIBRARIES}
+          fortran_stdlib::fortran_stdlib)
 target_compile_options(
   ${HYDRO_BIN} PRIVATE "$<TARGET_PROPERTY:MKL::MKL,INTERFACE_COMPILE_OPTIONS>")
 target_link_libraries(${HYDRO_BIN} PRIVATE "$<LINK_ONLY:MKL::MKL>")
