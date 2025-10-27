@@ -1,0 +1,4 @@
+format:
+  line_width: 132
+  tab_size: 2
+  use_tabs: false

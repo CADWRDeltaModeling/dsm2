@@ -51,6 +51,7 @@ else()
   )
   FetchContent_MakeAvailable("fortran_stdlib")
   add_library(fortran_stdlib::fortran_stdlib ALIAS fortran_stdlib)
+  list(APPEND CMAKE_MODULE_PATH "${fortran_stdlib_SOURCE_DIR}/config/cmake")
 endif()
 
 find_package(Boost REQUIRED)
