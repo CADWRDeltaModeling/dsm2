@@ -1,0 +1,29 @@
+addtest(hydro)
+target_link_libraries(
+  test_hydro
+  PRIVATE fourpt
+          hydrolib
+          fixed
+          hdf_tidefile
+          hdf_tidefile_cpp
+          oprule_interface_cpp
+          oprule_interface
+          gtm_main
+          process_io
+          transport
+          gtm_core
+          dsm2_input_storage
+          dsm2_input_storage_cpp
+          klu_fortran
+          common
+          pattern_match
+          input_storage
+          oprule_parser
+          oprule
+          ${Boost_LIBRARIES}
+          ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES}
+          ${KLU_LIBRARIES}
+          ${HEClib_LIBRARIES}
+          fortran_stdlib::fortran_stdlib
+          "$<LINK_ONLY:MKL::MKL>")

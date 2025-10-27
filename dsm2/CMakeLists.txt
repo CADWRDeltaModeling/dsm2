@@ -189,6 +189,12 @@ add_subdirectory(src/${GTM_SEDIMENT_BED_SETUP})
 # Hydro-GTM
 add_subdirectory(src/hydro_gtm_driver)
 
+# Tests
+if (BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
 # INSTALL Section
 install(
   TARGETS ${HYDRO_BIN}
