@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_input_node(Name, &
+submodule (mod_fixed) mod_process_input_node
+    use mod_name_to_objno
+contains
+module subroutine process_input_node(Name, &
                               LocNum, &
                               param, &
                               Sign, &
@@ -55,7 +58,6 @@ subroutine process_input_node(Name, &
         istat
 
     integer, external :: data_types
-    integer, external :: ext2intnode
 
     real*8 ftmp
     real*8, external :: fetch_data
@@ -178,3 +180,4 @@ subroutine process_input_node(Name, &
 630 format(/a, i5)
 
 end subroutine
+end submodule mod_process_input_node

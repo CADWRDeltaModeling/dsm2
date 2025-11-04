@@ -18,7 +18,9 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_output_channel(name, &
+submodule (mod_fixed) dsm2_fixed_process_output_channel
+contains
+module subroutine process_output_channel(name, &
                                   channo, &
                                   distance, &
                                   param, &
@@ -28,6 +30,7 @@ subroutine process_output_channel(name, &
                                   filename)
 
       use Groups, only: GROUP_ALL
+      use mod_name_to_objno
       use io_units
       use logging
       use iopath_data
@@ -46,9 +49,6 @@ subroutine process_output_channel(name, &
 
       integer :: channo
       integer :: distance
-
-      integer, external :: name_to_objno
-      integer, external :: ext2int
 
       character*(200) ctmp
       integer itmp
@@ -91,7 +91,7 @@ subroutine process_output_channel(name, &
          end if
       write(pathoutput(noutpaths).obj_name, '(i)') channo
       pathoutput(noutpaths).chan_dist=distance
-      if(pathoutput(noutpaths).chan_dist .eq. chan_length) then
+      if(pathoutput(noutpaths).chan_dist .eq. initial_channel_length) then
           pathoutput(noutpaths).chan_dist &
             = chan_geom(pathoutput(noutpaths).obj_no).length
       end if
@@ -163,5 +163,5 @@ subroutine process_output_channel(name, &
       return
 end subroutine
 
-
+end submodule dsm2_fixed_process_output_channel
 

@@ -27,6 +27,9 @@ module tidefile
     use chstatus, only: GlobalStreamSurfaceElevation, GlobalStreamFlow
     use channel_schematic, only: StreamEndNode
     use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
+    use mod_hdf5_init
+    use hdf5_write
+    use mod_tide_time
     implicit none
 !**********contains routines for processing state variables
 !-----(computations of average area in channel,velocity, etc.)
@@ -156,7 +159,7 @@ contains
         use netcntrl
         use channel_xsect_tbl, only: cxarea
         use netcntrl
-        use gates, only: gateArray, ngate
+    use gates_data, only: gateArray, nGate
 
         implicit none
 
@@ -370,7 +373,7 @@ contains
 
         !   Local Variables:
         integer i
-        integer dummy, SetHDF5ToTime
+        integer dummy
 
         logical ok
         logical InitialCall

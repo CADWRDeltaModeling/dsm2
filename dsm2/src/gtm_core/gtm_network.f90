@@ -22,10 +22,10 @@
 !>@ingroup gtm_core
 module gtm_network
 
-    use gtm_precision
+    use constants
     use error_handling
     use gtm_logging
-    use common_variables
+    use common_vars
     use common_xsect
 
     real(gtm_real), allocatable :: flow_mesh_lo(:,:)

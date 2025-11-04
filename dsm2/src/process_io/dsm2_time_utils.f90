@@ -21,7 +21,7 @@
 !>@ingroup process_io
 module dsm2_time_utils
 
-    use gtm_precision
+    use constants
     use error_handling
     contains
 
@@ -54,8 +54,6 @@ module dsm2_time_utils
                           jmins,      &
                           e_part,     &
                           boundary)
-
-        use common_dsm2_vars, only: miss_val_i, IGNORE_BOUNDARY, NEAREST_BOUNDARY
 
         implicit none
 
@@ -294,7 +292,7 @@ module dsm2_time_utils
     subroutine split_epart(e_part,   &
                            number,   &
                            interval)
-        use common_dsm2_vars, only: miss_val_i
+        use common_gtm_vars, only: miss_val_i
         implicit none
         character, intent(in) :: e_part*(*)    !< DSS E part
         character, intent(out) :: interval*(*) !< DSS interval
@@ -361,7 +359,7 @@ module dsm2_time_utils
     !> corresponding portion from the date.
     subroutine get_intvl(cdatx, e_part, cdate_intvl)
 
-        use common_variables, only: miss_val_c
+        use common_vars, only: miss_val_c
         implicit none
 
         character*(*), intent(in) :: cdatx        ! date/time string [IN]

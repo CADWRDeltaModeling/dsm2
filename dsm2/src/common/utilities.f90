@@ -19,8 +19,12 @@
 !!</license>
 
 module utilities
+    use constants
+    use io_units
+    use type_defs
+    implicit none
 contains
-    integer*4 function incr_intvl(jmins, e_part, boundary)
+    integer * 4 function incr_intvl(jmins, e_part, boundary)
 
 !!    Given a julian minute corresponding to a DSS character date
 !!    (e.g. 05JUN1993 0510) and a DSS E part (e.g. 1HOUR, 2MON)
@@ -51,7 +55,6 @@ contains
 !!    then jmins will be returned for a positive interval; the previous
 !!    boundary will be returned for a negative interval.
 
-        use constants
         implicit none
 
         logical &
@@ -59,11 +62,11 @@ contains
             keepit              ! statement function
 
         character &
-            e_part*(*), &           ! DSS style interval [INPUT]
-            e_part_tmp*80, &       ! temporary e_part
-            interval*80         ! DSS interval (e.g. HOUR)
+            e_part * (*), &           ! DSS style interval [INPUT]
+            e_part_tmp * 80, &       ! temporary e_part
+            interval * 80         ! DSS interval (e.g. HOUR)
 
-        integer*4 &
+        integer * 4 &
             jmins, &                ! starting julian minute [INPUT]
             iymdjl, &              ! DSS function
             nom_mins            ! nominal number of minutes in an interval
@@ -113,8 +116,8 @@ contains
 
         call locase(e_part_tmp)
 
-        jule = jmins/(24*60)        ! julian days
-        ietime = mod(jmins, 24*60)   ! minutes past midnight
+        jule = jmins / (24 * 60)        ! julian days
+        ietime = mod(jmins, 24 * 60)   ! minutes past midnight
 
         do i = 1, nfields
 
@@ -141,14 +144,14 @@ contains
                 istat = inctim(nom_mins, 0, number, juls, istime, jule, ietime)
             else                   ! respect boundary
                 istat = jliymd(juls, iy, imon, id) ! get integer year, month, day
-                ih = istime/60
+                ih = istime / 60
                 imin = mod(istime, 60)
 
                 if (index(interval, 'decade') .ne. 0) then
                     if (mod(iy, 10) .eq. 0 .and. imon .eq. 1 .and. &
                         id .eq. 1 .and. ih .eq. 0 .and. imin .eq. 0) &
                         on_boundary = .true. ! jmins on decade boundary
-                    iy = (iy/10)*10    ! e.g. 1993 -> 1990, 1990 -> 1990
+                    iy = (iy / 10) * 10    ! e.g. 1993 -> 1990, 1990 -> 1990
                     imon = 1
                     id = 1
                     ih = 0
@@ -238,23 +241,23 @@ contains
 !--------------now back to same or previous hour boundary
                     if (keepit(boundary, number_sign, on_boundary)) then
                         jule = juls
-                        ietime = ih*60
+                        ietime = ih * 60
                         goto 100
                     else
-                        istime = ih*60
+                        istime = ih * 60
                         istat = inctim(nom_mins, 0, number, juls, istime, jule, &
                                        ietime)
                     end if
                 else if (index(interval, 'min') .ne. 0) then
                     if (mod(imin, 15) .eq. 0) on_boundary = .true. ! jmins on 15min boundary
-                    if (interval(:5) .eq. '15min') imin = (imin/15)*15
+                    if (interval(:5) .eq. '15min') imin = (imin / 15) * 15
 !--------------now back to same or previous 15min boundary
                     if (keepit(boundary, number_sign, on_boundary)) then
                         jule = juls
-                        ietime = ih*60 + imin
+                        ietime = ih * 60 + imin
                         goto 100
                     else
-                        istime = ih*60 + imin
+                        istime = ih * 60 + imin
                         istat = inctim(nom_mins, 0, number, juls, istime, jule, &
                                        ietime)
                     end if
@@ -268,7 +271,7 @@ contains
 
         end do
 
-        incr_intvl = jule*24*60 + ietime
+        incr_intvl = jule * 24 * 60 + ietime
 
         return
 
@@ -281,13 +284,12 @@ contains
 !-----Assume that every interval is unitary (e.g. 6HOUR means
 !-----six 1HOUR intervals, not a single interval of 6HOUR).
 !-----However 15MIN means a single 15MIN interval.
-        use constants
         implicit none
 
-        character e_part*(*), &      ! DSS E part [INPUT]
-            interval*(*), &        ! DSS interval [RETURN]
-            e_part_tmp*80, &       ! temporary e part
-            char_list*12        ! list of chars to scan
+        character e_part * (*), &      ! DSS E part [INPUT]
+            interval * (*), &        ! DSS interval [RETURN]
+            e_part_tmp * 80, &       ! temporary e part
+            char_list * 12        ! list of chars to scan
 
         integer number, &            ! number of intervals [RETURN]
             ielen, &               ! length of e_part
@@ -327,7 +329,7 @@ contains
             ) then
 !--------for minutes, treat 15MIN intervals as unit
             if (mod(number, 15) .eq. 0 .and. interval(:3) .eq. 'min') then
-                number = number/15
+                number = number / 15
                 interval = '15min'
             else
                 interval = '1'//interval
@@ -348,12 +350,11 @@ contains
 !-----Given a character date/time string (e.g. 05JAN1996 0530), and a
 !-----DSS E part interval (e.g. 1HOUR, 1MONTH), return the
 !-----corresponding portion from the date.
-        use constants
         implicit none
 
 !-----subroutine arguments
 
-        character*(*) &
+        character * (*) &
             cdatx, &                ! date/time string [IN]
             e_part, &              ! DSS E part interval [IN]
             cdate_intvl         ! date/time portion corresponding to interval [OUT]
@@ -363,7 +364,7 @@ contains
         integer &
             number               ! number prefix of E part
 
-        character*15 &
+        character * 15 &
             interval             ! E part minus number prefix
 
         call split_epart(e_part, number, interval)
@@ -390,15 +391,14 @@ contains
         return
     end
 
-    integer*4 function cdt2jmin(cdatx)
+    integer * 4 function cdt2jmin(cdatx)
 
 !-----Convert from character date/time to julian minute
-        use constants
         implicit none
 
-        character*(*) cdatx       ! character date/time (e.g. 05JUN1983 0510) (input)
+        character * (*) cdatx       ! character date/time (e.g. 05JUN1983 0510) (input)
 
-        integer*4 &
+        integer * 4 &
             julday, &               ! days since 31dec1899
             minute, &              ! minutes past midnight
             ihm2m, &               ! DSS function
@@ -415,7 +415,7 @@ contains
             goto 900
         end if
 
-        cdt2jmin = julday*24*60 + minute
+        cdt2jmin = julday * 24 * 60 + minute
         return
 
 900     continue
@@ -423,15 +423,14 @@ contains
 
     end
 
-    character*14 function jmin2cdt(julmin)
+    character * 14 function jmin2cdt(julmin)
 
 !-----Convert from julian minute to character date/time
-        use constants
         implicit none
 
-        integer*4 julmin          ! minutes since 31dec1899 2400
+        integer * 4 julmin          ! minutes since 31dec1899 2400
 
-        integer*4 &
+        integer * 4 &
             julday, &               ! days since 31dec1899
             minute, &              ! minutes past midnight
             ndate, &               ! number of characters in date
@@ -440,8 +439,8 @@ contains
             jtmp, itmp           ! temporary julday & minutes
 
         jmin2cdt = '              '
-        jtmp = julmin/(24*60)       ! julday
-        itmp = mod(julmin, 24*60)    ! minutes past midnight
+        jtmp = julmin / (24 * 60)       ! julday
+        itmp = mod(julmin, 24 * 60)    ! minutes past midnight
         call datcll(jtmp, itmp, julday, minute)
 
         call juldat(julday, 104, jmin2cdt(1:9), ndate)
@@ -455,7 +454,7 @@ contains
 
     end
 
-    character*19 function jmin2iso(julmin)
+    character * 19 function jmin2iso(julmin)
 
 !-----Convert from julian minute to character date/time
         ! in ISO compliant format yyyy - mmm - dd hh:mm::ss
@@ -463,38 +462,38 @@ contains
         ! always used instead of 2400)
         implicit none
 
-        integer*4 julmin          ! minutes since 31dec1899 2400
-        integer*4 julday
-        integer*4 minute
-        integer*4 y, m, d, ihr, imin
+        integer * 4 julmin          ! minutes since 31dec1899 2400
+        integer * 4 julday
+        integer * 4 minute
+        integer * 4 y, m, d, ihr, imin
 
-        julday = julmin/(24*60)       ! julday
-        minute = mod(julmin, 24*60)    ! minutes past midnight
+        julday = julmin / (24 * 60)       ! julday
+        minute = mod(julmin, 24 * 60)    ! minutes past midnight
 
         call jliymd(julday, y, m, d)
-        ihr = minute/60
+        ihr = minute / 60
         imin = mod(minute, 60)
         write (jmin2iso, 231) y, m, d, ihr, imin
 231     format(i4, '-', i2.2, '-', i2.2, ' ', i2.2, ':', i2.2, ':00')
         return
     end
-    character*80 function dates2diff(cdate1, cdate2)
+    character * 80 function dates2diff(cdate1, cdate2)
 
 !-----Given 2 DSS date/times, return the difference between them
 !-----in terms of years, months, days, hour, and minutes
 
         implicit none
 
-        character*(*) &
+        character * (*) &
             cdate1, cdate2        ! earliest and latest date/time pair
 
-        character*3 &
+        character * 3 &
             cyears, &               ! number of years difference
             cdays, &               ! number of days difference
             chours, &              ! number of hours difference
             cmins               ! number of minutes difference
 
-        integer*4 &
+        integer * 4 &
             jmin1, jmin2, &          ! julian minute for cdate1 and cdate2
             jdiff                 ! difference
 
@@ -509,12 +508,12 @@ contains
 
         jdiff = jmin2 - jmin1
 
-        nyears = jdiff/(365*24*60)
-        jdiff = jdiff - nyears*(365*24*60)
-        ndays = jdiff/(24*60)
-        jdiff = jdiff - ndays*(24*60)
-        nhours = jdiff/60
-        nmins = jdiff - nhours*60
+        nyears = jdiff / (365 * 24 * 60)
+        jdiff = jdiff - nyears * (365 * 24 * 60)
+        ndays = jdiff / (24 * 60)
+        jdiff = jdiff - ndays * (24 * 60)
+        nhours = jdiff / 60
+        nmins = jdiff - nhours * 60
 
         write (cyears, '(i3.3)') nyears
         write (cdays, '(i3.3)') ndays
@@ -530,14 +529,13 @@ contains
         return
     end
 
-    character*14 function diff2dates(start_date, cintvls)
+    character * 14 function diff2dates(start_date, cintvls)
 
 !-----Given a character DSS start date, and a character interval,
 !-----return the DSS character end date.
-        use constants
         implicit none
 
-        character*(*) &
+        character * (*) &
             start_date, &           ! DSS start date
             cintvls             ! list of intervals (e.g. 1DAY 2HOUR 15MIN)
 
@@ -560,7 +558,7 @@ contains
 
         integer dim_carr          ! dimension of carr
 
-        character*(*) &
+        character * (*) &
             cstring, &              ! input string
             carr(dim_carr)      ! input character array
 
@@ -595,7 +593,7 @@ contains
         return
     end
 
-    character*200 function get_substring(cstring, delimiter)
+    character * 200 function get_substring(cstring, delimiter)
 
 !-----Given a string of delimiter separated substrings, return
 !-----the first substring, and remove the first substring
@@ -607,8 +605,8 @@ contains
         integer ndx1, ndx2, &         ! delimiter indices
             lnblnk              ! last non-blank intrinsic
 
-        character*(*) cstring, &     ! main string [INPUT and OUTPUT]
-            delimiter*1         ! single character delimiter [INPUT]
+        character * (*) cstring, &     ! main string [INPUT and OUTPUT]
+            delimiter * 1         ! single character delimiter [INPUT]
 
         if (delimiter .eq. ' ') then
 !--------delimiter is blank: look for and discard multiple blanks
@@ -641,7 +639,7 @@ contains
 
         implicit none
 
-        character*(*) &
+        character * (*) &
             string, &               ! string to search in [INPUT]
             chars               ! single characters to look for [INPUT]
 
@@ -666,13 +664,11 @@ contains
 !-----return the from (Q>0) and the to object (Q<0), depending
 !-----on the flow direction (positive or negative).
 
-        use type_defs
-        use constants
         implicit none
 
 !-----args
 
-        real*4 flow                 ! flow value
+        real * 4 flow                 ! flow value
         type(obj2obj_t) obj2obj ! the obj2obj array element
         type(from_to_t) :: from_object, to_object ! the from and to substructure
 
@@ -697,7 +693,7 @@ contains
 
 !-----arguments
 
-        character*(*) &
+        character * (*) &
             current_version, &      ! current version number string
             test_version        ! test version number string
 
@@ -754,12 +750,11 @@ contains
 !-----Given a dotted version number string (e.g. '5.67.23'), and a dot
 !-----group (e.g. 2, counting from left), return the version number for
 !-----that group number (e.g. 67).
-        use constants
         implicit none
 
 !-----arguments
 
-        character*(*) version     ! version number string [IN]
+        character * (*) version     ! version number string [IN]
         integer dot_group         ! dot group [IN]
 
 !-----local variables
@@ -772,7 +767,7 @@ contains
             max_fields=10 &
             )
 
-        character*10 dot_char     ! string corresponding to dot number at the dot grouping
+        character * 10 dot_char     ! string corresponding to dot number at the dot grouping
 
 !-----DSS subroutine variables
         integer &
@@ -805,9 +800,8 @@ contains
     end
 
     integer function fillin_code(fillin)
-        use constants
         implicit none
-        character*(*) fillin
+        character * (*) fillin
         fillin_code = miss_val_i
         call locase(fillin)
         if (fillin .eq. "last") then
@@ -817,4 +811,5 @@ contains
         end if
         return
     end function
+
 end module utilities

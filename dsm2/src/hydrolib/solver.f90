@@ -23,21 +23,22 @@
 !   Note: This include, when used, must follow after "Network.inc".
 
 module solver
+    use array_limits
     use network
     implicit none
     logical, save:: resetSolver=.true.
     integer,parameter :: MaxGatePtr=MaxNGate*5*4+ MaxNGate*5*4+MaxNgate*5
-    integer, parameter :: MAX_EQUATION=(2*MaxLocations+MaxNRes*(1+MaxResConnectChannel))
+    integer, parameter :: MAX_EQUATION=(2*MAX_LOCATIONS+MaxNRes*(1+MaxResConnectChannel))
     real*8, parameter :: ZscaleFactor=1.D0
 	real*8, parameter :: MassScaleFactor=1.D0/(32.D0*1024.D0)
 	real*8, parameter :: DynScaleFactor=1.D0/(1024.D0)
 	real*8, parameter :: ResScaleFactor=1.D0
 	real*8, parameter :: ResConnectScaleFactor=128.D0
     integer, save::  Matrix, &
-        MassEq(4,MaxLocations), &
-        DynmEq(4,MaxLocations), &
-        MassEqRow(MaxLocations), &
-        DynmEqRow(MaxLocations), &
+        MassEq(4,MAX_LOCATIONS), &
+        DynmEq(4,MAX_LOCATIONS), &
+        MassEqRow(MAX_LOCATIONS), &
+        DynmEqRow(MAX_LOCATIONS), &
         TotalChanRows, & ! Total number of rows (equations) dedicated to channels. &
         TotalChanResRows, & ! Total number of rows (equations) dedicated to channels and reservoirs
         !-------fixme: make the following limits better
@@ -53,7 +54,7 @@ module solver
     logical*4,save:: NormClose
     real*8,save :: LInfNorm,LastLInfNorm,L2Norm,LastL2Norm
     !-------Don't change the size of these variables!!!!
-    real*8, save ::  XX(2*MaxLocations+MaxNRes*(1+MaxResConnectChannel)), &
+    real*8, save ::  XX(2*MAX_LOCATIONS+MaxNRes*(1+MaxResConnectChannel)), &
          X(MAX_EQUATION), &
          XOld(MAX_EQUATION), &
          XAdj(MAX_EQUATION), &

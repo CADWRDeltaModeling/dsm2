@@ -36,7 +36,7 @@ module hydro_data_network
                                          nqext,       &
                                          ntran,       &
                                          time_index)
-            use gtm_precision
+            use constants
             implicit none
             integer, intent(in) :: nresv                         !< Number of reservoirs
             integer, intent(in) :: nresv_conn                    !< Number of reservoir connections

@@ -68,7 +68,7 @@ module advection
                       LL,                   &
                       sed_percent)
 
-        use gtm_precision
+        use constants
         use primitive_variable_conversion
         use gradient
         use source_sink
@@ -76,7 +76,7 @@ module advection
         use boundary_concentration
         use gradient_adjust
         use boundary_concentration
-        use common_variables, only: n_node, n_qext
+        use common_vars, only: n_node, n_qext
 
         implicit none
 
@@ -309,7 +309,7 @@ module advection
                                 time,                &
                                 dt,                  &
                                 dx)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
@@ -353,7 +353,7 @@ module advection
                             ncell,    &
                             nvar)
 
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer,intent(in)  :: ncell                      !< Number of cells
@@ -400,7 +400,7 @@ module advection
                                   ncell,    &
                                   nvar)
 
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer,intent(in)  :: ncell                      !< Number of cells
@@ -435,7 +435,7 @@ module advection
                                    time,                &
                                    dt,                  &
                                    dx)
-        use gtm_precision
+        use constants
         use primitive_variable_conversion
         use source_sink
 
@@ -514,7 +514,7 @@ module advection
     !> is a distance/standard deviation
     subroutine gaussian_(val,xposition,center,sd,scale)
         ! df(x)/dx = -a*2*(x-b)/(2c^2)*exp(-(x-b)^2/(2c^2))
-        use gtm_precision
+        use constants
         implicit none
         real(gtm_real), intent(out) :: val            !< value to be produced
         real(gtm_real), intent(in)  :: xposition      !< X

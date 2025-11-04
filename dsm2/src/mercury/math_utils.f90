@@ -21,7 +21,7 @@
 !>@ingroup mercury
 module math_utils
 
-    use gtm_precision
+    use constants
 
     implicit none
 

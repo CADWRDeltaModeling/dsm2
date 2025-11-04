@@ -36,7 +36,7 @@ module reaction
                    nvar,       &
                    time,       &
                    dt)
-      use gtm_precision
+      use constants
       use source_sink
       use primitive_variable_conversion ! todo: do we need it?
       !---arg

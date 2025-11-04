@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_input_gate(LocName, &
+submodule (mod_fixed) mod_process_input_gate
+    use mod_name_to_objno
+contains
+module subroutine process_input_gate(LocName, &
                               SubLoc, &
                               Param, &
                               Fillin, &
@@ -48,7 +51,6 @@ subroutine process_input_gate(LocName, &
         Sign, &                ! sign restriction on input
         npath, na, nb, nc, nd, ne, nf, &
         itmp, &
-        name_to_objno, &       ! function to get object number
         gateNo, devNo, devType, &
         istat
 
@@ -320,3 +322,4 @@ subroutine process_input_gate(LocName, &
 630 format(/a, i5)
 
 end
+end submodule mod_process_input_gate

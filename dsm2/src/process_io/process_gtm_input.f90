@@ -24,9 +24,9 @@
 !>@ingroup process_io
 module process_gtm_input
 
-    use gtm_precision
+    use constants
     use error_handling
-    use common_dsm2_vars
+    use common_gtm_vars
     use input_storage_fortran
 
     contains

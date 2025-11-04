@@ -140,6 +140,7 @@ contains
 
     subroutine fourpt_init()
         use logging
+        use mod_check_fixed_hydro
         implicit none
 
         !-----dsm2 initialization

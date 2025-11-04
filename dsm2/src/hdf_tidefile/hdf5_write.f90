@@ -21,11 +21,16 @@
 !***********************************************************************
 !***********************************************************************
 
+module hdf5_write
+    !! Module containing subroutines to write data to HDF5 tide file
+
+    use error_handling
+    implicit none
+contains
 subroutine Write1DStringArray(dest_id,name,arr,strlen,nstr)
 
       use HDF5
       use hdfvars
-      use inclvars
 
       implicit none
       integer(HID_T),intent(in) :: dest_id ! Destination group identifier
@@ -68,7 +73,6 @@ subroutine WriteChannelAreaToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -126,7 +130,6 @@ subroutine WriteChannelFlowToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -156,7 +159,6 @@ subroutine WriteCompPointToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
       use chnlcomp, only: TotalCompLocations   ! to obtain the value for TotalComputations
 
@@ -197,7 +199,6 @@ subroutine WriteReservoirFlowToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -245,7 +246,6 @@ subroutine WriteReservoirHeightToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -273,7 +273,6 @@ subroutine WriteTransferFlowToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -322,7 +321,6 @@ subroutine WriteQExtChangedToHDF5()
 
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
-      use inclvars
       use common_tide
 
       implicit none
@@ -379,9 +377,8 @@ end subroutine
 subroutine write_gates_to_hdf5()
     !! Write gate status to the tide file
     use hdf5
-    use inclvars
     use hdfvars
-    use gates, only: nGate
+    use gates_data, only: nGate
     use common_tide, only: inst_device_flow
 
     implicit none
@@ -416,3 +413,29 @@ subroutine write_gates_to_hdf5()
 
     return
 end subroutine
+
+
+    subroutine write_input_buffers_hdf5(loc_id)
+!     Writes in all text starting from input filename
+        use hdf5
+        use input_storage_fortran
+        use iopath_data
+        use runtime_data
+        use envvar
+        implicit none
+        character(len=5) :: group_name = "input"
+        integer(HID_T) :: loc_id
+        integer(HID_T) :: group_id
+
+        integer :: ierror = 0
+
+!-----Write all buffers to hdf5
+        call h5gcreate_f(loc_id, group_name, group_id, ierror)
+        call verify_error(ierror, "Error creating echoed input group in hdf5 file")
+        call write_buffer_profile_to_hdf5(trim(dsm2_name), group_id, ierror)  ! Do the actual write
+        call verify_error(ierror, "Error writing echoed input to hdf5")
+        call h5gclose_f(group_id, ierror)
+        return
+    end subroutine
+
+end module hdf5_write

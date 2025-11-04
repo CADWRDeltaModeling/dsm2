@@ -17,12 +17,15 @@
 !!    You should have received a copy of the GNU General Public License
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
+submodule (mod_fixed) mod_process_gate
+    use mod_name_to_objno
+contains
 subroutine process_gate(id, &
                         name, &
                         ObjConnTypeName, &
                         ObjConnID, &
                         nodeConn)
-    use Gates, only: gateArray, nGate, MAX_GATES
+    use gates_data, only: gateArray, nGate, MAX_GATES
     use IO_Units
     use logging
     use constants
@@ -32,7 +35,6 @@ subroutine process_gate(id, &
         ID, &
         ObjConnType, &         ! connected to channel, reservoir, etc.
         NodeConn, &            ! node connected to
-        name_to_objno, &       ! function to get object number
         channo, &
         resno, &
         counter, &
@@ -46,8 +48,6 @@ subroutine process_gate(id, &
     character(len=16) :: ObjConnTypeName
 
     logical :: useObj
-    integer, external :: ext2intnode
-    integer, external :: obj_type_code
 
     ObjConnType = obj_type_code(ObjConnTypeName)
     ngate = ngate + 1
@@ -142,7 +142,6 @@ subroutine process_gate_device( &
         default_op, &
         get_objnumber       ! function to get object number
 
-    integer, external :: name_to_objno
 
     real*8 &
         max_width, &
@@ -229,3 +228,4 @@ subroutine process_gate_device( &
 
     return
 end subroutine
+end submodule mod_process_gate

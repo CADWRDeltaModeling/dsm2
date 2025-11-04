@@ -27,7 +27,7 @@ module primitive_variable_conversion
   !> you will get NaN
   pure subroutine cons2prim(conc,mass,area,nloc,nvar)
 
-      use gtm_precision
+      use constants
 
       implicit none
       !--- args
@@ -49,7 +49,7 @@ module primitive_variable_conversion
   !> Convert primitive (concentration) to conservative variables (ie mass)
   pure subroutine prim2cons(mass,conc,area,nloc,nvar)
 
-      use gtm_precision
+      use constants
 
       implicit none
       !--- args
@@ -73,7 +73,7 @@ module primitive_variable_conversion
   !> adds it to the conservative variable. "Scale" will typically involve dt or half*dt.
   pure subroutine prim_increment_to_cons(mass,conc,area,nloc,nvar,scale)
 
-      use gtm_precision
+      use constants
 
       implicit none
       !--- args

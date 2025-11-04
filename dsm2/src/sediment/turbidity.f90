@@ -23,7 +23,7 @@
 !>@ingroup sediment
 module turbidity
 
-    use gtm_precision
+    use constants
 
     ! Variables for turbidity module
     real(gtm_real), allocatable :: turbidity_decay(:)
@@ -54,7 +54,7 @@ module turbidity
                                 dt,            &
                                 ncell,         &
                                 constraint)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                         !< Number of cells

@@ -22,8 +22,9 @@
 !> Explicit and implicit diffusion operators are included here.
 !>@ingroup transport
 module diffusion
+    use constants
+    implicit none
 
-    use gtm_precision
     integer, allocatable :: aap(:)
     integer, allocatable :: aai(:)
     real(gtm_real), allocatable :: aax(:)
@@ -71,10 +72,10 @@ module diffusion
                        dt,                &
                        dx)
 
-        use gtm_precision
+        use constants
         use primitive_variable_conversion
         use boundary_diffusion
-        use common_variables, only: constituents
+        use common_vars, only: constituents
 
         implicit none
         ! ---- args
@@ -217,7 +218,7 @@ module diffusion
                                            time,                 &
                                            dx,                   &
                                            dt)
-        use gtm_precision
+        use constants
         use boundary_diffusion
 
         implicit none
@@ -273,7 +274,7 @@ module diffusion
                               time,               &
                               dx,                 &
                               dt)
-        use gtm_precision
+        use constants
         use boundary_diffusion
 
         ! --- args
@@ -340,7 +341,7 @@ module diffusion
                                               nvar,                  &
                                               dx,                    &
                                               dt)
-        use gtm_precision
+        use constants
         ! ---args
         implicit none
         integer, intent (in) :: ncell                                     !< Number of cells
@@ -384,7 +385,7 @@ module diffusion
                                           nvar,             &
                                           dx,               &
                                           dt)
-        use gtm_precision
+        use constants
 
         ! ---args
         implicit none
@@ -439,7 +440,7 @@ module diffusion
                      nvar)
 
         use matrix_solver
-        use gtm_precision
+        use constants
         implicit none
         ! ----- args
 

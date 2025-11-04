@@ -37,8 +37,8 @@ module boundary_advection
                                           dx,         &
                                           tstp,       &
                                           sed_percent)
-        use gtm_precision
-        use common_variables, only: n_node, n_qext!, n_sediment_bc
+        use constants
+        use common_vars, only: n_node, n_qext!, n_sediment_bc
         implicit none
         !--- args
         integer,intent(in)  :: ncell                            !< Number of cells
@@ -79,7 +79,7 @@ module boundary_advection
                                  dt,         &
                                  dx)
 
-       use gtm_precision
+       use constants
        use error_handling
        implicit none
        !--- args
@@ -112,7 +112,7 @@ module boundary_advection
                                         time,        &
                                         dt,          &
                                         dx)
-       use gtm_precision
+       use constants
        use error_handling
        implicit none
        !--- args
@@ -149,9 +149,9 @@ module boundary_advection
                                tstp,        &
                                sed_percent)
 
-       use gtm_precision
+       use constants
        use error_handling
-       use common_variables, only: n_node, n_qext!, n_sediment_bc
+       use common_vars, only: n_node, n_qext!, n_sediment_bc
        implicit none
        !--- args
        integer,intent(in)  :: ncell                            !< Number of cells

@@ -19,6 +19,7 @@
 !!</license>
 
 subroutine dsm2_init
+    use groups_data
     use Groups, only: InitGroupAll
     use rate_coeff_assignment, only: initialize_rate_coefficient
     use IO_Units, only: unit_output
@@ -65,7 +66,7 @@ subroutine dsm2_init
     obj_names(obj_reservoir) = 'reservoir'
     obj_names(obj_gate) = 'gate'
     obj_names(obj_qext) = 'qext'
-    obj_names(obj_obj2obj) = 'o2o'
+    obj_names(obj_transfer) = 'o2o'
     obj_names(obj_flux) = 'flux'
     obj_names(obj_stage) = 'stage'
     obj_names(obj_null) = miss_val_c
@@ -91,7 +92,7 @@ subroutine dsm2_init
     end do
 
 !-----groups. initialize the "wildcard" group
-    call InitGroupAll()
+    call InitGroupAll(groupArray)
 
 !------non-converative constitute rate coefficients initialization Jon 4/12/06
     call initialize_rate_coefficient

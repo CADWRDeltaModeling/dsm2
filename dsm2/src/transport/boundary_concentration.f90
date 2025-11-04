@@ -30,7 +30,7 @@ module boundary_concentration
                                              ncell,      &
                                              nvar,       &
                                              tstp)
-            use gtm_precision
+            use constants
             implicit none
             !--- args
             integer, intent(in)  :: ncell                            !< Number of cells
@@ -53,7 +53,7 @@ module boundary_concentration
                                                  conc_hi,  &
                                                  ncell,    &
                                                  nvar)
-        use gtm_precision
+        use constants
         use error_handling
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells

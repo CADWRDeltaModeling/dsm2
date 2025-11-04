@@ -19,11 +19,12 @@
 !!</license>
 
 module grid_data
+    !! Module to hold grid data
     use type_defs
-    integer :: &
-        max_channels                 ! maximum number of channels
+    use array_limits
+    implicit none
+
     integer :: max_xsects_tot        ! maximum number of cross sections total
-    integer :: max_nodes             ! maximum number of nodes
     integer :: max_obj2obj           ! maximum number of object to object connections
     integer :: max_stgbnd            ! maximum number of stage boundaries
     integer :: nstgbnd               ! actual number of stage boundaries
@@ -34,9 +35,7 @@ module grid_data
     integer :: nnodes                ! actual number of total nodes (interior + boundary)
     integer :: nxsects               ! actual number of cross sections
     parameter( &
-        max_channels=800, &           ! MaxChannels should equal this
         max_xsects_tot=5*max_channels, &
-        max_nodes=max_channels + 10, &
         max_obj2obj=50, &
         max_stgbnd=5 &
         )
@@ -50,14 +49,8 @@ module grid_data
         area_tolerance               ! max allowable ratio of virt_area(MSL) @ chan ends
     real*8 :: levee_slope            ! slope of levees for xsect width extrapolation
 
-    integer :: &
-        max_reservoirs               ! maximum number of reservoirs
     integer :: nreser                ! actual number of reservoirs
     integer :: nres_connect          ! total number of reservoir connections across all reservoirs
-
-    parameter( &
-        max_reservoirs=100 &
-        )
 
     type(reservoir_t) :: res_geom(0:max_reservoirs)
 
@@ -81,7 +74,7 @@ module grid_data
     type(stgbnd_t) :: stgbnd(max_stgbnd)
 
     !-----quad points
-    integer:: nquadpts = 3           ! number of quadrature points
+    ! integer:: nquadpts = 3           ! number of quadrature points
 
     !-----used by virtual_xsect
     real(kind=4), allocatable :: chan_dx(:)  ! variable dx for dsm2
@@ -102,5 +95,44 @@ module grid_data
     integer :: const_qext(max_qext, max_conqext)
     integer :: n_conqext(max_qext)   ! number of constituents at external flow
     common/com_conqext/const_qext, n_conqext
+
+contains
+    ! Convert an external channel number to internal number
+    ! using a binary search.
+    integer function ext2int(extchan)
+        use ifport
+        ! use grid_data
+        implicit none
+        integer extchan
+        ext2int = bsearchqq(loc(extchan), loc(int2ext(1)), nchans, SRT$INTEGER4)
+        return
+    end function
+
+!     Compare two integers (e.g., as needed for qsort)
+    integer(2) function compareInt(arg1, arg2)
+        implicit none
+        integer arg1, arg2
+        compareInt = arg1 - arg2
+        return
+    end function
+
+!-----Convert an external node number to an internal one using
+!     binary search
+    integer function ext2intnode(extnode)
+        use ifport
+        ! use grid_data
+        implicit none
+        integer extnode
+        ext2intnode = bsearchqq(loc(extnode), loc(nodelist(1)), &
+                                nintnodes, SRT$INTEGER4)
+        if (ext2intnode .gt. 0) return
+        ext2intnode = bsearchqq(loc(extnode), loc(nodelist(nintnodes + 1)), &
+                                (nnodes - nintnodes), SRT$INTEGER4)
+        if (ext2intnode .gt. 0) then
+            ext2intnode = ext2intnode + nintnodes
+        end if
+
+        return
+    end function
 
 end module

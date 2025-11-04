@@ -20,11 +20,10 @@
 
 !-----multiple tidefiles for Qual, PTM
 module common_tide
-    use type_defs
     use constants
+    use array_limits
     use grid_data
-    use network, only: MaxLocations
-    use gates, only: MAX_GATES, MAX_DEV
+    use gates_data, only: MAX_GATES, MAX_DEV
 
     implicit none
 
@@ -51,8 +50,8 @@ module common_tide
     real*4 :: Qchan(2, Max_Channels)             ! HDF5 Temporary holder
     real*4 :: Eresv(Max_Reservoirs)             ! HDF5 Temporary holder
     real*4 :: TempQExtAv(1000)             ! HDF5 Temporary holder
-    real*4 :: Qcp(MaxLocations)          ! Flow at computation points
-    real*4 :: Zcp(MaxLocations)          ! Stage at computation points
+    real*4 :: Qcp(MAX_LOCATIONS)          ! Flow at computation points
+    real*4 :: Zcp(MAX_LOCATIONS)          ! Stage at computation points
 
     ! Flows in and out of all the reservoir-node connections.
     ! Dimension will be one per reservoir connection

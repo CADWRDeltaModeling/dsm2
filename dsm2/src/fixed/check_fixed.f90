@@ -18,6 +18,10 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
+module mod_check_fixed
+    use mod_name_to_objno
+    use groups
+contains
 subroutine check_fixed(istat)
 
 !-----Check the fixed input for omissions and errors before starting
@@ -26,9 +30,10 @@ subroutine check_fixed(istat)
 !-----to internal.
     use io_units
 
-    use gates, only: gateArray, nGate
-    use groups, only: groupArray, groupContains, ConvertGroupPatternsToMembers, &
-                      GROUP_ALL, IsAllChannelReservoir, GroupTarget
+    use gates_data, only: gateArray, nGate
+    use groups_data, only: groupArray
+    use groups, only: groupContains, &
+                      GROUP_ALL, IsAllChannelReservoir
     use constants
     use logging
     use common_qual
@@ -53,8 +58,6 @@ subroutine check_fixed(istat)
 
     logical &
         constituent_input(max_constituent), & ! true if an input path was found for constituent
-        uniq_constituent, & ! function to determine if this constituent is unique
-        ncc, & ! function to determine if this constituent is non-conservative
         lstat               ! logical status
 
     integer &
@@ -74,7 +77,6 @@ subroutine check_fixed(istat)
         adjpathout, & ! adjusted pathoutput (original npathouts + ngroups)
         outindx, & ! holds value of original npathouts
         itmp                ! index
-    integer ext2int           ! function for converting external channel # to internal
 
     integer &
         extchan, &
@@ -300,7 +302,7 @@ subroutine check_fixed(istat)
                     else
                         pathoutput(i)%obj_no = &
                             node_geom(pathoutput(i)%obj_no)%downstream(1)
-                        pathoutput(i)%chan_dist = chan_length
+                        pathoutput(i)%chan_dist = initial_channel_length
                     end if
                 end if
 
@@ -316,7 +318,7 @@ subroutine check_fixed(istat)
                     else if (node_geom(pathoutput(i)%obj_no)%ndown .eq. 1) then
                         pathoutput(i)%obj_type = obj_channel
                         pathoutput(i)%obj_no = node_geom(pathoutput(i)%obj_no)%downstream(1)
-                        pathoutput(i)%chan_dist = chan_length
+                        pathoutput(i)%chan_dist = initial_channel_length
                     else
 !--------------------can't have flow/vel at a node with multiple channels
                         write (unit_error, 671) &
@@ -669,7 +671,7 @@ subroutine check_fixed(istat)
                             call exit(2)
                         end if
 
-                        if (GroupContains(constituents(j)%group_ndx, &
+                        if (GroupContains(groupArray, constituents(j)%group_ndx, &
                                           target_type, target_id)) then
                             pathinput(p)%n_consts = pathinput(p)%n_consts + 1
                             pathinput(p)%const_ndx(pathinput(p)%n_consts) = j
@@ -726,7 +728,7 @@ subroutine check_fixed(istat)
             end if
         end if
 !--------replace magic number channel length with correct channel length
-        if (pathoutput(p)%chan_dist .eq. chan_length) &
+        if (pathoutput(p)%chan_dist .eq. initial_channel_length) &
             pathoutput(p)%chan_dist = &
             chan_geom(pathoutput(p)%obj_no)%length
 
@@ -754,7 +756,7 @@ subroutine check_fixed(istat)
 !-----------ca=trim(ctmp) // '+GATE'
 !-----------else if (pathoutput(p).obj_type .eq. obj_qext) then
 !-----------ca=trim(ctmp) // '+QEXT'
-!-----------else if (pathoutput(p).obj_type .eq. obj_obj2obj) then
+!-----------else if (pathoutput(p).obj_type .eq. obj_transfer) then
 !-----------ca=trim(ctmp) // '+OBJ2OBJ'
 !-----------else if (pathoutput(p).obj_type .eq. obj_flux) then
 !-----------ca=trim(ctmp) // '+FLUX'
@@ -991,43 +993,6 @@ subroutine check_fixed(istat)
 
 end subroutine
 
-!     Convert an external channel number to internal number
-!     using a binary search.
-integer function ext2int(extchan)
-    use ifport
-    use grid_data
-    implicit none
-    integer extchan
-    ext2int = bsearchqq(loc(extchan), loc(int2ext(1)), nchans, SRT$INTEGER4)
-    return
-end function
-
-!     Compare two integers (e.g., as needed for qsort)
-integer(2) function compareInt(arg1, arg2)
-    implicit none
-    integer arg1, arg2
-    compareInt = arg1 - arg2
-    return
-end function
-
-!-----Convert an external node number to an internal one using
-!     binary search
-integer function ext2intnode(extnode)
-    use ifport
-    use grid_data
-    implicit none
-    integer extnode
-    ext2intnode = bsearchqq(loc(extnode), loc(nodelist(1)), &
-                            nintnodes, SRT$INTEGER4)
-    if (ext2intnode .gt. 0) return
-    ext2intnode = bsearchqq(loc(extnode), loc(nodelist(nintnodes + 1)), &
-                            (nnodes - nintnodes), SRT$INTEGER4)
-    if (ext2intnode .gt. 0) then
-        ext2intnode = ext2intnode + nintnodes
-    end if
-
-    return
-end function
 
 logical function ncc(chemical_name)
 
@@ -1066,9 +1031,6 @@ logical function uniq_constituent(outpath)
         outpath              ! pointer to outputpath structure index
 
 !-----local variables
-
-    logical &
-        ncc                  ! function to determine if this constituent is non-conservative
 
     integer &
         loc, & ! array index; function to find string in char array
@@ -1118,3 +1080,4 @@ logical function uniq_constituent(outpath)
 
     return
 end
+end module mod_check_fixed

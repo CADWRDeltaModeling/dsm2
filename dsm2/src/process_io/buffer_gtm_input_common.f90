@@ -19,15 +19,15 @@
 !</license>
 !>@ingroup process_io
 module buffer_gtm_input_common
-
-    contains
+    use constants
+contains
 
     !> Process blocks (ENVVAR, SCALAR, IO_FILES, TIDEFILE) and variables in common_dsm2_vars
     subroutine buffer_input_common()
       use input_storage_fortran
       !use groups, only:convertgrouppatternstomembers
-      use common_variables
-      use common_dsm2_vars
+      use common_vars
+      use common_gtm_vars
       use process_gtm_scalar
       use process_gtm_io_file
       use process_gtm_tidefile
@@ -56,7 +56,7 @@ module buffer_gtm_input_common
       !--output channel
       character(len=8) :: distance
       character(len=16) :: variable, perop
-      integer :: idistance, chan_length
+      integer :: idistance
       integer :: channo
       !--output reservoir
       character(len=32) :: res_name
@@ -234,7 +234,7 @@ module buffer_gtm_input_common
     !> Convert member pattern name to obj code
     subroutine obj_type_to_code(obj_type,     &
                                 member_type)
-        use common_variables
+        use common_vars
         implicit none
         integer, intent(out) :: obj_type
         character*16, intent(in) :: member_type
@@ -274,8 +274,8 @@ module buffer_gtm_input_common
 
     !> Routine to fill in gtm_io(:,:)
     subroutine fill_gtm_io_type()
-        use common_dsm2_vars
-        use common_variables
+        use common_gtm_vars
+        use common_vars
         use error_handling
         implicit none
         logical :: file_exists

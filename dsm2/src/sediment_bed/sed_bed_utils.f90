@@ -11,8 +11,8 @@
                                 ncell,          &
                                 nresv,          &
                                 nvar)
-        use common_variables, only : constituents, resv_geom
-        use gtm_precision
+        use common_vars, only : constituents, resv_geom
+        use constants
         use sed_type_defs
         implicit none
         character(len=14), intent(in) :: cdtdate

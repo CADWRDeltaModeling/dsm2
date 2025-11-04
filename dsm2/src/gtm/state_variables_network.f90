@@ -23,8 +23,8 @@
 !>@ingroup gtm_driver
 module state_variables_network
 
-    use gtm_precision
-    use common_variables
+    use constants
+    use common_vars
 
     !> State variables for data read from hydro
     real(gtm_real), save, allocatable :: prev_comp_flow(:)

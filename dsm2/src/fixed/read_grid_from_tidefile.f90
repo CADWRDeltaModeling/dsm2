@@ -20,7 +20,10 @@
 
 ! --- reads in the grid information from a hydro tidefile
 ! --- h5open_f must already have been called
-subroutine read_grid_from_tidefile()
+
+submodule (mod_fixed) mod_read_grid_from_tidefile
+contains
+module subroutine read_grid_from_tidefile()
       use hdf5
       use common_tide
       use input_storage_fortran
@@ -54,3 +57,4 @@ subroutine read_grid_from_tidefile()
       call h5fclose_f(file_id,ierror)
       return
 end subroutine
+end submodule mod_read_grid_from_tidefile

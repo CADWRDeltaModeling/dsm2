@@ -27,7 +27,7 @@
 
 module mercury_fluxes
 
-    use gtm_precision
+    use constants
     use equilibrium
     use mercury_state_variables
     use hg_internal_vars

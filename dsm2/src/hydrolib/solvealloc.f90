@@ -68,8 +68,7 @@ contains
         !   Module data:
 
         !   Local Variables:
-        integer,parameter :: Zero=0
-        integer error             ! error indicator for matrix allocation routine
+        integer,parameter :: Zero_=0
         integer rowcounter        ! counter for reservoir rows and gate rows
         integer i                 ! loop index
 
@@ -121,7 +120,7 @@ contains
         use Gates, only:gateArray,Gate,NGate
         use IO_Units
         use grid_data
-        use constants
+        use constants, only: OBJ_CHANNEL, OBJ_RESERVOIR
         use klu
         use network
         use chnlcomp
@@ -171,7 +170,7 @@ contains
         integer,parameter :: DF=2     ! # of state variables on grid (flow, stage)
         integer,parameter :: PlusOne= 1
         integer,parameter :: MinusOne= -1
-        integer,parameter :: One=1
+        integer,parameter :: One_=1
 
         logical OK
         integer UpConstraintRow
@@ -421,7 +420,7 @@ contains
                         end if
 
                         if (ConnectingNodes > 0) then
-                            ConnectingChannel = UpstreamConnect(One)
+                            ConnectingChannel = UpstreamConnect(One_)
                             if (ConnectingChannel/=0) then
                                 Node = IABS(StreamEndNode(ConnectingChannel))
                             else
@@ -457,7 +456,7 @@ contains
 
                         ConstraintNode = UpstreamPointer()
                         ConnectingNodes = UpstreamConnections()
-                        ConnectingChannel =UpstreamConnect(One)
+                        ConnectingChannel =UpstreamConnect(One_)
                         ConnectCol = DF * IABS(StreamEndNode(ConnectingChannel))
                         K=K+1
                         UpConstraintIndex(M)=K
@@ -581,7 +580,7 @@ contains
                         end if
 
                         if (ConnectingNodes > 0) then
-                            ConnectingChannel = DownstreamConnect(One)
+                            ConnectingChannel = DownstreamConnect(One_)
                             if(ConnectingChannel/=0) then
                                 Node = IABS(StreamEndNode(ConnectingChannel))
                             else
@@ -635,7 +634,7 @@ contains
 
                         ConstraintNode = DownstreamPointer()
                         ConnectingNodes =DownstreamConnections()
-                        ConnectingChannel =DownstreamConnect(One)
+                        ConnectingChannel =DownstreamConnect(One_)
                         ConnectCol = DF * abs(StreamEndNode(ConnectingChannel))
                         K=K+1
                         DownConstraintIndex(M)=K

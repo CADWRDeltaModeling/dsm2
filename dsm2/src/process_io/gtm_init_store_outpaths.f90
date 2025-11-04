@@ -29,9 +29,9 @@ module gtm_init_store_outputs
    !> files.
     subroutine gtm_init_store_outpaths(istat)
 
-        use gtm_precision, only: miss_val_c
-        use common_variables
-        use common_dsm2_vars, only: temp_dir, pathoutput, NEAREST_BOUNDARY, &
+        use constants, only: miss_val_c
+        use common_vars
+        use common_gtm_vars, only: temp_dir, pathoutput, NEAREST_BOUNDARY, &
                                     per_type_names, gtm_start_jmin
         use dsm2_time_utils, only: incr_intvl
 
@@ -48,7 +48,6 @@ module gtm_init_store_outputs
                    ptr,   &                ! global pointer for pathouput
                    i,     &                ! loop index
                    npaths                  ! path count
-        character*1 :: backslash = '\'
         character*13 :: crid               ! run date/time as character: YYMMDDhhmm
         integer :: tmp_incr_intvl
         integer :: time_intv
@@ -273,8 +272,8 @@ module gtm_init_store_outputs
 
     !> get number of path for each output period
     subroutine get_npathout
-        use common_variables, only: unit_error
-        use common_dsm2_vars, only: noutpaths, pathoutput, dsm2_name
+        use common_vars, only: unit_error
+        use common_gtm_vars, only: noutpaths, pathoutput, dsm2_name
         implicit none
 
         character :: ca*32,cb*32,cc*32,cf*32 ! DSS path parts

@@ -1,8 +1,8 @@
 module sed_type_defs
 
-use gtm_precision
+use constants
 use hdf5, only: HID_T, HSIZE_T
-use common_variables, only: k_eq_solids_t
+use common_vars, only: k_eq_solids_t
 implicit none
 
 real(gtm_real), parameter  :: g_cm3_to_g_m3     = 1.d06

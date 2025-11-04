@@ -39,8 +39,8 @@ module gtm_source
                                      constraint,   &
                                      name,         &
                                      rkstep)
-        use gtm_precision
-        use common_variables, only: n_sediment, use_sediment_bed, n_layers, &
+        use constants
+        use common_vars, only: n_sediment, use_sediment_bed, n_layers, &
                                     run_mercury, n_mercury, mercury_ivar,n_resv
         use suspended_sediment
         use sed_type_defs, only: n_zones !added by dhh

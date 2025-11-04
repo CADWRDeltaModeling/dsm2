@@ -35,8 +35,8 @@ module boundary_advection_network
                                   ncell,       &
                                   nvar)
 
-        use gtm_precision
-        use common_variables, only : n_node, dsm2_network, constituents
+        use constants
+        use common_vars, only : n_node, dsm2_network, constituents
         implicit none
 
         !---- args
@@ -111,9 +111,9 @@ module boundary_advection_network
                                           ncell,        &
                                           nvar,         &
                                           use_limiter)
-        use gtm_precision
+        use constants
         use gradient, only : limiter
-        use common_variables, only : n_node, dsm2_network, n_qext
+        use common_vars, only : n_node, dsm2_network, n_qext
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)          !< Cell centered difference adjusted for boundaries and hydraulic devices
@@ -188,10 +188,10 @@ module boundary_advection_network
                                          dx,         &
                                          tstp,       &
                                          sed_percent)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
-        use common_dsm2_vars, only: pathinput
+        use common_vars, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
+        use common_gtm_vars, only: pathinput
         use state_variables, only: conc_prev
         use state_variables_network
         implicit none
@@ -463,11 +463,11 @@ module boundary_advection_network
                                              ncell,    &
                                              nvar,     &
                                              tstp)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
+        use common_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts
-        use common_dsm2_vars, only: n_inputpaths, pathinput
+        use common_gtm_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells

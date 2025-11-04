@@ -24,7 +24,7 @@
 !>@ingroup transport
 module source_sink
 
-    use gtm_precision, only: gtm_real
+    use constants, only: gtm_real
     real(gtm_real), allocatable :: linear_decay(:) !< linear decay rates for when linear source is used, should be nonpositive
     real(gtm_real), allocatable :: linear_decay_by_cell(:,:) !< linear decay rates per cell
     real(gtm_real), allocatable :: source_term_by_cell(:,:) !< source term per cell
@@ -51,7 +51,7 @@ interface
                          constraint,   &
                          name,         &
                          rkstep)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                           !< Number of cells
@@ -106,7 +106,7 @@ end interface
                          constraint,   &
                          name,         &
                          rkstep)
-        use gtm_precision
+        use constants
         use error_handling
         implicit none
         !--- args
@@ -134,7 +134,7 @@ end interface
     !> Sets the decay rate and sets the source term to linear decay
     subroutine set_linear_decay(rates,nvar)
 
-        use gtm_precision
+        use constants
         use error_handling
         implicit none
         integer:: nvar
@@ -168,7 +168,7 @@ end interface
                                    constraint,   &
                                    name,         &
                                    rkstep)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                           !< Number of cells
@@ -213,7 +213,7 @@ end interface
                                            constraint,   &
                                            name,         &
                                            rkstep)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                           !< Number of cells
@@ -257,7 +257,7 @@ end interface
                                        constraint,   &
                                        name,         &
                                        rkstep)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                           !< Number of cells

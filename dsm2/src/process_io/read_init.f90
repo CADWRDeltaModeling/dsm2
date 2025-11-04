@@ -26,9 +26,9 @@ module read_init
     subroutine read_init_file(init,              &
                               init_r,            &
                               restart_file_name)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment
+        use common_vars, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         real(gtm_real), intent(out) :: init(n_cell,n_var)  !< Initial concentration for cells
@@ -114,9 +114,9 @@ module read_init
     subroutine check_init_file(nadd,             &
                                name,             &
                                restart_file_name)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: constituents_tmp, n_var
+        use common_vars, only: constituents_tmp, n_var
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         character*32, intent(out) :: name(10)            !< additional constituents, maximum 10

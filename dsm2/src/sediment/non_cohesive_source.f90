@@ -23,7 +23,7 @@
 
 module non_cohesive_source
 
-    use gtm_precision
+    use constants
 
     contains
 

@@ -18,6 +18,9 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
+module mod_buffer_input_tidefile
+contains
+
 subroutine buffer_input_tidefile()
     !! Check the list of tide files and set the start time of the first tide file
     !! Called by Qual and PTM.
@@ -27,6 +30,7 @@ subroutine buffer_input_tidefile()
     use runtime_data
     use common_tide
     use utilities
+    use mod_process_tidefile
     implicit none
     integer :: nitem
     integer :: icount
@@ -91,3 +95,5 @@ subroutine buffer_input_tidefile()
     tide_files(1)%start_julmin = start_julmin
     return
 end subroutine
+
+end module mod_buffer_input_tidefile

@@ -3,13 +3,13 @@
 
 module sed_bed_hdf
 
-    use common_dsm2_vars, only: gtm, io_hdf5, io_write, io_files, NEAREST_BOUNDARY, TO_BOUNDARY
-    use common_variables, only:hdf_out
+    use common_gtm_vars, only: gtm, io_hdf5, io_write, io_files, NEAREST_BOUNDARY, TO_BOUNDARY
+    use common_vars, only:hdf_out
     use sed_internal_vars
     use  gtm_hdf_ts_write, only: gtm_hdf_t, add_timeseries_attributes,  close_gtm_hdf
     use dsm2_time_utils, only: incr_intvl
     use error_handling
-    use gtm_precision
+    use constants
     use sed_type_defs
     implicit none
 
@@ -35,8 +35,8 @@ module sed_bed_hdf
 
     subroutine init_sed_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_hdf)
         use hdf5
-        use common_variables, only: unit_error,unit_screen
-        use common_dsm2_vars, only: print_level
+        use common_vars, only: unit_error,unit_screen
+        use common_gtm_vars, only: print_level
         !this routine is adapted from subroutine init_gtm_hdf in gtm_hdf_ts_write
         !todo: this could probably be rolled into gtm_hdf_ts_write
         !args
@@ -448,7 +448,7 @@ module sed_bed_hdf
                                   nconc,        &
                                   time_index)
         use hdf5
-        use common_variables, only: hdf_out, chan_geom
+        use common_vars, only: hdf_out, chan_geom
         implicit none
         type(gtm_sed_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
@@ -539,7 +539,7 @@ module sed_bed_hdf
                                         nsolids,        &
                                         time_index)
         use hdf5
-        use common_variables, only: hdf_out, chan_geom
+        use common_vars, only: hdf_out, chan_geom
         implicit none
         type(gtm_sed_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
         real(gtm_real), intent(in)  :: settling(ncell,nzone, nsolids,2)      ! 2 is the number of steps in Huen's method
@@ -645,8 +645,8 @@ module sed_bed_hdf
 
      subroutine close_gtm_sed_hdf(hdf_file)
         use hdf5
-        use common_variables, only: unit_error,unit_screen, hdf_out
-        use common_dsm2_vars, only: print_level
+        use common_vars, only: unit_error,unit_screen, hdf_out
+        use common_gtm_vars, only: print_level
 
         implicit none
         type(gtm_sed_hdf_t) :: hdf_file
@@ -830,7 +830,7 @@ module sed_bed_hdf
 
     subroutine write_channel_labels(loc_id, nchan)
         use hdf5
-        use common_variables, only: chan_geom,hdf_out !resv_geom, constituents,
+        use common_vars, only: chan_geom,hdf_out !resv_geom, constituents,
         implicit none
         !args
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID

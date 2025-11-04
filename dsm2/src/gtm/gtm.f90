@@ -21,13 +21,13 @@
 !>@ingroup gtm_driver
 module dsm2gtm
 
-    use gtm_precision
+    use constants
     use error_handling
     use gtm_logging
-    use common_variables
+    use common_vars
     use common_xsect
-    use common_dsm2_vars
-    use common_dsm2_qual
+    use common_gtm_vars
+    use common_qual
     use process_gtm_input
     use io_utilities
     use time_utilities
@@ -167,7 +167,7 @@ subroutine gtm_prepare2(tidefile_id)
     !-----get optional starting input file from command line and
     !-----simulation name for Database read
     use hdf_util, only : hydro_file_id, hydro_id
-    use common_variables, only : set_dsm2_network_info, assign_segment
+    use common_vars, only : set_dsm2_network_info, assign_segment
 
     integer(HID_T), intent(in), optional :: tidefile_id
     integer(HID_T) :: tidefile_id_

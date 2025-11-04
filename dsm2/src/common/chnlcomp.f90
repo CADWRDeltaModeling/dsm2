@@ -21,20 +21,19 @@
 !===== BOF chncomp.inc ================================================
 !   Version 93.01, January, 1993
 module chnlcomp
-    !   Note: This include, when used, must follow  after "Network.inc".
-    use network, only: MaxLocations, MaxCompPts
+    use array_limits
+    implicit none
     integer, save, allocatable :: NumberOfCompLocations(:), &
                                   UpCompPointer(:), &
                                   DownCompPointer(:)
     integer, save :: TotalCompLocations
     real*8, save, allocatable :: AreaChannelComp(:,:)
-    real*8, save :: CompLocation(MaxLocations), &
-                    ChannelNo(MaxLocations), &
-                    DummyArray(MaxLocations), &
-                    DummyArray2(MaxLocations)
-    character*16, save:: DummyCharArray(MaxLocations)
+    real*8, save :: CompLocation(MAX_LOCATIONS), &
+                    ChannelNo(MAX_LOCATIONS), &
+                    DummyArray(MAX_LOCATIONS), &
+                    DummyArray2(MAX_LOCATIONS)
+    character*16, save:: DummyCharArray(MAX_LOCATIONS)
 
-    
 !   Definitions:
 !     TotalCompLocations - total number of computational locations
 !                          in the current application.

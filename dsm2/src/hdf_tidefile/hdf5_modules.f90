@@ -1,18 +1,3 @@
-module inclvars
-	  use type_defs
-	  ! Module that loads include variables from DSM2
-        !use network
-        !use chconnec
-        !use chnlcomp
-        !use chstatus
-        !use channel_xsect_tbl
-        !use dss
-        !use mod_readdss
-end module inclvars
-
-!***********************************************************************
-!***********************************************************************
-
 module hdfvars
 				! Module that contains shared variables for HDF5 writing
       use hdf5

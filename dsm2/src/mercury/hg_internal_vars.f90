@@ -1,7 +1,7 @@
 module hg_internal_vars
 
-use gtm_precision
-use common_variables
+use constants
+use common_vars
 use hg_type_defs
 use sed_type_defs, only: hg_rate_parms_t
 use sed_internal_vars

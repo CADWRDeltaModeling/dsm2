@@ -26,6 +26,7 @@
 
 !== Public (ForceStreamSurface) ========================================
 module channel_constraints
+    use constants
     implicit none
 contains
     logical function ForceStreamSurface(Extremity)
@@ -375,12 +376,12 @@ contains
         parameter(First=1)
         integer ConnectingNodes
         integer ConstraintNode, DF
-        integer Zero, Row, Node
+        integer Zero_, Row, Node
         integer ConnectingChannel
         integer Channel, ConstraintIndex, ConstraintPointer
 
-        real*8 One, MinusOne, Fall
-        parameter(Zero=0, One=1.0, MinusOne=-1.0, DF=2)
+        real*8 MinusOne, Fall
+        parameter(Zero_=0, MinusOne=-1.0, DF=2)
         logical OK
 
         !   Routines by module:

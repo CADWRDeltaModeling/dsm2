@@ -22,12 +22,12 @@
 !>@ingroup gtm_driver
 module boundary_diffusion_network
 
-    use gtm_precision
+    use constants
     use error_handling
     use diffusion
     use boundary_diffusion
     use dispersion_coefficient
-    use common_dsm2_vars, only: print_level
+    use common_gtm_vars, only: print_level
     real(gtm_real), allocatable, save :: disp_coef_arr(:)
     integer, allocatable :: rcind(:)        ! row and column count index
     integer, allocatable :: kin(:)          ! lookup index for aax() transpose
@@ -81,9 +81,9 @@ module boundary_diffusion_network
                                                     dt,            &
                                                     ncell,         &
                                                     nvar)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: n_gate, gate, dsm2_network
+        use common_vars, only: n_gate, gate, dsm2_network
         implicit none
         !--- args
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -135,9 +135,9 @@ module boundary_diffusion_network
                                       dt,            &
                                       ncell,         &
                                       nvar)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only: n_gate, gate, dsm2_network
+        use common_vars, only: n_gate, gate, dsm2_network
         implicit none
         !--- args
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -188,9 +188,9 @@ module boundary_diffusion_network
                                                time,              &
                                                dx,                &
                                                dt)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra, constituents
+        use common_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra, constituents
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
@@ -274,9 +274,9 @@ module boundary_diffusion_network
                                                           time,              &
                                                           dx,                &
                                                           dt)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra
+        use common_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
@@ -364,8 +364,8 @@ module boundary_diffusion_network
                                                     time,              &
                                                     dx,                &
                                                     dt)
-        use gtm_precision
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra, constituents
+        use constants
+        use common_vars, only : n_node, dsm2_network, dsm2_network_extra, constituents
         use state_variables_network, only : prev_node_conc, prev_conc_stip
         implicit none
         !--- args
@@ -457,9 +457,9 @@ module boundary_diffusion_network
                                                                nvar,               &
                                                                dx,                 &
                                                                dt)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only : n_node, dsm2_network, constituents
+        use common_vars, only : n_node, dsm2_network, constituents
         use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
         implicit none
         !--- args
@@ -589,9 +589,9 @@ module boundary_diffusion_network
 
   !> Adjustments for network diffusion matrix
     subroutine network_diffusion_sparse_geom(ncell)
-        use gtm_precision
+        use constants
         use error_handling
-        use common_variables, only : n_node, n_junc, dsm2_network
+        use common_vars, only : n_node, n_junc, dsm2_network
         use state_variables_network, only : node_conc
         use utils
         implicit none

@@ -26,7 +26,7 @@ module io_utilities
     !> then from environment variables,
     !> then default
     subroutine get_command_args(init_input_file)   !todo: I haven't tested echo_only functionality
-      use common_dsm2_vars
+      use common_gtm_vars
       implicit none
       character init_input_file*(*)  ! initial input file on command line [optional]
 
@@ -77,7 +77,7 @@ module io_utilities
 
     !> fill in code for last or linear
     integer function fillin_code(fillin)
-      use common_dsm2_vars, only: miss_val_i, fill_last, fill_interp
+      use common_gtm_vars, only: miss_val_i, fill_last, fill_interp
       implicit none
       character*(*) fillin
       fillin_code = miss_val_i
@@ -136,7 +136,7 @@ module io_utilities
     !> six 1HOUR intervals, not a single interval of 6HOUR).
     !> However 15MIN means a single 15MIN interval.
     subroutine split_epart(e_part,number,interval)
-      use common_dsm2_vars, only: miss_val_i
+      use common_gtm_vars, only: miss_val_i
       implicit none
       character :: e_part*(*),        &  ! DSS E part [INPUT]
                    interval*(*),      &  ! DSS interval [RETURN]

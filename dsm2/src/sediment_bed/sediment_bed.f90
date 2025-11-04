@@ -26,16 +26,14 @@
 !>@ingroup sediment_bed
 
 module sediment_bed
+    use constants
+    use sed_type_defs
+    use sed_internal_vars
+    use common_vars
 
-use gtm_precision
-use sed_type_defs
-use sed_internal_vars
-use common_variables
+    implicit none
 
-implicit none
-
-
-    contains
+contains
 
 subroutine sediment_bed_main(ncells,        &
                             nzones,         &

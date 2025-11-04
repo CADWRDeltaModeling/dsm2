@@ -22,15 +22,16 @@
 !   Version 93.01, January, 1993
 
 module chstatus
+    use constants, only: MAXQUADPTS
+    use array_limits
     use network
     use linear, only: Linear1D
     implicit none
-    double precision,target,save :: WS(MaxLocations)
-    double precision,target,save :: Q(MaxLocations)
-    double precision,target,save :: H(MaxLocations)
-    double precision, save:: Rho1(MaxLocations), Rho2(MaxLocations)
-    double precision, save:: QOld(MaxLocations)
-
+    double precision,target,save :: WS(MAX_LOCATIONS)
+    double precision,target,save :: Q(MAX_LOCATIONS)
+    double precision,target,save :: H(MAX_LOCATIONS)
+    double precision, save:: Rho1(MAX_LOCATIONS), Rho2(MAX_LOCATIONS)
+    double precision, save:: QOld(MAX_LOCATIONS)
 contains
 
     !***********************************************************************
@@ -357,7 +358,7 @@ contains
             endif
 
             Locations(I) = nLoc
-            if( ( K + nLoc ) <= MaxLocations ) then
+            if( ( K + nLoc ) <= MAX_LOCATIONS ) then
 
                 FirstLocation(I) = K + 1
                 do 100 J=1,nLoc
@@ -373,7 +374,7 @@ contains
                     extchan
                 write(UNIT_ERROR,*) ' Maximum number of loactions exceeded.'
                 write(UNIT_ERROR,*) ' Attempted...', K + Locations(I)
-                write(UNIT_ERROR,*) ' Allowed.....', MaxLocations
+                write(UNIT_ERROR,*) ' Allowed.....', MAX_LOCATIONS
                 return
             end if
             InitialConditionIndex( intchan ) = I
@@ -424,7 +425,6 @@ contains
 
     logical function ApproxReadInitialConditions()
         use IO_Units
-        use network
         use netcntrl
         use channel_schematic, &
             only: DownstreamPointer, UpstreamPointer, NumberOfStreamLocations, &
@@ -444,7 +444,7 @@ contains
 
         !   Local Variables:
         integer I, J, K
-        real*8    CompLocation_lcl(MaxLocations)
+        real*8    CompLocation_lcl(MAX_LOCATIONS)
         logical UpstreamFlag, DownstreamFlag
 
 
@@ -1038,7 +1038,7 @@ contains
         integer I, J, K
         integer Channelnumber_L, UserLocations
         real*8    Velocity, delx, CrNo, dtr, G, FrNo
-        real*8    CompLocation_lcl(MaxLocations)
+        real*8    CompLocation_lcl(MAX_LOCATIONS)
         real*8    WidthRatio, Width, WSSlope, WSSlopeRatio, WSSlopeChange
         logical OK
 
@@ -1132,7 +1132,7 @@ contains
 
 
 
-        do i=1,MaxLocations
+        do i=1,MAX_LOCATIONS
             QOld(i)=Q(i)
         end do
         do i=1,NReser
@@ -1764,7 +1764,6 @@ end function
 !== Public (StreamResistance) ================================================
 
 real*8 function StreamResistance( Xu, Xd, Zu, Zd, Q )
-    use network
     use channel_xsect_tbl, only: BtmElev, Conveyance
     use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
     implicit none

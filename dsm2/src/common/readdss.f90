@@ -63,7 +63,7 @@ contains
 
 !-----Buffer time series data from DSS for model input
         use IO_Units
-        use type_defs
+        use constants
         use iopath_data
         use constants
         use runtime_data

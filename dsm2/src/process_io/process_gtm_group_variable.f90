@@ -26,7 +26,7 @@ module process_gtm_group_variable
                                       constituent,    &
                                       rate_variable,  &
                                       rate_value)
-        use common_variables
+        use common_vars
         implicit none
         character*16, intent(in) :: rate_variable
         character*16, intent(in) :: constituent
@@ -107,12 +107,12 @@ module process_gtm_group_variable
             var_code = alg_die
         else
             do i = n_coef + 1, n_coef + n_floating
-                if (trim(rate_variable) .eq. trim(coeff_type(i))) var_code = i
+                if (trim(rate_variable) .eq. trim(coeff_name(i))) var_code = i
             end do
             if (var_code .eq. 0) then
                 n_rate_var = n_rate_var + 1
                 var_code = n_rate_var
-                coeff_type(n_rate_var) = rate_variable
+                coeff_name(n_rate_var) = rate_variable
             end if
         end if
 

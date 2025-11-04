@@ -18,8 +18,11 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-
-subroutine process_input_reservoir(Name, &
+submodule (mod_fixed) mod_process_input_reservoir
+    use mod_name_to_objno
+    implicit none
+contains
+module subroutine process_input_reservoir(Name, &
                                    LocName, &
                                    Param, &
                                    Sign, &
@@ -53,13 +56,8 @@ subroutine process_input_reservoir(Name, &
           itmp, &
           istat
 
-      integer, external :: name_to_objno
-      integer, external :: data_types
-      integer, external :: ext2intnode
-      integer, external :: get_objnumber
 
       real*8 ftmp
-      real*8, external :: fetch_data
 
       call locase(name)
       call locase(locname)
@@ -167,3 +165,5 @@ subroutine process_input_reservoir(Name, &
  630  format(/a,i5)
 
 end subroutine
+
+end submodule mod_process_input_reservoir

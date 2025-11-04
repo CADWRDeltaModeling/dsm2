@@ -18,6 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_process_transfer
+    use mod_name_to_objno
+contains
+
 subroutine process_transfer(ID, &
                                   TransName, &
                                   FromType, &
@@ -34,9 +38,6 @@ subroutine process_transfer(ID, &
       character*16 FromType
       character*16 ToType
       integer FromObjType, ToObjType, ID
-      integer, external :: ext2intnode
-      integer, external :: name_to_objno
-      integer, external :: obj_type_code
       call locase(FromType)
       call locase(ToType)
       call locase(TransName)
@@ -84,6 +85,4 @@ subroutine process_transfer(ID, &
       return
 end subroutine
 
-
-
-
+end module mod_process_transfer

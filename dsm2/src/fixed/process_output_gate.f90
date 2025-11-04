@@ -17,7 +17,9 @@
 !!    You should have received a copy of the GNU General Public License
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
-subroutine process_output_gate(name, &
+submodule (mod_fixed) mod_process_output_gate
+contains
+module subroutine process_output_gate(name, &
                                     LocName, &
                                     SubLoc, &
                                     param, &
@@ -27,6 +29,7 @@ subroutine process_output_gate(name, &
 
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
       use Groups, only: GROUP_ALL
+      use mod_name_to_objno
       use iopath_data
       use io_units
       use logging
@@ -48,10 +51,6 @@ subroutine process_output_gate(name, &
       integer*4 &
           itmp, &
           gateNo,devNo
-
-      integer, external :: name_to_objno
-      integer, external :: ext2int
-      integer, external :: get_objnumber
 
       logical device_required
 
@@ -197,3 +196,5 @@ subroutine process_output_gate(name, &
  630  format(/a,i5)
       return
 end subroutine
+
+end submodule mod_process_output_gate

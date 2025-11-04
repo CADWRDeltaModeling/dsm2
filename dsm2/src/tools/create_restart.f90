@@ -27,7 +27,7 @@ module create_restart
     subroutine create_restart_file(outfile,           &
                                    gtm_tidefile,      &
                                    time_selected)
-        use gtm_precision
+        use constants
         use error_handling
         use hdf5
         use h5lt

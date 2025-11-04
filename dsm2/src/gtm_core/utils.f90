@@ -23,7 +23,7 @@
 ! Author: Juli Rew, SCD Consulting (juliana@ucar.edu), 9/03
 ! modified by ehsu for integer array sorting and associated index
 module utils
-
+    use constants
     implicit none
     public :: QsortC
     private :: Partition
@@ -170,7 +170,7 @@ module utils
                            rcindex,    &
                            n_nonzero,  &
                            n_matrix)
-        use gtm_precision
+        use constants
         implicit none
         integer, intent(in) :: n_nonzero
         integer, intent(in) :: n_matrix
@@ -212,7 +212,6 @@ module utils
                              rcindex,    &
                              n_nonzero,  &
                              n_matrix)
-        use gtm_precision
         implicit none
         integer, intent(in) :: n_nonzero
         integer, intent(in) :: n_matrix
@@ -254,7 +253,7 @@ module utils
                              ax,           &
                              nnonzero,     &
                              ncell)
-        use gtm_precision
+        use constants
         implicit none
         integer, intent(in) :: ncell
         integer, intent(in) :: nnonzero

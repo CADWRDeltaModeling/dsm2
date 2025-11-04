@@ -38,7 +38,7 @@ module boundary_diffusion
                                           dx,                &
                                           dt)
 
-         use gtm_precision
+         use constants
          implicit none
          !--- args
          integer, intent(in)  :: ncell                                    !< Number of cells
@@ -89,7 +89,7 @@ module boundary_diffusion
                                             nvar,                   &
                                             dx,                     &
                                             dt)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                                  !< Number of cells
@@ -160,7 +160,7 @@ module boundary_diffusion
                                time,              &
                                dx,                &
                                dt)
-      use gtm_precision
+      use constants
       use error_handling
       implicit none
       !--- args
@@ -196,7 +196,7 @@ module boundary_diffusion
                                          time,              &
                                          dx,                &
                                          dt)
-      use gtm_precision
+      use constants
       implicit none
       !--- args
       integer, intent(in)  :: ncell                               !< Number of cells
@@ -233,7 +233,7 @@ module boundary_diffusion
                                         time,              &
                                         dx,                &
                                         dt)
-      use gtm_precision
+      use constants
       implicit none
       !--- args
       integer, intent(in)  :: ncell                               !< Number of cells
@@ -283,7 +283,7 @@ module boundary_diffusion
                                            nvar,               &
                                            dx,                 &
                                            dt)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         integer, intent(in) :: ncell                                  !< Number of cells
@@ -358,7 +358,7 @@ module boundary_diffusion
                                    nvar,                &
                                    dx,                  &
                                    dt)
-        use gtm_precision
+        use constants
         use error_handling
         implicit none
         !--- args

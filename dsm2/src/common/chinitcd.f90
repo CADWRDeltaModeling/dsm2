@@ -21,12 +21,12 @@
 !===== BOF chinitcd.inc ==================================================
 !   Version 93.01, January, 1993
 module chinitcd
-    use network
-    integer, save, allocatable:: Locations(:), InitialConditionIndex(:),&
+    use array_limits
+    integer, allocatable:: Locations(:), InitialConditionIndex(:),&
                                  FirstLocation(:), NUserInitLocations(:)
-    real*8, save:: InitialX(MaxLocations)
-    real*8, save:: InitialWS(MaxLocations), InitialQ(MaxLocations)
-    logical, save:: InitCndInitialized
+    real*8 :: InitialX(MAX_LOCATIONS)
+    real*8 :: InitialWS(MAX_LOCATIONS), InitialQ(MAX_LOCATIONS)
+    logical :: InitCndInitialized
 end module
 
 !   Definitions:

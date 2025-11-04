@@ -21,16 +21,16 @@
 !===== BOF strmcnst.inc =================================================
 !   Version 93.01, January, 1993
 module strmcnst
-    use network
+    use array_limits
     implicit none
-    integer, save:: ConnectingExtremity( 1+MaxConnectingChannels )
-    integer, save:: ConnectingChannels
-    integer, save:: ConditionCode
+    integer :: ConnectingExtremity( 1+MaxConnectingChannels )
+    integer :: ConnectingChannels
+    integer :: ConditionCode
 
-    real*8, save:: ConstraintCoef( 2+2*MaxConnectingChannels )
-    real*8, save:: ConstraintRightSide
-    real*8, save:: Discharge( 1+MaxConnectingChannels )
-    real*8, save:: WSElev( 1+MaxConnectingChannels )
+    real*8 :: ConstraintCoef( 2+2*MaxConnectingChannels )
+    real*8 :: ConstraintRightSide
+    real*8 :: Discharge( 1+MaxConnectingChannels )
+    real*8 :: WSElev( 1+MaxConnectingChannels )
 end module
 !   Definitions:
 !

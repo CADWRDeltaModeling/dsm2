@@ -1,26 +1,7 @@
-!<license>
-!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-!    Department of Water Resources.
-!    This file is part of DSM2.
-
-!    The Delta Simulation Model 2 (DSM2) is free software:
-!    you can redistribute it and/or modify
-!    it under the terms of the GNU General Public License as published by
-!    the Free Software Foundation, either version 3 of the License, or
-!    (at your option) any later version.
-
-!    DSM2 is distributed in the hope that it will be useful,
-!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-!    GNU General Public License for more details.
-
-!    You should have received a copy of the GNU General Public License
-!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-!</license>
-
 module common_qual
     use type_defs
     use constants
+    use constants_qual
     use grid_data
     !C-----Qual Parameters
 
@@ -45,18 +26,12 @@ module common_qual
     ! list of nonconservative constituents names
     character*20, dimension(max_constituent) :: nonconserve_list = ' '
 
-
-    !-----misc max values for non-conservative constituents
-    integer :: ncoef_type
-    parameter (ncoef_type=10)
-
-
     !-----reaction rate coefficients
     integer :: num_res
-    real*8:: rcoef_chan(max_constituent,ncoef_type,max_channels)
-    real*8:: rcoef_res_temp(max_constituent,ncoef_type,max_reservoirs)
-    real*8:: rcoef(max_constituent,ncoef_type)
-    real*8:: rcoef_res(max_constituent,ncoef_type,max_reservoirs)
+    real*8:: rcoef_chan(max_constituent, ncoef_type, max_channels)
+    real*8:: rcoef_res_temp(max_constituent, ncoef_type, max_reservoirs)
+    real*8:: rcoef(max_constituent, ncoef_type)
+    real*8:: rcoef_res(max_constituent, ncoef_type, max_reservoirs)
 
     character*20:: coeff_res_name(max_reservoirs)
 
@@ -79,9 +54,6 @@ module common_qual
     real*8 :: lambda2             ! Nonlinear algal self shading coefficient
     real*8 :: alg_bod             ! Nonlinear algal self shading coefficient
 
-
-
-
     integer, parameter :: temp_coeff_type = 16
 
     !-----heat and temperature related
@@ -95,7 +67,6 @@ module common_qual
     real*8 :: evapcoeff_b
     real*8 :: thet(temp_coeff_type)
     real*8 :: thetadj(temp_coeff_type)
-    real*8 :: thettbl(temp_coeff_type,81)
-
+    real*8 :: thettbl(temp_coeff_type, 81)
 
 end module

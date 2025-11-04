@@ -18,7 +18,11 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_channel_ic(channel, &
+submodule (mod_fixed) mod_process_init_condition
+    use mod_name_to_objno
+    implicit none
+contains
+module subroutine process_channel_ic(channel, &
                               dist, &
                               stage, &
                               flow)
@@ -66,7 +70,7 @@ subroutine process_channel_ic(channel, &
       return
 end subroutine
 
-subroutine process_reservoir_ic(resname, &
+module subroutine process_reservoir_ic(resname, &
                                 stage)
       use io_units
       use logging
@@ -81,9 +85,7 @@ subroutine process_reservoir_ic(resname, &
       character*32 resname
       real*8   :: stage
       integer :: resno
-      integer, save :: name_to_objo
       integer,save :: k = 0
-      integer, external :: name_to_objno
 !--------use only the last version of the initial condition
       call locase(resname)
       resno=name_to_objno(obj_reservoir, resname)
@@ -96,4 +98,4 @@ subroutine process_reservoir_ic(resname, &
       return
 end subroutine
 
-
+end submodule mod_process_init_condition

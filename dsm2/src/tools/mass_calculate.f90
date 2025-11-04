@@ -29,7 +29,7 @@ module mass_calculate
                               start_time,        &
                               end_time,          &
                               exclude_channels)
-        use gtm_precision
+        use constants
         use error_handling
         use hdf5
         use h5lt

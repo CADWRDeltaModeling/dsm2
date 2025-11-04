@@ -23,7 +23,7 @@
 !>@ingroup process_io
 module gtm_dss
 
-    use common_dsm2_vars, only: dataqual_t
+    use common_gtm_vars, only: dataqual_t
 
     !----number of input paths for each time interval
     integer :: npthsin_min15
@@ -134,8 +134,8 @@ module gtm_dss
     !> Create DSS input pathnames, check for sign change for each path
     subroutine get_dss_each_npath()
 
-         use common_dsm2_vars, only: pathinput, n_inputpaths
-         use common_variables, only: unit_error, miss_val_r
+         use common_gtm_vars, only: pathinput, n_inputpaths
+         use common_vars, only: unit_error, miss_val_r
 
          implicit none
          integer :: p

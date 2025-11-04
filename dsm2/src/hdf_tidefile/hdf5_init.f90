@@ -29,7 +29,19 @@
 
 !***********************************************************************
 !***********************************************************************
+module mod_hdf5_init
+	use array_allocator
+	use mod_tide_time
+	! use mod_fixed
+	use grid_data
+	use hdf5_write
+	implicit none
 
+	interface
+		module subroutine hdf5_write_attributes()
+		end subroutine
+	end interface
+contains
 subroutine OpenHDF5()
 
 	use HDF5		! HDF5 This module contains all necessary modules
@@ -114,7 +126,6 @@ subroutine InitHDF5File()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
 	use IO_Units
 	use logging
 	use runtime_data
@@ -123,8 +134,6 @@ subroutine InitHDF5File()
 
 	integer(HID_T) :: access_plist ! Dataset trasfer property
 
-	integer getHDF5IndexForTideTime
-	external getHDF5IndexForTideTime
 	external attach_hydro_dimscales
 
 	integer(SIZE_T) :: rddc_nelmts
@@ -326,15 +335,13 @@ subroutine InitHDF5MemoryDims()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
 	use grid_data
 	use common_tide  ! todo: this is only to allocate qresv
 	use chnlcomp, only: TotalCompLocations   ! to obtain the value for TotalComputations
-	use gates, only: nGate, MAX_DEV
+	use gates_data, only: nGate, MAX_DEV
 
 	implicit none
 	integer error
-	integer getHDF5NumberOfTimeIntervals
 
        call alloc_reservoir_connections(.true.)
       !@todo: This is done everytime read_tide_head is called:
@@ -559,7 +566,6 @@ subroutine AddTimeSeriesAttributes(dset_id, ts_start, ts_interval)
 
 	use HDF5
 	use hdfvars
-	use inclvars
 	use runtime_data
 	use iopath_data
 	use utilities, only: jmin2iso
@@ -649,7 +655,6 @@ subroutine InitChannelsHDF5()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
 	use runtime_data
 	use common_tide
 
@@ -671,7 +676,6 @@ subroutine InitChannelsHDF5()
 	integer     ::   arank = 1 ! Attribure rank
 	integer(HSIZE_T), dimension(7) :: a_data_dims
 
-	integer getHDF5NumberOfTimeIntervals
 	character*14,external :: jmin2cdt
 
 	call h5screate_simple_f(arank, adims, aspace_id, error)
@@ -820,7 +824,6 @@ subroutine InitReservoirsHDF5()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
       use runtime_data
       use common_tide
 	implicit none
@@ -833,7 +836,6 @@ subroutine InitReservoirsHDF5()
          res_h_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(inst_res_q_fdata_rank) ::&
      	inst_res_q_chunk_dims = 0 ! Dataset dimensions
-	integer getHDF5NumberOfTimeIntervals
 
 !-------Create the datasets
 
@@ -904,7 +906,6 @@ subroutine InitTransferHDF5()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
 	use grid_data
       use runtime_data
       use common_tide
@@ -923,7 +924,6 @@ subroutine InitTransferHDF5()
          transfer_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(inst_transfer_fdata_rank) ::&
          inst_transfer_chunk_dims = 0 ! Dataset dimensions
-	integer getHDF5NumberOfTimeIntervals
 
 	transfer_chunk_dims(1) = transfer_fdata_dims(1)
 	transfer_chunk_dims(2) = min(TIME_CHUNK,transfer_fdata_dims(2))
@@ -991,7 +991,6 @@ subroutine InitQExtChangeHDF5()
 
 	use HDF5		! HDF5 This module contains all necessary modules
 	use hdfvars
-	use inclvars
 	use grid_data
       use runtime_data
       use common_tide
@@ -1007,7 +1006,6 @@ subroutine InitQExtChangeHDF5()
 	integer     ::   arank = 1 ! Attribure rank
 	integer(HSIZE_T), dimension(7) :: a_data_dims
 
-	integer getHDF5NumberOfTimeIntervals
 	integer(HSIZE_T), dimension(qext_fdata_rank) ::&
          qext_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(inst_qext_fdata_rank) ::&
@@ -1066,7 +1064,6 @@ end subroutine
 subroutine init_gates_hdf5()
 	!! Initialize gate HDF5 variables
 	use HDF5		! HDF5 This module contains all necessary modules
-	use inclvars
 	use hdfvars
 	use grid_data
 	use runtime_data, only : tf_start_julmin
@@ -1080,7 +1077,6 @@ subroutine init_gates_hdf5()
 	! 	gate_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(inst_deviceflow_fdata_rank) ::&
 			inst_deviceflow_chunk_dims = 0 ! Dataset dimensions
-	integer getHDF5NumberOfTimeIntervals
 
 	if (output_inst) then
 		inst_deviceflow_chunk_dims(1) = inst_deviceflow_fdata_dims(1)
@@ -1105,3 +1101,5 @@ subroutine init_gates_hdf5()
 		end if
 	return
 end subroutine
+
+end module mod_hdf5_init

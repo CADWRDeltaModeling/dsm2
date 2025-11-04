@@ -25,9 +25,10 @@ module process_gtm_scalar
     contains
 
     subroutine process_scalar(Param, Val)
-      use common_variables
-      use common_dsm2_vars
-      use common_dsm2_qual
+      use constants
+      use common_vars
+      use common_gtm_vars
+      use common_qual
       use time_utilities
 
       implicit none

@@ -28,7 +28,7 @@ module process_gtm_node_conc
                                  Fillin,     &   ! last, linear
                                  Filename,   &   ! constant or filename
                                  InPath)         ! value or path
-      use common_dsm2_vars
+      use common_gtm_vars
       use io_utilities
       implicit none
       character :: InPath*80,                                &

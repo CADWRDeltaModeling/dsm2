@@ -27,7 +27,7 @@ module process_gtm_output_channel
     !> output file names
     subroutine process_output_channel(name, channo, distance, param, interval, perop, sourcegroup, filename)
 
-        use common_dsm2_vars
+        use common_gtm_vars
         use io_utilities
         implicit none
 

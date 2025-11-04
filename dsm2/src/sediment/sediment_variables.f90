@@ -23,7 +23,7 @@
 !>@ingroup sediment
 module sediment_variables
 
-    use gtm_precision
+    use constants
 
     !> Sediment constants
     real(gtm_real), parameter :: gravity = 9.80665d0                  !< Acceleration of gravity; it must be in SI units (constant)

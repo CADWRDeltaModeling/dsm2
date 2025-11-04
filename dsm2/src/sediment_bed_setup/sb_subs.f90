@@ -1,8 +1,8 @@
 module sb_subs
-    !use gtm_precision
+    !use constants
     use sb_common
     !use gtm_subs, only: get_survey_top
-    !use common_variables, only: chan_geom, segm
+    !use common_vars, only: chan_geom, segm
     use hdf_util !, only: get_int_attribute_from_hdf5, n_chan, n_xsect, n_comp
     use common_xsect
     implicit none
@@ -145,7 +145,7 @@ module sb_subs
     subroutine get_survey_top(wet_perim,   &
                               elev,   &
                               ncell)
-        use common_variables, only: chan_geom, n_chan, dx_arr
+        use common_vars, only: chan_geom, n_chan, dx_arr
         use common_xsect
         implicit none
         integer, intent(in) :: ncell

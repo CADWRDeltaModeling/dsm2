@@ -27,7 +27,7 @@
 
 module mercury_flux_bed
 
-use gtm_precision
+use constants
 use sed_internal_vars
 use hg_internal_vars
 use equilibrium

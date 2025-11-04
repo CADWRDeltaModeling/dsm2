@@ -1,6 +1,6 @@
 module mercury_initialize
 
-use gtm_precision
+use constants
 use sed_type_defs
 use sed_internal_vars
 !use hg_type_defs
@@ -9,7 +9,7 @@ use equilibrium
 use sediment_bed_setup, only: sed_read_init_values
 use mercury_state_variables
 use hg_hdf
-use common_variables
+use common_vars
 use state_variables
 use sediment_bed, only: get_sed_wet_p
 
@@ -23,7 +23,7 @@ implicit none
     end subroutine
 
     subroutine hg_init_sediment_bed(n_cells, n_chans, n_res, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
-        use common_dsm2_vars, only: gtm, io_write, io_restart, io_hdf5, io_read, io_files,pathinput_t, n_dssfiles,ifltab_in,indssfiles,infilenames
+        use common_gtm_vars, only: pathinput_t, n_dssfiles,ifltab_in,indssfiles,infilenames
         use error_handling
 
         !args

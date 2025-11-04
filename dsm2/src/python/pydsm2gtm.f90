@@ -1,7 +1,7 @@
 module pydsm2gtm
     use iso_c_binding
-    use gtm_precision, only: gtm_real
-    use common_variables, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
+    use constants, only: gtm_real
+    use common_vars, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     use pydsm2utilities
     use dsm2gtm, only: gtm_prepare1, gtm_prepare2, gtm_prepare_loop, &
                        gtm_loop, gtm_wrapup, init_input_file, current_time

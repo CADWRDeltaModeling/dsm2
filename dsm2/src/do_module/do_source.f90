@@ -22,7 +22,7 @@
 !>@ingroup do_module
 module do_source
 
-    use gtm_precision, only: gtm_real
+    use constants, only: gtm_real
     use source_sink
 
     contains
@@ -36,7 +36,7 @@ module do_source
                                 ncell,  &
                                 nvar,   &
                                 time)
-        use gtm_precision
+        use constants
         use do_parameter
         use do_state_variables
         use do_heat

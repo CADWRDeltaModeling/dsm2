@@ -23,7 +23,7 @@
 module ut_gtm_dss_main
 
     use fruit
-    use gtm_precision
+    use constants
     use gtm_dss, only: mins15, irrs
     use gtm_dss_read
     use gtm_dss_main
@@ -33,7 +33,7 @@ module ut_gtm_dss_main
     !> Unit test of readdss() subroutine for 15min and irr data
     subroutine test_readdss()
 
-        use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t
+        use common_gtm_vars, only: pathinput, ifltab_in, dataqual_t
         implicit none
         integer :: pathnumber
         integer :: jmin
@@ -93,7 +93,7 @@ module ut_gtm_dss_main
     end subroutine
 
     subroutine test_dss_main
-        use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t,              &
+        use common_gtm_vars, only: pathinput, ifltab_in, dataqual_t,              &
                                     per_type_inst_val, n_inputpaths
         implicit none
         character(len=130) :: indssfilenames(2)
