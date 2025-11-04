@@ -34,7 +34,7 @@ module gradient
                                ncell,       &
                                nvar)
 
-          use gtm_precision
+          use constants
           implicit none
           !---- args
           integer, intent(in) :: ncell                          !< Number of cells
@@ -62,7 +62,7 @@ module gradient
                           dx,          &
                           ncell,       &
                           nvar)
-        use gtm_precision
+        use constants
         implicit none
 
         !---- args
@@ -99,7 +99,7 @@ module gradient
                        ncell,       &
                        nvar)
 
-        use gtm_precision
+        use constants
         implicit none
 
         !--- args

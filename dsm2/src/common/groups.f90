@@ -25,51 +25,22 @@
 
 module Groups
     use constants
+    use group
+    use mod_name_to_objno
+    ! use mod_fixed
+    ! use mod_name_to_objno
+    ! use groups_data
     implicit none
 
     !include '../hydrolib/network.inc'
     ! Maximums for pre-dimensioned arrays
-    integer, parameter :: MAX_GROUPS=200 ! Max no. of group definitions
-    integer, parameter :: MAX_MEMBER_PATTERNS=100
-    integer, parameter :: GROUP_ALL=0               ! group that contains everything
-    integer, parameter :: GROUP_ANY_TYPE=-9999        ! wildcard for group contents: matches any object type
-    integer, parameter :: GROUP_ANY_INDEX=-9998       ! wildcard for group contents: matches any object internal index number (no check it exists)
-    integer, save :: nGroup   ! Actual number of groups calc'd at run time
-
-    type GroupMemberPattern
-        character*32 :: predicate
-        character*32 :: pattern
-        integer*4 :: obj_type ! object_type in database
-    end type
-
-
-    type GroupMember
-        character*32 :: name=miss_val_c ! Context-dependent name of group member,
-                                  ! e.g. "sjr" is name of a time series
-        integer*4    :: obj_type=obj_null ! Type of member, e.g. "flow"
-        integer*4    :: number=miss_val_i
-        integer*4    :: obj_no=miss_val_i ! Context-dependent internal index
-                              ! of member, e.g. index in pathinput
-    end type
-
-    !-----Constants
-    type Group
-        character*32 :: name
-        integer*4      :: id
-        integer*4    :: nMember
-        integer*4    :: nMemberPatterns
-        type(GroupMemberPattern) :: memberPatterns(MAX_MEMBER_PATTERNS)
-        type(GroupMember), allocatable :: members(:)
-        integer*4    :: nSubGroups
-        integer*4    :: memberGroups(10)
-    end type
-
-    type (Group), dimension(0:MAX_GROUPS), target, save :: groupArray
+    ! Data (groupArray, nGroup, constants) moved into groups_data
 
 contains
 
-    subroutine initGroupAll()
+    subroutine initGroupAll(groupArray)
         implicit none
+        type(t_Group), intent(inout) :: groupArray(0:)
         integer :: allocstat
 
         groupArray(0)%name='all'
@@ -85,8 +56,9 @@ contains
 
 
 
-    logical function GroupContains(grp, obj_type, ndx)
+    logical function GroupContains(groupArray, grp, obj_type, ndx)
         implicit none
+        type(t_Group), intent(in) :: groupArray(0:)
         integer :: grp
         integer :: obj_type
         integer :: ndx
@@ -108,8 +80,9 @@ contains
     end function
 
 
-    subroutine AddGroupMembers(grp,nmember,addmembers)
+    subroutine AddGroupMembers(groupArray, grp,nmember,addmembers)
         implicit none
+        type(t_Group), intent(inout) :: groupArray(0:)
         integer :: grp
         integer :: nmember
         integer :: ndx_new(nmember)
@@ -123,7 +96,7 @@ contains
         nnew=0
         norig=groupArray(grp)%nMember
         do i = 1, nmember
-            if (.not. groupContains(grp,addmembers(i)%obj_type, &
+            if (.not. groupContains(groupArray, grp,addmembers(i)%obj_type, &
                 addmembers(i)%obj_no)) then
                 nnew=nnew+1
                 ndx_new(nnew)=i
@@ -152,7 +125,7 @@ contains
 
     !     Calculates all objects of type objtype matching the pattern string
     subroutine NumberMatches(objtype,pattern,nmatch)
-        use gates,only:gateArray,nGate
+    use gates_data,only:gateArray,nGate
         use constants
         use grid_data
         use io_units, only: unit_error
@@ -206,7 +179,7 @@ contains
                     nmatch=nmatch+1
                 end if
             end do
-        elseif(objtype == obj_obj2obj) then
+        elseif(objtype == obj_transfer) then
             do i=1,nobj2obj
                 call pattern_match(i,trim(obj2obj(i)%name),trim(pattern),istat)
                 if (istat == -1) then
@@ -292,8 +265,10 @@ contains
     end subroutine
 
 
-    subroutine ConvertGroupPatternsToMembers
+    subroutine ConvertGroupPatternsToMembers(groupArray, ngroup)
         implicit none
+        type(t_Group), intent(inout) :: groupArray(0:)
+        integer, intent(in) :: ngroup
         integer :: i
         integer :: j
         integer :: k
@@ -322,7 +297,7 @@ contains
                     end do
                 end if
                 if (nmatch > 0) then
-                    call AddGroupMembers(i,nmatch,newmembers)     ! add new members to the group
+                    call AddGroupMembers(groupArray, i,nmatch,newmembers)     ! add new members to the group
                     deallocate(newmembers)
                 end if
             end do
@@ -332,7 +307,7 @@ contains
 
     logical function IsAllChannelReservoir(a_group)
         implicit none
-        type (Group), intent(in) :: a_group
+        type (t_Group), intent(in) :: a_group
 
         integer :: i
 
@@ -391,7 +366,7 @@ contains
     character*64 function GroupToString(a_group,j)
         implicit none
         integer,intent(in)::j
-        type (Group), intent(in) :: a_group
+        type (t_Group), intent(in) :: a_group
 
         !     local variable
 
@@ -432,7 +407,6 @@ contains
         character*32, intent(in) :: str_identifier
         integer, intent(out) :: outtype
         integer, intent(out) :: outid
-        integer, external :: name_to_objno
         outtype=TargetType(objtype)
         outid=name_to_objno(outtype,str_identifier)
         return
@@ -442,9 +416,11 @@ contains
 
 
     ! printGroupMembers loops through groups and members and uses single memeber covert
-    subroutine PrintGroupMembers
+    subroutine PrintGroupMembers(groupArray, ngroup)
         use io_units
         implicit none
+        type(t_Group), intent(in) :: groupArray(0:)
+        integer, intent(in) :: ngroup
         integer :: i
         integer :: j
         character*64 :: member_str
@@ -460,9 +436,11 @@ contains
     !     same functionallity as PrintGroupMember above, except to a file instead of
     !     to screen, jon 4/5/06
 
-    subroutine WriteGroupMembers2File(fileunit)
+    subroutine WriteGroupMembers2File(fileunit, groupArray, ngroup)
         implicit none
         integer, intent(in) :: fileunit  ! IO file to be written to
+        type(t_Group), intent(in) :: groupArray(0:)
+        integer, intent(in) :: ngroup
         integer :: i
         integer :: j
         character*64 :: member_str

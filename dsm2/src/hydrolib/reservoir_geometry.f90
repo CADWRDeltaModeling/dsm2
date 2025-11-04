@@ -24,6 +24,8 @@
 !          routines for retrieving and calculating reservoir flow
 !
 module reservoir_geometry
+    use constants
+    use io_units
 
     implicit none
 contains
@@ -31,7 +33,6 @@ contains
     !     Calculate reservoir area, vol
     !======================================================================
     subroutine calculateReservoirGeometry(resno, z, reser_area, reser_vol)
-        use IO_Units
         use grid_data
         implicit none
         !   Arguments:
@@ -42,8 +43,6 @@ contains
 
         !----local variables
         real*8 z1,z2,A1,A2,V1,V2,dz,dV,A,factor,F
-        real*8 Small
-        parameter (Small = 1.00e-6)
         integer nn
 
         nn=res_geom(resno).nelevs

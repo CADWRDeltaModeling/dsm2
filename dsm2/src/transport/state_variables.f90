@@ -23,8 +23,8 @@
 !>@ingroup transport
 module state_variables
 
-    use gtm_precision
-    use common_variables
+    use constants
+    use common_vars
 
     !> Mass of constituent in the current/new time step,
     !> dimensions (ncell, nvar)

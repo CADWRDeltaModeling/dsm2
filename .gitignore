@@ -89,6 +89,7 @@ input_storage/example/xsect_input_storage.fi
 
 # Build artifacts
 *.mod
+*.smod
 
 # Build temp files
 *.log

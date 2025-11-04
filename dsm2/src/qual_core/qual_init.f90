@@ -1,0 +1,163 @@
+submodule(dsm2qual) qual_init
+    implicit none
+contains
+    module subroutine qual_init()
+        use groups_data, only: groupArray
+        use Groups, only: InitGroupAll
+        use rate_coeff_assignment, only: initialize_rate_coefficient
+        use IO_Units, only: unit_output
+        ! use Gates, only: GATE_OPEN, GATE_FREE
+        use ifport !, only: getpid,getenvqq, rand              !! <INTEL>
+        use constants
+        use logging
+        use runtime_data
+        use iopath_data
+        use grid_data
+        use common_vars_qual
+
+        use common_tide
+        use network
+        use dss
+        use mod_readdss
+        use mod_writedss
+        !@# For dynamic allocation
+        use common_xsect, only: allocate_virt_xsect_hq
+!-----initialize variables for DSM2
+
+        implicit none
+!-----local variables
+
+        character ctemp1 * 20, ctemp2 * 20, ctmpl * 250 ! temporary
+        integer istat, &               ! status variable (returned)
+            i, iu, k, j, &
+            itmp1, itmp2, &         ! temp variables
+            ihr, imin, isec, ihundredth
+
+!-----filled in check_fixed
+        print_level = miss_val_i
+
+        per_type_names(per_type_per_aver) = 'PER-AVER'
+        per_type_names(per_type_per_cum) = 'PER-CUM'
+        per_type_names(per_type_per_min) = 'PER-MIN'
+        per_type_names(per_type_per_max) = 'PER-MAX'
+        per_type_names(per_type_inst_val) = 'INST-VAL'
+        per_type_names(per_type_inst_cum) = 'INST-CUM'
+        per_type_names(per_type_null) = ' '
+
+        obj_names(obj_channel) = 'channel'
+        obj_names(obj_node) = 'node'
+        obj_names(obj_reservoir) = 'reservoir'
+        obj_names(obj_gate) = 'gate'
+        obj_names(obj_qext) = 'qext'
+        obj_names(obj_transfer) = 'o2o'
+        obj_names(obj_flux) = 'flux'
+        obj_names(obj_stage) = 'stage'
+        obj_names(obj_null) = miss_val_c
+
+        need_tmpfile_min15 = .false.
+        need_tmpfile_hour1 = .false.
+        need_tmpfile_day1 = .false.
+        need_tmpfile_week1 = .false.
+        need_tmpfile_month1 = .false.
+        need_tmpfile_year1 = .false.
+        output_filename = ' '
+        iu = unit_output + 1
+        do i = 1, max_iogroups
+            do j = 1, max_file_types
+                do k = 1, 2
+                    io_files(i, j, k)%use = .false.
+                    io_files(i, j, k)%filename = ' '
+                    io_files(i, j, k)%interval = ' '
+                    io_files(i, j, k)%unit = iu ! fill in file unit numbers
+                    iu = iu + 1
+                end do
+            end do
+        end do
+
+!-----groups. initialize the "wildcard" group
+        call InitGroupAll(groupArray)
+
+!------non-converative constitute rate coefficients initialization Jon 4/12/06
+        call initialize_rate_coefficient
+
+!-----default checkpoint intervals
+        io_files(hydro, io_restart, io_write)%interval = '1HOUR'
+        io_files(qual, io_restart, io_write)%interval = '1HOUR'
+!-----default binary output intervals
+        io_files(hydro, io_echo, io_write)%interval = miss_val_c
+        io_files(qual, io_echo, io_write)%interval = miss_val_c
+!-----default HDF5 output intervals
+        io_files(hydro, io_hdf5, io_write)%interval = '15MIN'
+        io_files(qual, io_hdf5, io_write)%interval = '15MIN'
+
+        current_tidefile = miss_val_i
+        do i = 1, max_tide_files
+            tide_files(i)%start_date = ' '
+            tide_files(i)%end_date = ' '
+            tide_files(i)%filename = ' '
+        end do
+
+!-----set non-conservative constituent names for DSS C part
+        nonconserve_list(ncc_do) = 'do'
+        nonconserve_list(ncc_organic_n) = 'organic_n'
+        nonconserve_list(ncc_nh3) = 'nh3'
+        nonconserve_list(ncc_no2) = 'no2'
+        nonconserve_list(ncc_no3) = 'no3'
+        nonconserve_list(ncc_organic_p) = 'organic_p'
+        nonconserve_list(ncc_po4) = 'po4'
+        nonconserve_list(ncc_algae) = 'algae'
+        nonconserve_list(ncc_bod) = 'bod'
+        nonconserve_list(ncc_temp) = 'temp'
+
+        ntitles = 0
+
+!-----Qual default values
+
+        mass_tracking = .false.
+        ! todo: is this a good idea?
+        init_conc = 0.0
+        dispersion = .true.
+
+!-----irregular xsects preparation
+        !@# Dynamic allocation
+        call allocate_virt_xsect_hq
+        call prep_irreg
+
+!-----set runtime ID; can be either the process ID
+!-----(multi-tasking OS) or random number (other OS)
+        crid = ' '
+        irid = abs(getpid())        ! Sun Unix and NT
+!!OTHER  irid=int(rand(0)*1000000)  ! others
+        write (crid, *) irid
+!-----prepend custom ID to run ID?
+        ctemp1 = ''
+        istat = getenvqq('CID', ctemp1) !! <NT>
+        if (istat .gt. 0) then    ! custom ID
+            read (ctemp1, *) itmp1
+            crid = trim(ctemp1)//'_'//trim(crid)
+        end if
+!-----date of run
+        ctemp1 = ''
+        call cdate(ctemp1)
+        call datjul(ctemp1, itmp1, istat)
+        crdt14 = ' '
+        call juldat(itmp1, 104, crdt14(1:9), itmp2) ! DDMMMYYYY
+        call juldat(itmp1, -11, ctemp1, itmp2)
+        ctemp1 = ctemp1(:itmp2)
+        crdt10 = ' '
+        crdt10(1:2) = ctemp1(7:8)   ! YYMMDD (easy to sort on)
+        crdt10(3:4) = ctemp1(1:2)
+        crdt10(5:6) = ctemp1(4:5)
+!-----time of run
+        ctemp1 = ' '
+!      call ctime(ctemp1)
+        call gettim(ihr, imin, isec, ihundredth)
+        write (ctemp1, '(2I2)') ihr, imin
+        crdt14(11:12) = ctemp1(1:2) ! hhmm
+        crdt14(13:14) = ctemp1(3:4)
+        crdt10(7:8) = ctemp1(1:2)   ! hhmm
+        crdt10(9:10) = ctemp1(3:4)
+
+        return
+    end subroutine qual_init
+end submodule qual_init

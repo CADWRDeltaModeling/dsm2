@@ -39,12 +39,12 @@ module gtm_dss_readtvd
         use gtm_dss, only: last_value, last_ndx_next,     &
                            allocate_last_value, deallocate_last_value
         use gtm_dss_read
-        use common_dsm2_vars, only: per_type_names, per_type_per_aver, per_type_per_cum,      &
+        use common_gtm_vars, only: per_type_names, per_type_per_aver, per_type_per_cum,      &
                                     per_type_per_min, per_type_per_max, per_type_inst_val,    &
                                     per_type_inst_cum,per_type_null, n_inputpaths, pathinput, &
                                     fill_interp, fill_bydata, generic_date, current_date,     &
                                     start_julmin
-        use common_variables, only : unit_error, run_pdaf
+        use common_vars, only : unit_error, run_pdaf
         use time_utilities
 
         implicit none
@@ -308,7 +308,7 @@ module gtm_dss_readtvd
     !> target julian minute.
     integer function bufndx_nosync(indata, jm, path, last_ndx, &
           max_v, max_paths)
-        use common_dsm2_vars, only: dataqual_t
+        use common_gtm_vars, only: dataqual_t
         implicit none
 
         !-----arguments and local variables
@@ -340,7 +340,7 @@ module gtm_dss_readtvd
     integer function bufndx_sync(indata, path, sync_str, e_part, &
           last_ndx, max_v, max_paths)
 
-        use common_dsm2_vars, only: dataqual_t
+        use common_gtm_vars, only: dataqual_t
         use dsm2_time_utils
         use time_utilities
 
@@ -388,7 +388,7 @@ module gtm_dss_readtvd
     !> use for correct data for this timestep.
     integer function getndx(jmin, jul_next, jul_prev_curr, &
             ndx_next, ndx_prev_curr, per_type, interpolated)
-        use common_dsm2_vars
+        use common_gtm_vars
         use time_utilities
         implicit none
 
@@ -431,7 +431,7 @@ module gtm_dss_readtvd
 
     !> Get input data from buffers for computations
     subroutine get_inp_data(ptr)
-        use common_dsm2_vars
+        use common_gtm_vars
         implicit none
         integer, intent(in) :: ptr          !< pathname array index
         type(dataqual_t) :: dataqual

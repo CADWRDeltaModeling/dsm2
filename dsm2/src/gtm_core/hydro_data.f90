@@ -37,7 +37,7 @@ module hydro_data
                                  time,    &
                                  dx,      &
                                  dt)
-            use gtm_precision
+            use constants
             implicit none
             integer, intent(in) :: ncell                   !< Number of cells
             real(gtm_real), intent(in)  :: time            !< Time of request
@@ -77,7 +77,7 @@ module hydro_data
                                  time,         &
                                  dx,           &
                                  dt)
-            use gtm_precision
+            use constants
             implicit none
             integer, intent(in) :: ncell                       !< Number of cells
             real(gtm_real), intent(in)  :: time                !< Time of request

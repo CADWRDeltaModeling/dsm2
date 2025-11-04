@@ -34,7 +34,7 @@ module gradient_adjust
                                   ncell,         &
                                   nvar,          &
                                   use_limiter)
-        use gtm_precision
+        use constants
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)          !< Cell centered difference adjusted for boundaries and hydraulic devices
@@ -66,7 +66,7 @@ module gradient_adjust
                                                  ncell,        &
                                                  nvar,         &
                                                  use_limiter)
-        use gtm_precision
+        use constants
         use gradient, only : limiter
         implicit none
         !--- args

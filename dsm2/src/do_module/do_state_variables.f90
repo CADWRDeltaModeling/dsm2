@@ -23,7 +23,7 @@
 !>@ingroup do_module
 module do_state_variables
 
-    use gtm_precision
+    use constants
 
     real(gtm_real), save :: atmpr
     real(gtm_real), save :: wetblb

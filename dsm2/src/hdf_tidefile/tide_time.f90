@@ -1,10 +1,12 @@
+module mod_tide_time
+    use error_handling
+contains
 !***********************************************************************
 !***********************************************************************
 
 integer function GetCurrentTideTime()
 
 	use hdfvars
-	use inclvars
 
 	implicit none
 
@@ -18,7 +20,6 @@ end function
 integer function calcHDF5NumberOfTimeIntervals() result (ans)
 
 	use hdfvars
-	use inclvars
 	use runtime_data
 	use common_tide
 
@@ -43,12 +44,8 @@ end function
 integer function getHDF5TimeLength() result (ans)
 
 	use hdfvars
-	use inclvars
 
 	implicit none
-
-	integer getHDF5TimeInterval
-	integer getHDF5NumberOfTimeIntervals
 
 	ans = (getHDF5NumberOfTimeIntervals() - 1) * getHDF5TimeInterval()
 
@@ -64,9 +61,6 @@ integer function getHDF5EndTime() result (time)
 	use hdfvars
 
 	implicit none
-
-	integer getHDF5StartTime
-	integer getHDF5TimeLength
 
 	time = getHDF5StartTime() + getHDF5TimeLength()
 
@@ -85,9 +79,6 @@ integer function getHDF5IndexForTideTime(time) result (index)
 
 	integer, intent(in) :: time
 
-	integer,external :: getHDF5StartTime
-	integer,external :: getHDF5TimeInterval
-
 	index = ((time - h5_time_start) / getHDF5TimeInterval())
 
 	return
@@ -105,8 +96,6 @@ integer function getHDF5IndexAtOrBeyondTime(tidetime) result(index)
 
 	integer, intent(in) :: tidetime
 
-	integer, external :: getHDF5StartTime
-	integer, external :: getHDF5TimeInterval
 	integer :: reltime
 	integer :: intvl
 
@@ -178,7 +167,6 @@ integer function getHDF5StartTime() RESULT (time)
       integer(HSIZE_T), dimension(7) :: a_data_dims
 
       integer, save :: temptime
-      integer getHDF5TimeInterval
 
       integer,save :: prev_tidefile = 0
 
@@ -268,8 +256,6 @@ integer function SetHDF5ToTime(tidetime) result(out)
 	use hdfvars
 	implicit none
 	integer tidetime,tempndx
-	integer,external :: getHDF5IndexAtOrBeyondTime
-	integer,external :: GetCurrentTideTime
 	tempndx=getHDF5IndexAtOrBeyondTime(tidetime)
       hdf5point=tempndx
 
@@ -277,10 +263,4 @@ integer function SetHDF5ToTime(tidetime) result(out)
 	return
 end
 
-
-
-
-
-
-
-
+end module mod_tide_time

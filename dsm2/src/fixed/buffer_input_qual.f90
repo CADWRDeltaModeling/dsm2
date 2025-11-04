@@ -18,6 +18,9 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_buffer_input_qual
+   use mod_fixed
+contains
 subroutine buffer_input_qual()
       use input_storage_fortran
       use constants
@@ -180,7 +183,7 @@ subroutine buffer_input_qual()
 
          call locase(distance)
          if (distance(:6) .eq. "length") then
-            idistance = chan_length
+            idistance = initial_channel_length
          else
             read(distance,*,err=120)idistance
          end if
@@ -229,4 +232,4 @@ subroutine buffer_input_qual()
       return
 end subroutine
 
-
+end module mod_buffer_input_qual

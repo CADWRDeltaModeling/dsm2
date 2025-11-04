@@ -1,3 +1,6 @@
+# Branch Note
+This is a dirty branch that will be squashed. __DO NOT USE FOR APPLICATIONS.__
+
 # DSM2
 DSM2 is a one-dimensional mathematical model for dynamic simulation of tidal hydraulics,
 water quality, and particle tracking in a network of riverine or estuarine channels. DSM2 can

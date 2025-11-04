@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_scalar(Param, Val)
+submodule (mod_fixed) process_scalar
+    implicit none
+contains
+module subroutine process_scalar(Param, Val)
 
     Use PhysicalConstants
     use IO_Units
@@ -30,10 +33,10 @@ subroutine process_scalar(Param, Val)
     use envvar
     use network
     use netcntrl_common
+    ! use qual_param
+    use bltm, only: dqv
+    use grid_data, only: levee_slope
     implicit none
-
-    include '../qual/param.inc'
-    include '../qual/bltm1.inc'
 
     integer                  :: itmp
     character(LEN=32), intent(in)    :: Val   ! parameter Val
@@ -263,3 +266,4 @@ subroutine process_scalar(Param, Val)
     call exit(-2)
 
 end subroutine
+end submodule process_scalar

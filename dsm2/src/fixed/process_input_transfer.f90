@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_input_transfer(Name, &
+submodule (mod_fixed) mod_process_input_transfer
+    use mod_name_to_objno
+contains
+module subroutine process_input_transfer(Name, &
                                   Param, &
                                   Fillin, &
                                   Filename, &
@@ -50,7 +53,6 @@ subroutine process_input_transfer(Name, &
           itmp, &
           istat
 
-      integer, external :: name_to_objno
       integer, external :: data_types
       integer, external :: get_objnumber
 
@@ -75,10 +77,10 @@ subroutine process_input_transfer(Name, &
       pathinput(ninpaths).name=Name
       pathinput(ninpaths).useobj=.true.
       pathinput(ninpaths).obj_name=LocName
-      pathinput(ninpaths).obj_type=obj_obj2obj
+      pathinput(ninpaths).obj_type=obj_transfer
 
 !-----------find object number given external object number
-      pathinput(ninpaths).obj_no=name_to_objno(obj_obj2obj,LocName)
+      pathinput(ninpaths).obj_no=name_to_objno(obj_transfer,LocName)
       if (pathinput(ninpaths).obj_no .eq.miss_val_i ) then
           write(unit_error,'(a,a)') &
          'Time Series Input: ',trim(pathinput(ninpaths).name), &
@@ -138,7 +140,7 @@ subroutine process_input_transfer(Name, &
          endif
 
 !-----------set data type
-         pathinput(ninpaths).data_type=obj_obj2obj
+         pathinput(ninpaths).data_type=obj_transfer
          if (print_level .ge. 3) then
             write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name, &
                 trim(InPath(:24)), &
@@ -150,3 +152,4 @@ subroutine process_input_transfer(Name, &
  630  format(/a,i5)
 
 end subroutine
+end submodule mod_process_input_transfer

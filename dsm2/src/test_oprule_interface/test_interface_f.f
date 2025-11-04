@@ -1,7 +1,7 @@
 
 
       subroutine test_setup_f()
-      use Gates, only: GateArray,nGate,PIPE,WEIR
+	use gates_data, only: gateArray,nGate,PIPE,WEIR
       implicit none
 	include '../../hydro/network.inc'
 	include 'common.f'

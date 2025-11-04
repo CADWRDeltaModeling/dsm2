@@ -22,7 +22,7 @@
 !>@ingroup do_module
 module do_parameter
 
-    use gtm_precision
+    use constants
 
     integer :: i_bod  = 0
     integer :: i_do   = 0

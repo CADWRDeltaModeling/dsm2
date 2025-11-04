@@ -21,7 +21,7 @@
 !>@ingroup mercury
 module hg_type_defs
 
-use gtm_precision
+use constants
 
 implicit none
 

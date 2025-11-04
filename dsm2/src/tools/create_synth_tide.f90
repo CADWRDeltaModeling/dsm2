@@ -25,7 +25,7 @@ module create_synth_tide
     ! to create one-year length data, total_time=424*2*m2_period
     ! nstep_base= 424*24*4=40704
 
-    use gtm_precision
+    use constants
 
     implicit none
     real(gtm_real), parameter :: m2ft = 3.28084d0

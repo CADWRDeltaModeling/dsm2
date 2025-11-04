@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
+submodule (mod_fixed) mod_process_reservoir
+    use mod_name_to_objno
+contains
+module subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
       use grid_data
       use logging
       use io_units
@@ -52,35 +55,7 @@ subroutine process_reservoir(id,reser_name,reser_area,reser_botelv)
       return
 end subroutine
 
-subroutine alloc_reservoir_connections(alloc)
-      use grid_data
-      use common_tide
-      implicit none
-      logical :: alloc
-      integer i,j,iconnect
-      iconnect = 0
-      do i=1,nreser
-         do j=1,res_geom(i).nnodes
-            iconnect = iconnect + 1
-         end do
-      end do
-      nres_connect = iconnect
-      if (alloc .and. .not. allocated(qresv))then
-         allocate(qresv(nres_connect))
-         qresv = 0.
-      end if
-      if (alloc .and. .not. allocated(inst_qresv))then
-         allocate(inst_qresv(nres_connect))
-         inst_qresv = 0.
-      end if
-      if (.not. alloc)then
-         deallocate(qresv)
-         deallocate(inst_qresv)
-      end if
-      return
-end subroutine
-
-subroutine process_reservoir_vol(resname, &
+module subroutine process_reservoir_vol(resname, &
                                        reselev, &
                                        reser_area)
       use constants
@@ -93,12 +68,10 @@ subroutine process_reservoir_vol(resname, &
       character*32 resname
       integer :: resno
       integer :: nn
-      integer, external :: name_to_objno
       real*8 :: reser_area
       real*8 :: reselev
       real*8 :: prev_area,prev_vol,prev_elev,current_area
-      real*8 Small,dz
-      parameter (Small = 1.00e-6)
+      real*8 :: dz
 
       call locase(resname)
       resno = name_to_objno(obj_reservoir,resname)
@@ -155,7 +128,7 @@ subroutine process_reservoir_vol(resname, &
       return
 end subroutine
 
-subroutine process_reservoir_connection(resname, &
+module subroutine process_reservoir_connection(resname, &
                                              con_node, &
                                              rescon_incoef, &
                                              rescon_outcoef)
@@ -171,7 +144,6 @@ subroutine process_reservoir_connection(resname, &
       integer :: con_node
       integer :: resno
       integer :: nn
-      integer, external :: ext2intnode, name_to_objno
       real*8 rescon_incoef      !todo: change to real*8
       real*8 rescon_outcoef
       call locase(resname)
@@ -195,8 +167,4 @@ subroutine process_reservoir_connection(resname, &
        return
 end subroutine
 
-
-
-
-
-
+end submodule mod_process_reservoir

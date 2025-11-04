@@ -18,6 +18,8 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+submodule (mod_fixed) mod_process_output_reservoir
+contains
 function reservoir_has_node(reservoir_id, node_internal_id)
       use grid_data
       use utilities, only: loccarr, dates2diff
@@ -36,7 +38,7 @@ function reservoir_has_node(reservoir_id, node_internal_id)
       return
 end function
 
-subroutine process_output_reservoir(Name, &
+module subroutine process_output_reservoir(Name, &
                                     LocName, &
                                     SubLoc, &
                                     Param, &
@@ -44,7 +46,7 @@ subroutine process_output_reservoir(Name, &
                                     PerOp, &
                                     SourceGroup, &
                                     Filename)
-
+      use mod_name_to_objno
       use Groups, only: GROUP_ALL
       use io_units
       use logging
@@ -68,10 +70,6 @@ subroutine process_output_reservoir(Name, &
           itmp, &
           SubLoc
 
-      logical reservoir_has_node
-      integer, external :: name_to_objno
-      integer, external :: ext2int, ext2intnode
-      integer, external :: get_objnumber
       call locase(name)
       call locase(locname)
       call locase(sourcegroup)
@@ -189,3 +187,4 @@ subroutine process_output_reservoir(Name, &
  630  format(/a,i5)
       return
 end subroutine
+end submodule mod_process_output_reservoir

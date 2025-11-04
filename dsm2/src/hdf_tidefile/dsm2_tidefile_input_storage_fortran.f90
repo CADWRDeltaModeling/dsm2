@@ -4,7 +4,7 @@
 !! module_name::routine_name
 !@{
 module dsm2_tidefile_input_storage_fortran
-	   contains
+contains
        include "qext_input_storage.fi"
        include "hydro_comp_point_input_storage.fi"
        include "reservoir_flow_connections_input_storage.fi"

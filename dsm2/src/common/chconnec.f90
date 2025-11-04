@@ -21,9 +21,11 @@
 !===== BOF chconnec.inc ================================================
 !   Version 93.01, January, 1993
 module chconnec
+    use array_limits
     use network
-    !   Note: This include, when used, must appear after "Network.inc".
-    real*8, save:: Ares(MaxNres), &
+    implicit none
+
+    real*8 :: Ares(MaxNres), &
                    Yres(MaxNres), &
                    Dres(MaxNres), &
                    ReservoirCoeff(MaxNres, MaxResConnectChannel, 2), &
@@ -31,17 +33,17 @@ module chconnec
                    YResOld(MaxNres), &
                    QResOld(MaxNres, MaxResConnectChannel), &
                    VResOld(MaxNres)
-    integer, save::  ResConnectingChannels(MaxNres, MaxResConnectChannel)
+    integer ::  ResConnectingChannels(MaxNres, MaxResConnectChannel)
 
-    integer, save, allocatable:: UpNumberOfConnections(:), &
+    integer, allocatable:: UpNumberOfConnections(:), &
                                  DownNumberOfConnections(:), &
                                  UpBoundaryCode(:), DownBoundaryCode(:)
 
-    integer, save, allocatable:: UpConnection(:), DownConnection(:)
+    integer, allocatable:: UpConnection(:), DownConnection(:)
 
-    integer, save:: nodeSumQChan(MaxNodes)
+    integer :: nodeSumQChan(MAX_NODES)
 
-    real*8, save, allocatable:: dX(:)
+    real*8, allocatable:: dX(:)
 
 end module
 

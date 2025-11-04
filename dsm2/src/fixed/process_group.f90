@@ -18,6 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_process_group
+    use groups_data
+    use mod_name_to_objno
+contains
 subroutine process_group(name, id)
       use groups
       use constants
@@ -27,7 +31,7 @@ subroutine process_group(name, id)
       integer :: id
       integer :: groupno
       integer :: membertype
-      integer, external :: name_to_objno
+
       call locase(name)
       groupno=name_to_objno(obj_group,name)
       if(groupno .eq. miss_val_i) then
@@ -51,7 +55,6 @@ subroutine process_group_member(groupname, &
       character*32 :: groupname
       integer :: membertype
       character*32 :: pattern
-      integer, external :: name_to_objno
       integer :: groupNdx = miss_val_i
       integer :: npattern = miss_val_i
       call locase(groupname)
@@ -74,5 +77,4 @@ subroutine process_group_member(groupname, &
       groupArray(GroupNdx).nMemberPatterns=npattern
       return
 end subroutine
-
-
+end module mod_process_group

@@ -23,92 +23,11 @@
 module Gates
     use type_defs
     use constants
+    use array_limits
+    use gates_data
     !FIXME: use network
     implicit none
-
-    integer, parameter :: MaxNGate = 300 ! use network.f
-    ! Maximums for pre-dimensioned arrays
-    integer, parameter :: MAX_DEV = 10 ! Max no. of devices per gate
-    integer, parameter :: MAX_GATES = MaxNGate ! Max no. of gates
-
-    integer, save :: nGate    ! Actual number of gates calc'd at run time
-
-    !---- Constants for structureType
-    integer, parameter :: WEIR = 1
-    integer, parameter :: PIPE = 2
-
-    !-----gate operations/states
-    integer, parameter :: GATE_OPEN = 1  ! device fully open to flow
-    integer, parameter :: GATE_CLOSE = 0 ! device fully closed to flow
-    integer, parameter :: GATE_FREE = 10 ! all devices removed, open channel flow
-    integer, parameter :: UNIDIR_TO_NODE = 20   ! device open to flow to node, closed from node
-    integer, parameter :: UNIDIR_FROM_NODE = 40 ! device open to flow from node, closed to node
-
-    !-----constants for flow coeff direction
-    integer, parameter :: FLOW_COEF_TO_NODE = 1
-    integer, parameter :: FLOW_COEF_FROM_NODE = -1
-    integer, parameter :: FLOW_COEF_TO_FROM_NODE = 0
-
-    type GateDevice       !Keep variables in natural alignment.
-        real*8 :: flow        ! fixme: initialization
-        ! time of installation
-        real*8 :: position = miss_val_r  ! position (in physical units) of any gate control
-        ! e.g., height of a radial gate or
-        ! crest elevation in a gate with adjustable bottom
-        real*8 :: maxWidth        ! width or pipe radius
-        real*8 :: baseElev        ! invert or crest or bottom elevation wrt datum
-        real*8 :: height          ! height or maximum aperture height
-        real*8 :: flowCoefToNode   ! flow coefficient (physical) in node direction
-        real*8 :: flowCoefFromNode ! flow coeff from node to water body
-        real*8 :: opCoefToNode = 1. ! time varying coefficient between [0,1] fixme: default?
-        real*8 :: opCoefFromNode = 1. !  0 = closed, 1 = fully open
-        integer*4 :: structureType ! type of gate structure (pipe, weir)%
-        ! See structureType constants above for acceptable values
-        real*8 :: nDuplicate = 0. ! number of identical structures treated as one device
-        integer*4 :: gate         ! index of gate in which device appears (fixme: why?)
-        integer*4 :: calcRow      ! Row (equation) in which gate device equation is expressed
-        character :: name*32 = ' ' ! index of device in gate
-        type(datasource_t) height_datasource  ! datasource that controls
-        type(datasource_t) width_datasource  ! datasource that controls
-        type(datasource_t) elev_datasource  ! datasource that controls
-        type(datasource_t) nduplicate_datasource  ! datasource that controls
-        type(datasource_t) op_to_node_datasource   ! datasource that controls op
-        type(datasource_t) op_from_node_datasource ! in the direction indicated
-
-    end type
-
-    !Variables are in natural (8byte) alignment.
-    type Gate
-        real*8 flowDirection        ! orientation of flow. (+1.D0) if downstream/pos flow is from
-        ! gate's connected object to node. (-1.D0) otherwise.
-        real*8 flow
-        real*8 flowPrev
-        integer :: ID
-        !  see note above on alignment
-        logical*4 :: inUse = .false. ! use gate? Used to indicate that the gate is not even
-        !  included in the model
-        logical*4 :: free = .false. ! are all devices considered uninstalled? If so this gate,
-        ! for the moment, will act like a simple node connection
-        ! between two channels.
-        integer*4 :: objConnectedType ! Object Type to which gate is connected (e.g. obj_channel,obj_reservoir)
-        integer*4 :: objConnectedID   ! Internal number of object (channel, reservoir) to which gate is attached
-        integer*4 :: objCompPoint     ! Index of computation point at water body
-        integer*4 :: subLocation      ! location within objConnectedID:
-        ! For reservoirs: index of associated reservoir connection
-        ! For channels:   extremity (+1 for upstream, -1 for downstream)
-        integer*4 :: node             ! Node to which gate is attached
-        integer*4 :: nodeCompPoint    ! Index of (stage reference) computation point at node
-        integer*4 :: nDevice = 0      ! number of devices in gate structure
-        type(datasource_t) install_datasource ! in the direction indicated
-        type(GateDevice), dimension(MAX_DEV) :: devices ! Array of devices in gate
-
-        character :: name*32 = ' '   ! name of gate
-    end type
-
-    ! fixme is NTotalDevice needed? When is it initialized?
-    integer, save :: NTotalDevice = 0
-
-    type(Gate), dimension(MaxNGate), target, save :: gateArray
+    public :: gateArray, nGate, NTotalDevice, MAX_DEV, GATE_OPEN, GATE_CLOSE, GATE_FREE, UNIDIR_TO_NODE, UNIDIR_FROM_NODE, WEIR, PIPE, Gate, GateDevice
 
 contains  !!========================================================!
 
@@ -226,12 +145,12 @@ contains  !!========================================================!
         use logging
         use constants
         use grid_data
+        use mod_name_to_objno
         implicit none
         integer &
             ID, &
             ObjConnType, &       ! connected to channel, reservoir, etc.
             NodeConn, &          ! node connected to
-            name_to_objno, &      ! function to get object number
             channo, &
             resno, &
             counter, &
@@ -245,8 +164,6 @@ contains  !!========================================================!
         character(len=16) :: ObjConnTypeName
 
         logical :: useObj
-        integer, external :: ext2intnode
-        integer, external :: obj_type_code
 
         ObjConnType = obj_type_code(ObjConnTypeName)
         ngate = ngate + 1
@@ -270,10 +187,18 @@ contains  !!========================================================!
         ObjConnID = trim(ObjConnID)
         call locase(ObjConnID)
         if ((ObjConnType .eq. OBJ_CHANNEL)) then
-            channo = name_to_objno(ObjConnType, objConnID)
+            ! channo = name_to_objno(ObjConnType, objConnID)
+            read(ObjConnID,*) i
+            channo = ext2int(i)
             gateArray(ngate)%objConnectedID = channo
         else if (ObjConnType .eq. OBJ_RESERVOIR) then
-            resno = name_to_objno(ObjConnType, objConnID)
+            ! resno = name_to_objno(ObjConnType, objConnID)
+            do i = 1,nreser
+                if (res_geom(i)%name .eq. objConnID) then
+                    resno = i
+                    exit
+                end if
+            end do
             gateArray(ngate)%objConnectedID = resno
             do i = 1, res_geom(resno)%nnodes
                 if (res_geom(resno)%node_no(i) .eq. gateArray(ngate)%node) then
@@ -320,6 +245,7 @@ contains  !!========================================================!
         default_op_name)
         use io_units
         use constants
+        use mod_name_to_objno
 
         implicit none
 
@@ -337,7 +263,6 @@ contains  !!========================================================!
             default_op, &
             get_objnumber       ! function to get object number
 
-        integer, external :: name_to_objno
 
         real*8 &
             max_width, &

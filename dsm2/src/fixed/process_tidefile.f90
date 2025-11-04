@@ -18,6 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_process_tidefile
+   use mod_fixed
+   use mod_tide_time
+contains
 subroutine process_tidefile(start_date, end_date, filename)
 
 !-----process a character line into data arrays for
@@ -129,3 +133,44 @@ subroutine process_tidefile(start_date, end_date, filename)
       return
 end subroutine
 
+subroutine get_tidefile_dates(itide)
+      use hdf5
+	use hdfvars
+	use io_units
+      use common_tide
+!-----Get the start julian datetime from tidefile number itide
+
+      implicit none
+
+!-----arguments
+
+      integer itide             ! tidefile number
+
+      integer(HID_T) :: tfile_id
+      integer        :: ierror
+      logical        :: hdf_file_exists
+      hdf5_hydrofile=trim(tide_files(itide).filename)
+	inquire (file=tide_files(itide).filename, exist=hdf_file_exists)
+	if (.not. hdf_file_exists) then
+          write (unit_error,*) "HDF5 file does not exist: " // &
+              tide_files(itide).filename
+	    call exit(2)
+	end if
+
+      ! Opens the file and groups for DSM2
+      call h5fopen_f(trim(tide_files(itide).filename), &
+                     H5F_ACC_RDONLY_F, &
+                     tfile_id, &
+                     ierror)
+      call verify_error(ierror, "Opening tidefile to check dates")
+      call getTimeAttributes(tfile_id, &
+                             tide_files(itide).start_julmin_file, &
+                             tide_files(itide).end_julmin_file, &
+                             tide_files(itide).interval, &
+                             tide_files(itide).ntideblocks)
+
+      call h5fclose_f(tfile_id, ierror)
+      return
+end subroutine
+
+end module mod_process_tidefile

@@ -21,10 +21,10 @@
 !>@ingroup do_module
 module do_heat
 
-    use gtm_precision
+    use constants
     use time_utilities, only : jmin2iso
     use do_parameter, only: lat, longitude, long_std_merid, elev, dust_attcoeff
-    use common_dsm2_vars, only: print_level
+    use common_gtm_vars, only: print_level
 
     contains
 

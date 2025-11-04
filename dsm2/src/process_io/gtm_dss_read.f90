@@ -38,7 +38,7 @@ module gtm_dss_read
                         block_dim,   &
                         indata,      &
                         per_type)
-       use common_dsm2_vars
+       use common_gtm_vars
        use time_utilities
        use dsm2_time_utils
        implicit none

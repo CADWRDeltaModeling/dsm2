@@ -20,7 +20,7 @@
 
 module read_unit_test
 
-    use gtm_precision
+    use constants
 
     contains
 

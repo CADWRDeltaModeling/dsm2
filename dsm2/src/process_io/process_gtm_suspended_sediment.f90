@@ -20,12 +20,12 @@
 !>@ingroup process_io
 module process_gtm_suspended_sediment
 
-    use gtm_precision
+    use constants
 
     contains
 
     subroutine process_suspended_sediment_type(composition)
-        use common_variables, only: n_var, constituents, n_sediment, sediment
+        use common_vars, only: n_var, constituents, n_sediment, sediment
         implicit none
         character :: composition*16
 
@@ -40,7 +40,7 @@ module process_gtm_suspended_sediment
     subroutine process_suspended_sediment_boundary(name,         &   ! boundary location name
                                                    composition,  &   ! composition
                                                    percent)          ! percentage in SSC
-      use common_variables, only: n_sediment_bc, sediment_bc
+      use common_vars, only: n_sediment_bc, sediment_bc
       use io_utilities
       implicit none
       character :: name*32

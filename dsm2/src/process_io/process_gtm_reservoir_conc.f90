@@ -29,8 +29,8 @@ module process_gtm_reservoir_conc
                                        Fillin,    &
                                        Filename,  &
                                        InPath)
-      use common_dsm2_vars
-      use common_variables, only: obj_reservoir
+      use common_gtm_vars
+      use common_vars, only: obj_reservoir
       use io_utilities
       implicit none
       character :: InPath*80,                                  &

@@ -18,10 +18,17 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine buffer_input_common()
+submodule (mod_fixed) mod_buffer_input_common
+    use mod_fixed
+    use mod_process_group
+    use mod_name_to_objno
+    implicit none
+contains
+module subroutine buffer_input_common()
       use input_storage_fortran
       use constants
       use io_units
+      use groups_data, only:groupArray, ngroup
       use groups, only:convertgrouppatternstomembers
 
       implicit none
@@ -73,7 +80,6 @@ subroutine buffer_input_common()
       character*16 member_type
       character*256 pattern
       integer*4 obj_type
-      integer*4, external :: obj_type_code
 
       nitem = group_buffer_size()
       do icount = 1,nitem
@@ -102,7 +108,7 @@ subroutine buffer_input_common()
 !---- convert group members from patterns to actual objects&indexes
 !     This must come after tidefile is loaded
 
-      call ConvertGroupPatternsToMembers
+      call ConvertGroupPatternsToMembers(groupArray, ngroup)
 
 
 
@@ -128,7 +134,7 @@ subroutine buffer_input_common()
          sourcegroup = ""
          call locase(distance)
          if (distance(:6) .eq. "length") then
-            idistance = chan_length
+            idistance = initial_channel_length
          else
             read(distance,*,err=120) idistance
          end if
@@ -212,3 +218,4 @@ subroutine buffer_input_common()
       call exit(-3)
 end subroutine
 
+end submodule mod_buffer_input_common

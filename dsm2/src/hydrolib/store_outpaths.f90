@@ -17,6 +17,17 @@
 !!    You should have received a copy of the GNU General Public License
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
+module mod_store_outpaths
+    implicit none
+
+    abstract interface
+        real*8 function get_output_ptr(ptr)
+            integer :: ptr
+        end function get_output_ptr
+    end interface
+    procedure(get_output_ptr), pointer :: get_output => null()
+
+contains
 subroutine store_outpaths_gen( &
     outpaths_dim, &
     block_dim, &
@@ -31,8 +42,7 @@ subroutine store_outpaths_gen( &
     unit, &
     lflush, &
     lupdate, &
-    need_tmpfile &
-    )
+    need_tmpfile)
 
 !-----General store outpaths.  This fills output buffer arrays and
 !-----writes temp file.
@@ -81,8 +91,6 @@ subroutine store_outpaths_gen( &
 
     REAL*8 &
         value               ! output value &
-    ! , get_output          ! function to get the output value for each DSM2 module
-    REAL*8, external :: get_output
 
     character &
         ctmp*14             ! temp string
@@ -289,3 +297,509 @@ subroutine store_outpaths(lflush)
     return
 end
 
+      subroutine init_store_outpaths(istat, fn_get_output)
+
+!-----Initialization for storing time-varying output data in temporary
+!-----files.
+          use IO_Units
+          use iopath_data
+          use runtime_data
+          use constants
+          use dss
+          use mod_writedss
+          use utilities, only: incr_intvl
+          implicit none
+
+          procedure(get_output_ptr), intent(in), pointer :: fn_get_output
+!-----local variables
+          character &
+              tmp_dir*50, &          ! scratch file directory &
+              dir_arr(10)*30, &     ! list of possible scratch directories &
+              dsm2mod*20, &         ! dsm2modifier &
+              tmp_file*80, &        ! scratch file name &
+              ctmp*100            ! scratch variable
+
+          integer &
+              istat, &               ! file status &
+              ptr, &                ! global pointer for pathouput &
+              i, &                  ! loop index &
+              npaths             ! path count &
+
+          get_output => fn_get_output
+
+!-----For each interval with output data, create a scratch file
+!-----and write header info.
+
+!-----scratch directory; if not specified in user input, try
+!-----plausible locations
+          dir_arr(1) = temp_dir
+          dir_arr(2) = '/tmp'
+          dir_arr(4) = 'c:'//backslash//'temp'
+          dir_arr(5) = 'c:'//backslash//'tmp'
+          dir_arr(6) = 'd:'//backslash//'temp'
+          dir_arr(7) = 'd:'//backslash//'tmp'
+          dir_arr(8) = '.'
+          dir_arr(9) = miss_val_c     ! array list must end with this
+          ptr = getdir(dir_arr)
+          if (ptr .ne. 0) then
+              tmp_dir = dir_arr(ptr)
+          else
+605           format(/a, '(/a)')
+              write (unit_error, 605) 'Could not find a valid directory in this list:', &
+                  (dir_arr(ptr), ptr=1, 8)
+              goto 901
+          end if
+
+          ctmp = trim(crid)//'.bin'
+
+          julstout_minutes15 = incr_intvl(start_julmin, '15min', &
+                                          NEAREST_BOUNDARY)
+          if (need_tmpfile_min15) then
+              call mkfilename(tmp_dir, 'tmp_min15-'//trim(ctmp), tmp_file)
+              scratch_file_array(1) = tmp_file
+              open ( &
+                  unit=unit_min15, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  buffered='yes', &
+                  buffercount=50, &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_min15
+                  ptr = ptout_min15(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_min15) npaths
+
+              do i = 1, npthsout_min15
+                  ptr = ptout_min15(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_min15) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(1) = miss_val_c
+          end if
+
+          julstout_hours1 = incr_intvl(start_julmin, '1hour', &
+                                       NEAREST_BOUNDARY)
+          if (need_tmpfile_hour1) then
+              call mkfilename(tmp_dir, 'tmp_hour1-'//trim(ctmp), tmp_file)
+              scratch_file_array(2) = tmp_file
+              open ( &
+                  unit=unit_hour1, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  buffered='yes', &
+                  buffercount=50, &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_hour1
+                  ptr = ptout_hour1(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_hour1) npaths
+
+              do i = 1, npthsout_hour1
+                  ptr = ptout_hour1(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_hour1) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(2) = miss_val_c
+          end if
+
+          julstout_days1 = incr_intvl(start_julmin, '1day', &
+                                      NEAREST_BOUNDARY)
+          if (need_tmpfile_day1) then
+              call mkfilename(tmp_dir, 'tmp_day1-'//trim(ctmp), tmp_file)
+              scratch_file_array(3) = tmp_file
+              open ( &
+                  unit=unit_day1, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  buffered='yes', &
+                  buffercount=10, &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_day1
+                  ptr = ptout_day1(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_day1) npaths
+
+              do i = 1, npthsout_day1
+                  ptr = ptout_day1(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_day1) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(3) = miss_val_c
+          end if
+
+          julstout_weeks1 = incr_intvl(start_julmin, '1week', &
+                                       NEAREST_BOUNDARY)
+          if (need_tmpfile_week1) then
+              call mkfilename(tmp_dir, 'tmp_week1-'//trim(ctmp), tmp_file)
+              scratch_file_array(4) = tmp_file
+              open ( &
+                  unit=unit_week1, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_week1
+                  ptr = ptout_week1(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_week1) npaths
+
+              do i = 1, npthsout_week1
+                  ptr = ptout_week1(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_week1) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(4) = miss_val_c
+          end if
+
+          julstout_months1 = incr_intvl(start_julmin, '1month', &
+                                        NEAREST_BOUNDARY)
+          if (need_tmpfile_month1) then
+              call mkfilename(tmp_dir, 'tmp_month1-'//trim(ctmp), tmp_file)
+              scratch_file_array(5) = tmp_file
+              open ( &
+                  unit=unit_month1, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_month1
+                  ptr = ptout_month1(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_month1) npaths
+
+              do i = 1, npthsout_month1
+                  ptr = ptout_month1(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_month1) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(5) = miss_val_c
+          end if
+
+          julstout_years1 = incr_intvl(start_julmin, '1year', &
+                                       NEAREST_BOUNDARY)
+          if (need_tmpfile_year1) then
+              call mkfilename(tmp_dir, 'tmp_year1-'//trim(ctmp), tmp_file)
+              scratch_file_array(6) = tmp_file
+              open ( &
+                  unit=unit_year1, &
+                  file=tmp_file, &
+                  form='unformatted', &
+                  iostat=istat, &
+                  err=901 &
+                  )
+!--------count number of paths to write
+              npaths = 0
+              do i = 1, npthsout_year1
+                  ptr = ptout_year1(i)
+                  if (pathoutput(ptr)%need_tmp_outfile) npaths = npaths + 1
+              end do
+              write (unit=unit_year1) npaths
+
+              do i = 1, npthsout_year1
+                  ptr = ptout_year1(i)
+!-----------only write those paths that need tmp file output
+                  if (pathoutput(ptr)%need_tmp_outfile) &
+                      write (unit=unit_year1) ptr, pathoutput(ptr), &
+                      per_type_names(pathoutput(ptr)%per_type)
+              end do
+          else
+              scratch_file_array(6) = miss_val_c
+          end if
+
+          return
+
+901       continue                  ! scratch file open error
+          write (unit_error, "('Error opening binary scratch file',1x,a)") tmp_file
+          call exit(2)
+
+          return
+      end
+
+      integer function getdir(dir_arr)
+
+!-----Find a usable directory from the given list; return the
+!-----array index of the one to use.  The list must end with
+!-----miss_val_c.
+          use constants
+          implicit none
+
+!-----argument
+          character*(*) dir_arr(*)  ! list of directory names to try
+
+!-----local variables
+          integer &
+              ndx, &                 ! directory array index &
+              nlen, &               ! character length &
+              statarr(13), &        ! file status array &
+              stat, &               ! file status intrinsic function &
+              istat, &              ! file status value &
+              lnblnk               ! intrinsic function
+
+          ndx = 1
+          do while (dir_arr(ndx) .ne. miss_val_c)
+              nlen = lnblnk(dir_arr(ndx))
+              if (nlen .eq. 0) goto 100
+              istat = stat(dir_arr(ndx), statarr)
+              if (istat .eq. 0) then ! this directory name ok
+                  getdir = ndx
+                  return
+              end if
+100           continue
+              ndx = ndx + 1
+          end do
+
+          getdir = 0
+          return
+      end
+
+      subroutine mkfilename( &
+          dir, &
+          file, &
+          dirfile &
+          )
+
+!-----Make a full filename (directory + filename) from directory name
+!-----and filename.
+          use constants
+          implicit none
+
+!-----arguments
+          character*(*) &
+              dir, &                 ! directory name &
+              file, &               ! filename &
+              dirfile             ! directory+filename
+
+!-----local variables
+          integer &
+              nlen, &                ! length of character string &
+              ndx, &                ! array index &
+              lnblnk, &             ! intrinsic &
+              index               ! intrinsic
+
+          character &
+              dirchar              ! directory delimiter (/ or \)
+
+          nlen = lnblnk(dir)
+!-----try to find / or \ in directory name
+          ndx = index(dir, '/')
+          if (ndx .gt. 0) then      ! unix
+              dirchar = dir(ndx:ndx)
+          else
+              ndx = index(dir, backslash)
+              if (ndx .gt. 0) then   ! pc
+                  dirchar = dir(ndx:ndx)
+              else                   ! unknown
+                  dirchar = '/'
+              end if
+          end if
+!-----directory name must end in either / or \ before
+!-----appending filename
+          if (dir(nlen:nlen) .ne. dirchar) then
+              nlen = nlen + 1
+              dir(nlen:nlen) = dirchar
+          end if
+
+          dirfile = dir(:nlen)//file
+
+          return
+      end
+
+    real*8 function get_output_hydro(ptr) result(fn_result)
+
+    !-----Get the desired output variable from the particular DSM module
+    use gates_data, only: gateArray
+    use IO_Units
+    use grid_data
+    use iopath_data
+    use constants
+    use chconnec
+    use netbnd, only: reservoir_source_sink
+    use channel_schematic, only: StreamEndNode
+    use chstatus, only: &
+        GlobalStreamFlow, &  ! Hydro function to return flow &
+        GlobalStreamSurfaceElevation! Hydro function to return stage &
+    use tidefile, only: ChannelVelocity     ! Hydro function to return velocity
+    implicit none
+
+    !-----arguments
+
+    integer &
+        ptr                  ! output path pointer
+
+    !-----global variables
+
+    !-----local variables
+
+    integer &
+        intchan, &            ! internal channel numbers &
+        nodeup, nodedown, &    ! Hydro upstream and downstream 'node' number &
+        hydrores, &          ! Hydro reservoir number
+        ngpoints, &
+        i                   ! loop index
+
+    integer node1, node2    !up and down global comp. node
+    real*8 &
+        val_x, &              ! interpolated value statement function &
+        val_up, val_down, &    ! value at upstream and downstream end of chan &
+        reach_dist, &          ! distance in a reach (not channel) &
+        reach_len, &          ! reach length &
+        Q_interp, &         !interpolated discharge &
+        Z_interp            !interpolated stage
+    !-----statement function to interpolate value along channel
+    val_x(val_up, val_down, reach_dist, reach_len) = val_up - (val_up &
+                                                               - val_down)*(reach_dist/reach_len)
+
+    if (pathoutput(ptr)%obj_type == obj_channel) then ! output is from channel
+
+        intchan = pathoutput(ptr)%obj_no
+        nodedown = -StreamEndNode(-intchan)
+        nodeup = StreamEndNode(intchan)
+        ngpoints = nodedown - nodeup + 1
+        if (ngpoints < 2) then
+            write (unit_error, 901) chan_geom(intchan)%chan_no, ngpoints
+901         format(' Error in output specification in channel:', i6/ &
+                   ' Number of grid points=', i6)
+            call exit(2)
+        end if
+        !         closest_node=int(dfloat(nodeup)+dfloat(pathoutput(ptr)%chan_dist)/
+        !     &        dfloat(chan_geom(intchan)%length)*(dfloat(nodedown)-
+        !     &        dfloat(nodeup))+0.5)
+        node1 = int(dfloat(nodeup) + dfloat(pathoutput(ptr)%chan_dist)/ &
+                    dfloat(chan_geom(intchan)%length)*(dfloat(nodedown) - &
+                                                       dfloat(nodeup)))
+        if (node1 == nodedown) node1 = node1 - 1
+        node2 = node1 + 1
+        reach_len = dfloat(chan_geom(intchan)%length)/(dfloat(nodedown) - &
+                                                       dfloat(nodeup))
+        reach_dist = dfloat(pathoutput(ptr)%chan_dist) - reach_len*(node1 - nodeup)
+
+        if (node1 < nodeup .or. node2 > nodedown .or. &
+            pathoutput(ptr)%chan_dist > chan_geom(intchan)%length) then
+            write (unit_error, 902) chan_geom(intchan)%chan_no, &
+                pathoutput(ptr)%chan_dist, &
+                chan_geom(intchan)%length
+902         format('Error in output specification for channel=', i6/ &
+                   'output specified for distance=', i10/ &
+                   'channel length=', i10)
+            call exit(2)
+        end if
+        if (pathoutput(ptr)%meas_type == 'stage') then
+            fn_result = val_x( &
+                         globalStreamSurfaceElevation(node1), &
+                         globalStreamSurfaceElevation(node2), &
+                         reach_dist, &
+                         reach_len)
+        else if (pathoutput(ptr)%meas_type(1:3) == 'vel') then
+            fn_result = ChannelVelocity(intchan, dfloat(pathoutput(ptr)%chan_dist))
+        else if (pathoutput(ptr)%meas_type == 'flow') then
+            fn_result = val_x( &
+                         globalStreamFlow(node1), &
+                         globalStreamFlow(node2), &
+                         reach_dist, &
+                         reach_len)
+        end if
+        !else if (pathoutput(ptr)%obj_type .eq. obj_qext) then
+        !   fn_result=qext(pathoutput(ptr)%obj_no)
+    else if (pathoutput(ptr)%obj_type == obj_reservoir) then ! output is from reservoir
+        hydrores = pathoutput(ptr)%obj_no
+        nodeup = pathoutput(ptr)%res_node_no
+        if (nodeup > 0) then ! flow to node
+            do i = 1, res_geom(hydrores)%nnodes
+                if (res_geom(hydrores)%node_no(i) == nodeup) then
+                    fn_result = -qres(hydrores, i)
+                end if
+            end do
+            !fn_result=-qres(hydrores,nodeup) ! + qres: flow from res to chan
+        else if (pathoutput(ptr)%meas_type == 'stage') then ! stage of reservoir
+            fn_result = yres(hydrores)
+        else if (pathoutput(ptr)%meas_type == 'flow-net') then ! net flow in/out of reservoir
+            fn_result = reservoir_source_sink(pathoutput(ptr)%obj_no, ALL_FLOWS)
+            do i = 1, res_geom(hydrores)%nnodes
+                fn_result = fn_result - qres(hydrores, i)
+            end do
+        else if (pathoutput(ptr)%meas_type == 'flow-source') then ! net source in/out of reservoir
+            fn_result = reservoir_source_sink(pathoutput(ptr)%obj_no, QEXT_FLOWS)
+        else if (pathoutput(ptr)%meas_type == 'pump') then ! net pumping out of reservoir
+            fn_result = reservoir_source_sink(pathoutput(ptr)%obj_no, ALL_FLOWS)
+        end if
+
+    else if (pathoutput(ptr)%obj_type == obj_gate) then
+        if (pathoutput(ptr)%meas_type == 'pos') then
+            ! //@todo: 'pos' is deprecated
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%opCoefToNode
+        else if (pathoutput(ptr)%meas_type == 'flow') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%flow
+        else if (pathoutput(ptr)%meas_type == 'device-flow') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%flow
+        else if (pathoutput(ptr)%meas_type == 'op-to-node' .or. &
+                 pathoutput(ptr)%meas_type == 'op_to_node') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%opCoefToNode
+        else if (pathoutput(ptr)%meas_type == 'op-from-node' .or. &
+                 pathoutput(ptr)%meas_type == 'op_from_node') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%opCoefFromNode
+        else if (pathoutput(ptr)%meas_type == 'position') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%position
+        else if (pathoutput(ptr)%meas_type == 'install') then
+            fn_result = 1.0
+            if (gateArray(pathoutput(ptr)%obj_no)%free) fn_result = 0.
+        else if (pathoutput(ptr)%meas_type == 'height') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%height
+        else if (pathoutput(ptr)%meas_type == 'elev') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%baseElev
+        else if (pathoutput(ptr)%meas_type == 'width') then
+            fn_result = gateArray(pathoutput(ptr)%obj_no)%Devices( &
+                         pathoutput(ptr)%gate_device)%maxWidth
+        else
+            fn_result = miss_val_r
+        end if
+    end if
+
+    return
+end
+
+end module mod_store_outpaths

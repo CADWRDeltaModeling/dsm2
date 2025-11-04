@@ -25,8 +25,8 @@ module codes_conv_nonconservative
 
     !> rate variable code
     integer function rate_variable_code(name)
-        use common_dsm2_vars, only: miss_val_i
-        use common_dsm2_qual
+        use common_gtm_vars, only: miss_val_i
+        use common_qual
         implicit none
         character(len=16) :: name
         rate_variable_code = miss_val_i
@@ -48,8 +48,8 @@ module codes_conv_nonconservative
 
     !> rate variable code to name
     subroutine rate_variable_code_to_name(id, name)
-        use common_dsm2_qual
-        use common_dsm2_vars, only: unit_error
+        use common_qual
+        use common_gtm_vars, only: unit_error
         implicit none
         integer, intent(in) :: id
         character*(16), intent(out) :: name
@@ -75,8 +75,8 @@ module codes_conv_nonconservative
 
     !> ncc_code
     integer function ncc_code(name)
-        use common_dsm2_vars, only: miss_val_i
-        use common_dsm2_qual
+        use common_gtm_vars, only: miss_val_i
+        use common_qual
         implicit none
         character*16 name
         ncc_code = miss_val_i
@@ -106,8 +106,8 @@ module codes_conv_nonconservative
 
     !> ncc_code_to_name
     subroutine ncc_code_to_name(id, name)
-        use common_dsm2_qual
-        use common_dsm2_vars, only: unit_error
+        use common_qual
+        use common_gtm_vars, only: unit_error
         implicit none
         character*(16), intent(out) :: name
         integer, intent(in) :: id

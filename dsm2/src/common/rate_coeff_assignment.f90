@@ -25,7 +25,7 @@
 module rate_coeff_assignment
     use common_qual
     implicit none
-    logical,dimension(max_constituent,ncoef_type),save:: rate_var_require_flag
+    logical,dimension(max_constituent,ncoef_type) :: rate_var_require_flag
 
 contains
 
@@ -34,7 +34,6 @@ contains
     !     at certain location, error message will be print out also
 
     subroutine output_rate_to_file(funit)
-        use groups, only: groupContains
         integer,intent(in)::funit
         !     local variables
         integer:: i

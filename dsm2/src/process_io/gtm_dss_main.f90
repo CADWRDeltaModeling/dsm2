@@ -32,7 +32,7 @@ module gtm_dss_main
                        num_dssfiles,  & ! number of dss files
                        dssfilenames)    ! dss filenames
 
-        use common_variables, only : unit_error
+        use common_vars, only : unit_error
         implicit none
         integer, intent(in):: num_dssfiles
         character(len=130), intent(in) :: dssfilenames(num_dssfiles)
@@ -58,7 +58,7 @@ module gtm_dss_main
 
     !> Return values from all time-varying data for the time specified
     subroutine get_inp_value(jmin, prev_jmin)
-        use common_dsm2_vars, only: n_inputpaths, pathinput
+        use common_gtm_vars, only: n_inputpaths, pathinput
         use gtm_dss
         use gtm_dss_readtvd
         implicit none

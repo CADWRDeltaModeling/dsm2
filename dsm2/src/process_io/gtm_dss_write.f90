@@ -23,7 +23,7 @@
 module gtm_dss_write
 
     use gtm_dss
-    use gtm_precision
+    use constants
 
     !-----scratch file unit numbers
     integer, parameter :: unit_min15 = 31,  &
@@ -99,8 +99,8 @@ module gtm_dss_write
 
     !> write out a block of data to DSS file
     subroutine writedss(pathnumber, cdt, in_values, nvals)
-         use common_variables, only: unit_error
-         use common_dsm2_vars, only: pathoutput, max_dssoutfiles, ifltab_out,  per_type_names
+         use common_vars, only: unit_error
+         use common_gtm_vars, only: pathoutput, max_dssoutfiles, ifltab_out,  per_type_names
          implicit none
          logical,dimension(max_dssoutfiles) :: isopen = .false.
          character :: cdt*(*), &               ! date/time for start of data &

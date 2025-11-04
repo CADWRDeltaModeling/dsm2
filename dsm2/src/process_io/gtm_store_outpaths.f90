@@ -20,11 +20,11 @@
 !> This is to store output data periodically to temporary files.
 !>@ingroup process_io
 module gtm_store_outpath
-
-    use gtm_precision
+    use constants
     use gtm_dss_write
+    implicit none
 
-    contains
+contains
 
     !> Write output data periodically to temporary files.
     !> Initialize the temporary files first with init_store_outpaths.
@@ -34,7 +34,7 @@ module gtm_store_outpath
                                   vals)
 
         use dsm2_time_utils, only: incr_intvl
-        use common_dsm2_vars, only: NEAREST_BOUNDARY, noutpaths
+        use common_gtm_vars, only: noutpaths
 
         implicit none
 
@@ -168,12 +168,8 @@ module gtm_store_outpath
                                       runtime_step,   &
                                       vals)
 
-        use common_dsm2_vars, only: noutpaths, pathoutput, prev_julmin,   &
-                                    start_julmin, end_julmin,             &
-                                    per_type_per_aver, per_type_per_cum,  &
-                                    per_type_per_min, per_type_per_max,   &
-                                    per_type_inst_val, per_type_inst_cum, &
-                                    per_type_null
+        use common_gtm_vars, only: noutpaths, pathoutput, prev_julmin,   &
+                                    start_julmin, end_julmin
 
         use time_utilities, only: jmin2cdt
 

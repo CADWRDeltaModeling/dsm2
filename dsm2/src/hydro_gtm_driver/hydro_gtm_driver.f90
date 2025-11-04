@@ -4,9 +4,9 @@ program hydro_gtm
     use runtime_data
     use hdfvars
     use fourpt
-    use common_dsm2_vars, only: gtm
+    use common_gtm_vars, only: gtm
     use dsm2gtm, only: gtm_prepare2, gtm_prepare_loop, gtm_loop, gtm_init_input_file, current_time, gtm_time_interval, gtm_wrapup
-    use common_variables, only: memory_buffer, gtm_start_jmin
+    use common_vars, only: memory_buffer, gtm_start_jmin
 
     implicit none
 

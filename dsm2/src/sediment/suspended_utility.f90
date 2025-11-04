@@ -24,7 +24,7 @@
 
 module suspended_utility
 
-    use gtm_precision
+    use constants
 
     contains
 

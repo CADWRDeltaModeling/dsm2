@@ -22,28 +22,20 @@
 !   Version 93.01, January, 1993
 
 module netcntrl_common
+    use constants
     use network
     implicit none
-    real*8, save:: Theta
-    integer, save:: Terms
-    real*8, save:: ToleranceQ
-    real*8, save:: ToleranceZ
-    logical, save:: VariableSinuosity
-    logical, save:: VariableDensity
-    integer, save:: MaxIterations
-    integer, save:: LuInc
 
-    real*8, save:: QuadPt(MaxQuadPts)
-    real*8, save:: QuadWt(MaxQuadPts)
+    real*8 :: Theta = 0.6D0
+    integer :: Terms
+    real*8 :: ToleranceQ = 0.0005D0
+    real*8 :: ToleranceZ = 0.0005D0
+    logical :: VariableSinuosity = .false.
+    logical :: VariableDensity = .false.
+    integer :: MaxIterations = 50
+    integer :: LuInc = 1
 
-    !c-----defaults
+    real*8 :: QuadPt(MaxQuadPts)
+    real*8 :: QuadWt(MaxQuadPts)
 
-    data &
-        variabledensity/.false./, &
-        variablesinuosity/.false./, &
-        theta/0.6D0/, &
-        maxiterations/50/, &
-        luinc/1/, &
-        toleranceq/0.0005/, &
-        tolerancez/0.0005/
 end module netcntrl_common

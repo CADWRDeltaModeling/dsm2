@@ -26,8 +26,8 @@ module process_gtm_io_file
     !> Process a character line into data arrays for
     !> output file names
     subroutine process_io_file(model,filetype,io,interval,filename)
-       use common_variables
-       use common_dsm2_vars
+       use common_vars
+       use common_gtm_vars
        !use iopath_data
        implicit none
 

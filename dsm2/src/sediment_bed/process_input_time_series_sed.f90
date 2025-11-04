@@ -27,7 +27,7 @@ module process_timeseries_input_sed
                                             Fillin,              &
                                             Filename,            &
                                             InPath)
-        use common_dsm2_vars, only: exact_match, fill_last,unit_error,infilenames,   &
+        use common_gtm_vars, only: exact_match, fill_last,unit_error,infilenames,   &
                                     ninpaths,max_dssinfiles,obj_group,print_level,unit_screen, &
                                     n_dssfiles, pathinput
         use sed_internal_vars

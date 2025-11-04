@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-      subroutine update_intervals
+submodule (common) update_intervals
+    implicit none
+contains
+      module subroutine update_intervals
 
 !-----Update the julian minute values representing the end of each
 !-----DSS interval.
@@ -48,3 +51,4 @@
 
       return
       end
+end submodule update_intervals

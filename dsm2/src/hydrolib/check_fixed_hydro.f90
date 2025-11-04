@@ -18,19 +18,24 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_check_fixed_hydro
+    use constants
+    implicit none
+contains
 subroutine check_fixed_hydro(istat)
 
     !-----Check the fixed input for omissions and errors before starting
     !-----the model run.  Supply default values where possible.  Translate
     !-----from nodes to channel numbers, and from external channel numbers
     !-----to internal.  Write to FourPt arrays.
+    use common_vars, only: nquadpts
+    use constants_qual
     use Gates, only:gateArray, nGate
     use PhysicalConstants
     use IO_units
     use logging
     use grid_data
     use runtime_data
-    use constants
     use iopath_data
 
     use common_xsect
@@ -59,7 +64,6 @@ subroutine check_fixed_hydro(istat)
         vsecno             , &! number of virt section within channel
         nsec               , &! number of sections based on chan_dx
         loc,loccarr        , &! character array string locator
-        node2hydrochan     , &! function to convert node to hydro channel
         nintnode(max_nodes), &! number of internal and external flows at nodes and reservoirs
         nintres(max_reservoirs), &
         nextnode(max_nodes), &
@@ -529,7 +533,7 @@ subroutine check_fixed_hydro(istat)
 
     !-----fill the FourPt channel ID string
 
-    do i=1,MaxLocations
+    do i=1,MAX_LOCATIONS
         write(userlocationid(i),'(i5.5)') i
     enddo
 
@@ -590,8 +594,8 @@ subroutine check_fixed_hydro(istat)
                 write(unit_error,*)' Maxtables.   Current value=',MaxTables
                 goto 900
             endif
-            if (USR > MaxLocations) then
-                write(unit_error, 720) MaxLocations, nint(chan_dx(nchans))
+            if (USR > MAX_LOCATIONS) then
+                write(unit_error, 720) MAX_LOCATIONS, nint(chan_dx(nchans))
                 goto 900
             endif
 
@@ -728,7 +732,7 @@ do pth=1,ninpaths
         obj2obj(i)%datasource%indx_ptr=miss_val_i
         !--------assign an input path (dss or constant valued)
         do pth=1,ninpaths
-            if ((pathinput(pth)%obj_type == obj_obj2obj) &
+            if ((pathinput(pth)%obj_type == obj_transfer) &
                 .and. (pathinput(pth)%obj_name == obj2obj(i)%name)) then ! fixme:
                 call datasource_from_path(obj2obj(i)%datasource,pth,pathinput(pth))
                 obj2obj(i)%flow=fetch_data(obj2obj(i)%datasource)
@@ -935,3 +939,5 @@ subroutine datasource_from_path(source,ndx,path)
     return
 end subroutine
 
+
+end module mod_check_fixed_hydro

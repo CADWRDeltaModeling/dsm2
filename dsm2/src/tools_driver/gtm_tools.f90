@@ -81,7 +81,7 @@ end program
 
     !> Routine to test creating restart text file
     subroutine test_create_restart()
-        use gtm_precision
+        use constants
         use create_restart
         implicit none
         integer :: file_unit

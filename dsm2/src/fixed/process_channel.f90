@@ -18,7 +18,11 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_channel( &
+submodule (mod_fixed) dsm2_fixed_process_channel
+    use io_units
+    use mod_name_to_objno
+contains
+module subroutine process_channel( &
     extcounter, &
     id, &
     channo, &
@@ -68,7 +72,7 @@ end subroutine
 
 !=======================================
 
-subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
+module subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
     use grid_data
     use common_xsect
     use logging
@@ -79,7 +83,6 @@ subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
     integer :: xsectid  ! database id
     integer, intent(out) :: xsectno  ! xsect index
     integer :: i
-    integer, external :: ext2int
     integer :: prev_chan
     integer :: intchan
     if (chan_fdist .le. max_dist_ratio) then
@@ -112,9 +115,8 @@ subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
     return
 end subroutine
 
-subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
+module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
     use common_xsect
-    use io_units
     implicit none
     integer :: chan_no
     integer :: xsectno
@@ -130,7 +132,7 @@ subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
     return
 end subroutine
 
-subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
+module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     use grid_data
     use logging
     use io_units
@@ -205,16 +207,13 @@ end subroutine
 !-----Order nodes in node_geom in a way that is compatible
 !-----with hydro and qual. The function also changes
 !-----chan_geom.upnode and chan_geom.downnode from external to internal
-logical function order_nodes()
+module logical function order_nodes()
     use grid_data
     use io_units
     implicit none
     integer(8) nn
     integer n, node
     integer intchan
-    integer ext2intnode
-    integer compareInt
-    external compareInt
     order_nodes = .true.
 !     compile list of all nodes and sort them in numerical order
 
@@ -294,7 +293,7 @@ logical function order_nodes()
     return
 end function
 
-subroutine process_xsect_csdp(channo, fdist, filename)
+module subroutine process_xsect_csdp(channo, fdist, filename)
 !-----Transfer buffer contents from xsect to xsect layer. This routine does not
 !     actually do any data processing. There are two requirements:
 !     i.  it must be called after prioritize_buffers(), otherwise the items
@@ -465,3 +464,4 @@ subroutine process_xsect_csdp(channo, fdist, filename)
 
 end subroutine
 
+end submodule dsm2_fixed_process_channel

@@ -23,13 +23,12 @@
 !> changes among cells.
 !>@ingroup gtm_core
 module interpolation
-
-    use gtm_precision
+    use constants
     use error_handling
     use gtm_logging
-    use common_variables
+    use common_vars
 
-    contains
+contains
 
    !! interpolation mesh grid with four given points
    !! For example, space divided into four and time divided into three (*: given, nx=4, nt=4)
@@ -107,7 +106,7 @@ module interpolation
                                     a, b, c, d,                         &
                                     mass_balance_from_flow, area_mesh)
         use common_xsect
-        use common_variables, only: quadwt, quadpt
+        use common_vars, only: quadwt, quadpt
         implicit none
         integer, intent(in) :: branch                                    !< hydro channel number (required by CxArea())
         real(gtm_real), intent(in) :: up_x                               !< upstream point distance (required for CxArea())

@@ -40,7 +40,7 @@ module do_basic
                          constraint,   &
                          name,         &
                          rkstep)
-        use gtm_precision
+        use constants
         implicit none
         integer, intent(in) :: ncell                           !< Number of cells
         integer, intent(in) :: nvar                            !< Number of variables

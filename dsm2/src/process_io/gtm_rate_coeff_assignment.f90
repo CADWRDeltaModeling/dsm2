@@ -19,15 +19,16 @@
 !</license>
 !>@ingroup process_io
 module gtm_rate_coeff_assignment
-
-    use common_variables
-    use common_dsm2_qual
+    use array_limits
+    use common_qual
+    use common_vars
     implicit none
-    logical,dimension(max_constituent,ncoef_type), save:: rate_var_require_flag
+
+    logical,dimension(max_constituent,ncoef_type) :: rate_var_require_flag
 
     contains
 
-    !> output the rate coefficents values to a file ,if there are missing values
+    !> output the rate coefficients values to a file ,if there are missing values
     !> at certain location, error message will be print out also
     subroutine output_rate_to_file(funit)
         integer,intent(in)::funit

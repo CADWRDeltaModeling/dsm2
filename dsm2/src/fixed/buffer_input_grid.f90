@@ -18,14 +18,20 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 !====================================================================
+module mod_buffer_input_grid
+    use mod_fixed
+    use array_allocator
+    use mod_process_transfer
+contains
 subroutine buffer_input_grid() !process_text_grid_input()
+    !! Read grid input data from INP input files
+
       use input_storage_fortran
       use io_units
       !use constants
       use hdf5, only: hid_t
       use gates, only: process_gate, process_gate_device
       !@# For dynamic allocation
-      use common_variables, only: allocate_chan_var
       implicit none
 
       integer :: node
@@ -41,7 +47,6 @@ subroutine buffer_input_grid() !process_text_grid_input()
       real*8 dist,elev,width,wet_perim
 
       real*8 area, bottom_elev,coef_in,coef_out
-      logical,external :: order_nodes
 
       character(len=16) :: from_obj
       character(len=32) :: from_identifier
@@ -290,3 +295,5 @@ subroutine buffer_input_grid() !process_text_grid_input()
 
        return
 end subroutine
+
+end module mod_buffer_input_grid

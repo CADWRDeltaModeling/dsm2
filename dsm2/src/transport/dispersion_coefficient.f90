@@ -24,7 +24,7 @@
 ! get U and depth from HYDRO and based on the well known formula by Fischer et al. (1979); it must be computed and fed here
 
 module dispersion_coefficient
-  use gtm_precision, only: gtm_real
+  use constants, only: gtm_real
 
   interface
     !> Dispersion coefficient interface to be fulfilled by driver or application
@@ -42,7 +42,7 @@ module dispersion_coefficient
                                  ncell,                &
                                  nvar)
 
-        use gtm_precision
+        use constants
         implicit none
 
         real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
@@ -72,7 +72,7 @@ module dispersion_coefficient
   !> Set dispersion coefficient interface to an implementation that is constant in space and time
   !> This routine sets the value of the constant dispersion coefficient as well.
   subroutine set_constant_dispersion(coefficient)
-      use gtm_precision
+      use constants
       use error_handling
       implicit none
       real(gtm_real),intent(in) :: coefficient      !< Constant value of dispersion coef.
@@ -95,7 +95,7 @@ module dispersion_coefficient
                                       dt,                   &
                                       ncell,                &
                                       nvar)
-      use gtm_precision
+      use constants
       use error_handling
 
       implicit none

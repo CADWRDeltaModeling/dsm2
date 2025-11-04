@@ -32,7 +32,7 @@ module process_gtm_output_reservoir
                                         sourcegroup, &
                                         filename)
 
-        use common_dsm2_vars
+        use common_gtm_vars
         use io_utilities
         implicit none
 

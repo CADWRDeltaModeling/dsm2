@@ -31,13 +31,13 @@ module buffer_gtm_input_qual
         use process_gtm_reservoir_conc
         use process_gtm_group_variable
         use process_gtm_input_time_series
-        use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames,     &
+        use common_gtm_vars, only: pathinput, n_inputpaths,infilenames,     &
                                     n_dssfiles, indssfiles, ifltab_in,       &
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
-        use gtm_precision
-        use common_variables, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
+        use constants
+        use common_vars, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, run_sediment, &
                                     group_var, run_mercury, mercury_start_ivar, mercury_ivar
         implicit none

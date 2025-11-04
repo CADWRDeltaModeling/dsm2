@@ -1,6 +1,6 @@
 program sed_setup
 
-    use gtm_precision
+    use constants
     use hdf_util
     use sb_hdf_util
     use io_utilities

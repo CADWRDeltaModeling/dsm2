@@ -24,9 +24,9 @@
 
 module equilibrium
 
-use gtm_precision
+use constants
 use math_utils
-use common_variables
+use common_vars
 use hg_type_defs
 
 implicit none
@@ -98,8 +98,8 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     logical :: solved = .false.
     integer :: local_order
     type (eq_vals) :: debugvals
-                             !Chloride (mg/l) = 0.285 * EC (umhos/cm) – 50.    (this is the 'seawater' line)
-                             !Chloride (mg/l) = 0.15 * EC (umhos/cm) – 12.      (this is the 'ag. drainage' line)
+                             !Chloride (mg/l) = 0.285 * EC (umhos/cm) ï¿½ 50.    (this is the 'seawater' line)
+                             !Chloride (mg/l) = 0.15 * EC (umhos/cm) ï¿½ 12.      (this is the 'ag. drainage' line)
 
     converge = .true.
     local_order = jacob_order

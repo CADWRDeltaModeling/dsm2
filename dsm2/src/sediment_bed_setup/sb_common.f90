@@ -1,8 +1,8 @@
 module sb_common
 
-    use gtm_precision
+    use constants
     use hdf_util , only: n_comp
-    use common_variables, only: n_cell,chan_geom, top_wet_p, top_elev
+    use common_vars, only: n_cell,chan_geom, top_wet_p, top_elev
     !use common_xsect , only: top_wet_p, top_elev
 
     implicit none

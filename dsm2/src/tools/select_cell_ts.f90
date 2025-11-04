@@ -28,7 +28,7 @@
                                      ncell,         &        !< total number of cells
                                      infile_name,   &        !< input file name
                                      outfile_name)           !< output file name
-            use gtm_precision
+            use constants
             implicit none
             integer, intent(in) :: n_select_cell
             integer, intent(in) :: select_cell(n_select_cell)

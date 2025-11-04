@@ -59,6 +59,7 @@ set(DSM2_PATTERN_MATCH pattern_match)
 set(DSM2_TIMEVAR timevar)
 set(DSM2_PYTHON python)
 
+add_subdirectory(src/dsm2_defs)
 add_subdirectory(src/${DSM2_COMMONS_DIR})
 add_subdirectory(src/${DSM2_INPUT_STORAGE})
 add_subdirectory(src/${DSM2_FIXED_DIR})
@@ -110,33 +111,9 @@ target_compile_options(
   ${HYDRO_BIN} PRIVATE "$<TARGET_PROPERTY:MKL::MKL,INTERFACE_COMPILE_OPTIONS>")
 target_link_libraries(${HYDRO_BIN} PRIVATE "$<LINK_ONLY:MKL::MKL>")
 
-# Build Qual
-set(QUAL_BIN qual)
-add_executable(${QUAL_BIN})
-if(NOT WIN32)
-  set_target_properties(
-    ${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran INSTALL_RPATH
-                                                   "\${ORIGIN}/../lib")
-endif()
-file(GLOB QUAL_SOURCES src/qual/*.f90)
-target_sources(${QUAL_BIN} PRIVATE ${QUAL_SOURCES})
-target_link_libraries(
-  ${QUAL_BIN}
-  PRIVATE fixed
-          hydrolib
-          hdf_tidefile
-          hdf_tidefile_cpp
-          gtm_core
-          dsm2_input_storage
-          dsm2_input_storage_cpp
-          common
-          pattern_match
-          input_storage
-          ${Boost_LIBRARIES}
-          ${HDF5_HL_LIBRARIES}
-          ${HDF5_LIBRARIES}
-          ${KLU_LIBRARIES}
-          ${HEClib_LIBRARIES})
+# Qual driver
+add_subdirectory(src/qual_core)
+add_subdirectory(src/qual_driver)
 
 # Build GTM
 set(GTM_BIN gtm)

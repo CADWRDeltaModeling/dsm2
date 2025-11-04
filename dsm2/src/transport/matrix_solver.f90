@@ -26,7 +26,7 @@
 !>@ingroup transport
 module matrix_solver
 
-  use gtm_precision
+  use constants
 
   contains
 
