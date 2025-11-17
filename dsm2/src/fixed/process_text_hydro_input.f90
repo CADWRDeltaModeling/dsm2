@@ -1,10 +1,10 @@
-module mod_process_text_hydro_input
+submodule (mod_fixed) mod_fixed
     use input_storage_fortran
     use mod_fixed
     use constants
 
 contains
-subroutine process_text_gate_input()
+module subroutine process_text_gate_input()
 
     implicit none
     integer :: nitem
@@ -46,7 +46,7 @@ subroutine process_text_gate_input()
 end subroutine
 
 
-subroutine process_text_oprule_ts_input()
+module subroutine process_text_oprule_ts_input()
 
     implicit none
     integer :: nitem
@@ -77,7 +77,7 @@ subroutine process_text_oprule_ts_input()
 end subroutine
 
 !======================================================================
-subroutine process_text_oprule_input()
+module subroutine process_text_oprule_input()
 
     implicit none
     integer :: nitem
@@ -116,4 +116,4 @@ subroutine process_text_oprule_input()
     return
 end subroutine
 
-end module mod_process_text_hydro_input
+end submodule mod_fixed

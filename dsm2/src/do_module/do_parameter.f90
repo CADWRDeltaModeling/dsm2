@@ -222,7 +222,7 @@ module do_parameter
 
     !> find index
     subroutine find_do_conc_index(nvar)
-        use common_dsm2_qual, only: constituents
+        use common_vars_qual, only: constituents
         implicit none
         integer, intent(in) :: nvar
         integer :: i

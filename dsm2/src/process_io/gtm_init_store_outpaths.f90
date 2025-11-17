@@ -30,7 +30,7 @@ module gtm_init_store_outputs
     subroutine gtm_init_store_outpaths(istat)
 
         use constants, only: miss_val_c
-        use common_vars
+        use io_units, only : unit_error
         use common_gtm_vars, only: temp_dir, pathoutput, NEAREST_BOUNDARY, &
                                     per_type_names, gtm_start_jmin
         use dsm2_time_utils, only: incr_intvl
@@ -272,7 +272,7 @@ module gtm_init_store_outputs
 
     !> get number of path for each output period
     subroutine get_npathout
-        use common_vars, only: unit_error
+        use io_units, only: unit_error
         use common_gtm_vars, only: noutpaths, pathoutput, dsm2_name
         implicit none
 

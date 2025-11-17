@@ -235,6 +235,15 @@ module mod_fixed
             integer :: nodeConn
         end subroutine process_gate
 
+        module subroutine process_text_gate_input()
+        end subroutine process_text_gate_input
+
+        module subroutine process_text_oprule_ts_input()
+        end subroutine process_text_oprule_ts_input
+
+        module subroutine process_text_oprule_input()
+        end subroutine process_text_oprule_input
+
         module subroutine process_gate_device(gatename, name, structure_name, nduplicate, &
             max_width, base_elev, height, cffrom, cfto, default_op_name)
             character(len=32) :: gatename
@@ -248,6 +257,36 @@ module mod_fixed
             real*8 :: cfto
             character(len=16) :: default_op_name
         end subroutine process_gate_device
+
+        module subroutine process_input_oprule(Name, &
+                                        Filename, &
+                                        InPath, &
+                                        Fillin)
+            character(len=32) :: Name
+            character(len=128) :: Filename
+            character(len=392) :: InPath
+            character(len=8) :: Fillin
+        end subroutine process_input_oprule
+
+        module subroutine process_io_file(model, filetype, io, interval, filename)
+            character(len=8) :: model
+            character(len=8) :: filetype
+            character(len=8) :: io
+            character(len=8) :: interval
+            character(len=128) :: filename
+        end subroutine process_io_file
+
+        module subroutine process_oprule(name, action, trigger)
+            character(len=32) :: name
+            character(len=512) :: action
+            character(len=512) :: trigger
+        end subroutine process_oprule
+
+        module subroutine process_oprule_expression(name, definition)
+            character(len=32) :: name
+            character(len=512) :: definition
+        end subroutine process_oprule_expression
+
 
         module subroutine read_grid_from_tidefile()
         end subroutine read_grid_from_tidefile

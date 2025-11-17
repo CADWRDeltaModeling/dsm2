@@ -769,7 +769,6 @@ module gtm_subs
     end subroutine
 
     real*8 function chan_ec_val(chan_num, x_dist)
-    use gtm_subs, only: get_select_cell_with_x, get_output_channel_vals_continue
     use common_gtm_vars, only: output_ec_oprule
     use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
     use state_variables, only: conc

@@ -27,6 +27,7 @@ module process_gtm_scalar
     subroutine process_scalar(Param, Val)
       use constants
       use common_vars
+      use common_qual
       use common_gtm_vars
       use common_qual
       use time_utilities

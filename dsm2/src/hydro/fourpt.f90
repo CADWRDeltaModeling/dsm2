@@ -146,7 +146,6 @@ contains
         use mod_buffer_input_grid
         use mod_store_outpaths
         use mod_buffer_input_hydro
-        use mod_process_text_hydro_input
         use common
         implicit none
 

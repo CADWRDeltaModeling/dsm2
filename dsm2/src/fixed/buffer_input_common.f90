@@ -22,6 +22,7 @@ submodule (mod_fixed) mod_buffer_input_common
     use mod_fixed
     use mod_process_group
     use mod_name_to_objno
+    use mod_fixed
     implicit none
 contains
 module subroutine buffer_input_common()

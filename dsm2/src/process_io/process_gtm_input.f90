@@ -47,7 +47,7 @@ module process_gtm_input
             end if
             call process_input_text(init_input_file)         ! reads input text
             call buffer_input_common()                       ! locate buffer to the variables in common_dsm2_vars.f90
-            call buffer_input_qual()                         ! locate buffer to the variables in common_dsm2_qual.f90
+            call buffer_input_qual()                         ! locate buffer to the variables in common_vars_qual.f90
             if (io_files(gtm,io_echo,io_write).use) then
                 call write_input_to_echofile(io_files(gtm,io_echo,io_write).filename)
             end if

@@ -11,7 +11,7 @@
                                 ncell,          &
                                 nresv,          &
                                 nvar)
-        use common_vars, only : constituents, resv_geom
+        use gtm_vars, only : constituents, resv_geom
         use constants
         use sed_type_defs
         implicit none

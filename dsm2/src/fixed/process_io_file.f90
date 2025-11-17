@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_io_file(model,filetype,io,interval,filename)
+submodule (mod_fixed) mod_process_io_file
+    implicit none
+contains
+module subroutine process_io_file(model,filetype,io,interval,filename)
 !-----process a character line into data arrays for
 !-----output file names
       use io_units
@@ -97,3 +100,4 @@ subroutine process_io_file(model,filetype,io,interval,filename)
       return
 end subroutine
 
+end submodule mod_process_io_file

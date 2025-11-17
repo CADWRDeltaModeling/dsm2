@@ -44,7 +44,8 @@ module gtm_dss_readtvd
                                     per_type_inst_cum,per_type_null, n_inputpaths, pathinput, &
                                     fill_interp, fill_bydata, generic_date, current_date,     &
                                     start_julmin
-        use common_vars, only : unit_error, run_pdaf
+        use io_units, only : unit_error
+        use gtm_vars, only : run_pdaf
         use time_utilities
 
         implicit none

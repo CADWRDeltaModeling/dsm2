@@ -24,7 +24,7 @@
 module suspended_sediment
 
     use constants
-    use common_vars, only: ero_coeff   !< unit kg/(m^2s)
+    use gtm_vars, only: ero_coeff   !< unit kg/(m^2s)
 
     real(gtm_real), allocatable :: diameter(:,:)
     real(gtm_real), allocatable :: fall_velocity(:,:)
@@ -50,7 +50,7 @@ module suspended_sediment
                                          isediment,       &
                                          method,          &
                                          rkstep)
-        use common_vars, only: mann_arr
+        use gtm_vars, only: mann_arr
         use sediment_variables
         use suspended_utility
         use cohesive_source

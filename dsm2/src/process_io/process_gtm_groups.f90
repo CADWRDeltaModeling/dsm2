@@ -25,7 +25,7 @@ module process_gtm_groups
 
     !> Process group
     subroutine process_gtm_group(name, id)
-        use common_vars, only: group
+        use gtm_vars, only: group
         implicit none
         character*32 :: name
         integer :: id
@@ -40,7 +40,7 @@ module process_gtm_groups
                                         membertype,   &
                                         pattern,      &
                                         icount)
-        use common_vars, only: group_member
+        use gtm_vars, only: group_member
         implicit none
         character*32, intent(in) :: groupname
         integer, intent(in) :: membertype
@@ -56,7 +56,7 @@ module process_gtm_groups
 
     !> Process group members in details
     subroutine process_members_detail()
-        use common_vars
+        use gtm_vars
         implicit none
         integer :: count_member
         integer :: i, j
@@ -92,7 +92,7 @@ module process_gtm_groups
 
     !> Count members in a group for allocation
     subroutine count_num_members(count_member, pattern, group_id, obj_code)
-        use common_vars
+        use gtm_vars
         implicit none
         integer, intent(out) :: count_member
         integer, intent(in) :: group_id
@@ -145,7 +145,7 @@ module process_gtm_groups
 
     !> Fill in member properties for group array
     subroutine fill_member_property(pattern, group_id, obj_code)
-        use common_vars
+        use gtm_vars
         implicit none
         integer, intent(in) :: group_id
         integer, intent(in) :: obj_code
