@@ -4,11 +4,11 @@
 #include "oprule/expression/ExpressionNode.h"
 #include <string>
 #define STDCALL
-#ifdef _WIN32
-#define value_from_inputpath VALUE_FROM_INPUTPATH
-#else
-#define value_from_inputpath value_from_inputpath_
-#endif
+// #ifdef _WIN32
+// #define value_from_inputpath VALUE_FROM_INPUTPATH
+// #else
+// #define value_from_inputpath value_from_inputpath_
+// #endif
 extern "C" double STDCALL value_from_inputpath(const int*);
 
 class DSM2TimeSeriesNode : public oprule::expression::DoubleNode

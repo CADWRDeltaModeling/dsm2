@@ -41,7 +41,6 @@ module subroutine process_channel_ic(channel, &
       integer :: distance
       real*8 :: stage
       real*8 :: flow
-      integer, external :: ext2int
       integer,save :: k = 0
 !--------use only the last version of the initial condition
       call locase(dist)

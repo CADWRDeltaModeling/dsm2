@@ -24,7 +24,7 @@
 module state_variables_network
 
     use constants
-    use common_vars
+    use gtm_vars
 
     !> State variables for data read from hydro
     real(gtm_real), save, allocatable :: prev_comp_flow(:)

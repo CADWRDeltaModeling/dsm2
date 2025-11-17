@@ -1,6 +1,6 @@
 program dsm2gtm_driver
     use dsm2gtm
-    use common_vars, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
+    use gtm_vars, only: gtm_start_jmin, gtm_end_jmin, gtm_time_interval
     implicit none
 
     call gtm_prepare1()

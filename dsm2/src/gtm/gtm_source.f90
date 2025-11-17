@@ -40,7 +40,7 @@ module gtm_source
                                      name,         &
                                      rkstep)
         use constants
-        use common_vars, only: n_sediment, use_sediment_bed, n_layers, &
+        use gtm_vars, only: n_sediment, use_sediment_bed, n_layers, &
                                     run_mercury, n_mercury, mercury_ivar,n_resv
         use suspended_sediment
         use sed_type_defs, only: n_zones !added by dhh

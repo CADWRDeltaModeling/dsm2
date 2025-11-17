@@ -45,7 +45,7 @@ module gtm_hdf_write
     subroutine write_attributes_gtm(geom_id)
         use hdf5
         use h5lt
-        use common_vars
+        use gtm_vars
         use time_utilities
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 geom dataset identifier
@@ -104,7 +104,7 @@ module gtm_hdf_write
     !> Write out channel info into GTM tidefile
     subroutine write_channel_info(geom_id)
         use hdf5
-        use common_vars, only: n_chan, chan_geom
+        use gtm_vars, only: n_chan, chan_geom
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 geom dataset identifier
         integer(HID_T) :: dset_id                    ! dataset identifier
@@ -241,7 +241,7 @@ module gtm_hdf_write
     !> Write out geomotry info into GTM tidefile
     subroutine write_segment_info(geom_id)
         use hdf5
-        use common_vars, only: n_segm, segm
+        use gtm_vars, only: n_segm, segm
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                    ! dataset identifier
@@ -390,7 +390,7 @@ module gtm_hdf_write
     !> Write out DSM2 node info into GTM tidefile
     subroutine write_dsm2_network_info(geom_id)
         use hdf5
-        use common_vars, only: n_node, dsm2_network, dsm2_network_extra
+        use gtm_vars, only: n_node, dsm2_network, dsm2_network_extra
         implicit none
         integer(HID_T), intent(in) :: geom_id                !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                            ! dataset identifier
@@ -595,7 +595,7 @@ module gtm_hdf_write
     !> Write out connection info into GTM tidefile
     subroutine write_connection_info(geom_id)
         use hdf5
-        use common_vars, only: n_conn, conn
+        use gtm_vars, only: n_conn, conn
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                    ! dataset identifier
@@ -713,7 +713,7 @@ module gtm_hdf_write
     !> Write out reservoir info into GTM tidefile
     subroutine write_reservoir_info(geom_id)
         use hdf5
-        use common_vars, only: n_resv, n_resv_conn, resv_geom
+        use gtm_vars, only: n_resv, n_resv_conn, resv_geom
         implicit none
         integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                        ! dataset identifier
@@ -851,7 +851,7 @@ module gtm_hdf_write
     !> Write out external flow info into GTM tidefile
     subroutine write_qext_info(geom_id)
         use hdf5
-        use common_vars, only: n_qext, qext
+        use gtm_vars, only: n_qext, qext
         implicit none
         integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                        ! dataset identifier

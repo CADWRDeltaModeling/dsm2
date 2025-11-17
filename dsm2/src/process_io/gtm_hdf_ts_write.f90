@@ -71,7 +71,7 @@ module gtm_hdf_ts_write
                             cal_budget)
 
    	    use hdf5		! HDF5 This module contains all necessary modules
-        use common_vars, only: unit_error, unit_screen, gtm_time_interval, debug_print
+        use gtm_vars, only: unit_error, unit_screen, gtm_time_interval, debug_print
         use dsm2_time_utils, only: incr_intvl
         use common_gtm_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level, hdf_out
   	    implicit none
@@ -183,7 +183,7 @@ module gtm_hdf_ts_write
     !> Write out lookup information for cells, reservoirs, and constituents.
     subroutine write_dimensions(loc_id, nchan, nresv, nconc)
         use hdf5
-        use common_vars, only: chan_geom, resv_geom, constituents, hdf_out
+        use gtm_vars, only: chan_geom, resv_geom, constituents, hdf_out
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
         integer, intent(in) :: nchan                       !< nbumber of channels
@@ -745,7 +745,7 @@ module gtm_hdf_ts_write
                                   time_index,    &
                                   budget)
         use hdf5
-        use common_vars, only: hdf_out, chan_geom
+        use gtm_vars, only: hdf_out, chan_geom
         implicit none
         real(gtm_real), parameter :: hydro_theta = 0.6d0           !< hydro theta value
         type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
@@ -953,7 +953,7 @@ module gtm_hdf_ts_write
     !> Close out the HDF5 file properly, leaves HDF5 API open
     subroutine close_gtm_hdf(hdf_file)
         use hdf5
-        use common_vars, only: unit_error,unit_screen, hdf_out
+        use gtm_vars, only: unit_error,unit_screen, hdf_out
         use common_gtm_vars, only: print_level
 
         implicit none

@@ -656,7 +656,7 @@ contains
 
     !== Public (GlobalStreamFlow) ==========================================
 
-    real*8 function GlobalStreamFlow(LocationNumber)
+    real*8 function GlobalStreamFlow(LocationNumber) bind(C, name="get_flow")
 
 
         implicit none
@@ -917,7 +917,7 @@ contains
 
     !== Public (GlobalStreamSurfaceElevation) ==============================
 
-    real*8 function GlobalStreamSurfaceElevation(LocationNumber)
+    real*8 function GlobalStreamSurfaceElevation(LocationNumber) bind(C, name="get_surf_elev")
 
         implicit none
 

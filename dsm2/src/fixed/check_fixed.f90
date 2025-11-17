@@ -21,6 +21,11 @@
 module mod_check_fixed
     use mod_name_to_objno
     use groups
+    implicit none
+    interface
+        module subroutine process_irreg()
+        end subroutine process_irreg
+    end interface
 contains
 subroutine check_fixed(istat)
 

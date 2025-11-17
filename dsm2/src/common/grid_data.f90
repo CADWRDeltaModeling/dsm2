@@ -99,7 +99,7 @@ module grid_data
 contains
     ! Convert an external channel number to internal number
     ! using a binary search.
-    integer function ext2int(extchan)
+    integer function ext2int(extchan) bind(C, name="ext2int")
         use ifport
         ! use grid_data
         implicit none
@@ -118,7 +118,7 @@ contains
 
 !-----Convert an external node number to an internal one using
 !     binary search
-    integer function ext2intnode(extnode)
+    integer function ext2intnode(extnode) bind(C, name="ext2intnode")
         use ifport
         ! use grid_data
         implicit none

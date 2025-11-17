@@ -18,7 +18,10 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_irreg
+submodule (mod_check_fixed) mod_process_irreg
+    use mod_name_to_objno
+contains
+module subroutine process_irreg()
 
 !-----Assign cross-sections to channels
       use io_units
@@ -609,76 +612,6 @@ subroutine errmsg( &
       return
 end
 
-subroutine geom_output
-
-!-----This subroutine prints a list of all the irregular cross-sections and a list
-!-----of the cross-section assignments.
-      use IO_Units
-      use grid_data
-      use common_xsect, disabled => xsect_index !@# xsect_index is declared as a character variable below.
-      implicit none
-
-
-      integer &
-          j, &
-          i, &
-          channo              ! do loop counters
-      character &
-          all_xsect_indices*(5+max_assg_sec*5), & ! stores all assigned xsect indices
-          xsect_index*5       ! index of current xsect
-
-      do j=1,nirg
-         write(unit_output,*)
-         write(unit_output,*) 'IRREGULAR CROSS-SECTIONS (INPUT)'
-         write(unit_output,14) chan_geom(irreg_geom(j).chan_no).chan_no
- 14      format('DSM2 Channel Number = ',i4)
-         write(unit_output,*)
-         write(unit_output,*) 'Number of elevations = ',irreg_geom(j).num_elev
-         write(unit_output,'(a,1f5.1)') 'Minimum elevation = ', irreg_geom(j).min_elev
-         write(unit_output,*) ' elevation       area      wet_p      width   h_radius x_centroid z_centroid'
-         write(unit_output,*) '----------------------------------------------------------------------------'
-
-         do i=1,irreg_geom(j).num_elev
-            write(unit_output,15) &
-                irreg_geom(j).elevation(i), &
-                irreg_geom(j).area(i), &
-                irreg_geom(j).wet_p(i), &
-                irreg_geom(j).width(i), &
-                irreg_geom(j).h_radius(i)
-!     &           ,irreg_geom(j).x_centroid(i)
-!     &           ,irreg_geom(j).z_centroid(i)
- 15         format(f10.2,1x,4(f10.1,1x))
-         enddo
-      enddo
-
-      write(unit_output,*)
-      write(unit_output,*) 'CROSS-SECTION ASSIGNMENTS'
-      write(unit_output,*) &
-          'Chan  Cross-section indices: "O" means original, "C" means copy', &
-          'A cross-section number of zero means that a rectangular sec was used', &
-          '--------------------------------------------------------------------'
-!-----this will only work for channel numbers <= 999.  If >=1000, 1st digit will
-!-----be overwritten
-      do channo=1,nchans
-         if (chan_geom(channo).length .gt. 0) then
-            write(all_xsect_indices,'(i6)') chan_geom(channo).chan_no
-            do j=1,xsect_assg(channo).num_sec_assg
-               write(xsect_index,'(i5)') xsect_assg(channo).sec_index(j)
-               all_xsect_indices((j*5)+1:(j*5)+5)=xsect_index
-               if (xsect_assg(channo).original(j)) then
-                  all_xsect_indices((j*5)+2:(j*5)+2) = 'O'
-               elseif (.not. xsect_assg(channo).original(j)) then
-                  all_xsect_indices(j*5+2:j*5+2) = 'C'
-               endif
-            enddo
-            i=5*(1+xsect_assg(channo).num_sec_assg)
-            write(unit_output,'(a)') all_xsect_indices(1:i)
-         endif
-      enddo
-
-      return
-end
-
 
 subroutine xsect_numbers(channo)
 
@@ -796,3 +729,4 @@ subroutine xsect_numbers(channo)
       return
 end
 
+end submodule mod_process_irreg

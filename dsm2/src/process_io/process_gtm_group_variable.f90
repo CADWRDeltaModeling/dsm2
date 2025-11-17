@@ -26,7 +26,7 @@ module process_gtm_group_variable
                                       constituent,    &
                                       rate_variable,  &
                                       rate_value)
-        use common_vars
+        use gtm_vars
         implicit none
         character*16, intent(in) :: rate_variable
         character*16, intent(in) :: constituent

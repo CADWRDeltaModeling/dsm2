@@ -24,7 +24,7 @@
 !>@ingroup process_io
 module common_gtm_vars
 
-      use variables_gtm
+      use gtm_vars
 
     !> From DSM2/common/runtime_data.f
        character(len=:), allocatable :: dsm2_name         ! DSM2 name

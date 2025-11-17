@@ -23,6 +23,7 @@
 !            better for hydro to keep track of its own time
 module model_interface
     use iso_c_binding
+    use utilities, only: cstring_to_fstring
     implicit none
 
     interface
@@ -31,21 +32,21 @@ module model_interface
         end function
     end interface
 contains
-integer function getModelTime()
+integer function getModelTime() bind(C, name="get_model_time")
     use runtime_data
     implicit none
     getModelTime = julmin
     return
 end function
 
-integer function getModelJulianDay()
+integer function getModelJulianDay() bind(C, name="get_model_julian_day")
     implicit none
     integer, parameter :: MIN_PER_DAY = 60*24
     getModelJulianDay = getModelTime()/MIN_PER_DAY
     return
 end function
 
-integer function getModelYear()
+integer function getModelYear() bind(C, name="get_model_year")
     implicit none
     integer m, d, y
     call jliymd(getModelJulianDay(), y, m, d)
@@ -53,7 +54,7 @@ integer function getModelYear()
     return
 end function
 
-integer function getModelMonth()
+integer function getModelMonth() bind(C, name="get_model_month")
     implicit none
     integer m, d, y
     call jliymd(getModelJulianDay(), y, m, d)
@@ -61,7 +62,7 @@ integer function getModelMonth()
     return
 end function
 
-integer function getModelDay()
+integer function getModelDay() bind(C, name="get_model_day")
     implicit none
     integer m, d, y
     call jliymd(getModelJulianDay(), y, m, d)
@@ -69,7 +70,7 @@ integer function getModelDay()
     return
 end function
 
-integer function getModelDayOfYear()
+integer function getModelDayOfYear() bind(C, name="get_model_day_of_year")
     implicit none
     integer m, d, y, yearstart, jday
     integer iymdjl
@@ -80,7 +81,7 @@ integer function getModelDayOfYear()
     return
 end function
 
-integer function getModelMinuteOfDay()
+integer function getModelMinuteOfDay() bind(C, name="get_model_minute_of_day")
     use runtime_data
     implicit none
     integer, parameter :: MIN_PER_DAY = 60*24
@@ -88,7 +89,7 @@ integer function getModelMinuteOfDay()
     return
 end function
 
-integer function getModelHour()
+integer function getModelHour() bind(C, name="get_model_hour")
     use runtime_data
     implicit none
     integer, parameter :: MIN_PER_HOUR = 60
@@ -96,7 +97,7 @@ integer function getModelHour()
     return
 end function
 
-integer function getReferenceMinuteOfYear(mon, day, hour, min)
+integer function getReferenceMinuteOfYear(mon, day, hour, min) bind(C, name="get_reference_minute_of_year")
     implicit none
 
     integer iymdjl  ! function converts ymd to julian day
@@ -111,21 +112,21 @@ integer function getReferenceMinuteOfYear(mon, day, hour, min)
     return
 end function
 
-integer function getModelMinuteOfYear()
+integer function getModelMinuteOfYear() bind(C, name="get_model_minute_of_year")
     implicit none
     integer, parameter :: MIN_PER_DAY = 60*24
     getModelMinuteOfYear = MIN_PER_DAY*getModelDayOfYear() + getModelMinuteOfDay()
     return
 end function
 
-integer function getModelMinute()
+integer function getModelMinute() bind(C, name="get_model_minute")
     implicit none
     integer, parameter :: MIN_PER_HOUR = 60
     getModelMinute = mod(getModelMinuteOfDay(), MIN_PER_HOUR)
     return
 end function
 
-integer function getModelTicks()
+integer function getModelTicks() bind(C, name="get_model_ticks")
     use runtime_data
     implicit none
 
@@ -133,7 +134,7 @@ integer function getModelTicks()
     return
 end function
 
-subroutine set_datasource(source, expr, val, timedep)
+subroutine set_datasource(source, expr, val, timedep) bind(C, name="set_datasource")
     use constants
     use type_defs, only: datasource_t
     implicit none
@@ -155,7 +156,7 @@ end subroutine
 
 
 subroutine chan_comp_point(intchan, distance, &
-                           comp_points, weights)
+                           comp_points, weights) bind(C, name="chan_comp_point")
 
 !-----Purpose: Wrapper to CompPointAtDist that uses arrays so that
 !     the arguments are pass-by-reference (mainly for calls from C)
@@ -174,15 +175,18 @@ subroutine chan_comp_point(intchan, distance, &
     return
 end subroutine
 
-integer function resNdx(name)
+integer function resNdx(name, len) bind(C, name="reservoir_index")
     use grid_data
     implicit none
     integer i
-    character*(*) name
+    character(kind=c_char), dimension(*) :: name
+    integer(kind=c_size_t), value :: len
+    character(len=len) :: f_string
     resNdx = miss_val_i
-    call locase(name)
+    f_string = cstring_to_fstring(name, len)
+    call locase(f_string)
     do i = 1, nreser
-        if (res_geom(i)%name .eq. trim(name)) then
+        if (res_geom(i)%name .eq. trim(f_string)) then
             resNdx = i
             exit
         end if
@@ -190,7 +194,7 @@ integer function resNdx(name)
     return
 end function
 
-integer function resConnectNdx(res_ndx, internal_node_no)
+integer function resConnectNdx(res_ndx, internal_node_no) bind(C, name="reservoir_connect_index")
     use grid_data
     implicit none
     integer i
@@ -206,17 +210,20 @@ integer function resConnectNdx(res_ndx, internal_node_no)
     return
 end function
 
-integer function gateNdx(name)
+integer function gateNdx(name, len) bind(C, name="gate_index")
     use gates_data, only: gateArray, nGate
     use constants
     implicit none
 
+    character(kind=c_char), dimension(*) :: name
+    integer(kind=c_size_t), value :: len
     integer i
-    character*(*) name
+    character(len=len) :: f_string
+    f_string = cstring_to_fstring(name, len)
     gateNdx = miss_val_i
-    call locase(name)
+    call locase(f_string)
     do i = 1, nGate
-        if (name .eq. GateArray(i)%name) then
+        if (f_string .eq. GateArray(i)%name) then
             gateNdx = i
             exit
         end if
@@ -224,21 +231,23 @@ integer function gateNdx(name)
     return
 end function
 
-integer function deviceNdx(gatendx, devname)
+integer function deviceNdx(gatendx, c_devname, len) bind(C, name="device_index")
     use gates_data, only: GateArray
     use gates, only: deviceIndex
     implicit none
     integer gatendx
-    character*(*) devname
+    character(kind=c_char), dimension(*) :: c_devname
+    integer(kind=c_size_t), value :: len
     character*32 ldevname
-    ldevName = devName
+
+    ldevname = cstring_to_fstring(c_devname, len)
     call locase(ldevname)
-    deviceNdx = deviceIndex(GateArray(gatendx), ldevName)
+    deviceNdx = deviceIndex(GateArray(gatendx), ldevname)
     return
 end function
 
 !     return the constant, so FORTRAN and C can share it
-integer function direct_to_node()
+integer function direct_to_node() bind(C, name="direct_to_node")
     use gates_data
     implicit none
     direct_to_node = FLOW_COEF_TO_NODE
@@ -246,7 +255,7 @@ integer function direct_to_node()
 end function
 
 !     return the constant, so FORTRAN and C can share it
-integer function direct_from_node()
+integer function direct_from_node() bind(C, name="direct_from_node")
     use gates_data
     implicit none
     direct_from_node = FLOW_COEF_FROM_NODE
@@ -254,14 +263,14 @@ integer function direct_from_node()
 end function
 
 !     return the constant, so FORTRAN and C can share it
-integer function direct_to_from_node()
+integer function direct_to_from_node() bind(C, name="direct_to_from_node")
     use gates_data
     implicit none
     direct_to_from_node = FLOW_COEF_TO_FROM_NODE
     return
 end function
 
-real*8 function get_external_flow(ndx)
+real*8 function get_external_flow(ndx) bind(C, name="get_external_flow")
     use grid_data
     implicit none
 
@@ -270,7 +279,7 @@ real*8 function get_external_flow(ndx)
     return
 end function
 
-subroutine set_external_flow(ndx, val)
+subroutine set_external_flow(ndx, val) bind(C, name="set_external_flow")
     use grid_data
     implicit none
 
@@ -280,7 +289,7 @@ subroutine set_external_flow(ndx, val)
     return
 end subroutine
 
-subroutine set_external_flow_datasource(ndx, expr, val, timedep)
+subroutine set_external_flow_datasource(ndx, expr, val, timedep) bind(C, name="set_external_flow_datasource")
     use grid_data
     implicit none
     integer ndx, expr
@@ -290,7 +299,7 @@ subroutine set_external_flow_datasource(ndx, expr, val, timedep)
     return
 end subroutine
 
-real*8 function get_transfer_flow(ndx)
+real*8 function get_transfer_flow(ndx) bind(C, name="get_transfer_flow")
     use grid_data
     implicit none
     integer ndx
@@ -298,7 +307,7 @@ real*8 function get_transfer_flow(ndx)
     return
 end function
 
-subroutine set_transfer_flow(ndx, val)
+subroutine set_transfer_flow(ndx, val) bind(C, name="set_transfer_flow")
     use grid_data
     implicit none
     integer ndx
@@ -307,7 +316,7 @@ subroutine set_transfer_flow(ndx, val)
     return
 end subroutine
 
-subroutine set_transfer_flow_datasource(ndx, expr, val, timedep)
+subroutine set_transfer_flow_datasource(ndx, expr, val, timedep) bind(C, name="set_transfer_flow_datasource")   
     use grid_data
     implicit none
     integer ndx, expr
@@ -317,7 +326,7 @@ subroutine set_transfer_flow_datasource(ndx, expr, val, timedep)
     return
 end subroutine
 
-subroutine set_gate_install(ndx, install)
+subroutine set_gate_install(ndx, install) bind(C, name="set_gate_install")
     use gates_data, only: GateArray
     use gates, only: setFree
     implicit none
@@ -331,7 +340,7 @@ subroutine set_gate_install(ndx, install)
     return
 end subroutine
 
-subroutine set_gate_install_datasource(gndx, expr, val, timedep)
+subroutine set_gate_install_datasource(gndx, expr, val, timedep) bind(C, name="set_gate_install_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx
@@ -343,7 +352,7 @@ subroutine set_gate_install_datasource(gndx, expr, val, timedep)
     return
 end subroutine
 
-real*8 function is_gate_install(ndx)
+real*8 function is_gate_install(ndx) bind(C, name="is_gate_install")
     use gates_data, only: GateArray
     implicit none
     integer ndx
@@ -355,7 +364,7 @@ real*8 function is_gate_install(ndx)
     return
 end function
 
-real(8) function get_device_op_coef(gndx, devndx, direction)
+real(8) function get_device_op_coef(gndx, devndx, direction) bind(C, name="get_device_op_coef")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx, direction
@@ -373,7 +382,7 @@ real(8) function get_device_op_coef(gndx, devndx, direction)
     return
 end function
 
-subroutine set_device_op_coef(gndx, devndx, direction, val)
+subroutine set_device_op_coef(gndx, devndx, direction, val) bind(C, name="set_device_op_coef")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx, direction
@@ -389,7 +398,7 @@ subroutine set_device_op_coef(gndx, devndx, direction, val)
     return
 end subroutine
 
-subroutine set_device_op_datasource(gndx, devndx, direction, expr, val, timedep)
+subroutine set_device_op_datasource(gndx, devndx, direction, expr, val, timedep) bind(C, name="set_device_op_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx, direction
@@ -411,7 +420,7 @@ subroutine set_device_op_datasource(gndx, devndx, direction, expr, val, timedep)
     return
 end subroutine
 
-real(8) function get_device_height(gndx, devndx)
+real(8) function get_device_height(gndx, devndx) bind(C, name="get_device_height")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -419,7 +428,7 @@ real(8) function get_device_height(gndx, devndx)
     return
 end function
 
-subroutine set_device_height(gndx, devndx, val)
+subroutine set_device_height(gndx, devndx, val) bind(C, name="set_device_height")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -427,7 +436,7 @@ subroutine set_device_height(gndx, devndx, val)
     GateArray(gndx)%Devices(devndx)%height = val
 end subroutine
 
-subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep)
+subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep) bind(C, name="set_device_height_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -439,7 +448,7 @@ subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep)
     return
 end subroutine
 
-real(8) function get_device_width(gndx, devndx)
+real(8) function get_device_width(gndx, devndx) bind(C, name="get_device_width")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -447,7 +456,7 @@ real(8) function get_device_width(gndx, devndx)
     return
 end function
 
-subroutine set_device_width(gndx, devndx, val)
+subroutine set_device_width(gndx, devndx, val) bind(C, name="set_device_width")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -456,7 +465,7 @@ subroutine set_device_width(gndx, devndx, val)
     return
 end subroutine
 
-subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep)
+subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep) bind(C, name="set_device_width_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -468,7 +477,7 @@ subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep)
     return
 end subroutine
 
-real(8) function get_device_nduplicate(gndx, devndx)
+real(8) function get_device_nduplicate(gndx, devndx) bind(C, name="get_device_nduplicate")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -476,7 +485,7 @@ real(8) function get_device_nduplicate(gndx, devndx)
     return
 end function
 
-subroutine set_device_nduplicate(gndx, devndx, val)
+subroutine set_device_nduplicate(gndx, devndx, val) bind(C, name="set_device_nduplicate")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -485,19 +494,19 @@ subroutine set_device_nduplicate(gndx, devndx, val)
     return
 end subroutine
 
-subroutine set_device_nduplicate_datasource(gndx, devndx, expr, val, timedep)
+subroutine set_device_nduplicate_datasource(gndx, devndx, expr, val, timedep) bind(C, name="set_device_nduplicate_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
     integer expr
     real*8 val
-    logical timedep
+    logical(kind=c_bool), value :: timedep
     call set_datasource( &
-        GateArray(gndx)%Devices(devndx)%nduplicate_datasource, expr, val, timedep)
+        GateArray(gndx)%Devices(devndx)%nduplicate_datasource, expr, val, timedep /= 0_c_bool)
     return
 end subroutine
 
-real(8) function get_device_elev(gndx, devndx)
+real(8) function get_device_elev(gndx, devndx) bind(C, name="get_device_elev")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -505,7 +514,7 @@ real(8) function get_device_elev(gndx, devndx)
     return
 end function
 
-subroutine set_device_elev(gndx, devndx, val)
+subroutine set_device_elev(gndx, devndx, val) bind(C, name="set_device_elev")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -514,7 +523,7 @@ subroutine set_device_elev(gndx, devndx, val)
     return
 end subroutine
 
-subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep)
+subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep) bind(C, name="set_device_elev_datasource")
     use gates_data, only: GateArray
     implicit none
     integer gndx, devndx
@@ -526,7 +535,7 @@ subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep)
     return
 end subroutine
 
-real(8) function get_device_flow_coef(gndx, devndx, direct)
+real(8) function get_device_flow_coef(gndx, devndx, direct) bind(C, name="get_device_flow_coef")
     use gates_data, only: GateArray
     use IO_Units
     implicit none
@@ -542,7 +551,7 @@ real(8) function get_device_flow_coef(gndx, devndx, direct)
     return
 end function
 
-subroutine set_device_flow_coef(gndx, devndx, direct, val)
+subroutine set_device_flow_coef(gndx, devndx, direct, val) bind(C, name="set_device_flow_coef")
     use gates_data, only: GateArray
     use IO_Units
     implicit none
@@ -559,7 +568,7 @@ subroutine set_device_flow_coef(gndx, devndx, direct, val)
     return
 end subroutine
 
-real*8 function value_from_inputpath(i)
+real*8 function value_from_inputpath(i) bind(C, name="value_from_inputpath")
     use iopath_data
     implicit none
     integer i
@@ -567,37 +576,46 @@ real*8 function value_from_inputpath(i)
     return
 end function
 
-integer function ts_index(name)
+integer function ts_index(c_str, len) bind(C, name="ts_index")
     use iopath_data
     implicit none
-    character*(*) name
-    integer i
+    character(kind=c_char), dimension(*) :: c_str
+    integer(kind=c_size_t), value :: len
+
+    character(len=len) :: f_string
+    integer :: i
+
+    f_string = cstring_to_fstring(c_str, len)
     ts_index = -1
     do i = 1, ninpaths
-        if (trim(pathinput(i)%name) .eq. trim(name)) then
+        if (trim(pathinput(i)%name) .eq. trim(f_string)) then
             ts_index = i
             return
         end if
     end do
 end function
 
-integer function qext_index(name)
+integer function qext_index(name, len) bind(C, name="qext_index")
     use grid_data
     use constants
     implicit none
 
-    character*(*) name
+    character(kind=c_char), dimension(*) :: name
+    integer(kind=c_size_t), value :: len
+
     integer i
+    character(len=len) :: f_string
+    f_string = cstring_to_fstring(name, len)
     qext_index = miss_val_i
     do i = 1, nqext
-        if (qext(i)%name .eq. name) then
+        if (qext(i)%name .eq. f_string) then
             qext_index = i
             return
         end if
     end do
 end function
 
-integer function transfer_index(name)
+integer function transfer_index(name) bind(C, name="transfer_index")
     use constants
     use grid_data
     implicit none
@@ -613,7 +631,7 @@ integer function transfer_index(name)
     end do
 end function
 
-real*8 function channel_length(intno)
+real*8 function channel_length(intno) bind(C, name="channel_length")
     use grid_data
     implicit none
     integer intno
@@ -621,7 +639,7 @@ real*8 function channel_length(intno)
     return
 end function
 
-real*8 function fetch_data(source)
+real*8 function fetch_data(source) bind(C, name="fetch_data")
       use constants
       use iopath_data
       use type_defs, only: datasource_t
@@ -629,19 +647,18 @@ real*8 function fetch_data(source)
 !----- Fetch time varying data from a data source such as
 !      DSS, an expression or a constant value
 
-	type(datasource_t) ::  source
+    type(datasource_t) ::  source
 
       if (source.source_type .eq. const_data)  then
        fetch_data=source.value
       else if (source.source_type .eq. dss_data) then   !fetch from dss path
         fetch_data=pathinput(source.indx_ptr).value
       else if (source.source_type .eq. expression_data) then
-    	  fetch_data=get_expression_data(source.indx_ptr)
-	else
-	  fetch_data=miss_val_r
-	end if
-	return
-	end function
-
+        fetch_data=get_expression_data(source.indx_ptr)
+    else
+      fetch_data=miss_val_r
+    end if
+    return
+    end function
 
 end module model_interface

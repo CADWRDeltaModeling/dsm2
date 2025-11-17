@@ -19,6 +19,7 @@
 !!</license>
 
 module utilities
+    use iso_c_binding
     use constants
     use io_units
     use type_defs
@@ -423,6 +424,17 @@ contains
 
     end
 
+    integer(kind=c_int) function cdt2jmin_c(c_str, len) bind(C, name="cdate_to_jul_min")
+        implicit none
+        character(kind=c_char), dimension(*), intent(in) :: c_str
+        integer(kind=c_size_t), value :: len
+        character(len=len) :: f_string
+
+        f_string = cstring_to_fstring(c_str, len)
+        cdt2jmin_c = cdt2jmin(f_string)
+        return
+    end function cdt2jmin_c
+
     character * 14 function jmin2cdt(julmin)
 
 !-----Convert from julian minute to character date/time
@@ -811,5 +823,20 @@ contains
         end if
         return
     end function
+
+    function cstring_to_fstring(cstr, len) result(fstr)
+        implicit none
+        character(c_char), dimension(*), intent(in) :: cstr
+        integer(c_size_t), intent(in) :: len
+        character(len=:), allocatable :: fstr
+
+        integer :: i
+
+        allocate(character(len=len) :: fstr)
+
+        do i = 1, len
+            fstr(i:i) = cstr(i)
+        end do
+    end function cstring_to_fstring
 
 end module utilities

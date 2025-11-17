@@ -24,7 +24,7 @@ module dsm2gtm
     use constants
     use error_handling
     use gtm_logging
-    use common_vars
+    use gtm_vars
     use common_xsect
     use common_gtm_vars
     use common_qual
@@ -167,7 +167,7 @@ subroutine gtm_prepare2(tidefile_id)
     !-----get optional starting input file from command line and
     !-----simulation name for Database read
     use hdf_util, only : hydro_file_id, hydro_id
-    use common_vars, only : set_dsm2_network_info, assign_segment
+    use gtm_vars, only : set_dsm2_network_info, assign_segment
 
     integer(HID_T), intent(in), optional :: tidefile_id
     integer(HID_T) :: tidefile_id_

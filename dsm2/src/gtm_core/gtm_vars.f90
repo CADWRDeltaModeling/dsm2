@@ -21,16 +21,17 @@
 !> This module contains common variables definition, such as n_time, n_chan, n_comp
 !> and n_segm as well as properties for channels, computational points and segments.
 !>@ingroup gtm_core
-module variables_gtm
+module gtm_vars
      use constants
-     use constants_qual
      use io_units
+     use constants_qual
+     use common_vars
      use gtm_logging
      use grid_data, only: chan_geom !@# declaration of chan_geom moved to module grid_data.
 
      real(gtm_real) :: hydro_theta = 0.d0           !< Hydro theta from hydro
-     real(gtm_real), save:: quadwt(MaxQuadPts)
-     real(gtm_real), save:: quadpt(MaxQuadPts)
+    !  real(gtm_real), save:: quadwt(MaxQuadPts)
+    !  real(gtm_real), save:: quadpt(MaxQuadPts)
 
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
      real(gtm_real), allocatable :: disp_arr(:)            !< dispersion coeff
@@ -198,11 +199,11 @@ module variables_gtm
          integer :: tran_no                          !< transfer flow number
          character*32 :: name                        !< transfer name
          integer :: from_obj                         !< from obj (2: node, 3: reservoir)
-         character*32 :: from_identifier                  !< from identifier
-         integer :: from_identifier_int                   !< from_identifier to its id
+         character*32 :: from_identifier             !< from identifier
+         integer :: from_identifier_int              !< from identifier to its id
          integer :: to_obj                           !< to obj (2: node, 3: reservoir)
-         character*32 :: to_identifier                    !< to identifier
-         integer :: to_identifier_int                     !< to_identifier to its id
+         character*32 :: to_identifier               !< to identifier
+         integer :: to_identifier_int                !< to identifier to its id
      end type
      type(transfer_flow_t), allocatable :: tran(:)
 
@@ -266,15 +267,15 @@ module variables_gtm
      type(dsm2_network_extra_t), allocatable :: dsm2_network_extra(:)
 
      !> Define constituent
-     type constituent_t
+     type gtm_constituent_tnt_t
          integer :: conc_no                             !< constituent id
          character*32 :: name = ' '                     !< constituent name
          logical :: conservative = .true.               !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '               !< use module
          logical :: simulate = .true.                   !< simulate or not. trigger to klu solver
      end type
-     type(constituent_t), allocatable :: constituents(:)
-     type(constituent_t), allocatable :: constituents_tmp(:)
+     type(gtm_constituent_tnt_t), allocatable :: constituents(:)
+     type(gtm_constituent_tnt_t), allocatable :: constituents_tmp(:)
 
      !> Sediment variables
      integer :: ssc_index = 0
@@ -1182,7 +1183,7 @@ module variables_gtm
      !> Obtain info for DSM2 nodes
      !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
      !> This updates common variables: n_junc, n_boun and dsm2_network(:)
-     !> use common_vars, only n_conn, conn as inputs
+     !> use gtm_vars, only n_conn, conn as inputs
      subroutine set_dsm2_network_info()
          implicit none
          integer :: sorted_conns(n_conn)
@@ -1285,8 +1286,9 @@ module variables_gtm
                      end if
                  end if
              end do
+
              do j = 1, n_tran
-                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier_int==unique_num(i)) then !get the number of transfer from one node
+                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier_int==unique_num(i)) then
                      dsm2_network_extra(i)%n_tran = dsm2_network_extra(i)%n_tran + 1
                  end if
              end do
@@ -1295,7 +1297,7 @@ module variables_gtm
              k = 0
              do j = 1, n_tran
                 if (tran(j)%to_obj==3) then
-                   tran(j)%to_identifier_int = dsm2_network_extra(i)%resv_conn_no
+                    tran(j)%to_identifier_int = dsm2_network_extra(i)%resv_conn_no
                 end if
                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier_int==unique_num(i)) then
                     k = k + 1
@@ -1797,4 +1799,4 @@ module variables_gtm
          return
      end subroutine
 
-end module variables_gtm
+end module gtm_vars

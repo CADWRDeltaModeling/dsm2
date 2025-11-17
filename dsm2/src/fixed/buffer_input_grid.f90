@@ -30,7 +30,6 @@ subroutine buffer_input_grid() !process_text_grid_input()
       use io_units
       !use constants
       use hdf5, only: hid_t
-      use gates, only: process_gate, process_gate_device
       !@# For dynamic allocation
       implicit none
 
