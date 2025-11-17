@@ -768,7 +768,7 @@ module gtm_subs
         return
     end subroutine
 
-    real*8 function chan_ec_val(chan_num, x_dist)
+    real*8 function chan_ec_val(chan_num, x_dist) bind(C, name="chan_ec_val")
     use common_gtm_vars, only: output_ec_oprule
     use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
     use state_variables, only: conc
