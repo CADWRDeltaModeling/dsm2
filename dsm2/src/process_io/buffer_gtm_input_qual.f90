@@ -37,7 +37,7 @@ module buffer_gtm_input_qual
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
         use constants
-        use common_vars, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
+        use gtm_vars, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, run_sediment, &
                                     group_var, run_mercury, mercury_start_ivar, mercury_ivar
         implicit none

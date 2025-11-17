@@ -9,7 +9,7 @@ use equilibrium
 use sediment_bed_setup, only: sed_read_init_values
 use mercury_state_variables
 use hg_hdf
-use common_vars
+use gtm_vars
 use state_variables
 use sediment_bed, only: get_sed_wet_p
 

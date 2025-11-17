@@ -13,7 +13,7 @@ contains
         use runtime_data
         use iopath_data
         use grid_data
-        use common_vars_qual
+        use common_qual
 
         use common_tide
         use network

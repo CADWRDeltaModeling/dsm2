@@ -135,7 +135,8 @@ module gtm_dss
     subroutine get_dss_each_npath()
 
          use common_gtm_vars, only: pathinput, n_inputpaths
-         use common_vars, only: unit_error, miss_val_r
+         use io_units, only: unit_error
+         use constants, only: miss_val_r
 
          implicit none
          integer :: p

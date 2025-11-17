@@ -26,7 +26,7 @@ module mercury_state_variables
     use sed_internal_vars
     use sed_type_defs
     use hg_internal_vars, only:setup_hg_internals
-    use common_vars, only:n_mercury
+    use gtm_vars, only:n_mercury
     use hg_hdf
 
     real(gtm_real), allocatable :: conc_do(:)         !< DO
@@ -107,7 +107,7 @@ module mercury_state_variables
     subroutine set_mercury_inputs(input_timeseries,     &
                                   ncell,                &
                                   ntsvar)
-        use common_vars
+        use gtm_vars
         implicit none
         integer, intent(in) :: ncell                                      !< Number of cells
         integer, intent(in) :: ntsvar                                     !< Number of input time series

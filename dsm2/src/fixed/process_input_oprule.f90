@@ -18,7 +18,9 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_input_oprule(Name, &
+submodule (mod_fixed) mod_process_input_oprule
+contains
+module subroutine process_input_oprule(Name, &
                                 Filename, &
                                 InPath, &
                                 Fillin)
@@ -149,3 +151,5 @@ subroutine process_input_oprule(Name, &
 630 format(/a, i5)
 
 end subroutine
+
+end submodule mod_process_input_oprule

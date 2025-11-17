@@ -27,7 +27,8 @@ module dsm2gtm
     use gtm_vars
     use common_xsect
     use common_gtm_vars
-    use common_qual
+    ! use common_qual
+    use common_vars_qual, only: init_conc
     use process_gtm_input
     use io_utilities
     use time_utilities
@@ -83,7 +84,7 @@ module dsm2gtm
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)
     real(gtm_real), allocatable :: mass_closure(:)
-    real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
+    ! real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion
     real(gtm_real), allocatable :: sed_percent(:,:,:)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                  !external flows        !<TODO: make array dimensions effective

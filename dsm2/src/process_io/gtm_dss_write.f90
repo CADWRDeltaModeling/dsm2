@@ -99,7 +99,7 @@ module gtm_dss_write
 
     !> write out a block of data to DSS file
     subroutine writedss(pathnumber, cdt, in_values, nvals)
-         use common_vars, only: unit_error
+         use io_units, only: unit_error
          use common_gtm_vars, only: pathoutput, max_dssoutfiles, ifltab_out,  per_type_names
          implicit none
          logical,dimension(max_dssoutfiles) :: isopen = .false.

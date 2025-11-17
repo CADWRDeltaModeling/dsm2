@@ -28,7 +28,7 @@ module read_init
                               restart_file_name)
         use constants
         use error_handling
-        use common_vars, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment
+        use gtm_vars, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         real(gtm_real), intent(out) :: init(n_cell,n_var)  !< Initial concentration for cells
@@ -116,7 +116,7 @@ module read_init
                                restart_file_name)
         use constants
         use error_handling
-        use common_vars, only: constituents_tmp, n_var
+        use gtm_vars, only: constituents_tmp, n_var
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         character*32, intent(out) :: name(10)            !< additional constituents, maximum 10

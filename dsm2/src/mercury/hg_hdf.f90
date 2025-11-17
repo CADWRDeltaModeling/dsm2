@@ -1,7 +1,7 @@
 module hg_hdf
 
     use common_gtm_vars, only: gtm, io_hdf5, io_write, io_files, NEAREST_BOUNDARY, TO_BOUNDARY
-    use common_vars, only:hdf_out
+    use gtm_vars, only:hdf_out
     use state_variables
     use sed_internal_vars
     use  gtm_hdf_ts_write, only: gtm_hdf_t, add_timeseries_attributes,  close_gtm_hdf, write_gtm_chan_hdf , write_gtm_hdf_resv
@@ -22,7 +22,7 @@ module hg_hdf
 
     subroutine init_sed_hg_hdf(n_cells, n_chans, n_res, sim_start, sim_end, hdf_interval_char, use_hdf)
         use hdf5
-        use common_vars, only: unit_error,unit_screen
+        use gtm_vars, only: unit_error,unit_screen
         use common_gtm_vars, only: print_level
         !this routine is adapted from subroutine init_gtm_hdf in gtm_hdf_ts_write
         !todo: this could probably be rolled into gtm_hdf_ts_write
@@ -189,7 +189,7 @@ module hg_hdf
                                   nconc,        &
                                   time_index)
         use hdf5
-        use common_vars, only: hdf_out, chan_geom
+        use gtm_vars, only: hdf_out, chan_geom
         implicit none
         type(gtm_sed_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
@@ -575,7 +575,7 @@ module hg_hdf
     end subroutine write_gtm_resv_wat_hg_hdf
     subroutine close_gtm_hg_hdf()
         use hdf5
-        use common_vars, only: unit_error,unit_screen, hdf_out
+        use gtm_vars, only: unit_error,unit_screen, hdf_out
         use common_gtm_vars, only: print_level
 
 
@@ -638,7 +638,7 @@ module hg_hdf
                                       time_index)
 
         use hdf5
-        use common_vars, only:chan_geom
+        use gtm_vars, only:chan_geom
         implicit none
         type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
@@ -714,7 +714,7 @@ module hg_hdf
                                 ncell,          &
                                 nresv,          &
                                 nvar)
-        use common_vars, only : constituents, resv_geom
+        use gtm_vars, only : constituents, resv_geom
         use constants
         use sed_type_defs
         implicit none

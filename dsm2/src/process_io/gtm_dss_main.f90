@@ -32,7 +32,7 @@ module gtm_dss_main
                        num_dssfiles,  & ! number of dss files
                        dssfilenames)    ! dss filenames
 
-        use common_vars, only : unit_error
+        use io_units, only : unit_error
         implicit none
         integer, intent(in):: num_dssfiles
         character(len=130), intent(in) :: dssfilenames(num_dssfiles)

@@ -2,7 +2,7 @@ module sed_internal_vars
 
 use constants
 use sed_type_defs
-use common_vars, only: k_eq_solids_t, solids_inputs_t, n_chan
+use gtm_vars, only: k_eq_solids_t, solids_inputs_t, n_chan
 
 implicit none
 !these variables contain sediment bed mass fluxes for the two Huens method steps

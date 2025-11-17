@@ -18,7 +18,9 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
-subroutine process_oprule(name, action, trigger)
+submodule (mod_fixed) mod_process_oprule
+contains
+module subroutine process_oprule(name, action, trigger)
       use groups
       use constants
       use logging
@@ -46,7 +48,7 @@ end subroutine
 
 
 
-subroutine process_oprule_expression(name, definition)
+module subroutine process_oprule_expression(name, definition)
       use groups
       use constants
       use logging
@@ -70,3 +72,4 @@ subroutine process_oprule_expression(name, definition)
       endif
 end subroutine
 
+end submodule mod_process_oprule

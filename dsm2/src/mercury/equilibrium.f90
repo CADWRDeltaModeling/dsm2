@@ -26,7 +26,7 @@ module equilibrium
 
 use constants
 use math_utils
-use common_vars
+use gtm_vars
 use hg_type_defs
 
 implicit none

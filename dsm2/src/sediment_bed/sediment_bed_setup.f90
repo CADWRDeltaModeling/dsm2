@@ -8,7 +8,7 @@ module sediment_bed_setup
     use input_storage_fortran
     use sed_type_defs
     use sed_internal_vars
-    use common_vars , only: n_cell, n_resv, n_chan, group, n_group, obj_channel, obj_reservoir, chan_geom, hydro_hdf5, run_mercury
+    use gtm_vars , only: n_cell, n_resv, n_chan, group, n_group, obj_channel, obj_reservoir, chan_geom, hydro_hdf5, run_mercury
     use common_gtm_vars, only: gtm, io_write, io_restart, io_hdf5, io_read, io_files,pathinput_t, n_dssfiles,ifltab_in,indssfiles,infilenames
     use sed_bed_hdf
     use common_gtm_vars, only: dsm2_name, dsm2_modifier,ninpaths,pathinput,n_input_ts,n_inputpaths

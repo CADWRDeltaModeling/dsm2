@@ -29,7 +29,7 @@ module sediment_bed
     use constants
     use sed_type_defs
     use sed_internal_vars
-    use common_vars
+    use gtm_vars
 
     implicit none
 

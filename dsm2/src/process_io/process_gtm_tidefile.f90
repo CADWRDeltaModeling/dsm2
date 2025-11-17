@@ -29,7 +29,7 @@ module process_gtm_tidefile
     subroutine process_tidefile(tide_filename)
         use hdf5
         use h5lt
-        use common_vars
+        use gtm_vars
         use error_handling
         use time_utilities
         implicit none
