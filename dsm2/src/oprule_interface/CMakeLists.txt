@@ -15,6 +15,6 @@ file(GLOB SOURCES *.cpp)
 target_sources(${LIB_CXX} PRIVATE ${SOURCES})
 target_include_directories(
   ${LIB_CXX}
-  PRIVATE ${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../oprule
+  PUBLIC ${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../oprule
           ${DSM2_OPRULE_INTERFACE} ${Loki_INCLUDE_DIRS})
 add_dependencies(${LIB_CXX} ${LIB_FORT})

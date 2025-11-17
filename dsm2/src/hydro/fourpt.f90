@@ -47,7 +47,6 @@ module fourpt
                         IncrementNetworkTimeStep, Restart_Write
     use solvealloc, only: InitializeSolver
     use netbnd, only: SetBoundaryValuesFromData
-    use oprule_management, only: InitOpRules
     use tidefile, only: AverageFlow, &
                         InitHydroTidefile, WriteHydroToTidefile, &
                         DetermineFirstTidefileInterval
@@ -138,7 +137,7 @@ contains
         call init_loggers()
     end subroutine prepare_hydro
 
-    subroutine fourpt_init()
+    subroutine fourpt_init(initoprules_proc)
         use logging
         use mod_fixed
         use mod_check_fixed
@@ -147,7 +146,21 @@ contains
         use mod_store_outpaths
         use mod_buffer_input_hydro
         use common
+        use oprule_management, only: InitOpRules
         implicit none
+
+        abstract interface
+            logical function cb_initoprules()
+            end function cb_initoprules
+        end interface
+
+        procedure(cb_initoprules), pointer, optional, intent(in) :: initoprules_proc
+        procedure(cb_initoprules), pointer :: ptr_initoprules
+        if (present(initoprules_proc)) then
+            ptr_initoprules => initoprules_proc
+        else
+            ptr_initoprules => InitOpRules
+        end if
 
         !-----dsm2 initialization
         call dsm2_hydro_init
@@ -155,7 +168,7 @@ contains
         !---- hdf5 api on
         call h5open_f(istat)
 
-        if (.Not. InitOpRules()) Then
+        if (.Not. ptr_initoprules()) Then
             write (unit_error, *) &
                 ' Initialization of Gate Ops failed...'
             call exit(1)

@@ -9,6 +9,10 @@
 using oprule::parser::NamedValueLookup;
 
 
+void convert_channel_identifiers(
+            const NamedValueLookup::ArgMap & argmap,
+            int &intchan,
+            double &dist);
 
 
 #define EXPRESSION_FACTORY(X) \

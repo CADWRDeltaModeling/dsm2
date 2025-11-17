@@ -6,7 +6,8 @@ program hydro_gtm
     use fourpt
     use common_gtm_vars, only: gtm
     use dsm2gtm, only: gtm_prepare2, gtm_prepare_loop, gtm_loop, gtm_init_input_file, current_time, gtm_time_interval, gtm_wrapup
-    use common_vars, only: memory_buffer, gtm_start_jmin
+    use gtm_vars, only: memory_buffer, gtm_start_jmin
+    use mod_init_oprules_hydrogtm, only: init_oprules_hydrogtm
 
     implicit none
 
@@ -29,7 +30,7 @@ program hydro_gtm
     ! From fourpt
     call get_command_args_hydro_gtm(init_input_file, gtm_init_input_file)
 
-    call fourpt_init()
+    call fourpt_init(init_oprules_hydrogtm)
 
     dsm2_module = gtm
     dsm2_name = 'GTM'
@@ -40,6 +41,8 @@ program hydro_gtm
     memory_buffer = 1
     call gtm_prepare2(file_id)
     call gtm_prepare_loop()
+
+    dsm2_name = "Hydro_GTM"
 
     do while (julmin .le. end_julmin) ! normal time run
         call fourpt_step()

@@ -12,7 +12,9 @@ if(WIN32)
 endif(WIN32)
 target_link_libraries(
   hydro_gtm
-  PRIVATE fourpt
+  PRIVATE hydro_gtm_core
+          hydro_gtm_cpp
+          fourpt
           ${GTM_MAIN}
           ${GTM_MERCURY}
           ${GTM_SEDIMENT_BED}
