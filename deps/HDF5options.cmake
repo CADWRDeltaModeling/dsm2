@@ -2,7 +2,9 @@
 set (HDF_PACKAGE_NAMESPACE "hdf5::" CACHE STRING "Name for HDF package namespace (can be empty)" FORCE)
 set(DEFAULT_API_VERSION v18 CACHE STRING "Default API version") # -DHDF5_PACKAGE_EXTLIBS:BOOL=ON \
 set(HDF5_BUILD_FORTRAN ON CACHE BOOL "Build Fortran support")
-set(CMAKE_Fortran_COMPILER ifort CACHE STRING "Fortran compiler")
+set(CMAKE_C_COMPILER icx CACHE STRING "C compiler")
+set(CMAKE_CXX_COMPILER icpx CACHE STRING "C++ compiler")
+set(CMAKE_Fortran_COMPILER ifx CACHE STRING "Fortran compiler")
 
 set (ADD_BUILD_OPTIONS "${ADD_BUILD_OPTIONS} -DHDF5_BUILD_FORTRAN:BOOL=ON" CACHE STRING "Build with Fortran support")
 set (ADD_BUILD_OPTIONS "${ADD_BUILD_OPTIONS} -DCMAKE_ANSI_CFLAGS:STRING=-fPIC" CACHE STRING "Build with PIC")

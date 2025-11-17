@@ -30,7 +30,7 @@ module gtm_subs
     subroutine get_survey_top(wet_perim,   &
                               elevation,   &
                               ncell)
-        use common_vars, only: chan_geom, n_chan, dx_arr
+        use gtm_vars, only: chan_geom, n_chan, dx_arr
         use common_xsect
         implicit none
         integer, intent(in) :: ncell
@@ -61,7 +61,7 @@ module gtm_subs
                                 nresv,          &
                                 nvar,           &
                                 restart_outfn)
-        use common_vars, only : constituents, resv_geom
+        use gtm_vars, only : constituents, resv_geom
         implicit none
         character(len=14), intent(in) :: cdtdate
         integer, intent(in) :: intdate
@@ -112,7 +112,7 @@ module gtm_subs
                                 init_conc,         &
                                 file_exists,       &
                                 restart_file_name)
-        use common_vars, only: n_var, n_cell, n_resv, constituents, constituents_tmp
+        use gtm_vars, only: n_var, n_cell, n_resv, constituents, constituents_tmp
         use read_init
         implicit none
         real(gtm_real), allocatable, intent(out) :: init_c(:,:)
@@ -157,7 +157,7 @@ module gtm_subs
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel
         use common_gtm_vars, only: noutpaths, pathoutput
-        use common_vars, only: resv_geom, n_resv, n_chan, chan_geom
+        use gtm_vars, only: resv_geom, n_resv, n_chan, chan_geom
         implicit none
         integer :: out_cell(noutpaths)              !< output cells
         integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
@@ -201,7 +201,7 @@ module gtm_subs
                                       chan_num,            &
                                       x_dist)
 
-        use common_vars, only: n_chan, n_segm, chan_geom, segm, cell
+        use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
 
         implicit none
 
@@ -308,7 +308,7 @@ module gtm_subs
                                chan_num,            &
                                x_dist)
 
-        use common_vars, only: n_chan, n_segm, chan_geom, segm
+        use gtm_vars, only: n_chan, n_segm, chan_geom, segm
 
         implicit none
 
@@ -347,7 +347,7 @@ module gtm_subs
 
     !> assign i_var to outpath
     subroutine assign_ivar_to_outpath()
-        use common_vars, only: n_var, constituents, n_resv, resv_geom
+        use gtm_vars, only: n_var, constituents, n_resv, resv_geom
         use common_gtm_vars, only: noutpaths, pathoutput
         implicit none
         integer :: i, j, k
@@ -378,7 +378,7 @@ module gtm_subs
                                        nresv,          &
                                        nvar)
 
-        use common_vars, only: cell, dss_out
+        use gtm_vars, only: cell, dss_out
         use common_gtm_vars, only: noutpaths, pathoutput
         implicit none
         integer, intent(in) :: nvar                            !< number of constituents
@@ -413,7 +413,7 @@ module gtm_subs
                                                 icell,          &
                                                 ivar)
 
-        use common_vars, only: cell
+        use gtm_vars, only: cell
         use state_variables, only: conc                     !< concentration
         implicit none
         real(gtm_real), intent(out) :: output_val           !< output requested values
@@ -468,7 +468,7 @@ module gtm_subs
     !> Serve debug purpose: write geom info to text file
     subroutine write_geom_to_text()
         use gtm_logging
-        use common_vars
+        use gtm_vars
         implicit none
         integer :: i, j
         write(debug_unit,'(2a10,a15)') "segm_no","chan_no","segm_length"
@@ -485,7 +485,7 @@ module gtm_subs
     subroutine write_grid_to_tidefile(file_id)
         use hdf5
         use gtm_hdf_write
-        use common_vars
+        use gtm_vars
         implicit none
         integer(HID_T), intent(in) :: file_id
         integer(HID_T) :: geom_id
@@ -505,7 +505,7 @@ module gtm_subs
 
     !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_no, pathinput(:)%i_var
     subroutine assign_node_ts()
-        use common_vars, only : n_node, dsm2_network, dsm2_network_extra,     &
+        use gtm_vars, only : n_node, dsm2_network, dsm2_network_extra,     &
                                      n_var, constituents, qext, n_resv, resv_geom, &
                                      n_sediment, n_node_ts
         use common_gtm_vars, only : n_inputpaths, pathinput, obj_reservoir
@@ -560,7 +560,7 @@ module gtm_subs
 
     !> assign value to group_var for input time series
     subroutine assign_input_ts_group_var
-        use common_vars
+        use gtm_vars
         use common_gtm_vars, only: pathinput
         implicit none
         integer :: ts_var_code
@@ -642,7 +642,7 @@ module gtm_subs
 
     !> Check sediment bed time series input
     subroutine check_sediment_bed_ts_input()
-        use common_vars
+        use gtm_vars
         use error_handling
         implicit none
         if (code_to_ts_id(ts_var_temp) == 0) call gtm_fatal("Time series for Temperature is not specified!!!! It is needed for Sediment Bed Module.")
@@ -651,7 +651,7 @@ module gtm_subs
 
     !> check if the mercury related time series inputs are specified
     subroutine check_mercury_ts_input()
-        use common_vars
+        use gtm_vars
         use error_handling
         implicit none
         if (code_to_ts_id(ts_var_do) == 0) call gtm_fatal("Time series for DO is not specified!!!! It is needed for Mercury Module.")
@@ -682,7 +682,7 @@ module gtm_subs
                                        flow_hi,    &
                                        qext_flow,  &
                                        resv_flow)
-        use common_vars, only : n_node, dsm2_network, dsm2_network_extra
+        use gtm_vars, only : n_node, dsm2_network, dsm2_network_extra
         implicit none
         integer, intent(in) :: ncell                        !< number of cells
         integer, intent(in) :: nqext                        !< number of external flows
@@ -721,7 +721,7 @@ module gtm_subs
 
     !> calculate area for memory buffer
     subroutine get_area_for_buffer(hyd_area, hyd_ws, ncomp, buffer)
-        use common_vars, only: comp_pt
+        use gtm_vars, only: comp_pt
         use common_xsect, only: CxArea
         implicit none
         integer, intent(in) :: ncomp                          !< number of computational points
@@ -771,7 +771,7 @@ module gtm_subs
     real*8 function chan_ec_val(chan_num, x_dist)
     use gtm_subs, only: get_select_cell_with_x, get_output_channel_vals_continue
     use common_gtm_vars, only: output_ec_oprule
-    use common_vars, only: n_chan, n_segm, chan_geom, segm, cell
+    use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
     use state_variables, only: conc
     implicit none
     integer, intent(in) :: chan_num

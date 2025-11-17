@@ -18,11 +18,14 @@
 !!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !!</license>
 
+module mod_buffer_input_hydro
+contains
 subroutine buffer_input_hydro()
       use input_storage_fortran
       use constants
       use chinitcd, only: FirstLocation, NUserInitLocations
       use grid_data, only: nchans
+      use mod_fixed
 
       implicit none
       integer :: nitem
@@ -218,3 +221,4 @@ subroutine buffer_input_hydro()
 
 end subroutine
 
+end module mod_buffer_input_hydro

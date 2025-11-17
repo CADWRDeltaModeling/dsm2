@@ -83,7 +83,7 @@ module boundary_diffusion_network
                                                     nvar)
         use constants
         use error_handling
-        use common_vars, only: n_gate, gate, dsm2_network
+        use gtm_vars, only: n_gate, gate, dsm2_network
         implicit none
         !--- args
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -137,7 +137,7 @@ module boundary_diffusion_network
                                       nvar)
         use constants
         use error_handling
-        use common_vars, only: n_gate, gate, dsm2_network
+        use gtm_vars, only: n_gate, gate, dsm2_network
         implicit none
         !--- args
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -190,7 +190,7 @@ module boundary_diffusion_network
                                                dt)
         use constants
         use error_handling
-        use common_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra, constituents
+        use gtm_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra, constituents
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
@@ -276,7 +276,7 @@ module boundary_diffusion_network
                                                           dt)
         use constants
         use error_handling
-        use common_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra
+        use gtm_vars, only : n_node, n_var, dsm2_network, dsm2_network_extra
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
@@ -365,7 +365,7 @@ module boundary_diffusion_network
                                                     dx,                &
                                                     dt)
         use constants
-        use common_vars, only : n_node, dsm2_network, dsm2_network_extra, constituents
+        use gtm_vars, only : n_node, dsm2_network, dsm2_network_extra, constituents
         use state_variables_network, only : prev_node_conc, prev_conc_stip
         implicit none
         !--- args
@@ -459,7 +459,7 @@ module boundary_diffusion_network
                                                                dt)
         use constants
         use error_handling
-        use common_vars, only : n_node, dsm2_network, constituents
+        use gtm_vars, only : n_node, dsm2_network, constituents
         use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
         implicit none
         !--- args
@@ -591,7 +591,7 @@ module boundary_diffusion_network
     subroutine network_diffusion_sparse_geom(ncell)
         use constants
         use error_handling
-        use common_vars, only : n_node, n_junc, dsm2_network
+        use gtm_vars, only : n_node, n_junc, dsm2_network
         use state_variables_network, only : node_conc
         use utils
         implicit none

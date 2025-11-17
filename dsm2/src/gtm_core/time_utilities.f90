@@ -28,7 +28,7 @@ module time_utilities
 
     !> Convert from character date/time to julian minute
     integer*4 function cdt2jmin(cdatx)
-        use common_vars, only: miss_val_i
+        use gtm_vars, only: miss_val_i
         implicit none
         character*(*) :: cdatx        ! character date/time (e.g. 05JUN1983 0510) (input)
         integer*4 :: julday,   &      ! days since 31dec1899
@@ -53,7 +53,7 @@ module time_utilities
 
     !> Convert from Julian minute to character date/time
     character*14 function jmin2cdt(julmin)
-        use common_vars, only: miss_val_c
+        use gtm_vars, only: miss_val_c
         implicit none
         integer*4 :: julmin             ! minutes since 31dec1899 2400
         integer*4 :: julday,      &     ! days since 31dec1899

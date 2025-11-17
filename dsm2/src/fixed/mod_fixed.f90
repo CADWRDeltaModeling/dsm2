@@ -78,7 +78,7 @@ module mod_fixed
             character(len=32) :: LocName
             character(len=32) :: SubLoc
             character(len=16) :: Param
-            character(len=32) :: Fillin
+            character(len=8) :: Fillin
             character(len=128) :: Filename
             character(len=392) :: InPath
         end subroutine process_input_gate
@@ -226,6 +226,28 @@ module mod_fixed
             real*8 :: fdist
             character*128 :: filename
         end subroutine process_xsect_csdp
+
+        module subroutine process_gate(id, name, ObjConnTypeName, ObjConnID, nodeConn)
+            integer :: id
+            character(len=32) :: name
+            character(len=16) :: ObjConnTypeName
+            character(len=32) :: ObjConnID
+            integer :: nodeConn
+        end subroutine process_gate
+
+        module subroutine process_gate_device(gatename, name, structure_name, nduplicate, &
+            max_width, base_elev, height, cffrom, cfto, default_op_name)
+            character(len=32) :: gatename
+            character(len=32) :: name
+            character(len=8) :: structure_name
+            real*8 :: nduplicate
+            real*8 :: max_width
+            real*8 :: base_elev
+            real*8 :: height
+            real*8 :: cffrom
+            real*8 :: cfto
+            character(len=16) :: default_op_name
+        end subroutine process_gate_device
 
         module subroutine read_grid_from_tidefile()
         end subroutine read_grid_from_tidefile

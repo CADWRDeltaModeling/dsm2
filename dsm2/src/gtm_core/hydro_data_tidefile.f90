@@ -25,7 +25,7 @@ module hydro_data_tidefile
     use constants
     use error_handling
     use gtm_logging
-    use common_vars
+    use gtm_vars
     use common_xsect
     use hdf_util
 

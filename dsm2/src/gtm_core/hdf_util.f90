@@ -24,7 +24,7 @@
 !>@ingroup gtm_core
 module hdf_util
     use constants
-   use common_vars
+   use gtm_vars
    use error_handling
    use hdf5
    integer(HID_T) :: hydro_file_id        !< HDF5 File identifier
@@ -249,7 +249,7 @@ contains
 
    !> Read input/channel table from hydro tidefile
    subroutine read_channel_tbl(do_allocate)
-       use common_vars
+       use gtm_vars
        implicit none
        integer(HID_T) :: input_id                   ! Group identifier
        integer(HID_T) :: dset_id                    ! Dataset identifier
@@ -326,7 +326,7 @@ contains
 
    !> Read geometry/hydro_comp_point table from hydro tidefile
    subroutine read_comp_tbl()
-       use common_vars
+       use gtm_vars
        implicit none
        integer(HID_T) :: geom_id                    ! Group identifier
        integer(HID_T) :: dset_id                    ! Dataset identifier
@@ -376,7 +376,7 @@ contains
 
    !> Read geometry/channel_bottom table from hydro tidefile
    subroutine read_channel_bottom_tbl()
-       use common_vars
+       use gtm_vars
        implicit none
        real(gtm_real), dimension(n_chan, 2) :: dset_data !< output array
        integer(HID_T) :: data_id                                                ! local group identifier
@@ -414,7 +414,7 @@ contains
 
    !> Read input/reservoir table from hydro tidefile
    subroutine read_reservoir_tbl()
-       use common_vars, only : n_resv, n_resv_conn, resv_geom, allocate_reservoir_property
+       use gtm_vars, only : n_resv, n_resv_conn, resv_geom, allocate_reservoir_property
        implicit none
        integer(HID_T) :: geom_id                        ! Group identifier
        integer(HID_T) :: input_id                       ! Group identifier
@@ -540,7 +540,7 @@ contains
 
    !> Read input/boundary_flow, source_flow and source_flow_reservoir tables from hydro tidefile to fill in qext
    subroutine read_qext_tbl()
-       use common_vars, only : n_qext, qext, allocate_qext_property
+       use gtm_vars, only : n_qext, qext, allocate_qext_property
        implicit none
        integer(HID_T) :: geom_id                        ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier
@@ -600,7 +600,7 @@ contains
 
    !> Read transfer flow tables from hydro tidefile to fill in transfer flow
    subroutine read_tran_tbl()
-       use common_vars, only : n_tran, tran, allocate_tran_property
+       use gtm_vars, only : n_tran, tran, allocate_tran_property
        implicit none
        integer(HID_T) :: input_id                       ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier
@@ -674,7 +674,7 @@ contains
 
    !> Read input/gate table from hydro tidefile
    subroutine read_gate_tbl()
-       use common_vars
+       use gtm_vars
        implicit none
        integer(HID_T) :: input_id                   ! Group identifier
        integer(HID_T) :: dset_id                    ! Dataset identifier
@@ -742,7 +742,7 @@ contains
 
    !> Read boundary flow tables from hydro tidefile
    subroutine read_boundary_tbl()
-       use common_vars, only : n_flwbnd, n_stgbnd, bfbs
+       use gtm_vars, only : n_flwbnd, n_stgbnd, bfbs
        implicit none
        integer(HID_T) :: input_id                       ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier
@@ -818,7 +818,7 @@ contains
 
    !> Read source flow tables from hydro tidefile
    subroutine read_source_flow_tbl()
-       use common_vars, only : n_sflow, source_flow
+       use gtm_vars, only : n_sflow, source_flow
        implicit none
        integer(HID_T) :: input_id                       ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier

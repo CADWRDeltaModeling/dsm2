@@ -70,7 +70,6 @@ using namespace oprule::parser;
 
 DSM2HydroNamedValueLookup::DSM2HydroNamedValueLookup(){
   ModelNameInfo info;
-  ADD_EXPRESS_2ARG(info,chan_ec,READONLY,&chan_ec_factory,channel,dist);
   ADD_EXPRESS_2ARG(info,chan_stage,READONLY,&chan_surf_factory,channel,dist);
   ADD_EXPRESS_2ARG(info,chan_flow,READONLY,&chan_flow_factory,channel,dist);
   ADD_EXPRESS_2ARG(info,chan_vel,READONLY,&chan_vel_factory,channel,dist);

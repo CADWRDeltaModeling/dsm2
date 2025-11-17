@@ -25,7 +25,7 @@ module gtm_network
     use constants
     use error_handling
     use gtm_logging
-    use common_vars
+    use gtm_vars
     use common_xsect
 
     real(gtm_real), allocatable :: flow_mesh_lo(:,:)

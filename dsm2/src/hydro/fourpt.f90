@@ -140,7 +140,14 @@ contains
 
     subroutine fourpt_init()
         use logging
+        use mod_fixed
+        use mod_check_fixed
         use mod_check_fixed_hydro
+        use mod_buffer_input_grid
+        use mod_store_outpaths
+        use mod_buffer_input_hydro
+        use mod_process_text_hydro_input
+        use common
         implicit none
 
         !-----dsm2 initialization
@@ -233,7 +240,7 @@ contains
         end if
 
         OK = InitNetBalance()
-        call init_store_outpaths(istat)
+        call init_store_outpaths(istat, get_output_hydro)
 
         if (io_files(hydro, io_hdf5, io_write)%use) then ! hydro binary file output
             call DetermineFirstTidefileInterval()
@@ -291,6 +298,7 @@ contains
     end subroutine
 
     subroutine fourpt_step_after_updatenetwork()
+        use mod_store_outpaths
         IF (Updated) THEN
             OK = UpdateNetBalance()
         else
@@ -339,6 +347,7 @@ contains
     end subroutine
 
     subroutine fourpt_step()
+        use mod_store_outpaths
         call fourpt_step_before_updatenetwork()
 
         if (check_input_data) then
@@ -395,6 +404,9 @@ contains
     end subroutine fourpt_step
 
     subroutine fourpt_winddown()
+        use mod_store_outpaths
+        use mod_writedss
+        use mod_hdf5_init
         if (julmin .gt. end_julmin) then
             julmin = prev_julmin
             prev_julmin = prev_julmin - time_step

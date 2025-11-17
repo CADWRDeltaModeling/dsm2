@@ -37,7 +37,7 @@ module tidefile
 contains
     !== Public (ChannelVelocity) ===================================
 
-    real*8 function ChannelVelocity(ChannNum, XX)
+    real*8 function ChannelVelocity(ChannNum, XX) bind(C, name="get_chan_velocity")
         use grid_data
         use network
         use chconnec

@@ -26,7 +26,8 @@ module interpolation
     use constants
     use error_handling
     use gtm_logging
-    use common_vars
+    use gtm_vars
+    use gtm_vars
 
 contains
 
@@ -106,7 +107,7 @@ contains
                                     a, b, c, d,                         &
                                     mass_balance_from_flow, area_mesh)
         use common_xsect
-        use common_vars, only: quadwt, quadpt
+        use gtm_vars, only: quadwt, quadpt
         implicit none
         integer, intent(in) :: branch                                    !< hydro channel number (required by CxArea())
         real(gtm_real), intent(in) :: up_x                               !< upstream point distance (required for CxArea())

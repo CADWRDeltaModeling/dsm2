@@ -221,7 +221,7 @@ contains
         return
     end function MaxNetworkIterations
 
-    integer function NetworkTimeIncrement()
+    integer function NetworkTimeIncrement() bind(C, name="time_step_seconds")
         implicit none
         !   Purpose: Return the time increment used by an
         !            open-channel network model.

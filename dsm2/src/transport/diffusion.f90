@@ -75,7 +75,7 @@ module diffusion
         use constants
         use primitive_variable_conversion
         use boundary_diffusion
-        use common_vars, only: constituents
+        use gtm_vars, only: constituents
 
         implicit none
         ! ---- args

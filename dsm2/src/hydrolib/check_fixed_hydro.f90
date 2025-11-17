@@ -21,6 +21,12 @@
 module mod_check_fixed_hydro
     use constants
     implicit none
+
+    interface
+        module subroutine print_output(istat)
+            integer :: istat
+        end subroutine
+    end interface
 contains
 subroutine check_fixed_hydro(istat)
 
@@ -48,7 +54,9 @@ subroutine check_fixed_hydro(istat)
     use dss
     use mod_readdss
     use mod_writedss
+    use model_interface, only: fetch_data
     use utilities, only: incr_intvl
+
     implicit none
 
     !-----Local variables
@@ -90,7 +98,6 @@ subroutine check_fixed_hydro(istat)
     logical updefined,downdefined
     logical orphannode
     logical is_node_flow
-    real*8,external :: fetch_data
 
     !-----statement function to calculate indices of virtual data arrays
     !-----dindex(channo,vsecno,virtelev)

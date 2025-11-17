@@ -20,6 +20,8 @@
 
 submodule (mod_fixed) mod_process_input_gate
     use mod_name_to_objno
+    use model_interface
+    use mod_check_fixed_hydro
 contains
 module subroutine process_input_gate(LocName, &
                               SubLoc, &
@@ -56,10 +58,7 @@ module subroutine process_input_gate(LocName, &
 
     integer :: gatendx
 
-    integer, external :: data_types
-
     real*8 ftmp
-    real*8, external :: fetch_data
 
     real*8  :: fetcheddata
     logical free

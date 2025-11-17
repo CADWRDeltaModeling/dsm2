@@ -33,7 +33,7 @@ module reservoirs
     use chstatus, only: GlobalStreamSurfaceElevation ! FixMe NumberOfChannels,not found Xiao
     implicit none
 contains
-    real*8 function get_res_flow(resndx, conn)
+    real*8 function get_res_flow(resndx, conn) bind(C, name="get_res_flow")
         use chconnec
         implicit none
 
@@ -42,7 +42,7 @@ contains
         return
     end function
 
-    real*8 function get_res_surf_elev(resndx)
+    real*8 function get_res_surf_elev(resndx) bind(C, name="get_res_surf_elev")
         use chconnec
         implicit none
 

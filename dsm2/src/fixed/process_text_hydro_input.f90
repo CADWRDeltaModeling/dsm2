@@ -1,8 +1,10 @@
-
-
-subroutine process_text_gate_input()
+module mod_process_text_hydro_input
     use input_storage_fortran
+    use mod_fixed
     use constants
+
+contains
+subroutine process_text_gate_input()
 
     implicit none
     integer :: nitem
@@ -45,8 +47,6 @@ end subroutine
 
 
 subroutine process_text_oprule_ts_input()
-    use input_storage_fortran
-    use constants
 
     implicit none
     integer :: nitem
@@ -78,8 +78,6 @@ end subroutine
 
 !======================================================================
 subroutine process_text_oprule_input()
-    use input_storage_fortran
-    use constants
 
     implicit none
     integer :: nitem
@@ -117,3 +115,5 @@ subroutine process_text_oprule_input()
     print *,"Number of operating rules processed: ", nitem
     return
 end subroutine
+
+end module mod_process_text_hydro_input

@@ -36,7 +36,7 @@ module boundary_advection_network
                                   nvar)
 
         use constants
-        use common_vars, only : n_node, dsm2_network, constituents
+        use gtm_vars, only : n_node, dsm2_network, constituents
         implicit none
 
         !---- args
@@ -113,7 +113,7 @@ module boundary_advection_network
                                           use_limiter)
         use constants
         use gradient, only : limiter
-        use common_vars, only : n_node, dsm2_network, n_qext
+        use gtm_vars, only : n_node, dsm2_network, n_qext
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)          !< Cell centered difference adjusted for boundaries and hydraulic devices
@@ -190,7 +190,7 @@ module boundary_advection_network
                                          sed_percent)
         use constants
         use error_handling
-        use common_vars, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
+        use gtm_vars, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
         use common_gtm_vars, only: pathinput
         use state_variables, only: conc_prev
         use state_variables_network
@@ -465,7 +465,7 @@ module boundary_advection_network
                                              tstp)
         use constants
         use error_handling
-        use common_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
+        use gtm_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts
         use common_gtm_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc, conc_stip
