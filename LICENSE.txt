@@ -1,4 +1,4 @@
-    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+    Copyright (C) 1996 - 2025 State of California,
     Department of Water Resources.
 
     The Delta Simulation Model 2 (DSM2) is free software and will be

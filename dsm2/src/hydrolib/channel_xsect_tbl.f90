@@ -26,11 +26,7 @@ module channel_xsect_tbl
     use network
     implicit none
 
-#if defined(hydro_1000)
     integer, parameter ::     MaxTables=25000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
-#else
-    integer, parameter ::     MaxTables=5000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
-#endif
     integer, save, allocatable:: FirstTable(:), LastTable(:), Lines(:)
     integer, save:: Offset(MaxTables)
     real*8, save::  XDistance(MaxTables)

@@ -13,5 +13,5 @@ add_library(hdf_tidefile)
 target_sources(hdf_tidefile PRIVATE ${Fortran_SOURCES})
 target_include_directories(hdf_tidefile PRIVATE
   ${HDF5_Fortran_INCLUDE_DIRS})
-target_link_libraries(hdf_tidefile PUBLIC common ${HDF5_LIBRARIES})
+target_link_libraries(hdf_tidefile PUBLIC common dsm2_input_storage ${HDF5_LIBRARIES})
 add_dependencies(hdf_tidefile hdf_tidefile_cpp dsm2_input_storage common)
