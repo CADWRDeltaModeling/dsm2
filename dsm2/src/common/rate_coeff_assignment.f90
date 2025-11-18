@@ -24,6 +24,7 @@
 
 module rate_coeff_assignment
     use common_qual
+    use mod_name_to_objno
     implicit none
     logical,dimension(max_constituent,ncoef_type) :: rate_var_require_flag
 
