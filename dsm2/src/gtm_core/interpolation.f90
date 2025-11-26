@@ -423,12 +423,16 @@ module interpolation
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: flow_volume_change  !< volume change from flow interpolation for each cell
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: area_volume_change  !< volume change from area interpolation for each cell
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh             !< volume averaged area
+        logical :: use_adjust_subcyclinge_mass_balance = .false.
 
         call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)
         call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width_mesh, wet_p_mesh, depth_mesh, branch, up_x, dx,  &
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change, area_mesh)
-        if ((nt-1)*dt.lt.20 .and. nt.gt.2 .and. nx.gt.2) call interp_flow_from_area_theta(flow_mesh_lo, flow_mesh_hi, flow_volume_change,ncell, start_c, dt, nt, nx,  &
-                          flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)
+        ! NOTE Guard interp_flow_from_area_theta because it actually introduces errors
+        if (use_adjust_subcyclinge_mass_balance) then
+            if ((nt-1)*dt.lt.20 .and. nt.gt.2 .and. nx.gt.2) call interp_flow_from_area_theta(flow_mesh_lo, flow_mesh_hi, flow_volume_change,ncell, start_c, dt, nt, nx,  &
+                            flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)
+        end if
         return
     end subroutine
 
