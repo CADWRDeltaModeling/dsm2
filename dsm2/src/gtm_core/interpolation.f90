@@ -67,19 +67,15 @@ module interpolation
         integer :: i, j                                                    ! local variable
         integer :: end_c
         end_c = start_c + nx - 1
-        ! Applying semi-implicitness theta to time interpolation.
-        a_theta = (one - hydro_theta)*a*2.0
-        c_theta = hydro_theta*c*2.0
-        b_theta = (one - hydro_theta)*b*2.0
-        d_theta = hydro_theta*d*2.0
+
         mesh_lo(1,start_c) = a
         mesh_lo(nt,start_c) = c
         mesh_hi(1,end_c) = b
         mesh_hi(nt,end_c) = d
         do i = 2, nt-1
             factor = (dble(i)-one)/(dble(nt)-one)
-            mesh_lo(i,start_c) = a_theta + factor*(c_theta-a_theta)
-            mesh_hi(i,end_c) = b_theta + factor*(d_theta-b_theta)
+            mesh_lo(i, start_c) = a + factor * (c - a)
+            mesh_hi(i, end_c) = b + factor * (d - b)
         end do
         do i = 1, nt
             do j = 1, nx-1
