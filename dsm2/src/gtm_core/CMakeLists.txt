@@ -8,5 +8,5 @@ set_source_files_properties(common_xsect.F90 PROPERTIES Fortran_PREPROCESS ON)
 
 target_include_directories(gtm_core PUBLIC ${Fortan_MODULE_DIRECTORY}
                                                   ${HDF5_Fortran_INCLUDE_DIRS})
-
+target_link_libraries(gtm_core PUBLIC common ${HDF5_LIBRARIES})
 add_dependencies(gtm_core common)

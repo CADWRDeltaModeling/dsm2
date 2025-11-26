@@ -73,4 +73,5 @@ target_include_directories(
 
 add_library(dsm2_input_storage ${dsm2_input_storage_sources})
 target_include_directories(dsm2_input_storage PRIVATE ${HDF5_Fortran_INCLUDE_DIRS})
+target_link_libraries(dsm2_input_storage PUBLIC ${HDF5_LIBRARIES})
 add_dependencies(dsm2_input_storage dsm2_input_storage_cpp)
