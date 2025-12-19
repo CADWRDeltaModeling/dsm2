@@ -2,7 +2,9 @@ module sb_common
 
     use constants
     use hdf_util , only: n_comp
-    use common_vars, only: n_cell,chan_geom, top_wet_p, top_elev
+    use common_vars, only: n_cell
+    use grid_data, only: chan_geom
+    use gtm_vars, only: top_wet_p, top_elev
     !use common_xsect , only: top_wet_p, top_elev
 
     implicit none

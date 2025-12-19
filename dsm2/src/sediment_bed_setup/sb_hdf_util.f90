@@ -164,7 +164,8 @@ implicit none
 
      subroutine write_zone_info(zone_id)
         use hdf5
-        use common_vars, only: n_cell,n_segm, segm
+        use common_vars, only: n_cell,n_segm
+        use gtm_vars, only: segm
         use sb_common
         implicit none
         integer(HID_T), intent(in) :: zone_id        !< hdf5 dataset identifier
