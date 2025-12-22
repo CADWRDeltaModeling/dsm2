@@ -30,6 +30,7 @@ implicit none
     end subroutine
 
     subroutine dsm2_hdf_geom_sb()
+        use gtm_vars, only : set_dsm2_network_info
         implicit none
         write(*,*) "processing channel geometry"
         call get_hydro_attr
