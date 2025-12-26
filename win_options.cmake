@@ -11,8 +11,12 @@ set(CMAKE_CXX_COMPILER
     CACHE STRING "C++ compiler")
 # CMake often cannot find the Intel Fortran compiler automatically
 # You may need to set the full path manually
+set(CMAKE_GENERATOR_TOOLSET
+    "fortran=ifx"
+    CACHE STRING "Platform Toolset"
+    FORCE)
 set(CMAKE_Fortran_COMPILER
-    "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe"
+    ifx
     CACHE STRING "Fortran compiler")
 
 # set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
