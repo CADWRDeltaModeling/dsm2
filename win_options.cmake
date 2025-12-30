@@ -12,7 +12,7 @@ set(CMAKE_CXX_COMPILER
 # CMake often cannot find the Intel Fortran compiler automatically
 # You may need to set the full path manually
 set(CMAKE_Fortran_COMPILER
-    "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe"
+    ifx
     CACHE STRING "Fortran compiler")
 
 # set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
@@ -20,7 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE
     ON
     CACHE BOOL "Position independent code")
 set(CMAKE_Fortran_FLAGS_INIT
-    "traceback"
+    "-traceback"
     CACHE STRING "Fortran flags to use a large array for the dense dx")
 
 # Dependent libraries. Assuming they are under deps directory.
