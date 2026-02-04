@@ -8,6 +8,7 @@ program hydro_gtm
     use dsm2gtm, only: gtm_prepare2, gtm_prepare_loop, gtm_loop, gtm_init_input_file, current_time, gtm_time_interval, gtm_wrapup
     use gtm_vars, only: memory_buffer, gtm_start_jmin
     use mod_init_oprules_hydrogtm, only: init_oprules_hydrogtm
+    use init_hydrogtm, only: initialize_hydrogtm
 
     implicit none
 
@@ -43,7 +44,7 @@ program hydro_gtm
     call gtm_prepare_loop()
 
     dsm2_name = "Hydro_GTM"
-
+    call initialize_hydrogtm()
     do while (julmin .le. end_julmin) ! normal time run
         call fourpt_step()
         if (prev_julmin .ge. gtm_start_jmin) then

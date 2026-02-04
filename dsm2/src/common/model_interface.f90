@@ -153,35 +153,6 @@ subroutine set_datasource(source, expr, val, timedep) bind(C, name="set_datasour
     return
 end subroutine
 
-real*8 function chan_ec_val(chan_num, x_dist)
-    use gtm_subs, only: get_select_cell_with_x, get_output_channel_vals_continue
-    use common_dsm2_vars, only: output_ec_oprule
-    use common_variables, only: n_chan, n_segm, chan_geom, segm, cell
-    use state_variables, only: conc
-    implicit none
-    integer, intent(in) :: chan_num
-    real*8, intent(inout) :: x_dist
-    integer :: num_out_cell
-    integer :: chan_num_copy(1)
-    real*8 :: x_dist_copy(1)
-
-    num_out_cell=1
-    chan_num_copy(1) = chan_num
-    x_dist_copy(1) = x_dist
-    
-    call get_select_cell_with_x(output_ec_oprule(:)%out_chan_cell,  &
-                                output_ec_oprule(:)%x_from_lo_face, &
-                                output_ec_oprule(:)%calc_option,    &
-                                num_out_cell, chan_num_copy, x_dist_copy)
-    chan_ec_val = 0.0
-    call get_output_channel_vals_continue(chan_ec_val,                         &
-                                          output_ec_oprule(1)%x_from_lo_face,  &
-                                          output_ec_oprule(1)%calc_option,     &
-                                          output_ec_oprule(1)%out_chan_cell,   &
-                                          output_ec_oprule(1)%i_var)                          
-    return
-end function
-
 
 subroutine chan_comp_point(intchan, distance, &
                            comp_points, weights) bind(C, name="chan_comp_point")

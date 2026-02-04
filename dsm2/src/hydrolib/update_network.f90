@@ -239,8 +239,8 @@ contains
     logical function UpdateChannel()
         use IO_Units
         use channel_schematic, only: UpstreamPointer, DownstreamPointer
-        use floweq1d, only: DynamicWaveEq, DynamicWaveEqDS
         use netcntrl, only: VariableStreamSinuosity, VariableStreamDensity
+        use dynamicwave_calc
         implicit none
 
         !   Purpose:  Update dependent variables defining a channel.  In this
@@ -268,6 +268,7 @@ contains
 
         UpdateChannel = .true.
 
+
         !-----Compute and store constraint-equation coefficients for
         !      upstream end of channel.
 
@@ -282,34 +283,16 @@ contains
 
         Node = 0
 
-        if (.not. (VariableStreamSinuosity() .and. VariableStreamDensity())) then !DynamicWaveEqDS uses both density and sinuosity
-
-            !--------Constant sinuosity and water density.
 
             do 100 I = UpstreamPointer(), DownstreamPointer() - 1
                 Node = Node + 1
-                if (.not. DynamicWaveEq(Node, Node + 1)) then
+                if (.not. dynamic_wave(Node, Node + 1)) then
                     UpdateChannel = .false.
                     write (UNIT_ERROR, *) ' *** Error (UpdateChannel)'
                     write (UNIT_ERROR, *) ' Failed to update node...', Node
                 end if
 100             continue
 
-                else
-
-                !--------Variable sinuosity and water density.
-
-                do 150 I = UpstreamPointer(), DownstreamPointer() - 1
-                    Node = Node + 1
-                    if (DynamicWaveEqDS(Node, Node + 1)) then
-                    else
-                        UpdateChannel = .false.
-                        write (UNIT_ERROR, *) ' *** Error (UpdateChannel)'
-                        write (UNIT_ERROR, *) ' Failed to update node...', Node
-                    end if
-150                 continue
-
-                    end if
 
                     !-----Compute and store constraint-equation coefficients for
                     !      downstream end of channel.
