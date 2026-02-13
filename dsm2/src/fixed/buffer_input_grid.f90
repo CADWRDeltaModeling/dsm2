@@ -64,6 +64,7 @@ subroutine buffer_input_grid() !process_text_grid_input()
        real(8) :: height
        real(8) :: cf_to_node
        real(8) :: cf_from_node
+       real(8) :: accum_area, accum_area_ele
 
 
        if ((xsect_buffer_size() .gt. 0) .and.  &
@@ -128,6 +129,8 @@ subroutine buffer_input_grid() !process_text_grid_input()
        print *,"Number of channel xsects (csdp format): ", nitem
 
       nitem = xsect_layer_buffer_size()
+      accum_area = 0.0d0
+      accum_area_ele = 0.0d0
       do icount = 1,nitem
          call xsect_layer_query_from_buffer(icount, &
                                       chan_no, &
@@ -137,13 +140,16 @@ subroutine buffer_input_grid() !process_text_grid_input()
                                       width, &
                                       wet_perim, &
                                       ierror)
-
+         accum_area = accum_area + area        
+         accum_area_ele = accum_area_ele + area*elev
          call process_xsect_layer_full(chan_no, &
                                       dist, &
                                       elev, &
                                       area, &
                                       width, &
-                                      wet_perim)
+                                      wet_perim, &
+                                      accum_area, &
+                                      accum_area_ele)
        end do
        print *,"Number of channel xsect layers: ", nitem
 

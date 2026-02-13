@@ -201,21 +201,25 @@ module mod_fixed
             integer, intent(out) :: xsectno
         end subroutine process_xsect
 
-        module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
+        module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim, accum_area, accum_area_ele)
             integer :: chan_no
             real*8 :: dist
             real*8 :: elev
             real*8 :: area
             real*8 :: width
             real*8 :: wetperim
+            real*8 :: accum_area
+            real*8 :: accum_area_ele
         end subroutine process_xsect_layer_full
 
-        module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
+        module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accum_area, accum_area_ele)
             integer :: xsectno
             real*8 :: elev
             real*8 :: area
             real*8 :: width
             real*8 :: wetperim
+            real*8 :: accum_area
+            real*8 :: accum_area_ele
         end subroutine process_xsect_layer
 
         module logical function order_nodes()
