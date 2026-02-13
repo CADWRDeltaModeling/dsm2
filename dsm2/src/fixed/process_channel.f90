@@ -193,7 +193,7 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accu
             area = calc_area
         end if
     end if
-    centroid_z = accum_area_ele/accum_area - irreg_geom(xsectno) .min_elev
+    centroid_z = accum_area_ele/accum_area
     irreg_geom(xsectno) .area(nl) = area
     irreg_geom(xsectno) .wet_p(nl) = wetperim
     irreg_geom(xsectno) .z_centroid(nl) = centroid_z
