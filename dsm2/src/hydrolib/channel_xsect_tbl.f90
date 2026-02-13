@@ -445,7 +445,7 @@ contains
 
         !   Argument definitions:
         !     X - downstream distance.
-        !     H - distance above lowest point in cross section.
+        !     H - distance above lowest point in cross section. not depth but water surface elevation
 
 
         !   Local variables:
