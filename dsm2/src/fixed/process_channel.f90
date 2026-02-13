@@ -115,7 +115,7 @@ module subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
     return
 end subroutine
 
-module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
+module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim, accum_area, accum_area_ele)
     use common_xsect
     implicit none
     integer :: chan_no
@@ -123,16 +123,17 @@ module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wet
     integer :: dummy_id = 0
     integer :: nl
     real*8 ::  dist, elev, area, width, wetperim
+    real*8 :: accum_area, accum_area_ele
     call process_xsect(chan_no, dist, dummy_id, xsectno)
     if (xsectno > max_irr_xsects) then
         write (unit_error, *) 'Increase max_irr_xsects. xsectno greater than max_irr_xsects:', xsectno, '>', max_irr_xsects
         call exit(2)
     end if
-    call process_xsect_layer(xsectno, elev, area, width, wetperim)
+    call process_xsect_layer(xsectno, elev, area, width, wetperim, accum_area, accum_area_ele)
     return
 end subroutine
 
-module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
+module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accum_area, accum_area_ele)
     use grid_data
     use logging
     use io_units
@@ -140,8 +141,9 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     implicit none
     integer :: xsectno
     integer :: nl
-    real*8 ::  elev, area, width, wetperim
+    real*8 ::  elev, area, width, wetperim, accum_area, accum_area_ele
     real*8 :: prev_area, prev_width, prev_elev, calc_area
+    real*8 :: centroid_z
     real*8, parameter :: VERT_RESOLUTION = 0.001
     real*8, parameter :: AREA_PRECISION = 0.0001
 
@@ -191,8 +193,10 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
             area = calc_area
         end if
     end if
+    centroid_z = accum_area_ele/accum_area - irreg_geom(xsectno) .min_elev
     irreg_geom(xsectno) .area(nl) = area
     irreg_geom(xsectno) .wet_p(nl) = wetperim
+    irreg_geom(xsectno) .z_centroid(nl) = centroid_z
     if (wetperim .ne. 0.0d0) then
         irreg_geom(xsectno) .h_radius(nl) = area/wetperim
     else
