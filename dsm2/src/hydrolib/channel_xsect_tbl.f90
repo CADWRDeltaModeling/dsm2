@@ -482,8 +482,6 @@ contains
         !-----Implementation -----------------------------------------------------
 
         !----statement function to calculate indices of virtual data arrays
-        dindex(Branch,vsecno,virtelev) &
-            =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 
         call find_layer_index( &
             X &
@@ -494,8 +492,8 @@ contains
             ,veindex &
             )
 
-        di=dindex(branch,vsecno,virtelev)
-        trap_height=  H -virt_elevation(veindex)
+        di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
+        trap_height= H -virt_elevation(veindex)
         trap_top_width = ChannelWidth(X,H)
         trap_bot_width = virt_width(di)
 
@@ -579,8 +577,6 @@ contains
         !   Version 93.01, January, 1993
 
         !----statement function to calculate indices of virtual data arrays
-        dindex(Branch,vsecno,virtelev) &
-            =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 
         call find_layer_index( &
             X &
@@ -591,14 +587,13 @@ contains
             ,veindex &
             )
 
-
-        di=dindex(branch,vsecno,virtelev)
+         di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
         x1=virt_elevation(veindex)
         x2=virt_elevation(veindex+1)
         y1=virt_z_centroid(di)
         y2=virt_z_centroid(di+1)
 
-        dCxCentroid = H- (y2-y1)/(x2-x1)
+        dCxCentroid = 1 - (y2-y1)/(x2-x1)
 
         if (x1==x2) then
             write(unit_error,*) 'dCxcentroid division by zero'
