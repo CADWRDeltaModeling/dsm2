@@ -115,7 +115,7 @@ module subroutine process_xsect(channo, chan_fdist, xsectid, xsectno)
     return
 end subroutine
 
-module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim, accum_area, accum_area_ele)
+module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wetperim)
     use common_xsect
     implicit none
     integer :: chan_no
@@ -123,17 +123,16 @@ module subroutine process_xsect_layer_full(chan_no, dist, elev, area, width, wet
     integer :: dummy_id = 0
     integer :: nl
     real*8 ::  dist, elev, area, width, wetperim
-    real*8 :: accum_area, accum_area_ele
     call process_xsect(chan_no, dist, dummy_id, xsectno)
     if (xsectno > max_irr_xsects) then
         write (unit_error, *) 'Increase max_irr_xsects. xsectno greater than max_irr_xsects:', xsectno, '>', max_irr_xsects
         call exit(2)
     end if
-    call process_xsect_layer(xsectno, elev, area, width, wetperim, accum_area, accum_area_ele)
+    call process_xsect_layer(xsectno, elev, area, width, wetperim)
     return
 end subroutine
 
-module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accum_area, accum_area_ele)
+module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     use grid_data
     use logging
     use io_units
@@ -141,8 +140,9 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accu
     implicit none
     integer :: xsectno
     integer :: nl
-    real*8 ::  elev, area, width, wetperim, accum_area, accum_area_ele
-    real*8 :: prev_area, prev_width, prev_elev, calc_area
+    real*8 ::  elev, area, width, wetperim
+    real*8 :: prev_area, prev_width, prev_elev, prev_z_centroid, calc_area
+    real*8 :: area_rect, centroid_z_rect, area_tria, centroid_z_tria
     real*8 :: centroid_z
     real*8, parameter :: VERT_RESOLUTION = 0.001
     real*8, parameter :: AREA_PRECISION = 0.0001
@@ -161,10 +161,15 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accu
     irreg_geom(xsectno) .width(nl) = width
 !-----------adjust area to make sure:
 !-----------upper layer area=lower layer area+trapezoidal area between them
+    if (nl .eq. 1) then
+        centroid_z = elev
+    end if
+        
     if (nl .gt. 1) then
         prev_area = irreg_geom(xsectno) .area(nl - 1)
         prev_width = irreg_geom(xsectno) .width(nl - 1)
         prev_elev = irreg_geom(xsectno) .elevation(nl - 1)
+        prev_z_centroid = irreg_geom(xsectno) .z_centroid(nl - 1)
         if (area .lt. prev_area) then
             write (unit_error, '(a,i5)') &
                 "Channel areas decreasing with elevation in channel ", &
@@ -192,8 +197,22 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim, accu
             end if
             area = calc_area
         end if
+
+        area_rect = min(width, prev_width)*(elev - prev_elev)
+        centroid_z_rect = 0.5*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+        area_tria = abs(width - prev_width)*(elev - prev_elev)/2
+        if (width > prev_width) then
+            centroid_z_tria = 2/3*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+        else if (width < prev_width) then
+            centroid_z_tria = 1/3*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+        else if (width == prev_width) then
+            centroid_z_tria = 0
+        end if
+        centroid_z = (area_rect*centroid_z_rect + area_tria*centroid_z_tria + prev_area*prev_z_centroid)/area
+
     end if
-    centroid_z = accum_area_ele/accum_area
+
+    
     irreg_geom(xsectno) .area(nl) = area
     irreg_geom(xsectno) .wet_p(nl) = wetperim
     irreg_geom(xsectno) .z_centroid(nl) = centroid_z
