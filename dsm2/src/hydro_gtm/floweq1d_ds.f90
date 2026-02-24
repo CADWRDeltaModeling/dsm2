@@ -90,6 +90,7 @@ contains
     subroutine get_density(chan, dist, density)
         use runtime_data, only: prev_julmin
         use, intrinsic :: ieee_arithmetic
+        use netcntrl_common, only: VariableDensity
         use gtm_vars, only: gtm_start_jmin
         use gtm_subs, only: chan_ec_val
 
@@ -103,32 +104,31 @@ contains
         if (prev_julmin .le. gtm_start_jmin) then ! before GTM start time
             density = 1.0
         else
-            !get EC from GTM
-            ec = chan_ec_val(chan, dist)
-            if (ec .lt. 100) then !handles very small negative ec values 
+            if (.not. VariableDensity) then
                 density = 1.0
             else
+                !get EC from GTM
+                ec = chan_ec_val(chan, dist)
                 call ec_to_density(ec, density)
+                if (density .gt. 1.25) then
+                    density = 1.0 
+                    print *, 'Warning: computed density greater than 1.25 g/cm3, reset to 1.0 g/cm3'
+                end if
+
+                if (density .lt. 1.0) then 
+                    density = 1.0
+                    print *, 'Warning: computed density less than 1.0 g/cm3, reset to 1.0 g/cm3'
+                end if
+
+                if (ieee_is_nan(density)) then
+                    density = 1.0
+                    print*, 'Channel number:', chan, ' distance:', dist, 'ec=:', ec
+                    print *, 'Warning: computed density is NaN, reset to 1.0 g/cm3'
+                end if
             end if
 
         end if
 
-        if (density .gt. 1.25) then
-            density = 1.0 
-            print *, 'Warning: computed density greater than 1.25 g/cm3, reset to 1.0 g/cm3'
-        end if
-
-        if (density .lt. 1.0) then 
-            density = 1.0
-            print *, 'Warning: computed density less than 1.0 g/cm3, reset to 1.0 g/cm3'
-        end if
-
-        if (ieee_is_nan(density)) then
-            density = 1.0
-            print*, 'Channel number:', chan, ' distance:', dist, 'ec=:', ec
-            print *, 'Warning: computed density is NaN, reset to 1.0 g/cm3'
-        end if
-        ! density = 1.1
     end subroutine
 
 
