@@ -198,7 +198,7 @@ module boundary_advection_network
         !--- args
         integer,intent(in)  :: ncell                            !< Number of cells
         integer,intent(in)  :: nvar                             !< Number of variables
-        integer,intent(in)  :: tstp
+        integer,intent(in)  :: tstp                             !< Time step
         real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
         real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
         real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
@@ -344,93 +344,92 @@ module boundary_advection_network
                 end if
             end if
             ! adjust flux for junctions
-            if (dsm2_network(i)%junction_no .gt. 0) then
-                flow_tmp = zero
-                mass_tmp(ivar) = zero
-                conc_tmp(ivar) = zero
-                conc_tmp0(ivar) = zero
-                flux_in = zero
-                do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
-                    icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
-                        flux_in = flux_in + conc_hi(icell,ivar)*flow_hi(icell)
-                        flow_tmp = flow_tmp + flow_hi(icell)
-                    elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
-                        flux_in = flux_in - conc_lo(icell,ivar)*flow_lo(icell)
-                        flow_tmp = flow_tmp - flow_lo(icell)
-                    endif
-                end do
+            flow_tmp = zero
+            mass_tmp(ivar) = zero
+            conc_tmp(ivar) = zero
+            conc_tmp0(ivar) = zero
+            flux_in = zero
+            do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
+                icell = dsm2_network(i)%cell_no(j)
+                if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at downstream of junction
+                    flux_in = flux_in + conc_hi(icell,ivar)*flow_hi(icell)
+                    flow_tmp = flow_tmp + flow_hi(icell)
+                elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at upstream of junction
+                    flux_in = flux_in - conc_lo(icell,ivar)*flow_lo(icell)
+                    flow_tmp = flow_tmp - flow_lo(icell)
+                endif
+            end do
 
-                ! add external flows
-                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
-                    ! loop through external flows
-                    do j = 1, dsm2_network_extra(i)%n_qext
-                        qext_fl = qext_flow(dsm2_network_extra(i)%qext_no(j))
-                        ! If drain and if there are associated data to it
-                        qext_path_id = dsm2_network_extra(i)%qext_path(j,ivar)
-                        if (qext_fl > 0) then ! drain
-                            flow_tmp = flow_tmp + qext_fl
-                            if (qext_path_id /= 0) then
-                                conc_ext = pathinput(qext_path_id)%value
-                                ! If the associated data is SSC,
-                                if (trim(pathinput(qext_path_id)%variable).eq.'ssc') then
-                                    ! Loop through all the sediment classes
-                                    do st = 1, n_sediment
-                                        conc_ext = pathinput(qext_path_id)%value &
-                                            * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
-                                    end do
-                                end if
-                                flux_in = flux_in + conc_ext * qext_fl
-                            else !drain but node concentration is absent
-                                flux_in = flux_in + conc_ext * qext_fl
-                                write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+            ! add external flows
+            if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
+                ! loop through external flows
+                do j = 1, dsm2_network_extra(i)%n_qext
+                    qext_fl = qext_flow(dsm2_network_extra(i)%qext_no(j))
+                    ! If drain and if there are associated data to it
+                    qext_path_id = dsm2_network_extra(i)%qext_path(j,ivar)
+                    if (qext_fl > 0) then ! drain
+                        flow_tmp = flow_tmp + qext_fl
+                        if (qext_path_id /= 0) then
+                            conc_ext = pathinput(qext_path_id)%value
+                            ! If the associated data is SSC,
+                            if (trim(pathinput(qext_path_id)%variable).eq.'ssc') then
+                                ! Loop through all the sediment classes
+                                do st = 1, n_sediment
+                                    conc_ext = pathinput(qext_path_id)%value &
+                                        * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
+                                end do
                             end if
+                            flux_in = flux_in + conc_ext * qext_fl
+                        else !drain but node concentration is absent
+                            flux_in = flux_in + conc_ext * qext_fl
+                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         end if
-                    end do
-                end if
-
-                ! add reservoir flows
-                if (dsm2_network_extra(i)%reservoir_no.ne.0) then
-                    reservoir_id = dsm2_network_extra(i)%reservoir_no
-                    resv_conn_id = dsm2_network_extra(i)%resv_conn_no
-                    vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
-                    ! Flow going out of the reservoir
-                    if (resv_flow(resv_conn_id).gt.zero) then
-                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,ivar)
-                        flux_in = flux_in + conc_resv_prev(reservoir_id,ivar)*resv_flow(resv_conn_id)
-                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)
                     end if
-                end if
-
-                if (flow_tmp < 0.01) then
-                    conc_tmp(ivar) = zero
-                else
-                    conc_tmp(ivar) = flux_in / flow_tmp
-                end if
-                ! assign average concentration to downstream cell faces
-                do j = 1, dsm2_network(i)%n_conn_cell
-                    icell = dsm2_network(i)%cell_no(j)
-                    prev_conc_stip(icell,ivar) = conc_stip(icell,ivar)
-                    conc_stip(icell,ivar) = LARGEREAL
-                    if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
-                        flux_hi(icell,ivar) = conc_tmp(ivar)*flow_hi(icell)
-                        conc_stip(icell,ivar) = conc_tmp(ivar)
-                    elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
-                        flux_lo(icell,ivar) = conc_tmp(ivar)*flow_lo(icell)
-                        conc_stip(icell,ivar) = conc_tmp(ivar)
-                    endif
                 end do
-                ! assign the average concentration to the reservoir
-                if (dsm2_network_extra(i)%reservoir_no.ne.0) then
-                    reservoir_id = dsm2_network_extra(i)%reservoir_no
-                    resv_conn_id = dsm2_network_extra(i)%resv_conn_no
-                    ! Flow going into the reservoir
-                    if (resv_flow(resv_conn_id) < 0.0) then
-                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_tmp(ivar)
-                    end if
+            end if
+
+            ! add reservoir flows
+            if (dsm2_network_extra(i)%reservoir_no.ne.0) then
+                reservoir_id = dsm2_network_extra(i)%reservoir_no
+                resv_conn_id = dsm2_network_extra(i)%resv_conn_no
+                vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
+                ! Flow going out of the reservoir
+                if (resv_flow(resv_conn_id).gt.zero) then
+                    mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,ivar)
+                    flux_in = flux_in + conc_resv_prev(reservoir_id,ivar)*resv_flow(resv_conn_id)
+                    flow_tmp = flow_tmp + resv_flow(resv_conn_id)
                 end if
             end if
-        end do
+
+            if (flow_tmp < 0.01) then
+                conc_tmp(ivar) = zero
+            else
+                conc_tmp(ivar) = flux_in / flow_tmp
+            end if
+            ! assign average concentration to downstream cell faces
+            do j = 1, dsm2_network(i)%n_conn_cell
+                icell = dsm2_network(i)%cell_no(j)
+                prev_conc_stip(icell,ivar) = conc_stip(icell,ivar)
+                conc_stip(icell,ivar) = LARGEREAL
+                if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
+                    flux_hi(icell,ivar) = conc_tmp(ivar)*flow_hi(icell)
+                    conc_stip(icell,ivar) = conc_tmp(ivar)
+                elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
+                    flux_lo(icell,ivar) = conc_tmp(ivar)*flow_lo(icell)
+                    conc_stip(icell,ivar) = conc_tmp(ivar)
+                endif
+            end do
+            ! assign the average concentration to the reservoir
+            if (dsm2_network_extra(i)%reservoir_no.ne.0) then
+                reservoir_id = dsm2_network_extra(i)%reservoir_no
+                resv_conn_id = dsm2_network_extra(i)%resv_conn_no
+                ! Flow going into the reservoir
+                if (resv_flow(resv_conn_id) < 0.0) then
+                    mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_tmp(ivar)
+                end if
+            end if
+
+        end do ! do through all nodes
 
         do i = 1, n_resv
             if (resv_geom(i)%n_qext > 0) then
