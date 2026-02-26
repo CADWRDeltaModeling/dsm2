@@ -1,4 +1,3 @@
-set(HYDRO_BIN hydro)
 add_executable(${HYDRO_BIN} hydro_driver.f90)
 set_target_properties(${HYDRO_BIN} PROPERTIES LINKER_LANGUAGE Fortran
                                               INSTALL_RPATH "\${ORIGIN}/../lib")

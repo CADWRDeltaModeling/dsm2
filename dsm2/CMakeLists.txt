@@ -75,9 +75,11 @@ set(GTM_CORE gtm_core)
 add_subdirectory(src/${GTM_CORE})
 
 # Hydro driver
+set(HYDRO_BIN hydro)
 add_subdirectory(src/hydro_driver)
 
 # Qual driver
+set(QUAL_BIN qual)
 add_subdirectory(src/qual_core)
 add_subdirectory(src/qual_driver)
 

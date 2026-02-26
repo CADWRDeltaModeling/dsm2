@@ -1,5 +1,4 @@
 # Build Qual
-set(QUAL_BIN qual)
 add_executable(${QUAL_BIN})
 if(NOT WIN32)
   set_target_properties(${QUAL_BIN} PROPERTIES LINKER_LANGUAGE Fortran INSTALL_RPATH "\${ORIGIN}/../lib")
