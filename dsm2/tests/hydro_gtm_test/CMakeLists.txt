@@ -1,0 +1,30 @@
+addtest(hydrogtm)
+target_include_directories(test_hydrogtm PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
+target_link_libraries(
+  test_hydrogtm
+  PRIVATE gtm_main
+          hydro_gtm_core
+          fourpt
+          hydrolib
+          fixed
+          hdf_tidefile
+          hdf_tidefile_cpp
+          oprule_interface_cpp
+          oprule_interface
+          process_io
+          transport
+          dsm2_input_storage
+          dsm2_input_storage_cpp
+          klu_fortran
+          common
+          pattern_match
+          input_storage
+          oprule_parser
+          oprule
+          ${Boost_LIBRARIES}
+          ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES}
+          ${KLU_LIBRARIES}
+          ${HEClib_LIBRARIES}
+          fortran_stdlib::fortran_stdlib
+          "$<LINK_ONLY:MKL::MKL>")
