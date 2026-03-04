@@ -470,16 +470,18 @@ module boundary_advection_network
         use constants
         use error_handling
         use gtm_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
-                                    n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts
+                            n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts, &
+                            qext, n_qext
         use common_gtm_vars, only: n_inputpaths, pathinput
-        use state_variables_network, only : node_conc, conc_stip
+        use state_variables_network, only : node_conc, conc_stip, qext_flow
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
         integer, intent(in)  :: tstp
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-        integer :: i, j, k, s, st, icell, inode
+        integer :: i, j, k, s, st, icell, inode, qext_path_id, ivar, iqext, nq
+        real(gtm_real) :: flow_sum, qext_fl, flux, conc_ext
 
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
@@ -513,6 +515,37 @@ module boundary_advection_network
                         end do
                 end if
             end do
+        end do
+
+        ! Handle external flows like a boundary condition.
+        do iqext = 1, n_qext
+            inode = qext(iqext)%attach_obj_no
+            if (inode .le. 0) cycle
+            ! FIXME The block below can be factored out. A similar code block exists in `bc_advection_flux_network`.
+            ! Here we want to set the concentration value with the
+            ! external flows at dead-end (boundary) nodes by setting
+            nq = dsm2_network_extra(inode)%n_qext
+            if (nq .gt. 0) then
+                icell = dsm2_network(inode)%cell_no(1)
+                do ivar = 1, nvar
+                    flow_sum = zero
+                    flux = zero
+                    do k = 1, nq
+                        qext_fl = qext_flow(dsm2_network_extra(inode)%qext_no(k))
+                        if (qext_fl .gt. zero) then
+                            flow_sum = flow_sum + qext_fl
+                            qext_path_id = dsm2_network_extra(inode)%qext_path(k,ivar)
+                            if (qext_path_id .ne. 0) then
+                                conc_ext = pathinput(qext_path_id)%value
+                                flux = flux + qext_fl * conc_ext
+                            end if
+                        end if
+                    end do
+                    if (flow_sum .gt. zero) then
+                        conc_stip(icell,ivar) = flux / flow_sum
+                    end if
+                end do
+            end if
         end do
 
         !> Assign node concentration to the upstream boundaries that no node concentration is given.
