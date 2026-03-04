@@ -353,10 +353,14 @@ module boundary_advection_network
                 do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
-                        flux_in = flux_in + conc_hi(icell,ivar)*flow_hi(icell)
+                        if (conc_hi(icell,ivar) .gt. zero) then
+                            flux_in = flux_in + conc_hi(icell, ivar) * flow_hi(icell)
+                        end if
                         flow_tmp = flow_tmp + flow_hi(icell)
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
-                        flux_in = flux_in - conc_lo(icell,ivar)*flow_lo(icell)
+                        if (conc_lo(icell,ivar) .gt. zero) then
+                            flux_in = flux_in - conc_lo(icell, ivar) * flow_lo(icell)
+                        end if
                         flow_tmp = flow_tmp - flow_lo(icell)
                     endif
                 end do
