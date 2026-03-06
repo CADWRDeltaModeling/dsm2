@@ -15,3 +15,4 @@ macro(ADDTEST name)
 endmacro(ADDTEST)
 
 add_subdirectory(hydro)
+add_subdirectory(hydro_gtm_test)

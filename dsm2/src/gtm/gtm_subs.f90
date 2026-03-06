@@ -769,7 +769,7 @@ module gtm_subs
     end subroutine
 
     real*8 function chan_ec_val(chan_num, x_dist) bind(C, name="chan_ec_val")
-    use common_gtm_vars, only: output_ec_oprule
+    use common_gtm_vars, only: output_ec_t
     use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
     use state_variables, only: conc
     implicit none
@@ -778,21 +778,24 @@ module gtm_subs
     integer :: num_out_cell
     integer :: chan_num_copy(1)
     real*8 :: x_dist_copy(1)
+    type(output_ec_t), allocatable :: output_ec(:)
 
     num_out_cell=1
     chan_num_copy(1) = chan_num
     x_dist_copy(1) = x_dist
 
-    call get_select_cell_with_x(output_ec_oprule(:)%out_chan_cell,  &
-                                output_ec_oprule(:)%x_from_lo_face, &
-                                output_ec_oprule(:)%calc_option,    &
+    allocate(output_ec(num_out_cell))
+
+    call get_select_cell_with_x(output_ec(:)%out_chan_cell,  &
+                                output_ec(:)%x_from_lo_face, &
+                                output_ec(:)%calc_option,    &
                                 num_out_cell, chan_num_copy, x_dist_copy)
     chan_ec_val = 0.0
     call get_output_channel_vals_continue(chan_ec_val,                         &
-                                          output_ec_oprule(1)%x_from_lo_face,  &
-                                          output_ec_oprule(1)%calc_option,     &
-                                          output_ec_oprule(1)%out_chan_cell,   &
-                                          output_ec_oprule(1)%i_var)
+                                          output_ec(1)%x_from_lo_face,  &
+                                          output_ec(1)%calc_option,     &
+                                          output_ec(1)%out_chan_cell,   &
+                                          output_ec(1)%i_var)
     return
 end function
 

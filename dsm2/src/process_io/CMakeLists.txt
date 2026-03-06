@@ -5,4 +5,5 @@ add_library(process_io ${sources})
 add_dependencies(process_io gtm_core dsm2_input_storage)
 target_include_directories(process_io PUBLIC
     ${HDF5_Fortran_INCLUDE_DIRS})
-target_link_libraries(process_io PUBLIC gtm_core dsm2_input_storage qual_core)
+target_link_libraries(process_io PUBLIC gtm_core dsm2_input_storage qual_core ${HDF5_HL_LIBRARIES}
+          ${HDF5_LIBRARIES})

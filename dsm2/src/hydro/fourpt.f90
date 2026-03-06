@@ -492,8 +492,16 @@ contains
 1222    call exit(0)
     end subroutine fourpt_winddown
 
+    subroutine initialize_hydro_dynamicwave()
+        use dynamicwave_calc, only: dynamic_wave
+        use floweq1d, only: DynamicWaveEq
+        dynamic_wave => DynamicWaveEq
+    end subroutine initialize_hydro_dynamicwave
+
+
     subroutine fourpt_main()
         call fourpt_init()
+        call initialize_hydro_dynamicwave()
 
         do while (julmin .le. end_julmin) ! normal time run
             call fourpt_step()
