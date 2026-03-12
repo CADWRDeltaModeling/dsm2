@@ -14,7 +14,7 @@ if [ -d  "heclib_2016" ]; then
     rm -rf heclib_2016
 fi
 echo "Cloning HEClib..."
-git clone http://dwrrhapp0179.ad.water.ca.gov/gitea/nsandhu/heclib_2016.git
+git clone https://gitea.ad.water.ca.gov/nsandhu/heclib_2016.git
 
 # setup compilers
 echo "Building HEClib..."
