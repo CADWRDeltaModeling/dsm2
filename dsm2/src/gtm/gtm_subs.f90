@@ -98,7 +98,7 @@ module gtm_subs
         write(801,*) nresv, "/n_resv"
         write(801,'(a32,<ncol>a32)') "reservoir_name", (c(j),j=1,ncol)
         do i = 1, nresv
-            write(801,'(a32,<ncol>f32.16)') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol)
+            write(801,'(a32,*(f32.16))') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol)
         end do
         close(801)
         return
@@ -159,8 +159,8 @@ module gtm_subs
         use common_gtm_vars, only: noutpaths, pathoutput
         use gtm_vars, only: resv_geom, n_resv, n_chan, chan_geom
         implicit none
-        integer :: out_cell(noutpaths)              !< output cells
-        integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
+        ! integer :: out_cell(noutpaths)              !< output cells
+        ! integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
         integer :: chan_num_internal(noutpaths)              !< internal channcel number
         real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)
@@ -183,9 +183,9 @@ module gtm_subs
                 end do
             end if
         enddo
-        call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
-                                    pathoutput(:)%x_from_lo_face, &
-                                    pathoutput(:)%calc_option,    &
+        call get_select_cell_with_x(pathoutput(:noutpaths)%out_chan_cell,  &
+                                    pathoutput(:noutpaths)%x_from_lo_face, &
+                                    pathoutput(:noutpaths)%calc_option,    &
                                     noutpaths, chan_num_internal, x_dist)
         return
     end subroutine
@@ -205,12 +205,12 @@ module gtm_subs
 
         implicit none
 
-        integer, intent(out) :: out_cell(n_out_cell)               !< output cells
-        integer, intent(out) :: calc_option(n_out_cell)            !< calculation option
+        integer, intent(out) :: out_cell(:)               !< output cells
+        real(gtm_real), intent(out) :: x_from_lo_face(:)  !< distance from lo face in that out cell
+        integer, intent(out) :: calc_option(:)            !< calculation option
         integer, intent(in) :: n_out_cell                          !< number of output cells
-        integer, intent(in) :: chan_num(n_out_cell)                !< channel number
-        real(gtm_real), intent(out) :: x_from_lo_face(n_out_cell)  !< distance from lo face in that out cell
-        real(gtm_real), intent(inout) :: x_dist(n_out_cell)        !< distance from upstream node read from inp file
+        integer, intent(in) :: chan_num(:)                !< channel number
+        real(gtm_real), intent(inout) :: x_dist(:)        !< distance from upstream node read from inp file
         integer :: i, j, k, chan_no
 
         do i = 1, n_out_cell
