@@ -109,6 +109,10 @@ contains
             else
                 !get EC from GTM
                 ec = chan_ec_val(chan, dist)
+                if (ec .lt. 0.0) then !> ec can be a very small negative value, which will cause density to be NaN. Set density to 1.0 in this case.
+                    density = 1.0
+                    return
+                end if
                 call ec_to_density(ec, density)
                 if (density .gt. 1.25) then
                     density = 1.0 
