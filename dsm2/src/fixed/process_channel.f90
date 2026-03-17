@@ -199,14 +199,14 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
         end if
 
         area_rect = min(width, prev_width)*(elev - prev_elev)
-        centroid_z_rect = 0.5*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+        centroid_z_rect = 0.5*(elev - prev_elev) + prev_elev
         area_tria = abs(width - prev_width)*(elev - prev_elev)/2
         if (width > prev_width) then
-            centroid_z_tria = 2/3*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+            centroid_z_tria = 2.0/3.0*(elev - prev_elev) + prev_elev
         else if (width < prev_width) then
-            centroid_z_tria = 1/3*(elev - prev_elev) + irreg_geom(xsectno) .min_elev
+            centroid_z_tria = 1.0/3.0*(elev - prev_elev) + prev_elev
         else if (width == prev_width) then
-            centroid_z_tria = 0
+            centroid_z_tria = 0 + prev_elev
         end if
         centroid_z = (area_rect*centroid_z_rect + area_tria*centroid_z_tria + prev_area*prev_z_centroid)/area
 
