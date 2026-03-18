@@ -342,4 +342,41 @@ module common_xsect
         return
     end subroutine
 
+    !> calculate cross section centroid for a specific elevation.
+    subroutine calc_layer_centroid(prev_centroid, elev, prev_elev, width, prev_width, prev_area, centroid_z)
+        use IO_Units
+        implicit none
+
+        ! Arguments
+        real*8, intent(in) :: prev_centroid !> centroid of cross section at previous elevation
+        real*8, intent(in) :: elev !> current elevation of layer n and previous elevations
+        real*8, intent(in) :: prev_elev !> elevation of layer n-1
+        real*8, intent(in) :: width !> width of cross section at current elevation
+        real*8, intent(in) :: prev_width !> width of cross section at previous elevation
+        real*8, intent(in) :: prev_area !> cross-sectional area at previous layer
+        real*8, intent(out) :: centroid_z !> centroid elevation of layer n, measured from the minimum elevation of the cross section
+
+        real*8 :: area_rect, centroid_z_rect, area_tria, centroid_z_tria, total_area
+
+        area_rect = min(width, prev_width) * (elev - prev_elev)
+        centroid_z_rect = 0.5 * (elev - prev_elev) + prev_elev !> centroid of height of the rectangle, measured from the minimum elevation of the cross section
+        area_tria = abs(width - prev_width) * (elev - prev_elev) / 2
+        if (width > prev_width) then
+            centroid_z_tria = 2.0 / 3.0 * (elev - prev_elev) + prev_elev
+        else if (width < prev_width) then
+            centroid_z_tria = 1.0 / 3.0 * (elev - prev_elev) + prev_elev
+        else if (width == prev_width) then
+            centroid_z_tria = 0 + prev_elev
+        end if
+        total_area = area_rect + area_tria + prev_area
+        if (total_area == 0) then
+            write (unit_error, *) 'cxcentroid division by zero'
+        end if
+
+        centroid_z = (area_rect * centroid_z_rect + area_tria * centroid_z_tria + prev_area * prev_centroid) / total_area
+
+        return
+    end subroutine
+
+
 end module common_xsect
