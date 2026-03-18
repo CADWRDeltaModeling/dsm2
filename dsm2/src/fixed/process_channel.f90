@@ -138,9 +138,9 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     use io_units
     use common_xsect
     implicit none
-    integer :: xsectno
+    integer :: xsectno !> index of cross section in irreg_geom
     integer :: nl
-    real*8 ::  elev, area, width, wetperim
+    real*8 ::  elev, area, width, wetperim !> values are from XSECT_LAYER in the channel grid.inp file
     real*8 :: prev_area, prev_width, prev_elev, prev_z_centroid, calc_area
     real*8 :: area_rect, centroid_z_rect, area_tria, centroid_z_tria
     real*8 :: centroid_z
@@ -164,7 +164,7 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     if (nl .eq. 1) then
         centroid_z = elev
     end if
-        
+
     if (nl .gt. 1) then
         prev_area = irreg_geom(xsectno) .area(nl - 1)
         prev_width = irreg_geom(xsectno) .width(nl - 1)
@@ -197,22 +197,10 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
             end if
             area = calc_area
         end if
-
-        area_rect = min(width, prev_width)*(elev - prev_elev)
-        centroid_z_rect = 0.5*(elev - prev_elev) + prev_elev
-        area_tria = abs(width - prev_width)*(elev - prev_elev)/2
-        if (width > prev_width) then
-            centroid_z_tria = 2.0/3.0*(elev - prev_elev) + prev_elev
-        else if (width < prev_width) then
-            centroid_z_tria = 1.0/3.0*(elev - prev_elev) + prev_elev
-        else if (width == prev_width) then
-            centroid_z_tria = 0 + prev_elev
-        end if
-        centroid_z = (area_rect*centroid_z_rect + area_tria*centroid_z_tria + prev_area*prev_z_centroid)/area
+        call calc_layer_centroid(prev_z_centroid, elev, prev_elev, width, prev_width, prev_area, centroid_z)
 
     end if
 
-    
     irreg_geom(xsectno) .area(nl) = area
     irreg_geom(xsectno) .wet_p(nl) = wetperim
     irreg_geom(xsectno) .z_centroid(nl) = centroid_z
