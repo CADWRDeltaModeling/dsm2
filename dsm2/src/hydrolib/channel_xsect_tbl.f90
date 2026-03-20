@@ -493,6 +493,7 @@ contains
         trap_height= H -virt_elevation(veindex)
         trap_top_width = ChannelWidth(X,H)
         trap_bot_width = virt_width(di)
+        Cprev = virt_z_centroid(di-1)
 
         if (virtelev == 1) then
             Aprev = 0.0
