@@ -143,6 +143,8 @@ contains
    subroutine read_xsect_tbl()
        use common_xsect, disabled => num_virt_sec   !@# num_virt_sec declared below.
        implicit none
+
+       ! local variables
        integer(HID_T) :: geom_id                            ! group identifier
        integer(HID_T) :: dset_id                            ! dataset identifier
        integer(HID_T) :: dt_id                              ! memory datatype identifier
@@ -150,17 +152,25 @@ contains
        integer(HID_T) :: dt4_id, dt5_id, dt6_id             ! memory datatype identifier
        integer(HID_T) :: dt7_id, dt8_id, dt9_id             ! memory datatype identifier
        integer(SIZE_T):: offset                             ! member's offset
-       integer(HSIZE_T), dimension(1) :: dims               ! dataset dimensions
        integer(HSIZE_T), dimension(1) :: data_dims          ! datasets dimensions
        integer(SIZE_T) :: typesize                          ! local variable
        integer(SIZE_T) :: type_size                         ! size of the datatype
        integer :: hdferr                                     ! error flag
-       integer :: i, j, k                                   ! local variable
-       integer, dimension(n_xsect) :: chan_no, num_virt_sec, vsecno, num_elev
-       real(gtm_real), dimension(n_xsect) :: min_elev, elevation, area, wet_p, width
+       integer :: i, j, k
+       integer, allocatable :: chan_no(:), num_virt_sec(:), vsecno(:), num_elev(:)
+       real(gtm_real), allocatable :: min_elev(:), elevation(:), area(:), wet_p(:), width(:)
 
-       dims = (/n_xsect/)
        data_dims(1) = n_xsect
+
+       allocate(chan_no(n_xsect))
+       allocate(num_virt_sec(n_xsect))
+       allocate(vsecno(n_xsect))
+       allocate(num_elev(n_xsect))
+       allocate(min_elev(n_xsect))
+       allocate(elevation(n_xsect))
+       allocate(area(n_xsect))
+       allocate(wet_p(n_xsect))
+       allocate(width(n_xsect))
 
        call h5gopen_f(hydro_id, "geometry", geom_id, hdferr)
        call h5dopen_f(geom_id, "virtual_xsect", dset_id, hdferr)
@@ -230,6 +240,16 @@ contains
           i = i + 1
           j = j + num_elev(j)
        end do
+
+       deallocate(chan_no)
+       deallocate(num_virt_sec)
+       deallocate(vsecno)
+       deallocate(num_elev)
+       deallocate(min_elev)
+       deallocate(elevation)
+       deallocate(area)
+       deallocate(wet_p)
+       deallocate(width)
 
        call h5tclose_f(dt_id, hdferr)
        call h5tclose_f(dt1_id, hdferr)
