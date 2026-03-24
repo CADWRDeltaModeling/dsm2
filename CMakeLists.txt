@@ -34,8 +34,23 @@ else()
   endif()
 endif()
 
-# Exit for debugging
-# return()
+# Set Profile build type flags (optimization + debug info + profiling)
+set(CMAKE_C_FLAGS_PROFILE           "-O2 -g -pg" CACHE STRING "C flags for Profile build" FORCE)
+set(CMAKE_CXX_FLAGS_PROFILE         "-O2 -g -pg" CACHE STRING "C++ flags for Profile build" FORCE)
+set(CMAKE_Fortran_FLAGS_PROFILE     "-O2 -g -pg -traceback" CACHE STRING "Fortran flags for Profile build" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_PROFILE  "-pg" CACHE STRING "Linker flags for Profile build" FORCE)
+mark_as_advanced(
+    CMAKE_C_FLAGS_PROFILE CMAKE_CXX_FLAGS_PROFILE
+    CMAKE_Fortran_FLAGS_PROFILE CMAKE_EXE_LINKER_FLAGS_PROFILE
+)
+# Register Profile as a valid build type for CMake GUIs and validation
+if(CMAKE_CONFIGURATION_TYPES)
+  list(APPEND CMAKE_CONFIGURATION_TYPES Profile)
+  list(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+    "Add the configurations that we need"
+    FORCE)
+endif()
 
 # Include the stdlib project
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/CMakeLists.txt)
