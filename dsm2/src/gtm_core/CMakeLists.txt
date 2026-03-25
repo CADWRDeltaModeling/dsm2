@@ -6,5 +6,5 @@ file(GLOB SOURCES *.F90 *.f90)
 target_sources(gtm_core PRIVATE ${SOURCES})
 
 target_include_directories(gtm_core PUBLIC ${HDF5_Fortran_INCLUDE_DIRS})
-target_link_libraries(gtm_core PUBLIC common ${HDF5_LIBRARIES})
+target_link_libraries(gtm_core PUBLIC common ${HDF5_LIBRARIES} fortran_stdlib::fortran_stdlib)
 add_dependencies(gtm_core common)
