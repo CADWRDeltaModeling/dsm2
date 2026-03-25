@@ -179,7 +179,7 @@ module subroutine print_output(istat)
                 gateArray(i)%Devices(j)%height, &
                 gateArray(i)%Devices(j)%flowCoefFromNode, &
                 gateArray(i)%Devices(j)%flowCoefToNode
-1220        format(a32,1x,'(',a16,')',2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,f9.3,2f9.3)
+1220        format(a32,1x,'(',a32,')',2x,a32,1x,f13.2,2x,f13.2,1x,f9.2,1x,f9.3,2f9.3)
         end do
     enddo
 
