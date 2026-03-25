@@ -171,21 +171,28 @@ module utils
                            n_nonzero,  &
                            n_matrix)
         use constants
+        use stdlib_sorting, only: sort_index
         implicit none
+
+        integer, intent(out) :: ap(:)
+        integer, intent(out) :: ai(:)
+        integer, intent(in) :: row(:)
+        integer, intent(in) :: col(:)
+        integer, intent(in) :: rcindex(:)
         integer, intent(in) :: n_nonzero
         integer, intent(in) :: n_matrix
-        integer, intent(in) :: row(n_nonzero)
-        integer, intent(in) :: col(n_nonzero)
-        integer, intent(in) :: rcindex(n_nonzero)
-        integer, intent(out) :: ai(n_nonzero)
-        integer, intent(out) :: ap(n_matrix+1)
-        integer :: rci(n_nonzero)
-        integer :: ro(n_nonzero)
+
+        ! local variables
+        integer, allocatable :: rci(:)
+        integer, allocatable :: ro(:)
         integer :: i, j, k
+
+        allocate(ro(n_nonzero))
+        allocate(rci(n_nonzero))
 
         ro = row
         rci = rcindex
-        call QsortCI(ro, rci)
+        call sort_index(ro, rci)
         ai = LARGEINT
         ap(1) = 0
         k = 0
@@ -199,6 +206,8 @@ module utils
                 end if
             end do
         end do
+        deallocate(ro)
+        deallocate(rci)
         return
     end subroutine
 
