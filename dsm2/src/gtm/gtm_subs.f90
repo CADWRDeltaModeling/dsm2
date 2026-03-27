@@ -778,13 +778,11 @@ module gtm_subs
     integer :: num_out_cell
     integer :: chan_num_copy(1)
     real*8 :: x_dist_copy(1)
-    type(output_ec_t), allocatable :: output_ec(:)
+    type(output_ec_t) :: output_ec(1)
 
     num_out_cell=1
     chan_num_copy(1) = chan_num
     x_dist_copy(1) = x_dist
-
-    allocate(output_ec(num_out_cell))
 
     call get_select_cell_with_x(output_ec(:)%out_chan_cell,  &
                                 output_ec(:)%x_from_lo_face, &
