@@ -768,34 +768,46 @@ module gtm_subs
         return
     end subroutine
 
+
+    !! Get an EC value at a given distance from a given channel number
+    !!
+    !! This function is exported to C as `chan_ec_val`.
+    !! FIXME This function assumes that there is only one variable in GTM as EC.
+    !! This will not work if there are more than one simulation variables.
     real*8 function chan_ec_val(chan_num, x_dist) bind(C, name="chan_ec_val")
-    use common_gtm_vars, only: output_ec_t
-    use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
-    use state_variables, only: conc
-    implicit none
-    integer, intent(in) :: chan_num
-    real*8, intent(inout) :: x_dist
-    integer :: num_out_cell
-    integer :: chan_num_copy(1)
-    real*8 :: x_dist_copy(1)
-    type(output_ec_t) :: output_ec(1)
+        use common_gtm_vars, only: output_ec_t
+        use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
+        use state_variables, only: conc
 
-    num_out_cell=1
-    chan_num_copy(1) = chan_num
-    x_dist_copy(1) = x_dist
+        implicit none
+        ! Arguments
+        integer, intent(in) :: chan_num
+            !! Channel index
+        real*8, intent(inout) :: x_dist
+            !! Distance from the upstream end of the channel
 
-    call get_select_cell_with_x(output_ec(:)%out_chan_cell,  &
-                                output_ec(:)%x_from_lo_face, &
-                                output_ec(:)%calc_option,    &
-                                num_out_cell, chan_num_copy, x_dist_copy)
-    chan_ec_val = 0.0
-    call get_output_channel_vals_continue(chan_ec_val,                         &
-                                          output_ec(1)%x_from_lo_face,  &
-                                          output_ec(1)%calc_option,     &
-                                          output_ec(1)%out_chan_cell,   &
-                                          output_ec(1)%i_var)
-    return
-end function
+        ! Local variables
+        integer :: num_out_cell
+        integer :: chan_num_copy(1)
+        real*8 :: x_dist_copy(1)
+        type(output_ec_t) :: output_ec(1)
+
+        num_out_cell=1
+        chan_num_copy(1) = chan_num
+        x_dist_copy(1) = x_dist
+
+        call get_select_cell_with_x(output_ec(:)%out_chan_cell,  &
+                                    output_ec(:)%x_from_lo_face, &
+                                    output_ec(:)%calc_option,    &
+                                    num_out_cell, chan_num_copy, x_dist_copy)
+        chan_ec_val = 0.0
+        call get_output_channel_vals_continue(chan_ec_val,                         &
+                                            output_ec(1)%x_from_lo_face,  &
+                                            output_ec(1)%calc_option,     &
+                                            output_ec(1)%out_chan_cell,   &
+                                            output_ec(1)%i_var)
+        return
+    end function
 
 
 end module
