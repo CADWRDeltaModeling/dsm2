@@ -48,7 +48,7 @@ module boundary_advection_network
         real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
         real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Centered diff, LARGEREAL for undefined boundary cells
         !----local
-        integer :: up_cell, down_cell
+        integer :: up_cell, down_cell, updown, updown_next, c1, c2
         integer :: ivar
         integer :: i
 
@@ -67,29 +67,45 @@ module boundary_advection_network
             ! introducing network component. A separate function is written here instead of
             ! using the one for single channel.
             do i = 1, n_node
-                if (dsm2_network(i)%nonsequential.eq.1) then
-                    ! Converging
-                    if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of node
-                        up_cell = dsm2_network(i)%cell_no(1)
-                        down_cell = dsm2_network(i)%cell_no(2)
-                        grad_hi(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell,ivar))/          &
-                                                (half*dx(down_cell)+half*dx(up_cell))
-                        grad_hi(down_cell,ivar) = -grad_hi(up_cell,ivar)
-                        grad_center(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell-1,ivar))/    &
-                                                    (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell-1))
-                        grad_center(down_cell,ivar) = (vals(up_cell,ivar)-vals(down_cell-1,ivar))/  &
-                                                      (half*dx(down_cell-1)+dx(down_cell)+half*dx(up_cell))
-                    ! Diverging
-                    else                                          !cell at downstream of node
-                        up_cell = dsm2_network(i)%cell_no(2)
-                        down_cell = dsm2_network(i)%cell_no(1)
-                        grad_lo(up_cell,ivar) = (vals(up_cell,ivar)-vals(down_cell,ivar))/          &
-                                                (half*dx(down_cell)+half*dx(up_cell))
-                        grad_lo(down_cell,ivar) = -grad_lo(up_cell,ivar)
-                        grad_center(up_cell,ivar) = (vals(up_cell+1,ivar)-vals(down_cell,ivar))/    &
-                                                    (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell+1))
-                        grad_center(down_cell,ivar) = (vals(down_cell+1,ivar) - vals(up_cell,ivar))/  &
-                                                      (half*dx(up_cell)+dx(down_cell)+half*dx(down_cell+1))
+                if (dsm2_network(i)%nonsequential == 1) then
+                    updown = dsm2_network(i)%up_down(1)
+                    updown_next = dsm2_network(i)%up_down(2)
+                    c1 = dsm2_network(i)%cell_no(1)
+                    c2 = dsm2_network(i)%cell_no(2)
+
+                    ! Converging to the node.  --> o <--
+                    if (updown == 0 .and. updown_next == 0) then
+                        grad_hi(c1, ivar) = (vals(c2, ivar) - vals(c1, ivar)) / &
+                            (half * dx(c1) + half * dx(c2))
+                        grad_hi(c2, ivar) = - grad_hi(c1, ivar)
+                        grad_center(c1, ivar) = (vals(c2, ivar) - vals(c1 - 1, ivar)) / &
+                            (half * dx(c2) + dx(c1) + half * dx(c1 - 1))
+                        grad_center(c2, ivar) = (vals(c1, ivar) - vals(c2 - 1, ivar)) / &
+                            (half * dx(c1) + dx(c2) + half * dx(c2 - 1))
+                    ! Diverging from the node. <-- o -->
+                    else if (updown == 1 .and. updown_next == 1) then
+                        grad_lo(c1, ivar) = (vals(c1, ivar) - vals(c2, ivar)) / &
+                            (half * dx(c1) + half * dx(c2))
+                        grad_lo(c2, ivar) = - grad_lo(c1, ivar)
+                        grad_center(c1, ivar) = (vals(c1 + 1, ivar) - vals(c2, ivar)) / &
+                            (half * dx(c1 + 1) + dx(c1) + half * dx(c2))
+                        grad_center(c2, ivar) = (vals(c2 + 1, ivar) - vals(c1, ivar)) / &
+                            (half * dx(c2 + 1) + dx(c2) + half * dx(c1))
+                    else
+                        if (updown == 0) then
+                            up_cell = dsm2_network(i)%cell_no(1)
+                            down_cell = dsm2_network(i)%cell_no(2)
+                        else
+                            up_cell = dsm2_network(i)%cell_no(2)
+                            down_cell = dsm2_network(i)%cell_no(1)
+                        end if
+                        grad_hi(up_cell, ivar) = (vals(down_cell, ivar) - vals(up_cell, ivar)) / &
+                                                 (half * dx(down_cell) + half * dx(up_cell))
+                        grad_lo(down_cell, ivar) = grad_hi(up_cell, ivar)
+                        grad_center(up_cell, ivar) = (vals(down_cell, ivar) - vals(up_cell - 1, ivar)) / &
+                                                     (half * dx(down_cell) + dx(up_cell) + half * dx(up_cell - 1))
+                        grad_center(down_cell, ivar) = (vals(down_cell + 1, ivar) - vals(up_cell, ivar)) / &
+                                                       (half * dx(down_cell  + 1) + dx(down_cell) + half * dx(up_cell))
                     end if
                 end if
             end do
@@ -125,7 +141,7 @@ module boundary_advection_network
         integer,intent(in)  :: ncell                             !< Number of cells
         integer,intent(in)  :: nvar                              !< Number of variables
         logical,intent(in), optional :: use_limiter              !< whether to use slope limiter
-        !--- local variabls
+        !--- local variables
         real(gtm_real) :: upval(nvar), downval(nvar)             ! sum of connected up/down-stream vals
         real(gtm_real) :: up_length, down_length                 ! sum of connected up/down-stream length
         real(gtm_real) :: up_split_ratio, down_split_ratio       ! ratio to apply splitting to up/down-stream
@@ -220,10 +236,10 @@ module boundary_advection_network
         integer :: network_id
         integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id
-        integer :: up_down
+        integer :: updown, updown_next
         real(gtm_real) :: conc_ext
         logical :: boundary_composition_not_found =.true.
-        integer :: up_cell, down_cell
+        integer :: up_cell, down_cell, c1, c2
         real(gtm_real) :: flux_in
             !! total flux into the junction
         integer :: qext_path_id
@@ -278,11 +294,11 @@ module boundary_advection_network
 
         do i = 1, n_node
             ! adjust flux for boundaries
-            up_down = dsm2_network(i)%up_down(1)
+            updown = dsm2_network(i)%up_down(1)
             if (dsm2_network(i)%boundary_no > 0) then
                 icell = dsm2_network(i)%cell_no(1)
                 ! Away from the node
-                if ((up_down .eq. 1)) then
+                if ((updown .eq. 1)) then
                     if (flow_lo(icell).ge.zero) then
                         flux_lo(icell,ivar) = conc_stip(icell,ivar)*flow_lo(icell)
                     else if (flow_lo(icell).lt.zero) then
@@ -307,39 +323,39 @@ module boundary_advection_network
                     call exit(-1)
                 end if
                 ! If the flow is toward to the node, meaning the node is the downstream of the cell (up_down == 0)
-                if (up_down .eq. 0) then
-                    up_cell = dsm2_network(i)%cell_no(1)
-                    down_cell = dsm2_network(i)%cell_no(2)
-                    ! up_cell fix, outflow
-                    if (flow_hi(up_cell) .gt. zero) then
-                        flux_hi(up_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
-                    ! inflow
-                    else
-                        flux_hi(up_cell,ivar) = conc_hi(down_cell,ivar)*flow_hi(up_cell)
+                updown_next = dsm2_network(i)%up_down(2)
+                c1 = dsm2_network(i)%cell_no(1)
+                c2 = dsm2_network(i)%cell_no(2)
+                ! Converging to the node.  --> o <--
+                if ((updown == 0) .and. (updown_next == 0)) then
+                    if ((flow_hi(c1) < zero) .and. (flow_hi(c2) > zero)) then
+                        flux_hi(c1, ivar) = - conc_hi(c1, ivar) * flow_hi(c1)
                     end if
-                    ! down_cell fix, outflow
-                    if (flow_hi(down_cell) .gt. zero) then
-                        flux_hi(down_cell,ivar) = conc_hi(down_cell,ivar)*flow_hi(down_cell)
-                    ! inflow
-                    else
-                        flux_hi(down_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(down_cell)
+                    if ((flow_hi(c2) < zero) .and. (flow_hi(c1) > zero)) then
+                        flux_hi(c1, ivar) = - conc_hi(c2, ivar) * flow_hi(c2)
                     end if
+                ! Diverging from the node. <-- o -->
+                else if ((updown == 1) .and. (updown_next == 1)) then
+                    if ((flow_lo(c1) > zero) .and. (flow_lo(c2) < zero)) then
+                        flux_lo(c1, ivar) = - conc_lo(c2, ivar) * flow_lo(c2)
+                    end if
+                    if ((flow_lo(c2) > zero) .and. (flow_lo(c1) < zero)) then
+                        flux_lo(c2, ivar) = - conc_lo(c1, ivar) * flow_lo(c1)
+                    end if
+                ! Simply non-sequential but the direction of cells are the same.
                 else
-                    up_cell = dsm2_network(i)%cell_no(2)
-                    down_cell = dsm2_network(i)%cell_no(1)
-                    ! up_cell fix, inflow
-                    if (flow_lo(up_cell) .gt. zero) then
-                        flux_lo(up_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(up_cell)
-                    ! outflow
+                    if (updown == 0) then
+                        up_cell = c1
+                        down_cell = c2
                     else
-                        flux_lo(up_cell,ivar) = conc_lo(up_cell,ivar)*flow_lo(up_cell)
+                        up_cell = c2
+                        down_cell = c1
                     end if
-                    ! Flow at the downstream (low) end, inflow
-                    if (flow_lo(down_cell) .gt. zero) then
-                        flux_lo(down_cell,ivar) = conc_lo(up_cell,ivar)*flow_lo(down_cell)
-                    ! outflow
-                    else
-                        flux_lo(down_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
+                    if ((flow_lo(down_cell) > zero) .and. (flow_hi(up_cell) > zero)) then
+                        flux_lo(down_cell, ivar) = conc_hi(up_cell, ivar) * flow_hi(up_cell)
+                    end if
+                    if ((flow_hi(up_cell) < zero) .and. (flow_lo(down_cell) < zero)) then
+                        flux_hi(up_cell, ivar) = conc_lo(up_cell, ivar) * flow_lo(up_cell)
                     end if
                 end if
             end if

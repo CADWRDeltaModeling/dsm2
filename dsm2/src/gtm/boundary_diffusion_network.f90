@@ -207,8 +207,8 @@ module boundary_diffusion_network
         real(gtm_real),intent(in)   :: dt                           !< Spatial step
         real(gtm_real),intent(in)   :: dx(ncell)                    !< Time step
         integer :: i, j, k, icell
-        integer :: up_cell, down_cell
-        real(gtm_real) :: extrp
+        integer :: up_cell, down_cell, updown, updown_next, c1, c2
+        real(gtm_real) :: extrp, grad
 
         do k = 1, n_var
           if (constituents(k)%simulate) then
@@ -235,23 +235,32 @@ module boundary_diffusion_network
                    end if
                 end do
             end if
-            if (dsm2_network(i)%nonsequential==1) then
-                ! Converging
-                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction
-                    up_cell = dsm2_network(i)%cell_no(1)
-                    down_cell = dsm2_network(i)%cell_no(2)
-                    diffusive_flux_hi(up_cell,k) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
-                                 (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-                    diffusive_flux_hi(down_cell,k) = -(area_hi(down_cell)*disp_coef_hi(down_cell)* &
-                                 (conc(up_cell,k) - conc(down_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-                ! Diverging
-                else                                          !cell at downstream of junction
-                    up_cell = dsm2_network(i)%cell_no(2)
-                    down_cell = dsm2_network(i)%cell_no(1)
-                    diffusive_flux_lo(up_cell,k) = -(area_lo(up_cell)*disp_coef_lo(up_cell)*       &
-                                 (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-                    diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
-                                 (conc(up_cell,k) - conc(down_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+            if (dsm2_network(i)%nonsequential == 1) then
+                updown = dsm2_network(i)%up_down(1)
+                updown_next = dsm2_network(i)%up_down(2)
+                c1 = dsm2_network(i)%cell_no(1)
+                c2 = dsm2_network(i)%cell_no(2)
+                ! Converging. --> o <--
+                if (updown == 0 .and. updown_next == 0) then   !cell at upstream of junction
+                    grad = (conc(c2, k) - conc(c1, k)) / (half * dx(c2) + half * dx(c1))
+                    diffusive_flux_hi(c1, k) = - area_hi(c1) * disp_coef_hi(c1) * grad
+                    diffusive_flux_hi(c2, k) = area_hi(c2) * disp_coef_hi(c2) * grad
+                ! Diverging. <-- o -->
+                else if (updown == 1 .and. updown_next == 1) then
+                    grad = (conc(c1, k) - conc(c2, k)) / (half * dx(c2) + half * dx(c1))
+                    diffusive_flux_lo(c1,k) = - area_lo(c1) * disp_coef_lo(c1) * grad
+                    diffusive_flux_lo(c2,k) = area_lo(c2) * disp_coef_lo(c2) * grad
+                else
+                    if (updown == 0) then
+                        up_cell = dsm2_network(i)%cell_no(1)
+                        down_cell = dsm2_network(i)%cell_no(2)
+                    else
+                        up_cell = dsm2_network(i)%cell_no(2)
+                        down_cell = dsm2_network(i)%cell_no(1)
+                    end if
+                    grad = (conc(down_cell, k) - conc(up_cell, k)) / (half * dx(down_cell) + half * dx(up_cell))
+                    diffusive_flux_hi(up_cell, k) = - area_hi(up_cell) * disp_coef_hi(up_cell) * grad
+                    diffusive_flux_lo(down_cell, k) = - area_lo(down_cell) * disp_coef_lo(down_cell) * grad
                 end if
             end if
           end do
