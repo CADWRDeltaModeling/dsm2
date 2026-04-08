@@ -114,21 +114,23 @@ contains
         integer, intent(in) :: ncell                                     !< total number of cells
         integer, intent(in) :: start_c                                   !< starting cell no
         real(gtm_real), intent(in) :: a, b, c, d                         !< input four corner points (water surface elevation)
-        real(gtm_real), intent(in) :: mass_balance_from_flow(nt-1,ncell) !< mass balance from flow interpolation (to calculate factors to interpolate water surface in time)
-        real(gtm_real), intent(inout) :: mesh_lo(nt,ncell)               !< interpolated area mesh at low face
-        real(gtm_real), intent(inout) :: mesh_hi(nt,ncell)               !< interpolated area mesh at high face
-        real(gtm_real), intent(inout) :: area_mesh(nt, ncell)            !< volume averaged area
-        real(gtm_real), intent(inout) :: volume_change(nt-1,ncell)       !< volume change for each cell
-        real(gtm_real), intent(inout) :: width(nt,ncell)                 !< water surface width for each cell
-        real(gtm_real), intent(inout) :: wet_p(nt,ncell)                 !< wetted perimeter for each cell
-        real(gtm_real), intent(inout) :: depth(nt,ncell)                 !< water depth for each cell
+        real(gtm_real), intent(in) :: mass_balance_from_flow(:,:) !< mass balance from flow interpolation (to calculate factors to interpolate water surface in time)
+        real(gtm_real), intent(inout) :: mesh_lo(:,:)               !< interpolated area mesh at low face
+        real(gtm_real), intent(inout) :: mesh_hi(:,:)               !< interpolated area mesh at high face
+        real(gtm_real), intent(inout) :: area_mesh(:,:)            !< volume averaged area
+        real(gtm_real), intent(inout) :: volume_change(:,:)       !< volume change for each cell
+        real(gtm_real), intent(inout) :: width(:,:)                 !< water surface width for each cell
+        real(gtm_real), intent(inout) :: wet_p(:,:)                 !< wetted perimeter for each cell
+        real(gtm_real), intent(inout) :: depth(:,:)                 !< water depth for each cell
+
+        ! local variables
         real(gtm_real) :: ws(nt,nx+1)                                    ! interpolated water surface mesh
         real(gtm_real) :: subtotal_volume_change(nt)                     ! local variable to check mass balance (sub total in time)
         real(gtm_real) :: total_volume_change, factor, sub_flow_vol      ! local variable
         real(gtm_real) :: ratio(nt-1)                                    ! local variable
-        real(gtm_real) :: b_lo(nt,ncell), b_hi(nt,ncell)                 ! local variable
-        real(gtm_real) :: dh_lo(nt,ncell), dh_hi(nt,ncell)               ! local variable
-        real(gtm_real) :: dp_lo(nt,ncell), dp_hi(nt,ncell)               ! local variable
+        real(gtm_real) :: b_lo(nt, nx), b_hi(nt, nx)                     ! local variable
+        real(gtm_real) :: dh_lo(nt, nx), dh_hi(nt, nx)                   ! local variable
+        real(gtm_real) :: dp_lo(nt, nx), dp_hi(nt, nx)                   ! local variable
         real(gtm_real) :: x1, x2, z1, z2, xdist, z                       ! local variable
         real(gtm_real) :: quadarea, width_tmp, wet_p_tmp, depth_tmp      ! local variable
         real(gtm_real) :: N(2)                                           ! local variable
@@ -179,21 +181,21 @@ contains
         ! call CxArea to obtain area
         do j  = 1, nt
             do i = 1, nx
-                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
+                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,i), dh_lo(j,i), dp_lo(j,i), up_x+dx*(dble(i)-one), ws(j,i), branch)
             end do
-            call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), dp_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
+            call CxInfo(mesh_hi(j,end_c), b_hi(j,nx), dh_hi(j,nx), dp_hi(j,nx), up_x+dx*nx, ws(j,nx+1), branch)
             do i = 1, nx-1
                 mesh_hi(j,start_c+i-1) = mesh_lo(j,start_c+i)
-                b_hi(j,start_c+i-1) = b_lo(j,start_c+i)
-                dh_hi(j,start_c+i-1) = dh_lo(j,start_c+i)
-                dp_hi(j,start_c+i-1) = dp_lo(j,start_c+i)
-                width(j,start_c+i-1) = half * (b_lo(j,start_c+i-1) + b_hi(j,start_c+i-1))
-                wet_p(j,start_c+i-1) = half * (dh_lo(j,start_c+i-1) + dh_hi(j,start_c+i-1))
-                depth(j,start_c+i-1) = half * (dp_lo(j,start_c+i-1) + dp_hi(j,start_c+i-1))
+                b_hi(j,i) = b_lo(j,i+1)
+                dh_hi(j,i) = dh_lo(j,i+1)
+                dp_hi(j,i) = dp_lo(j,i+1)
+                width(j,start_c+i-1) = half * (b_lo(j,i) + b_hi(j,i))
+                wet_p(j,start_c+i-1) = half * (dh_lo(j,i) + dh_hi(j,i))
+                depth(j,start_c+i-1) = half * (dp_lo(j,i) + dp_hi(j,i))
             end do
-            width(j,end_c) = half * (b_lo(j,end_c) + b_hi(j,end_c))
-            wet_p(j,end_c) = half * (dh_lo(j,end_c) + dh_hi(j,end_c))
-            depth(j,end_c) = half * (dp_lo(j,end_c) + dp_hi(j,end_c))
+            width(j,end_c) = half * (b_lo(j,nx) + b_hi(j,nx))
+            wet_p(j,end_c) = half * (dh_lo(j,nx) + dh_hi(j,nx))
+            depth(j,end_c) = half * (dp_lo(j,nx) + dp_hi(j,nx))
             ! calculate volume averaged area
             do i = 1, nx
                 x1 = up_x+dx*(dble(i)-one)

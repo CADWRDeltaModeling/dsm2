@@ -154,7 +154,6 @@ subroutine set_datasource(source, expr, val, timedep) bind(C, name="set_datasour
 end subroutine
 
 
-
 subroutine chan_comp_point(intchan, distance, &
                            comp_points, weights) bind(C, name="chan_comp_point")
 

@@ -275,7 +275,6 @@ contains
             end do
 
             do icp = 1, TotalCompLocations
-                Qcp(icp) = Qcp(icp)/dble(NSample)
                 Zcp(icp) = WS(icp)
                 Branch = ChannelNo(icp)
             end do

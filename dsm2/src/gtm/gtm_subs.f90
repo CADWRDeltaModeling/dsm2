@@ -98,7 +98,7 @@ module gtm_subs
         write(801,*) nresv, "/n_resv"
         write(801,'(a32,<ncol>a32)') "reservoir_name", (c(j),j=1,ncol)
         do i = 1, nresv
-            write(801,'(a32,<ncol>f32.16)') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol)
+            write(801,'(a32,*(f32.16))') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol)
         end do
         close(801)
         return
@@ -159,8 +159,8 @@ module gtm_subs
         use common_gtm_vars, only: noutpaths, pathoutput
         use gtm_vars, only: resv_geom, n_resv, n_chan, chan_geom
         implicit none
-        integer :: out_cell(noutpaths)              !< output cells
-        integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
+        ! integer :: out_cell(noutpaths)              !< output cells
+        ! integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
         integer :: chan_num_internal(noutpaths)              !< internal channcel number
         real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)
@@ -183,9 +183,9 @@ module gtm_subs
                 end do
             end if
         enddo
-        call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
-                                    pathoutput(:)%x_from_lo_face, &
-                                    pathoutput(:)%calc_option,    &
+        call get_select_cell_with_x(pathoutput(:noutpaths)%out_chan_cell,  &
+                                    pathoutput(:noutpaths)%x_from_lo_face, &
+                                    pathoutput(:noutpaths)%calc_option,    &
                                     noutpaths, chan_num_internal, x_dist)
         return
     end subroutine
@@ -205,12 +205,12 @@ module gtm_subs
 
         implicit none
 
-        integer, intent(out) :: out_cell(n_out_cell)               !< output cells
-        integer, intent(out) :: calc_option(n_out_cell)            !< calculation option
+        integer, intent(out) :: out_cell(:)               !< output cells
+        real(gtm_real), intent(out) :: x_from_lo_face(:)  !< distance from lo face in that out cell
+        integer, intent(out) :: calc_option(:)            !< calculation option
         integer, intent(in) :: n_out_cell                          !< number of output cells
-        integer, intent(in) :: chan_num(n_out_cell)                !< channel number
-        real(gtm_real), intent(out) :: x_from_lo_face(n_out_cell)  !< distance from lo face in that out cell
-        real(gtm_real), intent(inout) :: x_dist(n_out_cell)        !< distance from upstream node read from inp file
+        integer, intent(in) :: chan_num(:)                !< channel number
+        real(gtm_real), intent(inout) :: x_dist(:)        !< distance from upstream node read from inp file
         integer :: i, j, k, chan_no
 
         do i = 1, n_out_cell
@@ -768,33 +768,46 @@ module gtm_subs
         return
     end subroutine
 
+
+    !! Get an EC value at a given distance from a given channel number
+    !!
+    !! This function is exported to C as `chan_ec_val`.
+    !! FIXME This function assumes that there is only one variable in GTM as EC.
+    !! This will not work if there are more than one simulation variables.
     real*8 function chan_ec_val(chan_num, x_dist) bind(C, name="chan_ec_val")
-    use common_gtm_vars, only: output_ec_oprule
-    use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
-    use state_variables, only: conc
-    implicit none
-    integer, intent(in) :: chan_num
-    real*8, intent(inout) :: x_dist
-    integer :: num_out_cell
-    integer :: chan_num_copy(1)
-    real*8 :: x_dist_copy(1)
+        use common_gtm_vars, only: output_ec_t
+        use gtm_vars, only: n_chan, n_segm, chan_geom, segm, cell
+        use state_variables, only: conc
 
-    num_out_cell=1
-    chan_num_copy(1) = chan_num
-    x_dist_copy(1) = x_dist
+        implicit none
+        ! Arguments
+        integer, intent(in) :: chan_num
+            !! Channel index
+        real*8, intent(inout) :: x_dist
+            !! Distance from the upstream end of the channel
 
-    call get_select_cell_with_x(output_ec_oprule(:)%out_chan_cell,  &
-                                output_ec_oprule(:)%x_from_lo_face, &
-                                output_ec_oprule(:)%calc_option,    &
-                                num_out_cell, chan_num_copy, x_dist_copy)
-    chan_ec_val = 0.0
-    call get_output_channel_vals_continue(chan_ec_val,                         &
-                                          output_ec_oprule(1)%x_from_lo_face,  &
-                                          output_ec_oprule(1)%calc_option,     &
-                                          output_ec_oprule(1)%out_chan_cell,   &
-                                          output_ec_oprule(1)%i_var)
-    return
-end function
+        ! Local variables
+        integer :: num_out_cell
+        integer :: chan_num_copy(1)
+        real*8 :: x_dist_copy(1)
+        type(output_ec_t) :: output_ec(1)
+
+        num_out_cell=1
+        chan_num_copy(1) = chan_num
+        x_dist_copy(1) = x_dist
+
+        call get_select_cell_with_x(output_ec(:)%out_chan_cell,  &
+                                    output_ec(:)%x_from_lo_face, &
+                                    output_ec(:)%calc_option,    &
+                                    num_out_cell, chan_num_copy, x_dist_copy)
+        chan_ec_val = 0.0
+        call get_output_channel_vals_continue(chan_ec_val,                         &
+                                            output_ec(1)%x_from_lo_face,  &
+                                            output_ec(1)%calc_option,     &
+                                            output_ec(1)%out_chan_cell,   &
+                                            output_ec(1)%i_var)
+        return
+    end function
 
 
 end module

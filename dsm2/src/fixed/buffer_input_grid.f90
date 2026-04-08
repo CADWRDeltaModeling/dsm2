@@ -137,7 +137,6 @@ subroutine buffer_input_grid() !process_text_grid_input()
                                       width, &
                                       wet_perim, &
                                       ierror)
-
          call process_xsect_layer_full(chan_no, &
                                       dist, &
                                       elev, &

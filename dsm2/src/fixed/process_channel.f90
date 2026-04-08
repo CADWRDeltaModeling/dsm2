@@ -138,10 +138,12 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     use io_units
     use common_xsect
     implicit none
-    integer :: xsectno
+    integer :: xsectno !> index of cross section in irreg_geom
     integer :: nl
-    real*8 ::  elev, area, width, wetperim
-    real*8 :: prev_area, prev_width, prev_elev, calc_area
+    real*8 ::  elev, area, width, wetperim !> values are from XSECT_LAYER in the channel grid.inp file
+    real*8 :: prev_area, prev_width, prev_elev, prev_z_centroid, calc_area
+    real*8 :: area_rect, centroid_z_rect, area_tria, centroid_z_tria
+    real*8 :: centroid_z
     real*8, parameter :: VERT_RESOLUTION = 0.001
     real*8, parameter :: AREA_PRECISION = 0.0001
 
@@ -159,10 +161,15 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
     irreg_geom(xsectno) .width(nl) = width
 !-----------adjust area to make sure:
 !-----------upper layer area=lower layer area+trapezoidal area between them
+    if (nl .eq. 1) then
+        centroid_z = elev
+    end if
+
     if (nl .gt. 1) then
         prev_area = irreg_geom(xsectno) .area(nl - 1)
         prev_width = irreg_geom(xsectno) .width(nl - 1)
         prev_elev = irreg_geom(xsectno) .elevation(nl - 1)
+        prev_z_centroid = irreg_geom(xsectno) .z_centroid(nl - 1)
         if (area .lt. prev_area) then
             write (unit_error, '(a,i5)') &
                 "Channel areas decreasing with elevation in channel ", &
@@ -190,9 +197,13 @@ module subroutine process_xsect_layer(xsectno, elev, area, width, wetperim)
             end if
             area = calc_area
         end if
+        call calc_layer_centroid(prev_z_centroid, elev, prev_elev, width, prev_width, prev_area, centroid_z)
+
     end if
+
     irreg_geom(xsectno) .area(nl) = area
     irreg_geom(xsectno) .wet_p(nl) = wetperim
+    irreg_geom(xsectno) .z_centroid(nl) = centroid_z
     if (wetperim .ne. 0.0d0) then
         irreg_geom(xsectno) .h_radius(nl) = area/wetperim
     else

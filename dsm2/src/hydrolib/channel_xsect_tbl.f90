@@ -430,7 +430,6 @@ contains
     !=======================================================================
 
     real*8 function CxCentroid(X, H)
-        use IO_Units
         use common_xsect, disabled => Small !@# Small declared below.
         implicit none
 
@@ -445,7 +444,7 @@ contains
 
         !   Argument definitions:
         !     X - downstream distance.
-        !     H - distance above lowest point in cross section.
+        !     H - distance above lowest point in cross section. not depth but water surface elevation
 
 
         !   Local variables:
@@ -465,11 +464,9 @@ contains
             ,trap_top_width &     ! top width of trapezoid &
             ,trap_bot_width &     ! bottom width of trapezoid &
             ,Aprev &              ! area of lower layer &
-            ,Arect &              ! area of rectangular region &
-            ,Atria &              ! area of triangular region &
             ,Cprev &              ! Z centroid of lower layer &
-            ,Crect &              ! Z centroid of rectangular region &
-            ,Ctria               ! Z centroid of triangular region
+            ,Centroid             ! centroid of the cross section at elevation H
+
 
         !   Intrinsics:
 
@@ -482,8 +479,6 @@ contains
         !-----Implementation -----------------------------------------------------
 
         !----statement function to calculate indices of virtual data arrays
-        dindex(Branch,vsecno,virtelev) &
-            =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 
         call find_layer_index( &
             X &
@@ -494,10 +489,11 @@ contains
             ,veindex &
             )
 
-        di=dindex(branch,vsecno,virtelev)
-        trap_height=  H -virt_elevation(veindex)
+        di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
+        trap_height= H -virt_elevation(veindex)
         trap_top_width = ChannelWidth(X,H)
         trap_bot_width = virt_width(di)
+        Cprev = virt_z_centroid(di-1)
 
         if (virtelev == 1) then
             Aprev = 0.0
@@ -505,24 +501,9 @@ contains
             Aprev = virt_area(di-1)
         endif
 
-        Arect = min(trap_top_width,trap_bot_width ) * trap_height
-        Atria = abs( 0.5 * (trap_top_width-trap_bot_width)*trap_height)
-        Cprev = virt_z_centroid(di-1)
-        Crect = virt_elevation(veindex) + trap_height/2
-        if ( trap_top_width > trap_bot_width) then
-            Ctria = virt_elevation(veindex) + (2/3)*trap_height
-        elseif ( trap_top_width < trap_bot_width ) then
-            Ctria = virt_elevation(veindex) + (1/3)*trap_height
-        elseif ( trap_top_width == trap_bot_width ) then
-            Ctria = 0.0
-        endif
-        CxCentroid = H-( &
-            ((Aprev*Cprev) + (Arect*Crect) + (Atria*Ctria)) / (Aprev+Arect+Atria) &
-            )
+        call calc_layer_centroid(Cprev, H, virt_elevation(veindex), trap_top_width, trap_bot_width, Aprev, Centroid)
 
-        if (aprev+arect+atria== 0.0) then
-            write(unit_error,*) 'cxcentroid division by zero'
-        endif
+        CxCentroid = H-Centroid
 
         return
     end function
@@ -579,8 +560,6 @@ contains
         !   Version 93.01, January, 1993
 
         !----statement function to calculate indices of virtual data arrays
-        dindex(Branch,vsecno,virtelev) &
-            =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 
         call find_layer_index( &
             X &
@@ -591,14 +570,13 @@ contains
             ,veindex &
             )
 
-
-        di=dindex(branch,vsecno,virtelev)
+         di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
         x1=virt_elevation(veindex)
         x2=virt_elevation(veindex+1)
         y1=virt_z_centroid(di)
         y2=virt_z_centroid(di+1)
 
-        dCxCentroid = H- (y2-y1)/(x2-x1)
+        dCxCentroid = 1 - (y2-y1)/(x2-x1)
 
         if (x1==x2) then
             write(unit_error,*) 'dCxcentroid division by zero'
