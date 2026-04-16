@@ -39,6 +39,7 @@ module gtm_hdf_ts_write
         integer(HID_T) :: cell_conc_id
         integer(HID_T) :: chan_conc_id
         integer(HID_T) :: resv_conc_id
+        integer(HID_T) :: qext_conc_id
         integer(HID_T) :: chan_budget_id
         integer(HID_T) :: cell_flow_id
         integer(HID_T) :: cell_area_id
@@ -47,6 +48,7 @@ module gtm_hdf_ts_write
         integer(HSIZE_T) :: cell_dim
         integer(HSIZE_T) :: chan_dim
         integer(HSIZE_T) :: resv_dim
+        integer(HSIZE_T) :: qext_dim
         integer(HSIZE_T) :: time_dim
     end type
     type(gtm_hdf_t) :: gtm_hdf
@@ -64,6 +66,7 @@ module gtm_hdf_ts_write
                             ncell,             &
                             nchan,             &
                             nresv,             &
+                            nqext,             &
                             nconc,             &
                             sim_start,         &
                             sim_end,           &
@@ -80,6 +83,7 @@ module gtm_hdf_ts_write
         integer, intent(in) :: ncell                  !< number of cells
         integer, intent(in) :: nchan                  !< number of channels
         integer, intent(in) :: nresv                  !< number of reservoirs
+        integer, intent(in) :: nqext                  !< number of external flows
         integer, intent(in) :: nconc                  !< number of constituents
         integer, intent(in) :: sim_start              !< first write time
         integer, intent(in) :: sim_end                !< last write time
@@ -156,9 +160,10 @@ module gtm_hdf_ts_write
         hdf_file%conc_dim = nconc
         hdf_file%time_dim = ntime
 	    hdf_file%resv_dim = nresv
+        hdf_file%qext_dim = nqext
 	    hdf_file%time_index = 1
 
-	    call write_dimensions(hdf_file%data_id, nchan, nresv, nconc)
+	    call write_dimensions(hdf_file%data_id, nchan, nresv, nconc, nqext)
 
 	    ! create the data sets for time-varying output
 	    if (trim(hdf_out).eq.'channel') then
@@ -168,6 +173,9 @@ module gtm_hdf_ts_write
 	    endif
 	    if (hdf_file%resv_dim .gt. 0)then
 	        call init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
+	    end if
+	    if (hdf_file%qext_dim .gt. 0)then
+	        call init_qext_gtm_hdf5(hdf_file, nqext, nconc, ntime)
 	    end if
 	    ! for debug print only
 	    if (debug_print .eq. .true.) then
@@ -181,14 +189,15 @@ module gtm_hdf_ts_write
 
 
     !> Write out lookup information for cells, reservoirs, and constituents.
-    subroutine write_dimensions(loc_id, nchan, nresv, nconc)
+    subroutine write_dimensions(loc_id, nchan, nresv, nconc, nqext)
         use hdf5
-        use gtm_vars, only: chan_geom, resv_geom, constituents, hdf_out
+        use gtm_vars, only: chan_geom, resv_geom, constituents, hdf_out, qext
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
         integer, intent(in) :: nchan                       !< nbumber of channels
         integer, intent(in) :: nresv                       !< number of reservoirs
         integer, intent(in) :: nconc                       !< number of constituents
+        integer, intent(in) :: nqext                       !< number of external flows
         integer(HSIZE_T), dimension(1) :: in_dims != (/0/) ! Dataset dimensions
         integer(HID_T) :: in_dspace_id                     ! Dataspace identifier
         integer(HID_T) :: in_dset_id                       ! Dataspace identifier
@@ -240,6 +249,18 @@ module gtm_hdf_ts_write
             deallocate(names)
         end if
 
+       ! Write external flow names
+        if (nqext.gt.0) then
+           in_dims(1) = nqext
+           allocate(names(nqext))
+	        names = ' '
+	        do i = 1, nqext
+	            names(i) = qext(i)%name
+           end do
+	        call write_1D_string_array(loc_id,"external_flow_names",names,    &
+                                      name_len, nqext)
+           deallocate(names)
+       end if
         ! Write constituent names
         if (nconc.gt.0) then
   	        in_dims(1) = max(1,nconc)
@@ -608,6 +629,56 @@ module gtm_hdf_ts_write
         return
 	end subroutine
 
+	!> Initialize qual tide file for export flow time series
+	subroutine init_qext_gtm_hdf5(hdf_file, nqext, nconc, ntime)
+	    use hdf5
+        implicit none
+        type(gtm_hdf_t), intent(inout) :: hdf_file
+        integer(HID_T) :: cparms          ! dataset creation property identifier
+        integer        :: error	          ! HDF5 Error flag
+        integer        :: res_rank = 3
+        integer(HSIZE_T), dimension(3) :: chunk_dims = 0 ! Dataset dimensions
+        integer        :: ntime           ! number of time points in tidefile
+        integer        :: nqext
+        integer        :: nconc
+        integer(HSIZE_T), dimension(3) :: file_dims  = 0 ! Data size on file
+	    integer(HID_T) :: fspace_id       ! File space identifier
+
+        !-------Create the datasets
+        res_rank = 3
+	    file_dims(1) = nqext
+        file_dims(2) = nconc
+	    file_dims(3) = ntime
+
+        chunk_dims(1) = nqext
+	    chunk_dims(2) = nconc
+	    chunk_dims(3) = min(TIME_CHUNK,ntime)
+
+		! Add chunking and compression
+	    call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+	    if (ntime .gt. MIN_STEPS_FOR_CHUNKING) then
+	        call h5pset_chunk_f(cparms, res_rank, chunk_dims, error)
+	        call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,           &
+                                HDF_SZIP_PIXELS_PER_BLOCK, error);
+        end if
+
+	    call h5screate_simple_f(res_rank,                       &
+                                file_dims,                      &
+                                fspace_id,                      &
+                                error)
+	    call h5dcreate_f(hdf_file%data_id,                      &
+                         "export flow concentration",             &
+                         H5T_NATIVE_DOUBLE,                     &
+                         fspace_id,                             &
+                         hdf_file%qext_conc_id,                 &
+                         error,                                 &
+                         cparms)
+        call add_timeseries_attributes(hdf_file%qext_conc_id,   &
+                                       hdf_file%start_julmin,   &
+                                       hdf_file%write_interval)
+
+        return
+	end subroutine
 
     !> Write flow/area time series data to Qual tidefile (dimension cell)
     subroutine write_gtm_hdf_ts(data_id,       &
@@ -949,6 +1020,66 @@ module gtm_hdf_ts_write
         return
     end subroutine
 
+    !> Write time series data for external flows
+    subroutine write_gtm_hdf_qext(hdf_file,      &
+                                  qext_conc,     &
+                                  nqext,         &
+                                  nconc,         &
+                                  time_index)
+        use hdf5
+        implicit none
+        type(gtm_hdf_t), intent(in) :: hdf_file                 !< hdf file structure
+        integer, intent(in) :: nqext                            !< number of external flows
+        integer, intent(in) :: nconc                            !< number of constituents
+        real(gtm_real), intent(in) :: qext_conc(nqext, nconc)   !< qext data from transport module
+        integer, intent(in) :: time_index                       !< time index to write the data
+        integer :: qext_rank
+        integer(HID_T) :: fspace_id
+        integer(HID_T) :: memspace_id
+        integer(HSIZE_T), dimension(2) :: mdata_dims  = 0       ! Dims of data in memory
+        integer(HSIZE_T), dimension(3) :: subset_dims  = 0      ! Dims of subset for time step
+        integer(HSIZE_T), dimension(3) :: h_offset = (/0,0,0/)
+        integer :: i, j
+        integer :: error                                        ! HDF5 Error flag
+        if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
+
+        if (nqext .ne. 0) then
+
+            !-----external flow conc
+            h_offset(1) = 0
+            h_offset(2) = 0
+	        h_offset(3) = time_index
+	        subset_dims(1) = nqext
+	        subset_dims(2) = nconc
+	        subset_dims(3) = 1
+	        mdata_dims(1) = nqext
+	        mdata_dims(2) = nconc
+	        qext_rank = 2
+            call H5Screate_simple_f(qext_rank,           &
+                                    mdata_dims,          &
+                                    memspace_id,         &
+                                    error);
+            call h5dget_space_f(hdf_file%qext_conc_id,   &
+                                fspace_id,               &
+                                error)
+            call h5sselect_hyperslab_f(fspace_id,        &
+                                       H5S_SELECT_SET_F, &
+                                       h_offset,         &
+                                       subset_dims,      &
+                                       error)
+            call h5dwrite_f(hdf_file%qext_conc_id,       &
+                            H5T_NATIVE_DOUBLE,           &
+                            qext_conc,                   &
+                            mdata_dims,                  &
+                            error,                       &
+                            memspace_id,                 &
+                            fspace_id)
+	        call verify_error(error,"External flow concentration write")
+            call h5sclose_f (fspace_id, error)
+            call h5sclose_f (memspace_id, error)
+        end if
+        return
+    end subroutine
 
     !> Close out the HDF5 file properly, leaves HDF5 API open
     subroutine close_gtm_hdf(hdf_file)
@@ -989,6 +1120,12 @@ module gtm_hdf_ts_write
 	        end if
 	    end if
 
+        if (hdf_file%qext_dim.gt.0) then
+	        call h5dclose_f(hdf_file%qext_conc_id,error)
+	        if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing export flow conc data set: ",error
+	        end if
+	    end if
         !-----Close the groups in the dataset. Only the data group should be open
         !     on an ongoing basis
         call h5gclose_f(hdf_file%data_id, error)
