@@ -388,6 +388,8 @@ module boundary_advection_network
                             flow_tmp = flow_tmp + qext_fl
                             if (qext_path_id /= 0) then
                                 conc_ext = pathinput(qext_path_id)%value
+                                ! save the concentration at drains.
+                                conc_qext(dsm2_network_extra(i)%qext_no(j),ivar) = conc_ext
                                 ! If the associated data is SSC,
                                 if (trim(pathinput(qext_path_id)%variable).eq.'ssc') then
                                     ! Loop through all the sediment classes
@@ -423,6 +425,13 @@ module boundary_advection_network
                 else
                     conc_tmp(ivar) = flux_in / flow_tmp
                 end if
+                ! Save concentration for seepage and diversions.
+                do j = 1, dsm2_network_extra(i)%n_qext
+                    qext_fl = qext_flow(dsm2_network_extra(i)%qext_no(j))
+                    if (qext_fl <= 0) then ! seepage or diversion
+                        conc_qext(dsm2_network_extra(i)%qext_no(j),ivar) = conc_tmp(ivar)
+                    end if
+                end do
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)

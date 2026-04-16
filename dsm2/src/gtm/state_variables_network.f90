@@ -44,6 +44,9 @@ module state_variables_network
     !> dimensions (nresv, nvar)
     real(gtm_real), save, allocatable :: conc_resv_prev(:,:)
 
+    !> Concentration in the current/new time step for external flows,
+    !> dimensions (nqext, nvar)
+    real(gtm_real), save, allocatable :: conc_qext(:,:)
     real(gtm_real), save, allocatable :: resv_height(:)
     real(gtm_real), save, allocatable :: resv_flow(:)
     real(gtm_real), save, allocatable :: qext_flow(:)
@@ -148,6 +151,7 @@ module state_variables_network
         allocate(conc_resv(a_nresv,a_nvar), stat = istat)
         allocate(conc_resv_prev(a_nresv,a_nvar), stat = istat)
 
+        allocate(conc_qext(a_nqext,a_nvar), stat = istat)
         allocate(node_conc(a_nnode,a_nvar), stat = istat)
         allocate(prev_node_conc(a_nnode,a_nvar), stat = istat)
         if (istat .ne. 0 )then
