@@ -289,6 +289,7 @@ subroutine gtm_prepare_loop()
                           n_cell,               &
                           n_chan,               &
                           n_resv,               &
+                          n_qext,               &
                           n_var,                &
                           int(gtm_start_jmin),  &
                           int(gtm_end_jmin),    &
@@ -349,6 +350,7 @@ subroutine gtm_prepare_loop()
     budget_prev_conc = init_c
     conc_resv = init_r
     conc_resv_prev = init_r
+    conc_qext = -999.0  ! only diversions will have concentrations computed. Others (drain, seep) will be ignored.
     prev_conc_stip = zero
     mass_prev = zero
 
@@ -765,6 +767,13 @@ subroutine gtm_loop()
                 call write_gtm_hdf_resv(gtm_hdf,               &
                                         conc_resv,             &
                                         n_resv,                &
+                                        n_var,                 &
+                                        time_index_in_gtm_hdf)
+            end if
+            if (n_qext .gt. 0) then
+                call write_gtm_hdf_qext(gtm_hdf,               &
+                                        conc_qext,             &
+                                        n_qext,                &
                                         n_var,                 &
                                         time_index_in_gtm_hdf)
             end if

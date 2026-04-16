@@ -388,6 +388,8 @@ module boundary_advection_network
                             flow_tmp = flow_tmp + qext_fl
                             if (qext_path_id /= 0) then
                                 conc_ext = pathinput(qext_path_id)%value
+                                ! save the concentration at drains.
+                                conc_qext(dsm2_network_extra(i)%qext_no(j),ivar) = conc_ext
                                 ! If the associated data is SSC,
                                 if (trim(pathinput(qext_path_id)%variable).eq.'ssc') then
                                     ! Loop through all the sediment classes
