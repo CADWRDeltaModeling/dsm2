@@ -484,14 +484,15 @@ module boundary_advection_network
         use gtm_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts
         use common_gtm_vars, only: n_inputpaths, pathinput
-        use state_variables_network, only : node_conc, conc_stip
+        use state_variables_network, only : node_conc, conc_stip, qext_flow
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
         integer, intent(in)  :: tstp
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-        integer :: i, j, k, s, st, icell, inode
+        integer :: i, j, k, s, st, icell, inode, qext_id, sed_id
+        real(gtm_real) :: conc_ext(nvar)
 
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
@@ -533,13 +534,35 @@ module boundary_advection_network
             if (dsm2_network(i)%boundary_no > 0) then
                 icell = dsm2_network(i)%cell_no(1)
                 do j = 1, nvar
-                    if (dsm2_network(i)%up_down(1) .eq. 1 .and. node_conc(i,j).eq.LARGEREAL) then
-                        conc_stip(icell,j) = conc_hi(icell,j)
-                        node_conc(i,j) = conc_hi(icell,j) ! upstream boundary
-                    end if
-                    if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) then
-                        conc_stip(icell,j) = conc_lo(icell,j)
-                        node_conc(i,j) = conc_lo(icell,j) ! downstream boundary
+                    if (node_conc(i, j) == LARGEREAL) then
+                        if (dsm2_network_extra(i)%n_qext > 0) then
+                            do k = 1, dsm2_network_extra(i)%n_qext
+                                if (qext_flow(dsm2_network_extra(i)%qext_no(k)) > 0) then ! if it is a drain
+                                    qext_id = dsm2_network_extra(i)%qext_path(k,j)
+                                    if (qext_id /= 0) then
+                                        conc_ext(j) = pathinput(qext_id)%value
+                                        conc_stip(icell,j) = conc_ext(j)
+                                        node_conc(i,j) = conc_ext(j)
+                                        if (trim(pathinput(qext_id)%variable).eq.'ssc') then
+                                            do st = 1, n_sediment
+                                                sed_id = nvar - n_sediment + st
+                                                conc_ext(sed_id) = conc_ext(j) * sediment_bc(st)%percent * 0.01d0
+                                                conc_stip(icell, sed_id) = conc_ext(sed_id)
+                                                node_conc(i, sed_id) = conc_ext(sed_id)
+                                            end do
+                                        end if
+                                    end if
+                                end if
+                            end do
+                        else
+                            if (dsm2_network(i)%up_down(1) .eq. 1) then
+                                conc_stip(icell,j) = conc_hi(icell,j)
+                                node_conc(i,j) = conc_hi(icell,j) ! upstream boundary
+                            else
+                                conc_stip(icell,j) = conc_lo(icell,j)
+                                node_conc(i,j) = conc_lo(icell,j) ! downstream boundary
+                            end if
+                        end if
                     end if
                 end do
             end if
