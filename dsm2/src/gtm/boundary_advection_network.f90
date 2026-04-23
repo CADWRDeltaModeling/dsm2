@@ -329,10 +329,10 @@ module boundary_advection_network
                 ! Converging to the node.  --> o <--
                 if ((updown == 0) .and. (updown_next == 0)) then
                     if ((flow_hi(c1) < zero) .and. (flow_hi(c2) > zero)) then
-                        flux_hi(c1, ivar) = - conc_hi(c1, ivar) * flow_hi(c1)
+                        flux_hi(c1, ivar) = - conc_hi(c2, ivar) * flow_hi(c2)
                     end if
                     if ((flow_hi(c2) < zero) .and. (flow_hi(c1) > zero)) then
-                        flux_hi(c1, ivar) = - conc_hi(c2, ivar) * flow_hi(c2)
+                        flux_hi(c2, ivar) = - conc_hi(c1, ivar) * flow_hi(c1)
                     end if
                 ! Diverging from the node. <-- o -->
                 else if ((updown == 1) .and. (updown_next == 1)) then
@@ -355,7 +355,7 @@ module boundary_advection_network
                         flux_lo(down_cell, ivar) = conc_hi(up_cell, ivar) * flow_hi(up_cell)
                     end if
                     if ((flow_hi(up_cell) < zero) .and. (flow_lo(down_cell) < zero)) then
-                        flux_hi(up_cell, ivar) = conc_lo(up_cell, ivar) * flow_lo(up_cell)
+                        flux_hi(up_cell, ivar) = conc_lo(down_cell, ivar) * flow_lo(down_cell)
                     end if
                 end if
             end if
