@@ -629,7 +629,7 @@ module gtm_hdf_ts_write
         return
 	end subroutine
 
-	!> Initialize qual tide file for export flow time series
+	!> Initialize qual tide file for external flow time series
 	subroutine init_qext_gtm_hdf5(hdf_file, nqext, nconc, ntime)
 	    use hdf5
         implicit none
@@ -667,7 +667,7 @@ module gtm_hdf_ts_write
                                 fspace_id,                      &
                                 error)
 	    call h5dcreate_f(hdf_file%data_id,                      &
-                         "export flow concentration",             &
+                         "external flow concentration",         &
                          H5T_NATIVE_DOUBLE,                     &
                          fspace_id,                             &
                          hdf_file%qext_conc_id,                 &
@@ -1123,7 +1123,7 @@ module gtm_hdf_ts_write
         if (hdf_file%qext_dim.gt.0) then
 	        call h5dclose_f(hdf_file%qext_conc_id,error)
 	        if (error .ne. 0) then
-	            write(unit_error,*)"HDF5 error closing export flow conc data set: ",error
+	            write(unit_error,*)"HDF5 error closing external flow conc data set: ",error
 	        end if
 	    end if
         !-----Close the groups in the dataset. Only the data group should be open
