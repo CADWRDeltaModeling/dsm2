@@ -623,7 +623,7 @@ module boundary_advection_network
         integer :: receiving_nodes(n_tran),source_nodes(n_tran)
 
         ! identify nodes that are involved in transfer flows
-        ! TO DO: This needs to be moved to before time loop.
+        ! TO DO: This needs to be moved to program initialization, before time loop.
         if (n_tran > 0) then
             do j = 1, n_tran
                 receiving_nodes(j) = tran(j)%to_identifier_int
@@ -634,12 +634,10 @@ module boundary_advection_network
         ! compute concentration at all junctions except for nodes that reveive transfer flows
         do i = 1, n_node
             if (dsm2_network(i)%junction_no .gt. 0) then
-                if (any(receiving_nodes == i)) cycle ! skips if a node receives transfer flow.
-                if (flow_tmp(i) < 0.01) then
-                    conc_tmp(i,ivar) = zero
-                else
-                    conc_tmp(i,ivar) = flux_in(i) / flow_tmp(i)
-                end if
+                if (any(receiving_nodes == i)) cycle ! skips if the node receives transfer flow.
+                ! Note: the assumption is a node can only receive or send transfer flows.
+                if (flow_tmp(i) < 0.01) cycle ! skip for very small flow
+                conc_tmp(i,ivar) = flux_in(i) / flow_tmp(i)
             end if
         end do
 
@@ -651,11 +649,8 @@ module boundary_advection_network
             flow_tmp(receiving_node) = flow_tmp(receiving_node) + tran_flow(j)
             flux_in(receiving_node) = flux_in(receiving_node) + conc_tmp(source_node,ivar) * tran_flow(j)
 
-            if (flow_tmp(receiving_node) < 0.01) then
-                conc_tmp(receiving_node,ivar) = zero
-            else
-                conc_tmp(receiving_node,ivar) = flux_in(receiving_node) / flow_tmp(receiving_node)
-            end if
+            if (flow_tmp(receiving_node) < 0.01) cycle  ! skip for very small flow
+            conc_tmp(receiving_node,ivar) = flux_in(receiving_node) / flow_tmp(receiving_node)
         end do
 
         return
