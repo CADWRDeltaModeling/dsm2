@@ -621,23 +621,13 @@ module boundary_advection_network
 
         use constants
         use state_variables_network, only: tran_flow
-        use gtm_vars, only : n_node, dsm2_network, n_tran, tran
+        use gtm_vars, only : n_node, dsm2_network, n_tran, tran, receiving_nodes, source_nodes
         implicit none
         integer,intent(in)  :: nvar                             !< Number of variables
         integer,intent(in)  :: ivar                             !< variable index
         real(gtm_real) :: flow_tmp(n_node),flux_in(n_node)
         real(gtm_real) :: conc_tmp(n_node, nvar)
         integer :: i,j,receiving_node,source_node
-        integer :: receiving_nodes(n_tran),source_nodes(n_tran)
-
-        ! identify nodes that are involved in transfer flows
-        ! TO DO: This needs to be moved to program initialization, before time loop.
-        if (n_tran > 0) then
-            do j = 1, n_tran
-                receiving_nodes(j) = tran(j)%to_identifier_int
-                source_nodes(j) = tran(j)%from_identifier_int
-            end do
-        end if
 
         ! compute concentration at all junctions except for nodes that reveive transfer flows
         do i = 1, n_node

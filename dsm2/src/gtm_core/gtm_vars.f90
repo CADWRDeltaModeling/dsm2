@@ -67,6 +67,8 @@ module gtm_vars
      logical :: run_mercury = .false.                  !< run mercury module if true
      logical :: run_pdaf = .false.                     !< run mercury module if true
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
+     integer, allocatable :: receiving_nodes(:)        !< nodes receiving transfer flows
+     integer, allocatable :: source_nodes(:)           !< nodes sending transfer flows
 
      character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
      character*14 :: dss_out = 'exact'                  !< dss output type ('cell' or 'exact')
