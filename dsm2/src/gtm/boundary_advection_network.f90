@@ -196,7 +196,8 @@ module boundary_advection_network
         use gtm_vars, only: n_node, dsm2_network
         use common_gtm_vars, only: pathinput
         implicit none
-        integer,intent(in)  :: nvar, ivar
+        integer,intent(in)  :: nvar                                     !< Number of variables
+        integer,intent(in)  :: ivar                                     !< variable index
         real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                          !external flows        !<TODO: make array dimensions effective
         integer :: i, j, s, st
@@ -365,7 +366,8 @@ module boundary_advection_network
         real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
         real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-        real(gtm_real),intent(inout) :: flow_tmp(n_node), flux_in(n_node)
+        real(gtm_real),intent(inout) :: flow_tmp(n_node)        !< Temporary flow array to calculate junction concentration
+        real(gtm_real),intent(inout) :: flux_in(n_node)         !< Flux into the junctions
         integer :: i, j, icell
 
         do i = 1, n_node
@@ -396,7 +398,8 @@ module boundary_advection_network
         implicit none
         integer,intent(in)  :: nvar                             !< Number of variables
         integer,intent(in)  :: ivar                             !< variable index
-        real(gtm_real),intent(inout) :: flow_tmp(n_node), flux_in(n_node)
+        real(gtm_real),intent(inout) :: flow_tmp(n_node)        !< Temporary flow array to calculate junction concentration
+        real(gtm_real),intent(inout) :: flux_in(n_node)         !< Flux into the junctions
         real(gtm_real),intent(in) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                          !external flows        !<TODO: make array dimensions effective
         real(gtm_real) :: qext_fl
@@ -448,9 +451,10 @@ module boundary_advection_network
         integer,intent(in)  :: nvar                             !< Number of variables
         integer,intent(in)  :: ivar                             !< variable index
         real(gtm_real),intent(in)    :: dt                      !< Time step
-        real(gtm_real),intent(inout) :: flow_tmp(n_node), flux_in(n_node)
-        real(gtm_real),intent(inout) :: vol(n_resv)
-        real(gtm_real),intent(inout) :: mass_resv(n_resv,nvar)
+        real(gtm_real),intent(inout) :: flow_tmp(n_node)        !< Temporary flow array to calculate junction concentration
+        real(gtm_real),intent(inout) :: flux_in(n_node)         !< Flux into the junctions
+        real(gtm_real),intent(inout) :: vol(n_resv)             !< Volume of the reservoirs
+        real(gtm_real),intent(inout) :: mass_resv(n_resv,nvar)  !< Mass in the reservoirs
         integer :: i
         integer :: reservoir_id, resv_conn_id
 
@@ -479,7 +483,7 @@ module boundary_advection_network
         use state_variables_network, only : qext_flow, conc_qext
         use common_gtm_vars, only: pathinput
         implicit none
-        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)
+        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)  !< Concentration at each node
         integer,intent(in)  :: nvar                             !< Number of variables
         integer,intent(in)  :: ivar                             !< variable index
         real(gtm_real) :: conc_ext, qext_fl
@@ -519,10 +523,14 @@ module boundary_advection_network
         use gtm_vars, only : n_node, dsm2_network, dsm2_network_extra, n_qext
         use state_variables_network, only : conc_stip, prev_conc_stip
         implicit none
-        real(gtm_real),intent(inout) :: flux_lo(ncell,nvar), flux_hi(ncell,nvar)
-        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)
-        real(gtm_real),intent(in) :: flow_lo(ncell), flow_hi(ncell)
-        integer, intent(in) :: ncell, nvar, ivar
+        real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)             !< Flux on lo side of cell, time centered
+        real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)             !< Flux on hi side of cell, time centered
+        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)          !< Concentration at each node
+        real(gtm_real),intent(in) :: flow_lo(ncell)                     !< Flow on lo side of cells centered in time
+        real(gtm_real),intent(in) :: flow_hi(ncell)                     !< Flow on hi side of cells centered in time
+        integer, intent(in) :: ncell                                    !< Number of cells
+        integer, intent(in) :: nvar                                     !< Number of variables
+        integer, intent(in) :: ivar                                     !< variable index
         integer :: i, j, icell
         do i = 1, n_node
             if (dsm2_network(i)%junction_no .eq. 0) cycle
@@ -555,9 +563,9 @@ module boundary_advection_network
         integer,intent(in)  :: ivar                             !< variable index
         integer,intent(in)  :: use_previous_ts_val              !< whether to use previous time step values
         real(gtm_real),intent(in)    :: dt                      !< Time step
-        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)
-        real(gtm_real),intent(inout) :: vol(n_resv)
-        real(gtm_real),intent(inout) :: mass_resv(n_resv,nvar)
+        real(gtm_real),intent(inout) :: conc_tmp(n_node, nvar)  !< Concentration at each node
+        real(gtm_real),intent(inout) :: vol(n_resv)             !< Volume of the reservoirs
+        real(gtm_real),intent(inout) :: mass_resv(n_resv,nvar)  !< Mass in the reservoirs
         integer :: i,j
         integer :: reservoir_id, resv_conn_id
 
@@ -680,7 +688,7 @@ module boundary_advection_network
         !--- args
         integer,intent(in)  :: ncell                            !< Number of cells
         integer,intent(in)  :: nvar                             !< Number of variables
-        integer,intent(in)  :: tstp
+        integer,intent(in)  :: tstp                             !< Time step index
         real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
         real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
         real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
