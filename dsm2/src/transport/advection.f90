@@ -213,8 +213,7 @@ module advection
             call boundary_conc(conc_lo,              &
                                conc_hi,              &
                                ncell,                &
-                               nvar,                 &
-                               tstp)
+                               nvar)
         end if
         ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
         ! It doesn't include any node-based sources or reservoirs or the like.

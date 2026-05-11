@@ -764,8 +764,7 @@ module boundary_advection_network
     subroutine assign_boundary_concentration(conc_lo,  &
                                              conc_hi,  &
                                              ncell,    &
-                                             nvar,     &
-                                             tstp)
+                                             nvar)
         use constants
         use error_handling
         use gtm_vars, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
@@ -775,7 +774,6 @@ module boundary_advection_network
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
-        integer, intent(in)  :: tstp
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
         integer :: i, j, k, s, st, icell, inode, qext_id, sed_id
