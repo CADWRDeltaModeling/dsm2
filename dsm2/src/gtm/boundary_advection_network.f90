@@ -698,12 +698,13 @@ module boundary_advection_network
         real(gtm_real) :: mass_resv(n_resv,nvar)        
         integer :: i,ivar
 
-        ! initialize
-        flow_tmp(:) = zero
-        conc_tmp(:,:) = zero
-        flux_in(:) = zero
-
         do ivar = 1, nvar
+
+            ! initialize
+            conc_tmp(:,ivar) = zero
+            flow_tmp(:) = zero
+            flux_in(:) = zero
+
             if (.not. constituents(ivar)%simulate) cycle
 
             ! recalculate concentration for reservoirs
