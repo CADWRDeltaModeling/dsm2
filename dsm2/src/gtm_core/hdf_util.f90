@@ -620,7 +620,7 @@ contains
 
    !> Read transfer flow tables from hydro tidefile to fill in transfer flow
    subroutine read_tran_tbl()
-       use gtm_vars, only : n_tran, tran, allocate_tran_property
+       use gtm_vars, only : n_tran, tran, allocate_tran_property, receiving_nodes, source_nodes
        implicit none
        integer(HID_T) :: input_id                       ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier
@@ -632,7 +632,7 @@ contains
        integer(SIZE_T) :: typesize                      ! Size of the datatype
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: hdferr                                 ! Error flag
-       integer :: i                                     ! local variables
+       integer :: i,j                                     ! local variables
        character*32, allocatable :: to_obj(:), from_obj(:)     ! local variables
 
        call h5gopen_f(hydro_id, "input", input_id, hdferr)
@@ -643,6 +643,8 @@ contains
        if (n_tran > 0) then
            allocate(to_obj(n_tran))
            allocate(from_obj(n_tran))
+           allocate(receiving_nodes(n_tran))
+           allocate(source_nodes(n_tran))
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, hdferr)
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
            call h5tset_size_f(dt_id, typesize, hdferr)
@@ -685,8 +687,19 @@ contains
                if ((trim((to_obj(i)))) .eq. 'Reservoir') then !need to conver to upper case by using upcase()
                    tran(i)%to_obj = 3
                 end if
+                receiving_nodes(i) = tran(i)%to_identifier_int
+                source_nodes(i) = tran(i)%from_identifier_int
            end do
 
+           ! A node can only receive OR send transfer flow, but not both.
+           do i = 1, n_tran
+                do j = 1, n_tran
+                    if (receiving_nodes(i) == source_nodes(j)) then
+                        print *, "Error: Node ", receiving_nodes(i), " is both receiving and sending transfer flow. Please check transfer flow table in the input file."
+                        stop
+                    end if
+                end do
+            end do
            call h5tclose_f(dt5_id, hdferr)
            call h5tclose_f(dt4_id, hdferr)
            call h5tclose_f(dt3_id, hdferr)
