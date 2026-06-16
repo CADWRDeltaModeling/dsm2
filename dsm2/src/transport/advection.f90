@@ -66,7 +66,8 @@ module advection
                       constraint,           &
                       name,                 &
                       LL,                   &
-                      sed_percent)
+                      sed_percent,           &
+                      div_flux)
 
         use constants
         use primitive_variable_conversion
@@ -116,6 +117,7 @@ module advection
         real(gtm_real), intent(in) :: wet_p(ncell)
         real(gtm_real), intent(in) :: wet_p_prev(ncell)
         real(gtm_real), intent(in) :: constraint(ncell,nvar)
+        real(gtm_real), intent(out) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
         character(len=32), intent(in) :: name(nvar)
 
         !-----locals
@@ -131,7 +133,6 @@ module advection
         real(gtm_real) :: grad(ncell,nvar)         !< cell centered difference adujsted for boundaries and hydraulic devices
         real(gtm_real) :: flux_lo(ncell,nvar)      !< flux on lo side of cell, time centered
         real(gtm_real) :: flux_hi(ncell,nvar)      !< flux on hi side of cell, time centered
-        real(gtm_real) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
         real(gtm_real) :: mass_closure(ncell)
 !        real(gtm_real) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                  !external flows        !<TODO: make array dimensions effective
@@ -153,7 +154,10 @@ module advection
                        ncell,    &
                        nvar)
 
-        call advective_flux(flow,                 &
+        call advective_flux(mass,                 &
+                            mass_prev,            &
+                            conc_prev,            &
+                            flow,                 &
                             flow_prev,            &
                             flow_lo,              &
                             flow_hi,              &
@@ -206,7 +210,10 @@ module advection
          return
     end subroutine
 
-    subroutine advective_flux(flow,                 &
+    subroutine advective_flux(mass,                 &
+                              mass_prev,            &
+                              conc_prev,            &
+                              flow,                 &
                               flow_prev,            &
                               flow_lo,              &
                               flow_hi,              &
@@ -250,10 +257,13 @@ module advection
         integer, intent(in) :: ncell                         !< Number of cells
         integer, intent(in) :: nvar                          !< Number of variables
         integer, intent(in) :: LL                            !< Time step
+        real(gtm_real),intent(in)  :: conc_prev(ncell,nvar)
         real(gtm_real),intent(out)  :: source_prev(ncell,nvar)
         real(gtm_real),intent(out) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
         real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                  !external flows        !<TODO: make array dimensions effective
+        real(gtm_real),intent(in)  :: mass(ncell,nvar)            !< cell-centered mass at new time
+        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)       !< cell-centered mass at old time
         real(gtm_real),intent(in)  :: flow(ncell)            !< cell-centered flow at new time
         real(gtm_real),intent(in)  :: flow_prev(ncell)       !< cell-centered flow, old time
         real(gtm_real),intent(in)  :: flow_lo(ncell)         !< flow on lo side of cells centered in time
@@ -279,7 +289,6 @@ module advection
 
         !-----locals
         real(gtm_real) :: diffuse_prev(ncell,nvar) !< cell centered diffuse at old time
-        real(gtm_real) :: conc_prev(ncell,nvar)    !< cell centered concentration at old time
         real(gtm_real) :: conc_lo(ncell,nvar)      !< concentration extrapolated to lo face at half time
         real(gtm_real) :: conc_hi(ncell,nvar)      !< concentration extrapolated to hi face at half time
         real(gtm_real) :: grad_lo(ncell,nvar)      !< gradient based on lo side difference

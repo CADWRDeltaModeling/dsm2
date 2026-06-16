@@ -48,6 +48,7 @@ module dsm2gtm
     use gradient_adjust
     use advection
     use diffusion
+    use mass_balance
     use dispersion_coefficient
     use source_sink
     use boundary_advection
@@ -86,6 +87,9 @@ module dsm2gtm
     real(gtm_real), allocatable :: mass_closure(:)
     ! real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion
+    real(gtm_real), allocatable :: advective_div_flux(:,:)
+    real(gtm_real), allocatable :: calc_diffusive_div_flux(:,:) !< calculated net diffusive flux using mass change and advective flux
+    real(gtm_real), allocatable, target :: calc_diffusive_div_flux_ts(:) !< calculated net diffusive flux time series of the 1st water quality constituent
     real(gtm_real), allocatable :: sed_percent(:,:,:)!<percentages of compositions at boundaries  & 10 is the maximum number of
                                                                                  !external flows        !<TODO: make array dimensions effective
     ! local variables to obtain time series data from HDF5 file
@@ -256,9 +260,14 @@ subroutine gtm_prepare_loop()
     allocate(explicit_diffuse_op(n_cell,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))
+    allocate(advective_div_flux(n_cell,n_var))
+    allocate(calc_diffusive_div_flux_ts(n_cell))
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    allocate(calc_diffusive_div_flux(n_cell,n_var))
     allocate(mass_closure(n_cell))
+
+    calc_diffusive_div_flux_ts = zero
 
     write(*,*) "You need to have ",n_cell," number of cells in initial file."
 
@@ -612,7 +621,8 @@ subroutine gtm_loop()
                         constraint,                   &
                         constituents(:)%use_module,   &
                         LL,                           &
-                        sed_percent)
+                        sed_percent,                  &
+                        advective_div_flux)
             if (nonnegative) then
                 where (mass.lt.zero) mass = zero
             end if
@@ -668,6 +678,18 @@ subroutine gtm_loop()
             call prim2cons(mass,conc,area,n_cell,n_var)
         end if
 
+        call expected_net_diffusive_flux(mass,                        &
+                                        mass_prev,                    &
+                                        conc,                         &
+                                        conc_prev,                    &
+                                        area,                         &
+                                        area_prev,                    &
+                                        n_cell,                       &
+                                        n_var,                        &
+                                        advective_div_flux,           &
+                                        calc_diffusive_div_flux )
+        calc_diffusive_div_flux_ts = calc_diffusive_div_flux(:,1)
+
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -688,7 +710,7 @@ subroutine gtm_loop()
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip
             node_conc = LARGEREAL
-        end do ! end of loop of sub time step
+    end do ! end of loop of sub time step
         ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
         if (run_pdaf) then
             if (current_time .eq. gtm_start_jmin) then
@@ -789,6 +811,10 @@ subroutine gtm_loop()
                 call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
                                       cfl,                     &
                                       n_cell,                  &
+                                      time_index_in_gtm_hdf)
+                call write_gtm_hdf_ts(gtm_hdf%calc_net_diffusive_flux_id,    &
+                                      calc_diffusive_div_flux_ts,          &
+                                      n_cell,                                &
                                       time_index_in_gtm_hdf)
             end if
         end if
