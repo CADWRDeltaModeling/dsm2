@@ -44,6 +44,7 @@ module gtm_hdf_ts_write
         integer(HID_T) :: cell_flow_id
         integer(HID_T) :: cell_area_id
         integer(HID_T) :: cell_cfl_id
+        integer(HID_T) :: calc_net_diffusive_flux_id
         integer(HSIZE_T) :: conc_dim
         integer(HSIZE_T) :: cell_dim
         integer(HSIZE_T) :: chan_dim
@@ -299,6 +300,7 @@ module gtm_hdf_ts_write
 	    integer(HID_T) :: fspace_flow_id                  ! File space identifier
 	    integer(HID_T) :: fspace_area_id                  ! File space identifier
 	    integer(HID_T) :: fspace_cfl_id                   ! File space identifier
+        integer(HID_T) :: fspace_calc_net_diffusive_flux_id                   ! File space identifier
 
 	    integer(HID_T) :: cparms                          ! dataset creatation property identifier
 	    integer        :: error                           ! HDF5 Error flag
@@ -374,6 +376,22 @@ module gtm_hdf_ts_write
                          cparms)
 	    call verify_error(error,"Cell CFL dataset creation")
         call add_timeseries_attributes(hdf_file%cell_cfl_id,    &
+                                       hdf_file%start_julmin,   &
+                                       hdf_file%write_interval)
+        ! initialize table for cell net diffusive flux
+	    call h5screate_simple_f(cell_rank,              &
+                                cell_file_dims,         &
+                                fspace_calc_net_diffusive_flux_id,          &
+                                error)
+	    call h5dcreate_f(hdf_file%data_id,              &
+                         "cell net diffusive flux",                    &
+                         H5T_NATIVE_DOUBLE,             &
+                         fspace_calc_net_diffusive_flux_id,                 &
+                         hdf_file%calc_net_diffusive_flux_id,          &
+                         error,                         &
+                         cparms)
+	    call verify_error(error,"Cell net diffusive flux dataset creation")
+        call add_timeseries_attributes(hdf_file%calc_net_diffusive_flux_id,    &
                                        hdf_file%start_julmin,   &
                                        hdf_file%write_interval)
 	    return
