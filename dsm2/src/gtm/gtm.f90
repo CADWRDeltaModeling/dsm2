@@ -88,6 +88,7 @@ module dsm2gtm
     ! real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion
     real(gtm_real), allocatable :: advective_div_flux(:,:)
+    real(gtm_real), allocatable :: advective_div_flux_ts(:) !< time series of advective flux
     real(gtm_real), allocatable :: calc_diffusive_div_flux(:,:) !< calculated net diffusive flux using mass change and advective flux
     real(gtm_real), allocatable, target :: calc_diffusive_div_flux_ts(:) !< calculated net diffusive flux time series of the 1st water quality constituent
     real(gtm_real), allocatable :: sed_percent(:,:,:)!<percentages of compositions at boundaries  & 10 is the maximum number of
@@ -261,6 +262,7 @@ subroutine gtm_prepare_loop()
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))
     allocate(advective_div_flux(n_cell,n_var))
+    allocate(advective_div_flux_ts(n_cell))
     allocate(calc_diffusive_div_flux_ts(n_cell))
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
@@ -686,8 +688,11 @@ subroutine gtm_loop()
                                         area_prev,                    &
                                         n_cell,                       &
                                         n_var,                        &
+                                        sub_gtm_time_step*sixty,      &
+                                        dx_arr,                       &
                                         advective_div_flux,           &
                                         calc_diffusive_div_flux )
+        advective_div_flux_ts = advective_div_flux(:,1)
         calc_diffusive_div_flux_ts = calc_diffusive_div_flux(:,1)
 
             mass_prev = mass
@@ -814,6 +819,10 @@ subroutine gtm_loop()
                                       time_index_in_gtm_hdf)
                 call write_gtm_hdf_ts(gtm_hdf%calc_net_diffusive_flux_id,    &
                                       calc_diffusive_div_flux_ts,          &
+                                      n_cell,                                &
+                                      time_index_in_gtm_hdf)
+                call write_gtm_hdf_ts(gtm_hdf%net_advective_flux_id,    &
+                                      advective_div_flux_ts,          &
                                       n_cell,                                &
                                       time_index_in_gtm_hdf)
             end if
