@@ -29,12 +29,10 @@ module mass_balance
 
     subroutine expected_net_diffusive_flux(mass,                 &
                                            mass_prev,            &
-                                           conc,                 &
-                                           conc_prev,            &
-                                           area,                  &
-                                           area_prev,             &
-                                           ncell,               &
-                                           nvar,                &
+                                           ncell,                &
+                                           nvar,                 &
+                                           dt,                   &
+                                           dx,                   &
                                            advective_div_flux,   &
                                            calc_net_diffusive_flux)
 
@@ -54,58 +52,23 @@ module mass_balance
 
         !--- args
         real(gtm_real),intent(out) :: calc_net_diffusive_flux(ncell,nvar)       !< net diffusive flux at new time
-        real(gtm_real),intent(in)  :: area(ncell)                  !< cell-centered area at new time
-        real(gtm_real),intent(in)  :: area_prev(ncell)             !< cell-centered area at old time
-        real(gtm_real),intent(in)  :: conc(ncell,nvar)            !< concentration at current time
-        real(gtm_real),intent(in)  :: conc_prev(ncell,nvar)       !< concentration at previous time
         integer, intent(in) :: ncell                         !< Number of cells
         integer, intent(in) :: nvar                          !< Number of variables
         real(gtm_real),intent(in)  :: mass(ncell,nvar)       !< mass at new time
         real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
         real(gtm_real),intent(in)  :: advective_div_flux(ncell,nvar)  !< advective flux divergence
+        real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
+        real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
         !-----locals
-        real(gtm_real):: calc_div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
         real(gtm_real):: mass_change(ncell,nvar)  !< actual mass change calculated from conc*area change between new and old time step
-        real(gtm_real):: source_prev(ncell,nvar)  !< source term at previous time step
-        real(gtm_real):: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of
-                                                                                 !external flows        !<TODO: make array dimensions effective
-        
-        
         integer :: icell, ivar
 
-        call actual_mass_change(area, area_prev, conc, conc_prev, mass_change, ncell, nvar)
+        mass_change = mass(:,:) - mass_prev(:,:)
         do icell = 1,ncell
             do ivar = 1,nvar
-                calc_net_diffusive_flux(icell,ivar) = mass_change(icell,ivar) - advective_div_flux(icell,ivar)
+                calc_net_diffusive_flux(icell,ivar) = - mass_change(icell,ivar)/(dt/dx(icell)) - advective_div_flux(icell,ivar)
             end do
         end do
-        return
-    end subroutine
-
-
-    subroutine actual_mass_change(area, area_prev, conc, conc_prev, mass_change, ncell, nvar)
-        use constants
-        use IO_Units
-        implicit none
-        !--- args
-        integer, intent(in) :: ncell                         !< Number of cells
-        integer, intent(in) :: nvar                          !< Number of variables
-        real(gtm_real),intent(in)  :: area(ncell)           !< cell-centered area at new time
-        real(gtm_real),intent(in)  :: area_prev(ncell)      !< cell-centered area at old time
-        real(gtm_real),intent(in)  :: conc(ncell,nvar)       !< concentration at new time
-        real(gtm_real),intent(in)  :: conc_prev(ncell,nvar)  !< concentration at old time
-        real(gtm_real),intent(out) :: mass_change(ncell,nvar) !< actual mass change
-
-        !----- locals
-        integer :: ivar, icell
-
-        !--------------------
-        do icell = 1,ncell
-            do ivar = 1,nvar
-                mass_change(icell,ivar) = area(icell)*conc(icell,ivar) - area_prev(icell)*conc_prev(icell,ivar)
-            end do
-        end do
-
         return
     end subroutine
 

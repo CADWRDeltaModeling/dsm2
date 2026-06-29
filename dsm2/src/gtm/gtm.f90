@@ -682,10 +682,6 @@ subroutine gtm_loop()
 
         call expected_net_diffusive_flux(mass,                        &
                                         mass_prev,                    &
-                                        conc,                         &
-                                        conc_prev,                    &
-                                        area,                         &
-                                        area_prev,                    &
                                         n_cell,                       &
                                         n_var,                        &
                                         sub_gtm_time_step*sixty,      &
