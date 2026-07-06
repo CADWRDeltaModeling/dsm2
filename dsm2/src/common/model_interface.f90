@@ -614,16 +614,17 @@ integer function qext_index(name, len) bind(C, name="qext_index")
     end do
 end function
 
-integer function transfer_index(name) bind(C, name="transfer_index")
+integer function transfer_index(name, len) bind(C, name="transfer_index")
     use constants
     use grid_data
     implicit none
 
-    character*(*) name
+    character(kind=c_char), dimension(*) :: name
+    integer(kind=c_size_t), value :: len
     integer i
     transfer_index = miss_val_i
     do i = 1, nobj2obj
-        if (obj2obj(i)%name .eq. name) then
+        if (obj2obj(i)%name .eq. cstring_to_fstring(name, len)) then
             transfer_index = i
             return
         end if
