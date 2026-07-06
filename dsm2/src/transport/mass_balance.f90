@@ -34,6 +34,7 @@ module mass_balance
                                            dt,                   &
                                            dx,                   &
                                            advective_div_flux,   &
+                                           mass_adv_adjust,      &
                                            calc_net_diffusive_flux)
 
         use constants
@@ -59,6 +60,7 @@ module mass_balance
         real(gtm_real),intent(in)  :: advective_div_flux(ncell,nvar)  !< advective flux divergence
         real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
+        real(gtm_real),intent(in)  :: mass_adv_adjust(ncell,nvar)  !< mass adjustment at the end of the advection step
         !-----locals
         real(gtm_real):: mass_change(ncell,nvar)  !< actual mass change calculated from conc*area change between new and old time step
         integer :: icell, ivar
@@ -66,7 +68,7 @@ module mass_balance
         mass_change = mass(:,:) - mass_prev(:,:)
         do icell = 1,ncell
             do ivar = 1,nvar
-                calc_net_diffusive_flux(icell,ivar) = - mass_change(icell,ivar)/(dt/dx(icell)) - advective_div_flux(icell,ivar)
+                calc_net_diffusive_flux(icell,ivar) = - mass_change(icell,ivar)/(dt/dx(icell)) - advective_div_flux(icell,ivar) + mass_adv_adjust(icell,ivar)
             end do
         end do
         return
