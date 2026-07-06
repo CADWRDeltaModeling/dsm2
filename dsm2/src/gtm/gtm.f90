@@ -638,7 +638,9 @@ subroutine gtm_loop()
             !    call cons2prim(conc, mass, area, n_cell, n_var)
             !elseif:
             call cons2prim(conc, mass, area-mass_closure, n_cell, n_var)  ! calculate conc based on the corrected mass.
+            mass_before_adjust = mass(:,:)
             call prim2cons(mass, conc, area, n_cell, n_var)               ! recalculate the mass based on the original area and the new conc: this mass imblance is caused by hydro and sub time step.
+            mass_adjust_advet = mass - mass_before_adjust
             !endif
 
         !--------- Diffusion ----------
@@ -687,6 +689,7 @@ subroutine gtm_loop()
                                         sub_gtm_time_step*sixty,      &
                                         dx_arr,                       &
                                         advective_div_flux,           &
+                                        mass_adjust_advet,            &
                                         calc_diffusive_div_flux )
         advective_div_flux_ts = advective_div_flux(:,1)
         calc_diffusive_div_flux_ts = calc_diffusive_div_flux(:,1)

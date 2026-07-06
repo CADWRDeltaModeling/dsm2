@@ -29,6 +29,12 @@ module state_variables
     !> Mass of constituent in the current/new time step,
     !> dimensions (ncell, nvar)
     real(gtm_real), save, allocatable :: mass(:,:)
+    !> Mass of constituent before the mass adjustment at the end of the advection step,
+    !> dimensions (ncell, nvar)
+    real(gtm_real), save, allocatable :: mass_before_adjust(:,:)
+    !> Change in mass adjust at the end of the advection step
+    !> dimensions (ncell, nvar)
+    real(gtm_real), save, allocatable :: mass_adjust_advet(:,:)
 
     !> Mass of constituent in the previous time step,
     !> dimensions (ncell, nvar)
