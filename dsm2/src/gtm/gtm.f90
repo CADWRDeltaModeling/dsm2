@@ -476,7 +476,7 @@ subroutine gtm_loop()
         if ((max_cfl .gt. one).and.(sub_time_step)) then
             if (ceil_max_cfl .gt. max_num_sub_ts) then
                 ceil_max_cfl = max_num_sub_ts
-                write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
+                write(*,*) "exceed max number of sub timestep. consider to increase the cell size."
             end if
             sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
             call deallocate_network_tmp
