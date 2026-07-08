@@ -68,7 +68,7 @@ module mass_balance
         mass_change = mass(:,:) - mass_prev(:,:)
         do icell = 1,ncell
             do ivar = 1,nvar
-                calc_net_diffusive_flux(icell,ivar) = - mass_change(icell,ivar)/(dt/dx(icell)) - advective_div_flux(icell,ivar) + mass_adv_adjust(icell,ivar)
+                calc_net_diffusive_flux(icell,ivar) = - mass_change(icell,ivar)/(dt/dx(icell)) - advective_div_flux(icell,ivar) + mass_adv_adjust(icell,ivar)/(dt/dx(icell))
             end do
         end do
         return
