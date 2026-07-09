@@ -42,6 +42,7 @@ module gtm_hdf_ts_write
         integer(HID_T) :: qext_conc_id
         integer(HID_T) :: chan_budget_id
         integer(HID_T) :: cell_flow_id
+        integer(HID_T) :: sub_ts_id
         integer(HID_T) :: cell_area_id
         integer(HID_T) :: cell_cfl_id
         integer(HID_T) :: net_advective_flux_id
@@ -181,6 +182,7 @@ module gtm_hdf_ts_write
 	    end if
 	    ! for debug print only
 	    if (debug_print .eq. .true.) then
+            call init_sub_ts_gtm_hdf5(hdf_file, ntime)
 	        call init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)
 	    end if
 
@@ -766,12 +768,60 @@ module gtm_hdf_ts_write
                             error,                       &
                             memspace_id,                 &
                             fspace_id)
-	        call verify_error(error,"Cell time series write (write_gtm_hdf_ts)")
+            call verify_error(error,"Cell time series write (write_gtm_hdf_ts)")
             call h5sclose_f (fspace_id, error)
             call h5sclose_f (memspace_id, error)
         end if
         return
     end subroutine
+
+    !> Initialize qual tide file for sub-timestep cycle time series
+	subroutine init_sub_ts_gtm_hdf5(hdf_file, ntime)
+	    use hdf5
+        implicit none
+        type(gtm_hdf_t), intent(inout) :: hdf_file
+        integer(HID_T) :: cparms          ! dataset creation property identifier
+        integer        :: error	          ! HDF5 Error flag
+        integer        :: res_rank = 1
+        integer(HSIZE_T), dimension(1) :: chunk_dims = 0 ! Dataset dimensions
+        integer        :: ntime           ! number of time points in tidefile
+        integer        :: nqext
+        integer        :: nconc
+        integer(HSIZE_T), dimension(1) :: file_dims  = 0 ! Data size on file
+	    integer(HID_T) :: fspace_id       ! File space identifier
+
+        !-------Create the datasets
+        res_rank = 1
+	    file_dims(1) = ntime
+
+	    chunk_dims(1) = min(TIME_CHUNK,ntime)
+
+		! Add chunking and compression
+	    call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+	    if (ntime .gt. MIN_STEPS_FOR_CHUNKING) then
+	        call h5pset_chunk_f(cparms, res_rank, chunk_dims, error)
+	        call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,           &
+                                HDF_SZIP_PIXELS_PER_BLOCK, error);
+        end if
+
+	    call h5screate_simple_f(res_rank,                       &
+                                file_dims,                      &
+                                fspace_id,                      &
+                                error)
+	    call h5dcreate_f(hdf_file%data_id,                      &
+                         "number of sub-timesteps",         &
+                         H5T_NATIVE_INTEGER,                     &
+                         fspace_id,                             &
+                         hdf_file%sub_ts_id,                 &
+                         error,                                 &
+                         cparms)
+        call add_timeseries_attributes(hdf_file%sub_ts_id,   &
+                                       hdf_file%start_julmin,   &
+                                       hdf_file%write_interval)
+
+        return
+	end subroutine
+
 
 
     !> Write time series data to Qual tidefile (dimension cell)
@@ -1221,6 +1271,36 @@ module gtm_hdf_ts_write
 
         return
 	end subroutine
+
+
+   !> Write one integer value at a given time index into a pre-allocated 1D integer dataset
+    subroutine write_gtm_hdf_ts_int(dset_id, val, time_index)
+        use hdf5
+        implicit none
+        integer(HID_T), intent(in) :: dset_id    !< pre-allocated dataset identifier
+        integer, intent(in) :: val               !< integer value to write
+        integer, intent(in) :: time_index        !< 0-based time index
+        integer :: rank
+        integer(HID_T) :: fspace_id
+        integer(HID_T) :: memspace_id
+        integer(HSIZE_T), dimension(1) :: mdata_dims
+        integer(HSIZE_T), dimension(1) :: subset_dims
+        integer(HSIZE_T), dimension(1) :: h_offset
+        integer :: error
+
+        h_offset(1) = time_index
+        subset_dims(1) = 1
+        mdata_dims(1) = 1
+        rank = 1
+        call h5screate_simple_f(rank, mdata_dims, memspace_id, error)
+        call h5dget_space_f(dset_id, fspace_id, error)
+        call h5sselect_hyperslab_f(fspace_id, H5S_SELECT_SET_F, h_offset, subset_dims, error)
+        call h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, val, mdata_dims, error, memspace_id, fspace_id)
+        call verify_error(error, "sub-timestep integer time series write")
+        call h5sclose_f(fspace_id, error)
+        call h5sclose_f(memspace_id, error)
+        return
+    end subroutine
 
 
     !> add time series attributes to tidefile

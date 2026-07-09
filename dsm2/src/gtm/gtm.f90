@@ -506,7 +506,6 @@ subroutine gtm_loop()
         sub_st = 1
         sub_gtm_time_step = gtm_time_interval
     end if
-
     do st = 1, sub_st
         t_index = int(t_in_slice/sub_gtm_time_step) + st
         new_current_time = current_time + dble(st-1)*sub_gtm_time_step
@@ -804,6 +803,7 @@ subroutine gtm_loop()
                                         time_index_in_gtm_hdf)
             end if
             if (debug_print==.true.) then
+                call write_gtm_hdf_ts_int(gtm_hdf%sub_ts_id, sub_st, time_index_in_gtm_hdf)
                 call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,    &
                                       flow,                    &
                                       n_cell,                  &
