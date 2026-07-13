@@ -681,17 +681,19 @@ subroutine gtm_loop()
             call prim2cons(mass,conc,area,n_cell,n_var)
         end if
 
-        call expected_net_diffusive_flux(mass,                        &
-                                        mass_prev,                    &
-                                        n_cell,                       &
-                                        n_var,                        &
-                                        sub_gtm_time_step*sixty,      &
-                                        dx_arr,                       &
-                                        advective_div_flux,           &
-                                        mass_adjust_advet,            &
-                                        calc_diffusive_div_flux )
-        advective_div_flux_ts = advective_div_flux(:,1)
-        calc_diffusive_div_flux_ts = calc_diffusive_div_flux(:,1)
+        if (debug_print == .true.) then
+            call expected_net_diffusive_flux(mass,                        &
+                                            mass_prev,                    &
+                                            n_cell,                       &
+                                            n_var,                        &
+                                            sub_gtm_time_step*sixty,      &
+                                            dx_arr,                       &
+                                            advective_div_flux,           &
+                                            mass_adjust_advet,            &
+                                            calc_diffusive_div_flux )
+            advective_div_flux_ts = advective_div_flux(:,1)
+            calc_diffusive_div_flux_ts = calc_diffusive_div_flux(:,1)
+        end if
 
             mass_prev = mass
             conc_prev = conc
