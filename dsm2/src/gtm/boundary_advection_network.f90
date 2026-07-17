@@ -74,7 +74,7 @@ module boundary_advection_network
                     c2 = dsm2_network(i)%cell_no(2)
 
                     ! Converging to the node.  --> o <--
-                    if (updown == 0 .and. updown_next == 0) then
+                    if (updown == TO_NODE .and. updown_next == TO_NODE) then
                         grad_hi(c1, ivar) = (vals(c2, ivar) - vals(c1, ivar)) / &
                             (half * dx(c1) + half * dx(c2))
                         grad_hi(c2, ivar) = - grad_hi(c1, ivar)
@@ -83,7 +83,7 @@ module boundary_advection_network
                         grad_center(c2, ivar) = (vals(c1, ivar) - vals(c2 - 1, ivar)) / &
                             (half * dx(c1) + dx(c2) + half * dx(c2 - 1))
                     ! Diverging from the node. <-- o -->
-                    else if (updown == 1 .and. updown_next == 1) then
+                    else if (updown == FROM_NODE .and. updown_next == FROM_NODE) then
                         grad_lo(c1, ivar) = (vals(c1, ivar) - vals(c2, ivar)) / &
                             (half * dx(c1) + half * dx(c2))
                         grad_lo(c2, ivar) = - grad_lo(c1, ivar)
@@ -92,7 +92,7 @@ module boundary_advection_network
                         grad_center(c2, ivar) = (vals(c2 + 1, ivar) - vals(c1, ivar)) / &
                             (half * dx(c2 + 1) + dx(c2) + half * dx(c1))
                     else
-                        if (updown == 0) then
+                        if (updown == TO_NODE) then
                             up_cell = dsm2_network(i)%cell_no(1)
                             down_cell = dsm2_network(i)%cell_no(2)
                         else
@@ -168,7 +168,7 @@ module boundary_advection_network
             ! adjust boundaries
             if (dsm2_network(i)%boundary_no .ne. 0) then
                 icell = dsm2_network(i)%cell_no(1)
-                if (dsm2_network(i)%up_down(1) .eq. 1) then  ! upstream boundary
+                if (dsm2_network(i)%up_down(1) == FROM_NODE) then  ! upstream boundary
                     grad(icell,:) = grad_hi(icell,:)
                 else                                         ! downstream boundary
                     grad(icell,:) = grad_lo(icell,:)
@@ -177,7 +177,7 @@ module boundary_advection_network
             elseif ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
-                   if (dsm2_network(i)%up_down(j) .eq. 0) then  ! cell at upstream of junction
+                   if (dsm2_network(i)%up_down(j) == TO_NODE) then  ! cell at upstream of junction
                        grad(icell,:) = grad_lo(icell,:)
                    else
                        grad(icell,:) = grad_hi(icell,:)
@@ -261,7 +261,7 @@ module boundary_advection_network
             if (dsm2_network(i)%boundary_no <= 0) cycle
             icell = dsm2_network(i)%cell_no(1)
             ! Away from the node
-            if ((updown .eq. 1)) then
+            if ((updown == FROM_NODE)) then
                 if (flow_lo(icell).ge.zero) then
                     flux_lo(icell,ivar) = conc_stip(icell,ivar)*flow_lo(icell)
                 else if (flow_lo(icell).lt.zero) then
@@ -316,7 +316,7 @@ module boundary_advection_network
             c1 = dsm2_network(i)%cell_no(1)
             c2 = dsm2_network(i)%cell_no(2)
             ! Converging to the node.  --> o <--
-            if ((updown == 0) .and. (updown_next == 0)) then
+            if ((updown == TO_NODE) .and. (updown_next == TO_NODE)) then
                 if ((flow_hi(c1) < zero) .and. (flow_hi(c2) > zero)) then
                     flux_hi(c1, ivar) = - conc_hi(c2, ivar) * flow_hi(c2)
                 end if
@@ -324,7 +324,7 @@ module boundary_advection_network
                     flux_hi(c2, ivar) = - conc_hi(c1, ivar) * flow_hi(c1)
                 end if
             ! Diverging from the node. <-- o -->
-            else if ((updown == 1) .and. (updown_next == 1)) then
+            else if ((updown == FROM_NODE) .and. (updown_next == FROM_NODE)) then
                 if ((flow_lo(c1) > zero) .and. (flow_lo(c2) < zero)) then
                     flux_lo(c1, ivar) = - conc_lo(c2, ivar) * flow_lo(c2)
                 end if
@@ -333,7 +333,7 @@ module boundary_advection_network
                 end if
             ! Simply non-sequential but the direction of cells are the same.
             else
-                if (updown == 0) then
+                if (updown == TO_NODE) then
                     up_cell = c1
                     down_cell = c2
                 else
@@ -688,12 +688,12 @@ module boundary_advection_network
         real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
         real(gtm_real),intent(in)    :: time                    !< Current time
-        real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step        
+        real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step
         real(gtm_real),intent(in)    :: dt                      !< Time step
         real(gtm_real) :: flow_tmp(n_node), flux_in(n_node)
         real(gtm_real) :: conc_tmp(n_node, nvar)
         real(gtm_real) :: vol(n_resv)
-        real(gtm_real) :: mass_resv(n_resv,nvar)        
+        real(gtm_real) :: mass_resv(n_resv,nvar)
         integer :: i,ivar
 
         do ivar = 1, nvar

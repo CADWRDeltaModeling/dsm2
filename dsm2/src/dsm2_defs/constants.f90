@@ -428,6 +428,11 @@ module constants
     ! Network constants
     integer, parameter :: MAXQUADPTS = 3
         !! Maximum number of quadrature points for integration over reaches
+
+    !! Cell direction to a node (or a junction) in GTM
+    integer, parameter :: TO_NODE = 0
+    !! Cell direction from a node (or a junction) in GTM
+    integer, parameter :: FROM_NODE = 1
 contains
 end module
 
