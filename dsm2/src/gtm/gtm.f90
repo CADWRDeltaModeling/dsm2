@@ -73,6 +73,8 @@ module dsm2gtm
     use mercury_state_variables
     use mercury_fluxes
     use mercury_initialize  !added dhh***
+    use gtm_dss_main, only: assign_met_indices
+    use gtm_heat, only: set_heat_temp_index
 
     implicit none
 
@@ -274,7 +276,8 @@ subroutine gtm_prepare_loop()
     write(*,*) "You need to have ",n_cell," number of cells in initial file."
 
     call assign_node_ts
-    !----- point to interface -----
+    call assign_met_indices
+    call set_heat_temp_index
     fill_hydro_info => hydro_info
     fill_hydro_network => gtm_network_data
     compute_source => gtm_source_implement

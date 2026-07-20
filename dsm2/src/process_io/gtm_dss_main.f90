@@ -24,7 +24,20 @@
 !> by Ralph Finch and last modified in September 1996.
 !>@ingroup process_io
 module gtm_dss_main
-
+    use constants, only: gtm_real
+    implicit none
+    integer, save :: ndx_cloud  = 0  !< pathinput index for cloud cover
+    integer, save :: ndx_dryblb = 0  !< pathinput index for dry bulb temperature
+    integer, save :: ndx_wetblb = 0  !< pathinput index for wet bulb temperature
+    integer, save :: ndx_wind   = 0  !< pathinput index for wind speed
+    integer, save :: ndx_atmpr  = 0  !< pathinput index for atmospheric pressure
+    integer, save :: ndx_solar  = 0  !< pathinput index for solar radiation
+    real(gtm_real), save :: cloud  = 0.d0  !< cloud cover fraction (0-1)
+    real(gtm_real), save :: dryblb = 0.d0  !< dry bulb air temperature (deg F)
+    real(gtm_real), save :: wetblb = 0.d0  !< wet bulb air temperature (deg F)
+    real(gtm_real), save :: wind   = 0.d0  !< wind speed (mph)
+    real(gtm_real), save :: atmpr  = 0.d0  !< atmospheric pressure (mmHg)
+    real(gtm_real), save :: solar  = 0.d0  !< measured solar radiation (W/m^2)
     contains
 
     !> Process DSS input files
@@ -78,7 +91,35 @@ module gtm_dss_main
             call get_inp_data(i)
         end do
 
+        ! update met module variables directly using precomputed pathinput indices
+        if (ndx_cloud  > 0) cloud  = pathinput(ndx_cloud)%value
+        if (ndx_dryblb > 0) dryblb = pathinput(ndx_dryblb)%value
+        if (ndx_wetblb > 0) wetblb = pathinput(ndx_wetblb)%value
+        if (ndx_wind   > 0) wind   = pathinput(ndx_wind)%value
+        if (ndx_atmpr  > 0) atmpr  = pathinput(ndx_atmpr)%value
+        if (ndx_solar  > 0) solar  = pathinput(ndx_solar)%value
+
         return
     end subroutine
+
+    !> Scan pathinput once during setup to record indices for meteorological climate inputs.
+    !> Mirrors assign_input_ts_group_var; must be called after buffer_input_qual.
+    subroutine assign_met_indices()
+        use common_gtm_vars, only: pathinput
+        use gtm_vars, only: n_node_ts
+        implicit none
+        integer :: i
+        do i = 1, n_node_ts
+            select case (trim(pathinput(i)%variable))
+                case ('cloud');        ndx_cloud  = i
+                case ('dry_bulb');     ndx_dryblb = i
+                case ('wet_bulb');     ndx_wetblb = i
+                case ('wind');         ndx_wind   = i
+                case ('atm_pressure'); ndx_atmpr  = i
+                case ('solar');        ndx_solar  = i
+            end select
+        end do
+        return
+    end subroutine assign_met_indices
 
 end module
