@@ -25,11 +25,6 @@ module do_state_variables
 
     use constants
 
-    real(gtm_real), save :: atmpr
-    real(gtm_real), save :: wetblb
-    real(gtm_real), save :: dryblb
-    real(gtm_real), save :: cloud
-    real(gtm_real), save :: wind
     real(gtm_real), save, allocatable :: depth(:)
 
     contains
