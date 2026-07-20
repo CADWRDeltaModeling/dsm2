@@ -19,18 +19,92 @@
 !</license>
 !> compute heat for DO module
 !>@ingroup do_module
-module do_heat
-
+module gtm_heat
     use constants
     use time_utilities, only : jmin2iso
-    use do_parameter, only: lat, longitude, long_std_merid, elev, dust_attcoeff
     use common_gtm_vars, only: print_level
+    use gtm_dss_main, only: cloud, dryblb, wetblb, wind, atmpr, solar, &
+                             ndx_cloud, ndx_dryblb, ndx_wetblb, ndx_wind, ndx_atmpr, ndx_solar
+    implicit none
+    real(gtm_real), save :: lat            =  38.00d0    !< latitude (degrees)
+    real(gtm_real), save :: longitude      = 121.50d0    !< longitude (degrees)
+    real(gtm_real), save :: long_std_merid = 120.00d0    !< longitude of standard time meridian (degrees)
+    real(gtm_real), save :: elev           =   0.d0      !< elevation (m)
+    real(gtm_real), save :: dust_attcoeff  =   0.04d0    !< dust attenuation coefficient
+    integer, save :: i_temp = 0  !< constituent index for temperature in conc array
 
     contains
 
+    !> Scan constituents once during setup to find the temperature index.
+    !> Must be called after constituents array is populated.
+    subroutine set_heat_temp_index()
+        use gtm_vars, only: constituents, n_var
+        implicit none
+        integer :: i
+        do i = 1, n_var
+            if (trim(constituents(i)%name) == 'temp') then
+                i_temp = constituents(i)%conc_no
+                exit
+            end if
+        end do
+        return
+    end subroutine set_heat_temp_index
+
+    subroutine calc_heat_budget(source_heat,     &
+                               conc,            &
+                               wind,            &
+                               cloud,           &
+                               atmpr,           &
+                               dryblb,          &
+                               wetblb,          &
+                               depth,           &
+                               dt,              &
+                               julmin,          &
+                               evapcoeff_a,     &
+                               evapcoeff_b,     &
+                               ncell)
+            implicit none
+            integer, intent(in) :: ncell
+            real(gtm_real), intent(out) :: source_heat(ncell,1)
+            real(gtm_real), intent(in) :: conc(ncell,*)
+            real(gtm_real), intent(in) :: wind
+            real(gtm_real), intent(in) :: cloud
+            real(gtm_real), intent(in) :: atmpr
+            real(gtm_real), intent(in) :: dryblb
+            real(gtm_real), intent(in) :: wetblb
+            real(gtm_real), intent(in) :: depth(ncell)             !< depth at source location
+            real(gtm_real), intent(in) :: dt
+            integer, intent(in) :: julmin
+            real(gtm_real), intent(in) :: evapcoeff_a, evapcoeff_b
+
+            ! local varaibles
+            real(gtm_real) :: tw, hb, vpw, evapor, he, hc, hsnet, vpair,hs, ha
+
+            integer :: i
+
+            do i = 1, ncell
+                call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind)
+                tw = conc(i,i_temp)*1.8d0 + 32.d0
+                ! water surface back radiation (HB)
+                hb = 1.6781d-9 * (tw+460.d0)**four
+                ! Evaporation (HE): vpair is calculated in heat.f;
+                ! latent heat of vap. is represented by (1084.0-0.5*tw) in HE & HC
+                vpw = 0.1001d0*exp(0.03d0*tw)-0.0837d0
+                evapor = 62.4d0*(evapcoeff_a + evapcoeff_b*wind)
+                he = evapor * (vpw - vpair)*(1084.0d0-half*tw)     !todo::vpair from heat.f
+                hc = 0.01d0*evapor*(dryblb-tw)*(1084.0d0-half*tw)  ! conduction (HC)
+
+                ! compute net heat flux from all sources
+                hsnet = hs + (ha + hc - hb - he)
+                !contribution to temperature is net radiation/(depth*density*heat)
+                source_heat(i,i_temp) = (hsnet/(depth(i)*62.4d0))/1.8d0 - conc(i,i_temp)
+            end do
+    return
+    end subroutine calc_heat_budget
+
     !> It computes net solar radiation for the time interval delta t
     !> and rate of atmospheric radiation exchanged through the air-water interface
-    subroutine calc_heat(vpair,     &
+    subroutine calc_net_solar_long_wave(vpair,     &
                          tsolhr,    &
                          ha,        &
                          julmin,    &
