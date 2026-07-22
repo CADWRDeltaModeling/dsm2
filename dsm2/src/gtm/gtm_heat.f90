@@ -25,12 +25,8 @@ module gtm_heat
     use common_gtm_vars, only: print_level
     use gtm_dss_main, only: cloud, dryblb, wetblb, wind, atmpr, solar, &
                              ndx_cloud, ndx_dryblb, ndx_wetblb, ndx_wind, ndx_atmpr, ndx_solar
+    use common_qual, only: lat, longitude, long_std_merid, elev, dust_attcoeff, evapcoeff_a, evapcoeff_b
     implicit none
-    real(gtm_real), save :: lat            =  38.00d0    !< latitude (degrees)
-    real(gtm_real), save :: longitude      = 121.50d0    !< longitude (degrees)
-    real(gtm_real), save :: long_std_merid = 120.00d0    !< longitude of standard time meridian (degrees)
-    real(gtm_real), save :: elev           =   0.d0      !< elevation (m)
-    real(gtm_real), save :: dust_attcoeff  =   0.04d0    !< dust attenuation coefficient
     integer, save :: i_temp = 0  !< constituent index for temperature in conc array
 
     contains
@@ -61,8 +57,6 @@ module gtm_heat
                                depth,           &
                                dt,              &
                                julmin,          &
-                               evapcoeff_a,     &
-                               evapcoeff_b,     &
                                ncell)
             implicit none
             integer, intent(in) :: ncell
@@ -77,7 +71,6 @@ module gtm_heat
             real(gtm_real), intent(in) :: depth(ncell)             !< depth at source location
             real(gtm_real), intent(in) :: dt
             integer, intent(in) :: julmin
-            real(gtm_real), intent(in) :: evapcoeff_a, evapcoeff_b
 
             ! local varaibles
             real(gtm_real) :: tw, hb, vpw, evapor, he, hc, hsnet, vpair,hs, ha
