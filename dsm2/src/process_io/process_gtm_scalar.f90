@@ -29,7 +29,6 @@ module process_gtm_scalar
       use common_vars
       use common_qual
       use common_gtm_vars
-      use common_qual
       use time_utilities
 
       implicit none
