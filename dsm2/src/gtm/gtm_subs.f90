@@ -510,9 +510,14 @@ module gtm_subs
                                      n_sediment, n_node_ts
         use common_gtm_vars, only : n_inputpaths, pathinput, obj_reservoir
         implicit none
-        integer :: i, j, k, st
+        integer :: i, j, k, st, m
 
         do i = 1, n_node_ts
+            ! Initialise i_var to 0 so that entries whose variable name does not match
+            ! any constituent (e.g. meteorological inputs: cloud, dry_bulb, wet_bulb,
+            ! wind, atm_pressure, solar) are left with i_var=0.  Downstream code
+            ! (assign_boundary_concentration) checks for i_var<=0 to skip such entries.
+            pathinput(i)%i_var = 0
             do j = 1, n_var
                 call locase(pathinput(i)%variable)
                 call locase(constituents(j)%name)
@@ -538,19 +543,23 @@ module gtm_subs
                     end if
                 end do
             else
-                do j = 1, n_node
-                    if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
-                        pathinput(i)%i_no = j
-                    end if
-                end do
-                do j = 1, dsm2_network_extra(pathinput(i)%i_no)%n_qext
-                    if (trim(qext(dsm2_network_extra(pathinput(i)%i_no)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
-                        dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,pathinput(i)%i_var) = i
-                        if (trim(pathinput(i)%variable).eq.'ssc') then
-                            do st = 1, n_sediment
-                                dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,n_var-n_sediment+st) = i
-                            end do
+                do m = 1, n_var
+                    do j = 1, n_node
+                        if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
+                            pathinput(i)%i_no = j
                         end if
+                    end do
+                    if (trim(pathinput(i)%variable) .eq. trim(constituents(m)%name)) then
+                        do j = 1, dsm2_network_extra(pathinput(i)%i_no)%n_qext
+                            if (trim(qext(dsm2_network_extra(pathinput(i)%i_no)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
+                                dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,pathinput(i)%i_var) = i
+                                if (trim(pathinput(i)%variable).eq.'ssc') then
+                                    do st = 1, n_sediment
+                                        dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,n_var-n_sediment+st) = i
+                                    end do
+                                end if
+                            end if
+                        end do
                     end if
                 end do
             end if
