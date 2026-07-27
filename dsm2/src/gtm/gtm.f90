@@ -73,8 +73,8 @@ module dsm2gtm
     use mercury_state_variables
     use mercury_fluxes
     use mercury_initialize  !added dhh***
-    use gtm_dss_main, only: assign_met_indices
-    use gtm_heat, only: set_heat_temp_index
+    use gtm_heat, only: set_heat_temp_index, init_temperature_from_inp, i_temp
+    use common_qual, only: init_conc_resv_temp => init_conc
 
     implicit none
 
@@ -362,8 +362,17 @@ subroutine gtm_prepare_loop()
     conc = init_c
     conc_prev = init_c
     budget_prev_conc = init_c
+    ! initialize temperature AFTER conc=init_c so it is not overwritten
+    if (i_temp .gt. 0) then
+        call init_temperature_from_inp(conc, n_cell, n_var)
+    end if
+    conc_prev = conc
     conc_resv = init_r
-    conc_resv_prev = init_r
+    ! reservoirs are not covered by init_temperature_from_inp
+    if (i_temp .gt. 0) then
+        conc_resv(:, i_temp) = init_conc_resv_temp
+    end if
+    conc_resv_prev = conc_resv
     conc_qext = -999.0
     prev_conc_stip = zero
     mass_prev = zero
