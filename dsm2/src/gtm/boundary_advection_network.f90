@@ -772,6 +772,9 @@ module boundary_advection_network
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
             do j = 1, n_node_ts
+                ! Skip meteorological inputs (cloud, dry_bulb, wet_bulb, wind, atm_pressure,! solar):
+                ! they have i_var=0 because their variable name does not match any constituent.
+                if (pathinput(j)%i_var <= 0) cycle
                 if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
                         if (trim(pathinput(j)%variable) .eq. 'ssc') then
                             node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value
