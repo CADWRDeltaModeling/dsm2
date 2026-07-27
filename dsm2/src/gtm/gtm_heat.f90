@@ -46,6 +46,27 @@ module gtm_heat
         return
     end subroutine set_heat_temp_index
 
+
+   !> Initialize temperature in conc array from init_conc value in .inp file.
+   !> Must be called after set_heat_temp_index() and after init_conc is populated.
+    subroutine init_temperature_from_inp(conc, ncell, n_var)
+        use common_qual, only: init_conc
+        implicit none
+        integer, intent(in) :: ncell
+        integer, intent(in) :: n_var
+        real(gtm_real), intent(inout) :: conc(ncell, n_var)
+        integer :: i
+
+        if (init_conc <= zero) then
+            print *, "WARNING: init_conc for temperature is zero or negative. Check init_conc in .inp file."
+        end if
+
+        ! populate all cells with the scalar init_conc value from common_qual
+        conc(:, i_temp) = init_conc
+        print *, "Temperature initialized to: ", init_conc, " deg C for all cells."
+        return
+    end subroutine init_temperature_from_inp
+
     subroutine calc_heat_budget(source_heat,     &
                                conc,            &
                                wind,            &
