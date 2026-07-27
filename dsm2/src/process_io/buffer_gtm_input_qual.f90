@@ -251,6 +251,9 @@ module buffer_gtm_input_qual
                 mercury_ivar(6) = i
                 constituents_tmp(i)%use_module = 'mercury'
                 constituents_tmp(i)%conservative = .false.
+            elseif (trim(constituents_tmp(i)%name) =='temp') then
+                constituents_tmp(i)%use_module = 'temperature'
+                constituents_tmp(i)%conservative = .false.
             end if
         end do
         do i = 1, n_sediment
