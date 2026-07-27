@@ -389,6 +389,8 @@ module gtm_init_store_outputs
                 pathoutput(p).units = 'umhos/cm'
             elseif (pathoutput(p).c_part .eq. 'turbidity') then
                 pathoutput(p).units = 'fnu'
+            elseif (pathoutput(p).c_part .eq. 'temp') then
+                pathoutput(p).units = 'deg c'
             else
                 pathoutput(p).units = 'mg/l'
             endif
