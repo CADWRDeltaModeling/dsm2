@@ -98,8 +98,15 @@ module gtm_heat
 
             integer :: i
 
+            ! guard against uninitialized i_temp
+            if (i_temp == 0) then
+                print *, "ERROR: i_temp not set. Call set_heat_temp_index() first."
+                stop
+            end if
+
+            call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind,solar)
+
             do i = 1, ncell
-                call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind,solar)
                 tw = conc(i,i_temp)*1.8d0 + 32.d0
                 ! water surface back radiation (HB)
                 hb = 1.6781d-9 * (tw+460.d0)**four
@@ -112,8 +119,14 @@ module gtm_heat
 
                 ! compute net heat flux from all sources
                 hsnet = hs + (ha + hc - hb - he)
-                !contribution to temperature is net radiation/(depth*density*heat)
-                source_heat(i,i_temp) = (hsnet/(depth(i)*62.4d0))/1.8d0 - conc(i,i_temp)
+                ! hsnet is in BTU/(ft^2*hr); divide by 3600 to convert to BTU/(ft^2*s)
+                ! so that source is in deg-C/s as required by GTM's mass-based transport
+                ! (update_conservative multiplies source by dt in seconds).
+                if (depth(i) > 0.0d0) then
+                    source_heat(i,1) = (hsnet/(depth(i)*62.4d0))/1.8d0/3600.d0
+                else
+                    source_heat(i,1) = 0.0d0
+                end if
             end do
     return
     end subroutine calc_heat_budget

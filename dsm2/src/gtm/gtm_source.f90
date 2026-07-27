@@ -46,6 +46,7 @@ module gtm_source
         use sed_type_defs, only: n_zones !added by dhh
         use sediment_bed, only: sediment_bed_main !added by dhh
         use turbidity
+        use gtm_heat
         use mercury_fluxes, only: mercury_source, mercury_source_resv
         use mercury_state_variables, only: ec_ivar, doc_ivar
 		use state_variables_network, only: conc_resv
@@ -108,6 +109,19 @@ module gtm_source
                                       dt,                   &
                                       ncell,                &
                                       conc(:,ivar))
+            elseif (trim(name(ivar)).eq."temperature") then
+                call calc_heat_budget(source(:,ivar),      &
+                                      conc,                &
+                                      wind,                &
+                                      cloud,               &
+                                      atmpr,               &
+                                      dryblb,              &
+                                      wetblb,              &
+                                      solar,               &
+                                      depth,               &
+                                      dt,                  &
+                                      int(time),           &
+                                      ncell)
             end if
         end do
         ! Sediment Bed Module
