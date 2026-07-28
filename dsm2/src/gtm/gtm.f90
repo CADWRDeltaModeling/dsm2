@@ -736,6 +736,11 @@ subroutine gtm_loop()
                 budget_prev_conc = init_c
                 conc_resv = init_r
                 conc_resv_prev = init_r
+                if (i_temp .gt. 0) then
+                    call init_temperature_from_inp(conc, n_cell, n_var)
+                    conc_resv(:, i_temp) = init_conc_resv_temp
+                end if
+                    
                 !prev_conc_stip = zero
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
             end if
