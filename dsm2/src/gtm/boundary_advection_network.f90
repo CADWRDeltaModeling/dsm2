@@ -768,6 +768,58 @@ module boundary_advection_network
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
         integer :: i, j, k, s, st, icell, inode, qext_id, sed_id
         real(gtm_real) :: conc_ext(nvar)
+        logical :: found
+        logical :: any_missing
+        logical :: is_source
+        logical, save :: bfbs_checked = .false.
+
+        !> One-time check (first call only): verify every boundary node listed in bfbs
+        !> has at least one matching time series entry in pathinput (matched by dsm2 node
+        !> number, obj_no). A boundary node with no matching entry has no BC specified
+        !> in the input file for any constituent; node_conc/conc_stip for it will fall
+        !> through to the LARGEREAL sentinel unless a qext-based or interior fallback
+        !> resolves it, which can eventually lead to NaN downstream (e.g. in the heat
+        !> budget). This is a fatal input error: report every offending node, then stop.
+        !> Nodes that always export water (bfbs(i)%sign .eq. -1, the forced sign
+        !> convention read from the BOUNDARY_FLOW input table in the hydro tidefile,
+        !> a fixed input property rather than the simulated flow direction) are
+        !> skipped.
+        !> Note: pathinput stores ALL node time series (both BC and source/qext
+        !> concentration inputs), and a node can be both a BC node and a source
+        !> node at the same time. A candidate match is only accepted as a genuine BC by
+        !> checking the name for 'dicu_drain'.
+        if (.not. bfbs_checked) then
+            any_missing = .false.
+            do i = 1, n_bfbs
+                if (bfbs(i)%sign .eq. -1) cycle   ! always-export (outflow-only) boundary; no BC needed
+                inode = bfbs(i)%node
+                found = .false.
+                do j = 1, n_node_ts
+                    if (pathinput(j)%i_var <= 0) cycle   ! skip meteorological inputs
+                    if (pathinput(j)%obj_no .eq. inode) then
+                        ! Exclude matches that are actually source (qext) concentration
+                        ! inputs at this node rather than a genuine boundary condition.
+                        ! DICU drain inputs are named with a 'dicu_drain' tag and are
+                        ! source (qext) inputs, not boundary conditions.
+                        ! hard-coded string match is a bit fragile
+                        is_source = (index(pathinput(j)%name, 'dicu_drain') > 0)
+                        if (is_source) cycle
+                        found = .true.
+                        exit
+                    end if
+                end do
+                if (.not. found) then
+                    write(*,*) 'ERROR: No boundary condition input found in pathinput for DSM2 Boundary Node No. ', &
+                        bfbs(i)%node
+                    any_missing = .true.
+                end if
+            end do
+            if (any_missing) then
+                write(*,*) 'ERROR: One or more boundary nodes have no input time series specified. Stopping.'
+                call exit(-1)
+            end if
+            bfbs_checked = .true.
+        end if
 
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
