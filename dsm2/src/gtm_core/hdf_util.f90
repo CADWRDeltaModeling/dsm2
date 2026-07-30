@@ -823,6 +823,12 @@ contains
            call h5tinsert_f(dt2_id, "node", offset, H5T_NATIVE_INTEGER, hdferr)
            call h5dread_f(dset_id, dt2_id, bfbs%node, data_dims, hdferr)
 
+           type_size = 4
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt5_id, hdferr)
+           call h5tinsert_f(dt5_id, "sign", offset, H5T_NATIVE_INTEGER, hdferr)
+           call h5dread_f(dset_id, dt5_id, bfbs%sign, data_dims, hdferr)
+           call h5tclose_f(dt5_id, hdferr)
+
            call h5tclose_f(dt2_id, hdferr)
            call h5tclose_f(dt1_id, hdferr)
            call h5tclose_f(dt_id, hdferr)

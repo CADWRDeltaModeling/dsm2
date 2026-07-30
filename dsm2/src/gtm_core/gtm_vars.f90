@@ -227,8 +227,9 @@ module gtm_vars
      type bfbs_t
          character*32 :: btype                       !< BOUNDARY type: "flow", "stage", not include source flow
          character*32 :: name                        !< name
-         integer :: node                             !< node number
+         integer :: node                             !< DSM2 node number
          integer :: i_node                           !< internal node number
+         integer :: sign                             !< forced sign convention from hydro.inp BOUNDARY_FLOW input (-1: always outflow/export, 1: inflow); not defined (0) for "stage" boundaries
      end type
      type(bfbs_t), allocatable :: bfbs(:)
 
@@ -692,6 +693,7 @@ module gtm_vars
          bfbs%name = ''
          bfbs%node = 0
          bfbs%i_node = 0
+         bfbs%sign = 0
          return
      end subroutine
 
