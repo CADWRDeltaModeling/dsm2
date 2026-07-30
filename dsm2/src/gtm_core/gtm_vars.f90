@@ -225,7 +225,7 @@ module gtm_vars
 
      !> Define boundary flow and boundary stage
      type bfbs_t
-         character*32 :: btype                       !< boundary type: "flow", "stage"
+         character*32 :: btype                       !< BOUNDARY type: "flow", "stage", not include source flow
          character*32 :: name                        !< name
          integer :: node                             !< node number
          integer :: i_node                           !< internal node number
@@ -435,7 +435,7 @@ module gtm_vars
      !>--------------------------------------------
      !> Input time series
      integer :: n_input_ts = 0                     !< number of input time series
-     integer :: n_node_ts = 0                      !< to exclude variables from node_concentration block
+     integer :: n_node_ts = 0                      !< number of nodes that have input time series
      type input_ts_t
          integer :: input_ts_id
          integer :: ts_var_code
