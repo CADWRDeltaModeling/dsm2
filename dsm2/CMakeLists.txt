@@ -153,26 +153,29 @@ install(
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib)
 
+OPTION(NOT_INCLUDE_DYNAMIC_LIBS "Option to not include dynamic libraries in the package")
 if(NOT WIN32)
-  # USing DIRECTORIES will raise CMake warnings, but no other way to grab Intel
-  # runtime is found.
-  install(
-    RUNTIME_DEPENDENCY_SET
-    RUNTIME_LIB
-    DIRECTORIES
-    ${INTELRUNTIME_DIR}
-    PRE_EXCLUDE_REGEXES
-    "ld.+"
-    "libc.+"
-    "libstdc.+"
-    "libgcc.+"
-    "libdl.+"
-    "libm.+"
-    "libpthread.+"
-    "librt.+")
-  # libcilkrts is not included automatically.
-  if(EXISTS ${INTELRUNTIME_DIR}/libcilkrts.so.5)
-    install(FILES ${INTELRUNTIME_DIR}/libcilkrts.so.5 TYPE LIB)
+  if(NOT NOT_INCLUDE_DYNAMIC_LIBS)
+    # USing DIRECTORIES will raise CMake warnings, but no other way to grab Intel
+    # runtime is found.
+    install(
+      RUNTIME_DEPENDENCY_SET
+      RUNTIME_LIB
+      DIRECTORIES
+      ${INTELRUNTIME_DIR}
+      PRE_EXCLUDE_REGEXES
+      "ld.+"
+      "libc.+"
+      "libstdc.+"
+      "libgcc.+"
+      "libdl.+"
+      "libm.+"
+      "libpthread.+"
+      "librt.+")
+    # libcilkrts is not included automatically.
+    if(EXISTS ${INTELRUNTIME_DIR}/libcilkrts.so.5)
+      install(FILES ${INTELRUNTIME_DIR}/libcilkrts.so.5 TYPE LIB)
+    endif()
   endif()
 endif()
 
