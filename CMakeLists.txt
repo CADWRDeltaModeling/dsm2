@@ -52,21 +52,31 @@ if(CMAKE_CONFIGURATION_TYPES)
     FORCE)
 endif()
 
-# Include the stdlib project
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/CMakeLists.txt)
-  add_subdirectory("stdlib")
+# Find Fortran stdlib
+find_package(fortran_stdlib REQUIRED)
+
+if (fortran_stdlib_FOUND)
+  message(STATUS "Found stdlib")
+  # Assuming test-drive is built and installed together with stdlib.
+  # Otherwise, this would not work.
+  set(test-drive_ROOT ${fortran_stdlib_ROOT} CACHE PATH "" FORCE)
 else()
-  set("stdlib-url" "https://github.com/fortran-lang/stdlib")
-  message(STATUS "Retrieving stdlib from ${stdlib-url}")
-  include(FetchContent)
-  FetchContent_Declare(
-    "fortran_stdlib"
-    GIT_REPOSITORY "${stdlib-url}"
-    GIT_TAG "v0.7.0"
-  )
-  FetchContent_MakeAvailable("fortran_stdlib")
-  add_library(fortran_stdlib::fortran_stdlib ALIAS fortran_stdlib)
-  list(APPEND CMAKE_MODULE_PATH "${fortran_stdlib_SOURCE_DIR}/config/cmake")
+  # If stdlib is not found, we download and build stdlib.
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/CMakeLists.txt)
+    add_subdirectory("stdlib")
+  else()
+    set("stdlib-url" "https://github.com/fortran-lang/stdlib")
+    message(STATUS "Retrieving stdlib from ${stdlib-url}")
+    include(FetchContent)
+    FetchContent_Declare(
+      "fortran_stdlib"
+      GIT_REPOSITORY "${stdlib-url}"
+      GIT_TAG "v0.7.0"
+    )
+    FetchContent_MakeAvailable("fortran_stdlib")
+    add_library(fortran_stdlib::fortran_stdlib ALIAS fortran_stdlib)
+    list(APPEND CMAKE_MODULE_PATH "${fortran_stdlib_SOURCE_DIR}/config/cmake")
+  endif()
 endif()
 
 find_package(Boost REQUIRED)
