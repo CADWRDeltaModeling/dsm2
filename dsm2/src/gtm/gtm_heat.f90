@@ -25,7 +25,7 @@ module gtm_heat
     use common_gtm_vars, only: print_level
     use gtm_dss_main, only: cloud, dryblb, wetblb, wind, atmpr, solar, &
                              ndx_cloud, ndx_dryblb, ndx_wetblb, ndx_wind, ndx_atmpr, ndx_solar
-    use common_qual, only: lat, longitude, long_std_merid, elev, dust_attcoeff, evapcoeff_a, evapcoeff_b
+    use common_qual, only: lat, longitude, long_std_merid, elev, dust_attcoeff, evapcoeff_a, evapcoeff_b, use_meas_solar
     implicit none
     integer, save :: i_temp = 0  !< constituent index for temperature in conc array
 
@@ -103,8 +103,13 @@ module gtm_heat
                 print *, "ERROR: i_temp not set. Call set_heat_temp_index() first."
                 stop
             end if
-
-            call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind,solar)
+            !this uses the measured solar radiation
+            if (use_meas_solar) then
+                call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind,solar)
+            else
+                !this uses the old method for calculating net solar and long wave radiation
+                call calc_net_solar_long_wave_old(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind)
+            end if
 
             do i = 1, ncell
                 tw = conc(i,i_temp)*1.8d0 + 32.d0
@@ -273,6 +278,197 @@ module gtm_heat
         ! solar is measured (W/m^2), already accounts for cloud attenuation;
         ! convert to btu/(sq ft-hr) and apply surface albedo (1-rs) only
         tsolhr = solar*0.3170d0*(one-rs)
+        goto 31
+30      tsolhr = zero
+31      clc=1.0d0+0.17d0*cloud**2
+
+        ! compute heat flux due to long wave atmospheric radiation (ha).
+        ha = 0.97*1.73e-09*2.89e-06*(dryblb+460.0)**6*clc
+
+        if (print_level .gt. 3) then
+            nummax = 24*60/dble(time_step)
+            if (num .eq. 0) then
+                tot_tsolhr = zero
+                tot_ha = zero
+            endif
+            num = num + 1
+            tot_tsolhr = tot_tsolhr + tsolhr
+            tot_ha = tot_ha + ha
+            if (num .eq. nummax)then
+                day_tsolhr = 24*tot_tsolhr/nummax
+                day_ha = 24*tot_ha/nummax
+                write(*,999) current_date, day_tsolhr, day_ha
+                num = 0
+            endif
+ 999        format(a,'daily solar rad =',f10.2, 'daily atm. rad =',f10.2)
+        end if
+    return
+    end subroutine
+
+
+    subroutine calc_net_solar_long_wave_old(vpair,     &
+                         tsolhr,    &
+                         ha,        &
+                         julmin,    &
+                         time_step, &
+                         atmpr,     &
+                         wetblb,    &
+                         dryblb,    &
+                         cloud,     &
+                         wind)
+        implicit none
+
+        real(gtm_real), intent(out) :: vpair     !< vapor pressure
+        real(gtm_real), intent(out) :: tsolhr    !< net solar radiation
+        real(gtm_real), intent(out) :: ha        !< heat flux due to long wave atmospheric radiation
+        real(gtm_real), intent(in)  :: atmpr     !<
+        real(gtm_real), intent(in)  :: wetblb    !<
+        real(gtm_real), intent(in)  :: dryblb    !<
+        real(gtm_real), intent(in)  :: cloud     !<
+        real(gtm_real), intent(in)  :: wind      !<
+        real(gtm_real), intent(in) :: time_step  !< time_step in minutes
+        integer, intent(in) :: julmin            !< Julian minutes
+
+
+        integer :: iyr,imon,iday    ! year, month, day
+        integer :: julday, iymdjl         ! HEC function to return day of year
+        integer :: dayof_year             ! julian day of year (1-366)
+        integer :: timeof_day             ! minute of day (0-1440)
+        integer :: nl
+        real(gtm_real) :: deltsl, declin, eqtime
+        real(gtm_real) :: str, sts, stb, ste
+        real(gtm_real) :: declon, tana, tanb, acs, xx, vpwb
+        real(gtm_real) :: tb, te, alpha, talt, y, ar, br, rs
+        real(gtm_real) :: cnl, solar
+        real(gtm_real) :: clc
+        real(gtm_real) :: elexp, rearth, rr, dewpt, cs, pwc, oam, a1, a2, atc
+        real(gtm_real) :: con1, con2, con3, con4, con5, con6, solcon
+        character*19 :: current_date
+
+        ! declare variables for diagnostics
+        integer :: num, nummax
+        real(gtm_real) :: pi, day_tsolhr, day_ha, tot_tsolhr, tot_ha
+
+        parameter(pi = 3.141592654d0,        &
+                  con1 = two*pi/365.0d0,     &
+                  con3 = 180.0d0/pi,         &
+                  con4 = 23.45d0*pi/180.0d0, &
+                  con5 = pi/12.0d0,          &
+                  con6 = 12.0d0/pi,          &
+                  solcon = 438.0d0)
+
+        timeof_day = mod(julmin,60*24)
+        julday = int(julmin/dble(24*60))
+        call jliymd(julday,iyr,imon,iday)
+        dayof_year = iymdjl(iyr,imon,iday) - iymdjl(iyr,1,1) + 1
+
+        ! compute and/or define required constants.
+        con2 = pi/180.0d0*lat
+        deltsl = (longitude - long_std_merid)/15.0d0
+        ELEXP=EXP(-ELEV/2532.0)
+        REARTH=1.0+0.017*COS(CON1*(186-DAYOF_YEAR))
+        declin = con4*cos(con1*(172.d0-dayof_year))
+        RR=REARTH**2
+        eqtime = 0.000121d0-0.12319d0*sin(con1*dble(dayof_year-1)-0.07014d0)  &
+                -0.16549d0*sin(two*con1*dble(dayof_year-1)+0.3088d0)
+        declon = abs(declin)
+        tana = tan(con2)
+        tanb = tan(declon)
+        acs = tana*tanb
+        if (acs.eq.zero) then
+            acs = pi/two
+        else
+            xx = sqrt(one-acs*acs)
+            xx = xx/acs
+            acs = atan(xx)
+            if (declin.gt.zero) acs = pi - acs
+        end if
+
+        ! calculate the standard time of sunrise (str) and sunset (sts).
+        str = 12.0d0 - con6*acs + deltsl
+        sts = 24.0d0 - str + two*deltsl
+
+        ! increment the variables that define the time of the beginning(stb)
+        ! and the end (ste) of the time interval.
+        stb = dble(timeof_day)/60.d0 ! in decimal hours (e.g. 13.5 is 1330)
+        ste = stb + dble(time_step)/60.d0
+
+        ! compute vapor pressures (vpwb and vpair) and cloud class index (nl) for albedo
+        vpwb = 0.1001d0*exp(0.03d0*wetblb)-0.0837d0
+        vpair = vpwb-0.000367d0*atmpr*(dryblb-wetblb)*(one+(wetblb-32.0d0)/1571.0d0)
+        DEWPT=LOG((VPAIR+0.0837)/0.1001)/0.03
+        CS=1.0-0.65*CLOUD**2
+        IF (CLOUD.GT.0.9) CS=0.50
+        cnl = cloud*10.0d0 + 1.0d0
+        nl = int(cnl)
+
+        if ((sts.le.stb) .or. (str.ge.ste)) then
+             goto 30
+        elseif ((str.gt.stb).and.(str.lt.ste)) then
+            tb = str - 12.0d0 - deltsl + eqtime
+            te = ste - 12.0d0 - deltsl + eqtime
+        elseif ((sts.lt.ste).and.(sts.gt.stb)) then
+            tb = stb - 12.0d0 - deltsl + eqtime
+            te = sts - 12.0d0 - deltsl + eqtime
+        else
+            tb = stb - 12.0d0 - deltsl + eqtime
+            te = ste - 12.0d0 - deltsl + eqtime
+        end if
+        talt = (tb + te)/two
+
+
+        !!    Compute amount of clear sky, solar radiation(SOLAR),
+        !!    and altitude of the sun (ALPHA).
+
+        SOLAR=SOLCON/RR*(SIN(CON2)*SIN(DECLIN)*(TE-TB)+CON6*COS(CON2)* &
+          COS(DECLIN)*(SIN(CON5*TE)-SIN(CON5*TB)))
+        !     A SIGNIFICANT CHANGE OF ORIGINAL CODE, TO GET A AVERGED FLUX OVER TIME STEP, JON
+ 	    SOLAR=SOLAR/(dble(time_step)/60.) ! v8  (v6 is this commented out)
+
+        alpha = sin(con2)*sin(declin)+cos(con2)*cos(declin)*cos(con5*talt)
+        if (alpha .eq. -1.0d0) then
+            alpha = -pi/two
+        elseif (alpha .eq. 1.0d0) then
+            alpha = pi/two
+        else
+            y = sqrt(one-alpha*alpha)
+            y = alpha/y
+            alpha = atan(y)
+        end if
+        if (alpha.lt.0.01) goto 30
+
+        ! compute reflectivity coefficient (rs)
+        if (nl.eq.1) then
+            ar = 1.18d0
+            br = -0.77d0
+        elseif ((nl.ge.2).and.(nl.le.6)) then
+            ar = 2.20d0
+            br = -0.97d0
+        elseif ((nl.ge.7).and.(nl.le.10)) then
+            ar = 0.95d0
+            br = -0.75d0
+        elseif (nl.eq.11) then
+            ar = 0.35d0
+            br = -0.45d0
+        else
+            ar = 1.d0
+            br = 1.d0
+        end if
+
+        !!    Compute absorption and scattering due to atmospheric conditions.
+
+        PWC=0.00614*EXP(0.0489*DEWPT)
+        OAM=ELEXP/(SIN(ALPHA)+0.15*(ALPHA*CON3+3.885)**(-1.253))
+        A1=EXP(-(0.465+0.0408*PWC)*(0.129+0.171*EXP(-0.880*OAM))*OAM)
+        A2=EXP(-(0.465+0.0408*PWC)*(0.179+0.421*EXP(-0.721*OAM))*OAM)
+        rs = ar*(con3*alpha)**br
+        if (rs.ge.1.0d0) goto 30
+
+        !! Compute atmospheric transmission term (ATC).
+        ATC=(A2+0.5*(1.0-A1-DUST_ATTCOEFF))/(1.0-0.5*RS*(1.0-A1+DUST_ATTCOEFF))
+
+        ! compute net solar radiation for the time interval delta t
+        tsolhr = SOLAR*ATC*CS*(1.0-RS)
         goto 31
 30      tsolhr = zero
 31      clc=1.0d0+0.17d0*cloud**2
