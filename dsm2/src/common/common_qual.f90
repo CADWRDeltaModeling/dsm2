@@ -68,5 +68,6 @@ module common_qual
     real*8 :: thet(temp_coeff_type)
     real*8 :: thetadj(temp_coeff_type)
     real*8 :: thettbl(temp_coeff_type, 81)
+    logical :: use_meas_solar
 
 end module

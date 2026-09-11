@@ -289,6 +289,8 @@ module process_gtm_scalar
          read(Val, '(f8.2)', err=810) long_std_merid
       elseif (Param .eq. 'dust_attcoeff') then
          read(Val, '(f8.2)', err=810) dust_attcoeff
+      elseif (Param .eq. 'use_meas_solar') then
+        read (Val, '(l2)', err=810) use_meas_solar
       elseif (Param .eq. 'evapcoeff_a') then
          read(Val, '(f10.5)', err=810) evapcoeff_a
       elseif (Param .eq. 'evapcoeff_b') then

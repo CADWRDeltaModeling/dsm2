@@ -87,6 +87,8 @@ module subroutine process_scalar(Param, Val)
         read (Val, '(f10.0)', err=810) init_conc
     elseif (Param .eq. 'dispersion') then
         read (Val, '(l2)', err=810) dispersion
+    elseif (Param .eq. 'use_meas_solar') then
+        read (Val, '(l2)', err=810) use_meas_solar
 
 !--------global rates for non-conserative const.
 
