@@ -110,6 +110,7 @@ module gtm_source
                                       ncell,                &
                                       conc(:,ivar))
             elseif (trim(name(ivar)).eq."temperature") then
+                ! time and dt arrive here in seconds; calc_heat_budget expects julian minutes
                 call calc_heat_budget(source(:,ivar),      &
                                       conc,                &
                                       wind,                &
@@ -119,8 +120,8 @@ module gtm_source
                                       wetblb,              &
                                       solar,               &
                                       depth,               &
-                                      dt,                  &
-                                      int(time),           &
+                                      dt/sixty,            &
+                                      int(time/sixty),     &
                                       ncell)
             end if
         end do
