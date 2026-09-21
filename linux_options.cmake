@@ -30,3 +30,6 @@ set(KLU_ROOT
 set(Loki_ROOT
     ${CMAKE_SOURCE_DIR}/deps/loki-0.1.7
     CACHE PATH "Loki root directory")
+set(fortran_stdlib_ROOT
+    ${CMAKE_SOURCE_DIR}/deps/fortran_stdlib-0.7.0
+    CACHE PATH "Fortran stdlib root directory")

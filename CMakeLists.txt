@@ -53,7 +53,7 @@ if(CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Find Fortran stdlib
-find_package(fortran_stdlib REQUIRED)
+find_package(fortran_stdlib)
 
 if (fortran_stdlib_FOUND)
   message(STATUS "Found stdlib")
