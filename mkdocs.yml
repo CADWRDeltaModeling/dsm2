@@ -17,6 +17,7 @@ nav:
         - Boundary Stage: manual/reference/Boundary_Stage.md
         - Channel Initial Condition: manual/reference/Channel_Initial_Condition.md
         - Channels: manual/reference/Channels.md
+        - Coupled Hydro-GTM: manual/reference/Coupled_Hydro-GTM.md
         - ENVVARS Section: manual/reference/ENVVARS_Section.md
         - Gate: manual/reference/Gate.md
         - Groups: manual/reference/Groups.md

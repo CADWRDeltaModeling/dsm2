@@ -18,12 +18,13 @@ See [Overview](dsm2_overview.md)
 
 ### Modules
 
-DSM2 currently consists of three modules, all included in the distribution:
+DSM2 currently consists of five modules, all included in the distribution:
 
 1. **HYDRO**: Simulates one-dimensional hydrodynamics, including flows, velocities, depth, and water surface elevations. HYDRO provides the flow input for QUAL and PTM.
 2. **QUAL**: Simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents based on the flow field simulated by HYDRO.
 3. **PTM**: Simulates pseudo-3D transport of neutrally buoyant particles based on the flow field simulated by HYDRO. PTM has applications ranging from visualization of flow patterns to simulating discrete organisms such as fish eggs and larvae.
 4. **GTM**: Simulates generalized transport processes, including sediment transport and other mass transport phenomena, extending the capabilities of DSM2 to model additional environmental processes.
+5. **HYDRO-GTM** : Simulate one-dimensional hydrodynamics and generalized transport processes at the same computational time step, allowing incoporating water quality effects into hydrodynamics computation.
 
 ---
 
