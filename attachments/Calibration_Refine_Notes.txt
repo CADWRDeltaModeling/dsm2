@@ -1,0 +1,74 @@
+Refine Calibration
+run1: 
+	try refine RSAN018 channel 49,83 to 0.028 from 0.026.
+	Grant line canal 204--213 increase to 0.028.
+	old river near ROLD034 to 0.027.
+run2: 
+    	old river 97--106 decrease n to 0.02, to increase flow. Rold024, ROLD034 looks good.
+	Grant line canal 204, 206--213 increase to 0.030.
+	miner slough 388--390 0.034 (range better, but net flow low)
+run3: 
+    	increase 382 385 386 387 n to 0.031 to increase flow in HWB
+run4:
+    	decrease 375 to 381 to 0.027 Sutter Slough better.
+run5:
+    	decrease 375 to 381 to 0.025
+run6: 	
+	Sac 419, 420 increase to 0.03, try to get more flow into Sutter.
+run7: 	
+	388--390 to 0.036 to reduce HWB range.
+run8: 	
+	LPS 323,324,325 increase n to 0.024. this is named refine1 in GIS with n values updated.
+
+run9: 
+      	try reduce RSAC123, RSAC128 amplitude by 423--429 to 0.031, better.
+
+run10:(confluence): to compare with mini calibration, and adjust manning n at the confluence area.
+            try1:      
+			289 change from 0.026 to 0.03
+			299 change to 0.03
+			281, 282 cahnge from 0.024 to 0.028
+	    try2:       
+		        281, 282 cahnge from 0.028 to 0.030
+		        283 to 0.035
+			293 most problem, delete two larger cross sections.
+			295,296,297,301 to 0.024
+					
+            try3:   	292 delete bad cross sections. 294 delete bad cross sections. result better.
+            try4:   	294,293,292 increase n to 0.024
+                    	289 to 0.032
+            try5:   	294,293,292 increase n to 0.025, 
+                    	289 to 0.035
+            try6:   	289 to 0.037
+
+run11:     236--247 restore to 0.027
+
+run12:     South Mok area compare to mini-calibration
+                      555--559 change to 0.038
+                      549,550 to 0.038,334,335,336 to 0.03.
+                      552,553 change to 0.03
+                      329 0.038,330 to 0.028
+                      365 to 0.028, 331 back to 0.028
+                      333,337--344  change to 0.026
+                      319,326,327,328 change to 0.024	  
+		  
+run13 (1998libertyoff): 
+                      run from 1998 to compare to 1998 confluence study data,
+                      big differnce at confluence area with liberty off.
+                      correct 283 length to 7500. n change to 0.034. 
+		      281,282 change to 0.028.
+                      The results compare with 1998 confluence study data well.
+	
+run14:
+                      see small difference n in confluence area effect on EC.  
+                      288 to 0.029, RSAN018 1% lower.
+
+run15:
+                      sac channel 430 to 434 incsrease n to 0.019.good. made ec smaller every where.
+
+run16:(restore7_SLMZU):
+                     only increase 449,451,454 to 2400. a little better at SLMZU011.
+                     Final. Verify in GIS, and update documents.
+
+
+ 

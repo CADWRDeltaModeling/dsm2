@@ -1,0 +1,61 @@
+This is the EC calibration note for V8.1Beta
+Start with Hydro run 26. 
+Time step using 15/30/15 for Hydro/Tidefile/Qual.
+
+EC_run1: Start with 2009 Mini-Calibration, scale dispersion coefficients by 1200, i.e. DC=1200*DQQ. 
+         Results good at West Delta upto until RSAC081, RSAN007.
+	 (MTZ EC converted to 15min instant using HECDSS view, 
+         by shift hourly data -30min first, then convert to 15min. 
+         Result almost identical to correctly using hourly data with per_aver property.)
+
+EC_run2: try to increase channel 434, 435 10% to 660. RSAC092 increase 3%.
+
+EC_run3: test 3mile sl 309 310, 308 307 increase 100% to 360.  no effect on EC. abandon.
+
+         increase 434 435 to 0.7*1200=840, RSAC092 much higher, match better. 
+         RSAN007 and RSAN018 also get higher.
+            
+EC_run4: Change channel 279, 280 DC to 720. results have small changes, good. 
+         Get rid of outliers for regression analysis for Clifton_court, ROLD024, SLDUT009 
+         December 2000, 2002, 2003, 2004, 2005, Aug, Sep 2008, Jan at 2001, 
+         when the model failed to predict the EC peaks.
+         RSAN018, Rold024 are a little high.
+
+EC_run5: reduce 0.07*1200=84 to 0.05*1200=60 for channels 48--53, 284,...
+         a little better at RSAN018 (slope reduced from 1.09 to 1.07), 
+         Overall results still high.
+
+EC_run6: try reduce overall by 2%. results matches data better.
+
+EC_run7: copy from run5, but with only limited modifications to west delta by roughly 2%. 
+         1560 to 1530 (channel 439,440,452), 
+         960 to 940 (channel 437, 438, 452), 
+         360 to 350 (channel 290,291 436). 
+         Result very close to run6. 
+         Update DC in hydro echo input file and tested fine.  
+         *This is my last calibration at 9/12/12 before vacation. 
+         
+EC_run8: copy from Run7, run with new 3x faster Hydro. Enching's Qual. 
+         My compiled Qual has the same results but slower.
+ 
+EC_run9_MTZ15minAve: Martinez EC change to 15min per-ave, 
+         compare to 1hr per-ave EC, the differences are surprisingly small about 0.1%.
+         only looks better at RSAC054 with 15min. 1hr step looks rough.
+         compare to run8, lower, but maximum diffrence near west Delta is less than 1%. Clifton court only 0.2%.
+         will continue with this setup using 15min per-ave. (or may use original hourly averaged data)
+         *the model did't handle instantaneous/linear very well due to the explicit scheme. 
+         So not recommend using ins/linear for quality.
+         *all channel volume conservation was checked in Qual using the 8yr run, 
+         Accumulated error/difference is less than 0.01%.
+
+EC_run10_MTZ_EC_correct_after_10-1-2002: 
+         correct MTZ EC: Before 10-1-2002, the data were from IEP, they are indeed hourly averaged. 
+         But after 10/1/2002, CDEC hourly data were used, which were instant samples, not hourly averaged. 
+         Convert ins hourly data to per-aver using HEC-DssVue for data after 10/1/2002.
+
+EC_run11_beta_release: update time series to 3/2012 for beta release 
+         and use Lan's latest Oprule changes, clifton Gate operation corrections. 
+         also convert the hydro echo input file to the original model input setup.
+				 
+                                  
+         
