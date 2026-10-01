@@ -1,0 +1,38 @@
+# Description: representative subset of dsm2_studies/common_input/oprule_hist_temp_barriers.inp
+# Historical operation of the temporary barriers. Includes a '^' (unused) row, mixed-case rule and gate names,
+# and ext_flow rules with stage-based hysteresis triggers.
+OPERATING_RULE
+NAME                       ACTION                                                                                                                                  TRIGGER
+glc_pipe_op_down           "SET gate_op(gate=grant_line_barrier,device=pipes,direction=to_node) TO ts(name=glc_pipeopdown)"                                        TRUE
+glc_install_in             "SET gate_install(gate=grant_line_barrier) TO 1.0"                                                                                      "ts(name=glc_install) >= 1.0"
+glc_install_out            "SET gate_install(gate=grant_line_barrier) TO 0.0"                                                                                      "ts(name=glc_install) <= 0.0"
+glc_barrier_elev           "SET gate_elev(gate=grant_line_barrier, device=barrier) TO ts(name=glc_elev)"                                                           TRUE
+glc_barrier_width          "SET gate_width(gate=grant_line_barrier, device=barrier) TO ts(name=glc_width)"                                                         TRUE
+old_r_barrier_chg_2000_1   "SET gate_width(gate=old_r@tracy_barrier,device=barrier) TO 18 WHILE SET gate_elev(gate=old_r@tracy_barrier,device=barrier) TO -1.941"  "DATETIME >= 31MAY2000 00:00"
+old_r_barrier_chg_2000_2   "SET gate_width(gate=old_r@tracy_barrier,device=barrier) TO 75 WHILE SET gate_elev(gate=old_r@tracy_barrier,device=barrier) TO 4.359"   "DATETIME >= 01JUN2000 00:00"
+orhrb_fall_install_in      "SET gate_install(gate=old_r@head_barrier) TO 1.0"                                                                                      "ts(name=orhrb_weirop_fall) >= 1.0"
+orhrb_fall_install_out     "SET gate_install(gate=old_r@head_barrier) TO 0.0"                                                                                      "ts(name=orhrb_weirop_fall) <= 0.0"
+orhrb_pipes_chg_elev       "SET gate_elev(gate=old_r@head_barrier,device=pipes) TO ts(name = orhrb_pipeelev)"                                                      TRUE
+FalseBarrier_in            "SET gate_install(gate=FalseBarrier) TO 1.0"                                                                                            "ts(name=fb_install) >= 1.0"
+FalseBarrier_out           "SET gate_install(gate=FalseBarrier) TO 0.0"                                                                                            "ts(name=fb_install) <= 0.0"
+FalseBarrier_elev          "SET gate_elev(gate=FalseBarrier, device=barrier) TO ts(name=fb_elev)"                                                                  TRUE
+# Set Tom Paine diversions at upstream nodes to 0.0 when upstream chan (185) stage < 2.0, and turn back on when stage > 2.2
+dicu_div_151_off           "SET ext_flow(name=dicu_div_151) TO 0.0"                                                                                                "chan_stage(channel=185, dist=0) <= 2.0"
+dicu_div_151_on            "SET ext_flow(name=dicu_div_151) TO -1*ts(name=dicu_div_151_flow)"                                                                      "chan_stage(channel=185, dist=0) >2.2"
+dicu_seep_151_off          "SET ext_flow(name=dicu_seep_151) TO 0.0"                                                                                               "chan_stage(channel=185, dist=0) <= 2.0"
+dicu_seep_151_on           "SET ext_flow(name=dicu_seep_151) TO -1*ts(name=dicu_seep_151_flow)"                                                                    "chan_stage(channel=185, dist=0) >2.2"
+^retired_rule              "SET gate_install(gate=grant_line_barrier) TO 0.0"                                                                                      TRUE
+END
+OPRULE_TIME_SERIES
+NAME                 FILLIN    FILE         PATH
+glc_elev             last      ${GATEFILE}  /HIST+GATE/GL_CN/WEIRELEVATION//IR-DECADE/DWR-BDO_NAVD/
+glc_width            last      ${GATEFILE}  /HIST+GATE/GL_CN/WEIRWIDTH//IR-DECADE/DWR-BDO/
+glc_install          last      ${GATEFILE}  /HIST+GATE/GL_CN/INSTALL//IR-DECADE/DWR-BDO/
+glc_pipeopdown       last      ${GATEFILE}  /HIST+GATE/GL_CN/PIPE_OP_DOWN//IR-DECADE/DWR-BDO/
+orhrb_pipeelev       last      ${GATEFILE}  /HIST+GATE/ORHRB/PIPEELEV//IR-DECADE/DWR-BDO_NAVD/
+orhrb_weirop_fall    last      ${GATEFILE}  /HIST+GATE/ORHRB_FALL/WEIR_OP//IR-DECADE/DWR-BDO/
+fb_elev              last      ${GATEFILE}  /HIST+GATE/FALSE_R/WEIRELEVATION//IR-DECADE/DWR-BDO_NAVD/
+fb_install           last      ${GATEFILE}  /HIST+GATE/FALSE_R/INSTALL//IR-DECADE/DWR-BDO_NAVD/
+dicu_div_151_flow    last      ${DICUFILE}  /DELTACD/151/DIV-FLOW//1DAY/DWR-BDO/
+dicu_seep_151_flow   last      ${DICUFILE}  /DELTACD/151/SEEP-FLOW//1DAY/DWR-BDO/
+END

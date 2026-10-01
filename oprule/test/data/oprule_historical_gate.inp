@@ -1,0 +1,43 @@
+# Description: representative subset of dsm2_studies/common_input/oprule_historical_gate.inp
+# Historical operation of gates. Kept in this repo as a parser/runtime fixture; the real file has more rows.
+OPERATING_RULE
+NAME                   ACTION                                                                                                                                                                                                                     TRIGGER
+clfct_gate_op          "SET gate_op(gate=clifton_court,device=reservoir_gates,direction=from_node) TO ts(name=clfct_op)"                                                                                                                          TRUE
+clfct_gate_nduplicate  "SET gate_nduplicate(gate=clifton_court,device=reservoir_gates) TO ts(name=clfct_nduplicate)"                                                                                                                              TRUE
+clfct_gate_height      "SET gate_height(gate=clifton_court,device=reservoir_gates) TO ts(name=clfct_height)"                                                                                                                                      TRUE
+clfct_gate_cf_from     "SET gate_coef(gate=clifton_court,device=reservoir_gates,direction=from_node) TO MIN2( ts(name=clfct_height)/(chan_stage(channel=232,dist=0)+13.2), 1)*0.8 + 0.75"                                                         TRUE
+clfct_gate_cf_to       "SET gate_coef(gate=clifton_court,device=reservoir_gates,direction=to_node) TO MIN2( ts(name=clfct_height)/(chan_stage(channel=232,dist=0)+13.2), 1)*0.8 + 0.75"                                                           TRUE
+dcc_gate_op            "SET gate_op(gate=delta_cross_channel,device=cross_channel_gates,direction=from_node) TO ts(name=dcc_op)/2 WHILE SET gate_op(gate=delta_cross_channel,device=cross_channel_gates,direction=to_node) TO ts(name=dcc_op)/2"  TRUE
+morrow_c_change_ndup   "SET gate_nduplicate(gate=morrow_c_line_outfall,device=pipes) TO 2"                                                                                                                                                        "DATETIME >= 28SEP1992 00:00"
+mscs_boatlock_op_to    "SET gate_op(gate=montezuma_salinity_control,device=boat_lock,direction=to_node) to ts(name = mtzsl_boatlock_op)"                                                                                                          TRUE
+mscs_boatlock_op       "SET gate_op(gate=montezuma_salinity_control,device=boat_lock,direction=from_node) to ts(name = mtzsl_boatlock_op)"                                                                                                        TRUE
+
+mscs_close             "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 0.0"                                                                                                                              "(mscs_velclose AND mscs_calc) OR (mscs_g3close)"
+mscs_close_to          "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO 0.0"                                                                                                                                "(mscs_velclose AND mscs_calc) OR (mscs_g3close)"
+mscs_open              "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO ts(name=mscs_fract_fromnode)"                                                                                                      "(mscs_dhopen AND mscs_calc) OR (mscs_g3open)"
+mscs_open_to           "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO ts(name=mscs_fract_tonode)"                                                                                                          "(mscs_dhopen AND mscs_calc) OR (mscs_g3open)"
+
+sandmound_close        "SET gate_op(gate=sandmound_sl,device=pipes,direction=from_node) TO 0.0"                                                                                                                                                   "DATETIME >= 07APR1989 00:00"
+sandmound_open         "SET gate_op(gate=sandmound_sl,device=pipes,direction=from_node) TO 1.0"                                                                                                                                                   "DATETIME >= 10APR1989 00:00"
+END
+
+OPRULE_EXPRESSION
+NAME           DEFINITION
+mscs_calc      "ts(name=mscs_op) < 0"
+mscs_dhopen    "(chan_stage(channel=512,dist=6038) - chan_stage(channel=513,dist=0)) > 0.3"
+mscs_velclose  "chan_vel(channel=512,dist=5750) < -0.1"
+mscs_g3open    "(ts(name=mscs_op)-1.0) < 0.0001 AND (ts(name=mscs_op)-1.0) > -0.0001"
+mscs_g3close   "(ts(name=mscs_op)) < 0.0001 AND (ts(name=mscs_op)) > -0.0001"
+END
+
+OPRULE_TIME_SERIES
+NAME                 FILLIN    FILE         PATH
+clfct_op             last      constant     1.0
+clfct_height         last      ${GATEFILE}  /HIST+GATE/CHWST000/WEIRELEVATION//IR-MONTH/DWR-OM-JOC-DSM2/
+clfct_nduplicate     last      ${GATEFILE}  /HIST+GATE/CHWST000/NDUPLICATE//IR-MONTH/DWR-OM-JOC-DSM2/
+dcc_op               last      ${GATEFILE}  /HIST+GATE/RSAC128/POS//IR-YEAR/DWR-DMS-DSM2/
+mscs_fract_fromnode  last      ${GATEFILE}  /HIST+GATE/MTZSL/RADIAL_FRACT_UP//IR-DECADE/DWR-ESO/
+mscs_fract_tonode    last      ${GATEFILE}  /HIST+GATE/MTZSL/RADIAL_FRACT_DOWN//IR-DECADE/DWR-ESO/
+mscs_op              last      ${GATEFILE}  /HIST+GATE/MTZSL/RADIAL_OP//IR-DECADE/DWR-ESO/
+mtzsl_boatlock_op    last      ${GATEFILE}  /HIST+GATE/MTZSL/BOATLOCK_OP//IR-DECADE/DWR-ESO/
+END

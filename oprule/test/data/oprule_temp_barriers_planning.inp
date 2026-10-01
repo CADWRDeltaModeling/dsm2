@@ -1,0 +1,38 @@
+# Description: representative subset of dsm2_studies/common_input/oprule_temp_barriers_planning.inp
+# Temporary barriers in planning mode: seasonal (SEASON) triggers built from named expressions, OPEN/CLOSE/INSTALL/REMOVE constants,
+# IFELSE targets, WHILE actions, and a rule that reads gate_install in its trigger.
+OPERATING_RULE
+NAME                            ACTION                                                                                                                                                                                                                                            TRIGGER
+glc_barrier_elev                "SET gate_elev(gate=grant_line_barrier,device=barrier) TO 2.813 RAMP 60MIN"                                                                                                                                                                       from_16may_to_15sep
+glc_barrier_in                  "SET gate_op(gate=grant_line_barrier,device=barrier,direction=to_from_node) TO OPEN RAMP 60MIN"                                                                                                                                                   "from_16may_to_30nov AND (sjr_flow<=12000)"
+glc_barrier_out                 "SET gate_op(gate=grant_line_barrier,device=barrier,direction=to_from_node) TO CLOSE RAMP 60MIN"                                                                                                                                                  "SEASON>01DEC OR SEASON<15APR OR sjr_flow > 18000"
+glc_barriers_install            "SET gate_install(gate=grant_line_barrier) TO INSTALL"                                                                                                                                                                                            "(from_01jun_to_30nov AND (sjr_flow<=12000))"
+glc_barriers_pipes_tidal        "SET gate_op(gate=grant_line_barrier,device=pipes,direction=from_node) TO OPEN RAMP 60MIN WHILE SET gate_op(gate=grant_line_barrier,device=pipes,direction=to_node) TO CLOSE RAMP 60MIN"                                                          from_01jun_to_30nov
+glc_barriers_remove             "SET gate_install(gate=grant_line_barrier) TO REMOVE"                                                                                                                                                                                             "SEASON>01DEC OR SEASON<31MAY OR sjr_flow>18000"
+midr_barriers_elev              "SET gate_elev(gate=middle_r_barrier,device=barrier) TO IFELSE(from_15apr_to_15sep,3.267,3.127) RAMP 60MIN"                                                                                                                                       "from_16may_to_15sep OR a_vamp OR from_16sep_to_30nov"
+oldr_fall_in                    "SET gate_op(gate=old_r@tracy_barrier,device=fall_notch,direction=to_from_node) TO OPEN RAMP 60MIN WHILE SET gate_op(gate=old_r@tracy_barrier,device=fall_notched_barrier,direction=to_from_node) TO OPEN RAMP 60MIN"                             "NOT from_15apr_to_15sep"
+orh_barrier_elev_sjr_gt7500     "SET gate_elev(gate=old_r@head_barrier,device=spring_barrier) TO 12.326 RAMP 60MIN"                                                                                                                                                               "a_vamp AND sjr_flow<=7500"
+orh_fall_pipe_elev              "SET gate_elev(gate=old_r@head_barrier,device=pipes) TO -2.674"                                                                                                                                                                                   "from_16sep_to_30nov AND (sjr_flow < 5000)"
+orh_install                     "SET gate_install(gate=old_r@head_barrier) TO INSTALL"                                                                                                                                                                                            "ts(name=orhrb_install) == 1.0"
+orh_remove                      "SET gate_install(gate=old_r@head_barrier) TO REMOVE"                                                                                                                                                                                              "ts(name=orhrb_install) == 0"
+^vamp_8500_remove               "SET gate_install(gate=old_r@head_barrier) TO REMOVE WHILE SET gate_op(gate=old_r@tracy_barrier,device=pipes,direction=to_node) TO OPEN RAMP 60MIN WHILE SET gate_op(gate=middle_r_barrier,device=pipes,direction=from_node) TO OPEN RAMP 60MIN"  "(gate_install(gate=old_r@head_barrier) == INSTALL) AND (sjr_flow>8500) AND a_vamp"
+# vamp_8500_remove_wip is NOT in the real file: it is an active, single-action copy of the '^' row above so the tests can exercise a trigger that reads gate_install.
+vamp_8500_remove_wip            "SET gate_install(gate=old_r@head_barrier) TO REMOVE"                                                                                                                                                                                             "(gate_install(gate=old_r@head_barrier) == INSTALL) AND (sjr_flow>8500) AND a_vamp"
+END
+OPRULE_EXPRESSION
+NAME                 DEFINITION
+a_vamp               "SEASON >15APR AND SEASON <16MAY"
+from_01jun_to_15sep  "SEASON>01JUN AND SEASON<16SEP"
+from_01jun_to_30nov  "SEASON>01JUN AND SEASON<01DEC"
+from_15apr_to_15sep  "SEASON>15APR AND SEASON<16SEP"
+from_16may_to_15sep  "SEASON>16MAY AND SEASON<16SEP"
+from_16may_to_30nov  "SEASON > 16MAY AND SEASON < 01DEC"
+from_16sep_to_30nov  "SEASON >16SEP AND SEASON < 01DEC"
+sjr_flow             ts(name=vernalis_flow)
+vamp_install         "(SEASON >15APR AND SEASON <16MAY) AND gate_install(gate=old_r@head_barrier) == INSTALL"
+END
+OPRULE_TIME_SERIES
+NAME            FILLIN  FILE             PATH
+vernalis_flow   last    ${BOUNDARYFILE}  /CALSIM/VERNALIS/FLOW//1MON/${CALSIMSTUDY_MODIFIED}/
+orhrb_install   last    ${GATEFILE}      /PLAN+GATE/ORHRB/INSTALL//IR-DECADE/DWR-BDO/
+END

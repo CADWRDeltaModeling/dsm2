@@ -184,7 +184,16 @@ For each: the **C** test first, then the **X** test if confirmed.
 | D-18 | new | U1 | P2 | `ActionSet` and `ActionChain` `_active` are uninitialised in the constructors; call `isActive()` right after construction (before `addRule`). | `false`. |
 | D-19 | new | U2 | P2 | Throwing pointers: `ModelInterface::setDataExpression` default `throw new std::logic_error`. Calling it on a static interface | Exception type that can be caught as `std::exception`. |
 | D-20 | new | U1 | P2 | Quick numeric checks for grammar-level surprises: `2^3^2`, `-2^2`, `NOT false AND false`, `1+2 < 4 AND 2*2==4` | Record; promote as R. |
+| D-21 | new | U1 | P1 | Lower-case month names in a date/season literal (`01jan2020`, `jan`). **Confirmed (core `pinned`):** evaluate to 0. | Case-insensitive month names. |
+| D-22 | new | U1 (S5) | P1 | `WHILE` of two actions with unequal `RAMP` durations. **Confirmed (core, child process):** aborts (SIGABRT) in Debug. | Either action may finish first. |
+| D-23 | new | U1 (S5) | P1 | `predict(...)` in a trigger: nothing calls `init()`. **Confirmed (core, child process):** aborts (SIGABRT) at the first test. | `init()` called when the node is built or first stepped. |
+| D-24 | new | U2 | P1 | Unknown channel number / reservoir name in `chan_*`, `res_stage`, `res_flow`. **Confirmed (dsm2 `factory_arguments`):** not validated (`chan_geom(0)`; empty node; `res_geom(-901)`). | Parse-time error naming the bad argument. |
+| D-25 | new | U2 | P1 | Time series driving `gate_nduplicate`. **Confirmed (dsm2 `study_rule_behaviour`):** the model sees a non-integer after the first step. | Rounded like the setter, or rejected. |
+| D-26 | new | U2 | P2 | Any two actions on one gate device overlap (extends D-08). **Confirmed (dsm2 `resolver_overlap`):** opposing-direction rules (`mscs_*`) and different properties (`glc_*`) are serialized. | (Design decision) per-property / per-direction overlap. |
+| D-27 | new | U2 | P2 | `ts(...)` series lookup uses the first name match across all paths. **Recorded in the mock contract (dsm2 `fortran_mock_contract`, from reading the Fortran), not verified against the real model.** | (Design decision) require the path. |
+| D-28 | new | U1 | P2 | `PARSE_ERROR` is never set (see 9b). **Found by reading; not asserted by a test yet (GRM-10).** | Set by the parser on failure. |
 
+Confirmed by tests as predicted: D-01, D-02, D-03, D-04, D-10, D-11, D-13, D-14, D-16, D-17 (SIGSEGV, child process); D-07 and D-08 are covered through the conflict tests (CFL-05, CFL-08). Not testable with a mock: D-05. Not asserted: D-06, D-09, D-12, D-15, D-18, D-19, D-20 (partly), D-28.
 ---
 
 ## 4. Lexer and grammar checks
@@ -374,7 +383,7 @@ Format, destination and control are undecided (reference B10). These tests are w
 | A6 parse order, length limits | INP-01, INP-04..06 |
 | B3 parse state | PSM-01..06 |
 | B5 start-up and loop | INT-01..08, TS-01, RUN-04/05 |
-| B9.1..B9.15 | D-01..D-19 |
+| B9.1..B9.24 | D-01..D-28 (B9.16..24 map to D-17, D-07, D-16, D-21, D-22, D-23, D-24, D-25, D-26) |
 | B10 logging | LOG-01..14, INT-09 |
 
 ---

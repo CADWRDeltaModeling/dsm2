@@ -291,7 +291,7 @@ The C entry points are `advanceopruleactions_`, `stepopruleexpressions_`, `testo
 
 ## B9. Suspected defects and observations
 
-Not verified by running the code. Listed so they can be confirmed or dismissed.
+Items 1 to 15 were found by reading the code; most are now confirmed by tests (noted below). Items 16 and later were found by running tests. Item 5 (ABI) cannot be tested with a mock.
 
 1. **REFSEASON + REFTIME hour is always 0** (`op_rule.y`, `date` rule). The hour is taken from `substr(2,3)` of `"HH:MM"`, which is `":MM"`. The minute (`substr(3,2)`) is correct. Real inputs use date-only seasonal literals, so this has not been hit.
 2. **`ChannelFlowNode` / `ChannelWSNode` store `distance` as `int`.** `copy()` re-creates the node from the truncated value, so a fractional `dist` is lost in copies (triggers and action targets are copied by the grammar). `ChannelVelocityNode` stores a double.
@@ -311,6 +311,20 @@ Not verified by running the code. Listed so they can be confirmed or dismissed.
 13. **`accumulate`** adds the expression value each step without multiplying by `dt` (source comment: "todo: urgent decide this"). The initial value is evaluated once at construction (parse time). On a reset step the initializer is applied and the expression is then added in the same step.
 14. **`pid`/`ipid`**: arguments 3 to 9 are evaluated once at parse time (`->eval()`), so they must be constants. `PIDNode::eval()` asserts `_yold != HUGE_VAL` and `init()` is not called by the parser (source comment: "horrible workaround"), so `eval()` before the first `step()` is unsafe.
 15. `ModelInterface::setDataExpression` default, and the `LaggedExpressionNode` methods, use `throw new` (pointer throw).
+
+Items 16 to 24 were found while writing the tests; each is pinned by a test (see [OPRULE_TESTS_OVERVIEW.md](OPRULE_TESTS_OVERVIEW.md) section 6). Items 1 to 4, 6 to 8, 11 to 13 are confirmed by tests; 14 is only partly covered.
+
+16. **A top-level `THEN` chain crashes `addRule`** (D-17, confirmed, SIGSEGV). Chains only work nested in `WHILE`, or when the rule is driven directly (without the manager).
+17. **A chain nested in `WHILE` is not visible to the conflict logic** (D-07, confirmed): its actions are not in the action list, so rules touching the same device are not deferred by it.
+18. **A rising edge while the rule is active is missed** (D-16, confirmed): the trigger is only tested while inactive, so a condition that goes false and true again during a ramp does not retrigger.
+19. **Lower-case month names evaluate to 0** (D-21, confirmed): `jan` etc. in a date or season literal are not matched (upper case is). Use upper case.
+20. **`WHILE` with actions of unequal duration asserts** in a Debug build (D-22, confirmed, SIGABRT); release builds behave unpredictably.
+21. **`PREDICT` in a trigger asserts** (D-23, confirmed, SIGABRT): nothing calls `init()` on expression nodes, and `PredictNode::eval()` requires it.
+22. **No validation of channel / reservoir names or numbers**: an unknown channel number reads `chan_geom(0)`; `res_stage` of an unknown reservoir returns an empty node; `res_flow` indexes `res_geom(-901)`. Both are undefined behaviour on the Fortran side.
+23. **`gate_nduplicate` driven by a time series**: the setter rounds to an integer, but the data source path hands the model the raw value, so `nduplicate` is non-integer after the first step.
+24. **Overlap is by device, not by property** (extends 8): in the DSM2 resolver any two actions on one gate device conflict, and gate-level `gate_install` conflicts with every device. Rules for opposite directions of one device (`mscs_close_from` / `mscs_close_to`) and for different properties (`glc_barrier_elev` / `glc_barrier_in`) are serialized through deferral.
+
+Also noticed: `ts()` looks a series up across all paths (the first name match wins), and `PARSE_ERROR` is never set by the parser (errors are only reported through the return code and log).
 
 ## B10. Logging: where to hook in
 

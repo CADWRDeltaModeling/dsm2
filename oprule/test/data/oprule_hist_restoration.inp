@@ -1,0 +1,15 @@
+# Description: representative subset of dsm2_studies/common_input/oprule_hist_restoration.inp
+# Historical operation of restoration areas: static gate_coef set with an abrupt-in-time DATETIME trigger and a 2 hour ramp.
+OPERATING_RULE
+NAME                             ACTION                                                                                           TRIGGER
+decker_is_north_weir_close_frm   "SET gate_coef(gate=decker_is_north_weir,device=weir,direction=from_node) TO 0.0 RAMP 120MIN"    "DATETIME < 20SEP2018 12:00"
+decker_is_north_weir_open_frm    "SET gate_coef(gate=decker_is_north_weir,device=weir,direction=from_node) TO 0.4 RAMP 120MIN"    "DATETIME >= 20SEP2018 12:00"
+decker_is_north_weir_close_to    "SET gate_coef(gate=decker_is_north_weir,device=weir,direction=to_node) TO 0.0 RAMP 120MIN"      "DATETIME < 20SEP2018 12:00"
+decker_is_north_weir_open_to     "SET gate_coef(gate=decker_is_north_weir,device=weir,direction=to_node) TO 0.4 RAMP 120MIN"      "DATETIME >= 20SEP2018 12:00"
+yolo_flyway_weir_close_frm       "SET gate_coef(gate=yolo_flyway_weir,device=weir,direction=from_node) TO 0.0 RAMP 120MIN"        "DATETIME < 28SEP2018 12:00"
+yolo_flyway_weir_open_frm        "SET gate_coef(gate=yolo_flyway_weir,device=weir,direction=from_node) TO 0.65 RAMP 120MIN"       "DATETIME >= 28SEP2018 12:00"
+tule_red_berm_close_frm          "SET gate_coef(gate=tule_red_weirs,device=weir_berm,direction=from_node) TO 0.0 RAMP 120MIN"     "DATETIME < 15OCT2019 12:00"
+tule_red_berm_open_frm           "SET gate_coef(gate=tule_red_weirs,device=weir_berm,direction=from_node) TO 0.65 RAMP 120MIN"    "DATETIME >= 15OCT2019 12:00"
+lindsey_sl_north_weir_close_frm  "SET gate_coef(gate=lindsey_sl_north_weir,device=weir,direction=from_node) TO 0.0 RAMP 120MIN"   "DATETIME < 21NOV2014 12:00"
+lindsey_sl_north_weir_open_frm   "SET gate_coef(gate=lindsey_sl_north_weir,device=weir,direction=from_node) TO 0.65 RAMP 120MIN"  "DATETIME >= 21NOV2014 12:00"
+END
