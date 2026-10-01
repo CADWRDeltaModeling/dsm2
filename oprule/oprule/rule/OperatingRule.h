@@ -83,6 +83,14 @@ public:
    */
    bool testNewlyTriggered();
 
+   /** How the trigger value changed at the latest testNewlyTriggered call, compared with the call before.
+   * INITIAL_FALSE: first test and false (a first test that is true counts as RISING). Unlike the
+   * edge returned by testNewlyTriggered, a deferral does not make a repeated true value a change.
+   * A rule is not tested while it is active, so a change during that time shows up at the first test afterwards.
+   */
+   enum TriggerChange { NO_CHANGE, INITIAL_FALSE, RISING, FALLING };
+   TriggerChange getTriggerChange() const {return _triggerChange;}
+
    /** Trigger value computed by the latest testNewlyTriggered call (false before the first).
    * Lets logging report the value without testing the trigger again.
    */
@@ -104,6 +112,15 @@ public:
    */
    virtual OperationAction::ActionListType& getActionList();
 
+   /** What the trigger depends on, for the rule log: "trigger_inputs=[a=1; b=2]" (the model
+    *  variables the trigger reads and the internal state of stateful nodes). Reads current
+    *  values; never evaluates a stateful node.
+    */
+   std::string describeTrigger();
+
+   /** State of the action for the rule log (see OperationAction::describeState). */
+   std::string describeAction();
+
    /** Virtual destructor */
    virtual ~OperatingRule();
 
@@ -113,6 +130,8 @@ private:
    TriggerPtr _trigger;
    bool _prevTriggerValue;   // todo: move this to trigger
    bool _lastTriggerValue;   // unlike _prevTriggerValue, not reset by deferActivation
+   bool _testedBefore;
+   TriggerChange _triggerChange;
    std::string _name;
 };
 

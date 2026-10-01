@@ -45,22 +45,20 @@ void OperationManager::manageActivation(){
        if (rulePtr->isActive())continue;
        //cout << rulePtr->getName() << " start test trigger" <<endl;
 	   bool newlyTriggered = rulePtr->testNewlyTriggered();
-       // Logging reuses the value just computed; it must never test the trigger again.
-       if (RuleLog::enabled(RuleLog::TRIGGERS)){
-          RuleLog::write(RuleLog::TRIGGERS, "TRIGGER_VALUE", rulePtr->getName(),
-             rulePtr->getLastTriggerValue() ? "value=true" : "value=false");
+       // Only changes of the trigger value are logged, each with the inputs that produced it. The
+       // value was computed by the test above; logging must never test the trigger again.
+       OperatingRule::TriggerChange change = rulePtr->getTriggerChange();
+       if (change != OperatingRule::NO_CHANGE && RuleLog::enabled(RuleLog::EVENTS)){
+          const char* event = change == OperatingRule::RISING ? "TRIGGERED" :
+                              change == OperatingRule::FALLING ? "TRIGGER_CLEARED" : "TRIGGER_INITIAL";
+          RuleLog::write(RuleLog::EVENTS, event, rulePtr->getName(), rulePtr->describeTrigger());
        }
-       if (!newlyTriggered && !rulePtr->getLastTriggerValue() &&
-           _deferredLogged.erase(rulePtr.get())){
+       if (change == OperatingRule::FALLING && _deferredLogged.erase(rulePtr.get())){
           RuleLog::write(RuleLog::EVENTS, "DEFER_ENDED", rulePtr->getName(),
              "trigger went false while deferred");
        }
 	   if (newlyTriggered){
            //cout << rulePtr->getName()<< " triggered" << endl;
-          // a deferred rule is re-triggered on every retry; only the first is an event
-          if (_deferredLogged.find(rulePtr.get()) == _deferredLogged.end()){
-             RuleLog::write(RuleLog::EVENTS, "TRIGGERED", rulePtr->getName(), "");
-          }
 		  // rule is triggered, test whether action is valid in context
 		   bool applicable = rulePtr->isActionApplicable();
           if (!applicable){
@@ -123,7 +121,8 @@ void OperationManager::manageActivation(){
                //cout << "Activating " << (*it)->getName()<<endl;
                (*it)->setActive(true);
                _deferredLogged.erase(rulePtr.get());
-               RuleLog::write(RuleLog::EVENTS, "ACTIVATED", rulePtr->getName(), "");
+               RuleLog::write(RuleLog::EVENTS, "ACTIVATED", rulePtr->getName(),
+                  RuleLog::enabled(RuleLog::EVENTS) ? rulePtr->describeAction() : std::string());
                //cout << "Activated " << (*it)->getName()<<endl;
             }
          } // rule is applicable

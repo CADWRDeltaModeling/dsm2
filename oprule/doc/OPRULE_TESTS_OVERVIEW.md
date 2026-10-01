@@ -2,16 +2,18 @@
 
 A high-level map of what the tests cover, so conceptual gaps are easy to spot. Detail lives in the tests themselves (names say what they check) and in [OPRULE_TEST_PLAN.md](OPRULE_TEST_PLAN.md); how the rule system works is in [OPRULE_REFERENCE.md](OPRULE_REFERENCE.md); build and run instructions are in [DEVELOPER_NOTES.md](DEVELOPER_NOTES.md).
 
-## 1. The three test programs
+## 1. The test programs
 
 | Program | Source | Cases | What it exercises | Needs |
 |---|---|---|---|---|
 | `oprule_smoke_tests` | `test/smoke/SmokeTests.cpp` | 19 | Quick sanity pass: parse, run, defer, ramp, data source, one end-to-end rule. | oprule libs |
-| `oprule_core_tests` | `test/core/CoreTests.cpp` | 77 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log, pinned defects. Mock model only. | oprule libs |
-| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 77 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up and interface descriptions. | oprule libs + Loki headers |
+| `oprule_core_tests` | `test/core/CoreTests.cpp` | 87 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log (trigger changes, state, ramp state), pinned defects. Mock model only. | oprule libs |
+| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 79 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up, rule text, interface descriptions and the inputs in the log records. | oprule libs + Loki headers |
 | `test_model_interface` (Fortran, test-drive) | `dsm2/tests/model_interface/test_model_interface.f90` | 16 | The **real** Fortran routines of `model_interface.f90` that the C++ calls: name lookups, flows, gates and devices, data sources, time, the log level. Checks the mock's description of them. | the full DSM2 build (see DEVELOPER_NOTES.md) |
 
 Run all three after a build: `for t in smoke core dsm2; do ./oprule/test/oprule_${t}_tests; done` (see DEVELOPER_NOTES.md for the build). Setting `OPRULE_CORPUS_DIR=/scratch/psandhu/dsm2_studies/common_input` makes the DSM2 program also parse the complete real `oprule_*.inp` files.
+
+Above these sit the **system tests** (section 9): the real `hydro` model on a real study, with the log off and on.
 
 ## 2. Test seams (what is real and what is mocked)
 
@@ -60,6 +62,8 @@ Legend: **C** core tests, **D** DSM2 tests, **S** smoke tests. "pinned" means th
 | Functions Fortran calls (`parse_rule_`, `advance…`) | D `fortran_entry_points` | one test, process-wide manager |
 | Crashes and `exit()` paths | C `pinned_runtime` (child process) | |
 | Rule log: events, levels, deferral policy, no extra evaluation | C `rule_log`, D `rule_log_binding` | design in OPRULE_REFERENCE.md B10; helpers in `support/LogCapture.h` |
+| Rule log: only changes, with the inputs and internal state that caused them | C `rule_log` (`only_trigger_changes_are_logged_with_their_inputs`, `named_expressions_are_listed…`, `triggered_record_reports_the_internal_state_of_accumulate`, ramp state tests), D `rule_log_binding` | named expressions through `NamedExpressionNode` |
+| The log changes nothing in a real model run | System test ST-01, ST-02, ST-04 | OPRULE_TEST_PLAN.md section 13 |
 | Interface descriptions used by the log | D `rule_log_interfaces` | indices, not names |
 | Real Fortran behind the mock | Fortran `test_model_interface` | see section 8 |
 
@@ -117,7 +121,8 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 - Fortran-side input processing (`process_input_oprule`, `get_inp_data`) and DSS time series: `ts` values are supplied by the test.
 - Real Fortran routines: `test_model_interface` checks `model_interface.f90` (section 8), but only the routines in that file. Other Fortran the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) is still mirrored from reading the source.
 - Restart / warm-start behaviour of rule state.
-- Logging in a complete model run (LOG-01 bitwise comparison, LOG-12 overhead): needs a golden study run (INT-09). Named expression values are not logged (LOG-14).
+- Named expression values are reported but the lagged expression node is not (it is not implemented); internal state of nodes is reported for `accumulate`, `predict` and `pid` only.
+- The HDF5 log (planned: OPRULE_LOG_HDF5_PLAN.md, tests H5-01 to H5-10).
 - Performance with many rules.
 
 ## 8. Fortran test of `model_interface.f90`
@@ -135,6 +140,16 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 | `device_properties`, `nduplicate_is_rounded_by_the_setter`, `flow_coefficients` | height, width (`maxWidth`), elevation (`baseElev`), rounded `nduplicate`, `gate_coef` to/from |
 | `data_source_types`, `fetch_data` | `timedep` selects expression or constant data; constant and DSS sources; any other type gives `miss_val_r` |
 | `time_functions`, `reference_minute_of_year` | `julmin` epoch (01JAN1900 00:00 = minute 1440), 0-based day of year, leap years in `get_reference_minute_of_year` |
-| `oprule_log_level` | the scalar wins; otherwise `print_level` 4, 5, 6 give 1, 2, 3; 3 or lower or unset gives 0; capped at 3 |
+| `oprule_log_level` | the scalar wins; otherwise `print_level` 4 gives 1 and 5 or more gives 2; 3 or lower or unset gives 0; capped at 2 |
 
 Not testable there: `gate_coef` with `direction=both` (the routine calls `exit(3)`), the C++ side of the `bool` argument (D-05), and routines outside `model_interface.f90`.
+
+## 9. System tests (the real model)
+
+The system test runs `hydro` on the historical study (87 rules, 01SEP2014 to 31DEC2014) four times at once, each with its own output directory: logging off, logging off again (the noise floor), level 1, level 2. It then checks that the model output does not depend on the log (tide file identical object by object, restart file byte identical, run log identical, same number of network iterations), that logging off creates no file, that the logs are consistent with the log design (`check_log.py`), and records the run times and log sizes. Result on 2026-09-30: PASS, no measurable overhead, logs of 0.43 MB (level 1) and 0.65 MB (level 2).
+
+```bash
+cd /scratch/psandhu/dsm2_oprule_system_test && ./run_system_test.sh --clean && tail -1 st_report.txt
+```
+
+Details, the pass criteria ST-01 to ST-06 and the planned enhancements ST-F1 to ST-F10 (longer periods, golden baseline, cross-check of the log against the model output, coupled runs, fault injection, HDF5 log): OPRULE_TEST_PLAN.md section 13.

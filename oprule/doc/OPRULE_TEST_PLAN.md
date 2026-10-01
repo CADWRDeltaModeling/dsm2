@@ -329,7 +329,7 @@ Files: `dsm2_studies/common_input/oprule_{historical_gate,hist_restoration,hist_
 
 ## 9. Logging feature: acceptance tests (LOG)
 
-Format, destination and control were decided on 2026-09-30 (reference B10, "Decided design"): a dedicated oprule log file, levels 0 to 3 (strict supersets), level set by an oprule scalar with `print_level` as fallback, one `time | EVENT | rule | detail` record per line. The tests below check content and ordering, not exact text, so they stay valid if the format changes. Each log event carries: rule name, model time, event type, and event-specific fields. Unit-level LOG tests use `RuleLog::setSink` with a string stream.
+Format, destination and control were decided on 2026-09-30 and revised the same day (reference B10, "Decided design"): a dedicated oprule log file, levels 0 to 2 (strict supersets), level set by an oprule scalar with `print_level` as fallback, one `time | EVENT | rule | detail` record per line, **only changes are logged** and each trigger change carries the inputs that caused it. LOG-08 (per-step trigger values) was dropped for size and replaced by the change tests listed in the status table. The tests below check content and ordering, not exact text, so they stay valid if the format changes. Each log event carries: rule name, model time, event type, and event-specific fields. Unit-level LOG tests use `RuleLog::setSink` with a string stream.
 
 Adjustments from the decisions: LOG-06 policy is "once per deferral episode"; LOG-10 now only checks ordering inside the oprule file (Fortran and C++ no longer share a stream); the LOG-02 guard is implemented by storing the trigger value in `OperatingRule` instead of re-testing.
 
@@ -354,20 +354,21 @@ Adjustments from the decisions: LOG-06 policy is "once per deferral episode"; LO
 
 | ID | Status | Test |
 |---|---|---|
-| LOG-01 | open | needs a golden full-model run (INT-09); unit level: `rule_log/off_by_default_writes_nothing` (core) |
-| LOG-02 | unit level done | `rule_log/logging_does_not_test_triggers_again`, `rule_log/model_values_are_the_same_with_and_without_logging` (core); `rule_log_binding/model_values_do_not_depend_on_the_log_level` (dsm2). Bitwise comparison of a full run is open (INT-09) |
+| LOG-01 | done (system test) | `st_off`/`st_off2` create no `oprule_log.txt` (section 13, ST-04); unit level: `rule_log/off_by_default_writes_nothing` (core) |
+| LOG-02 | done | unit: `rule_log/logging_does_not_test_triggers_again`, `rule_log/model_values_are_the_same_with_and_without_logging`, `rule_log/state_report_does_not_change_when_stateful_triggers_fire` (core); `rule_log_binding/model_values_do_not_depend_on_the_log_level` (dsm2). System: tide file, restart file and run log identical with logging on (ST-01) |
 | LOG-03 | done | `rule_log_binding/entry_points_log_loading_and_use_the_model_time` (dsm2): `RULE_LOADED` and `EXPRESSION_LOADED` in parse order |
 | LOG-04 | done | `rule_log/trigger_is_logged_once_per_rising_edge`, `simple_rule_event_order` (core) |
 | LOG-05 | done | `rule_log/deferral_names_the_blocking_rule_and_is_logged_once` (core); `rule_log_binding/opposite_directions_of_one_device_are_deferred_and_named` (dsm2) |
 | LOG-06 | done | policy: once per deferral episode; `deferral_names_the_blocking_rule_and_is_logged_once`, `deferral_episode_ends_when_the_trigger_goes_false` (core) |
 | LOG-07 | done | `rule_log/action_records_match_the_values_written` (core); `rule_log_binding/action_records_name_the_gate_device_and_the_values_written` (dsm2) |
-| LOG-08 | done | `rule_log/trigger_values_are_logged_for_inactive_rules_at_level_3_only` (core) |
+| LOG-08 | replaced | per-step trigger values were removed (212 MB for four months). Replaced by: `rule_log/only_trigger_changes_are_logged_with_their_inputs`, `a_trigger_that_starts_true_is_triggered_not_initial` (core) |
 | LOG-09 | done | `rule_log/each_level_is_a_superset_of_the_one_below`, `level_is_clamped_and_needs_a_sink` (core) |
 | LOG-10 | not needed | the log is a separate file, so no ordering against Fortran output |
 | LOG-11 | done | `rule_log_interfaces/every_writable_interface_describes_itself` (dsm2). Descriptions use indices, not names |
-| LOG-12 | open | needs a full run |
+| LOG-12 | done at this scale | system test run times (four runs at the same time): off 244 s and 242 s, level 1 245 s, level 2 244 s (ST-06) |
 | LOG-13 | partly | the harness drives the same manager calls as the coupled and standalone paths; no full-model check |
-| LOG-14 | deferred | named expression values are not logged |
+| LOG-14 | done | named expression values are logged through `NamedExpressionNode`: `rule_log/named_expressions_are_listed_with_their_values_and_shared_inputs_once` (core). The wrapper only delegates; parser tests are unchanged |
+| (new) state | done | trigger inputs: `rule_log/triggered_record_lists_the_trigger_inputs`, `triggered_record_reports_the_internal_state_of_accumulate` (core), `rule_log_binding/triggered_record_names_the_model_variables_the_trigger_reads` (dsm2). Action state: `rule_log/activated_record_describes_a_static_ramp`, `activated_record_marks_time_dependent_actions_live`, `compound_actions_are_described_together`, `action_records_carry_the_ramp_state_and_the_current_target_inputs`, `number_and_state_formats` (core), `rule_log_binding/activated_record_describes_the_gate_action` (dsm2). Rule text: `entry_points_log_loading_and_use_the_model_time` (dsm2). Labels: `rule_log_interfaces/every_writable_interface_describes_itself` (dsm2) |
 | (new) | done | file sink and unopenable path: `rule_log/a_file_sink_receives_the_records` (core), `rule_log_binding/level_zero_and_unopenable_paths_leave_the_log_off` (dsm2); level mapping from `print_level` and the scalar: `test_log_level` in `dsm2/tests/model_interface` (Fortran) |
 
 ---
@@ -429,3 +430,57 @@ cmake --build /scratch/psandhu/dsm2_oprule_build --target oprule_smoke_tests -j 
 Inside the full build, configure with `-DOPRULE_BUILD_TESTS=ON` to get the same target. The standalone project needs only flex, bison, a C++14 compiler and the bundled Boost; it still enables Fortran because `oprule/CMakeLists.txt` does.
 
 Test helper notes: call `op_rulerestart(NULL)` before every parse (PSM-02); the parser, lookup and manager use global state, so each test case constructs a fresh fixture.
+
+---
+
+## 13. System tests with a real study (ST)
+
+A system test runs the real model (`hydro`) on a real study with the operating rules enabled and checks that the oprule log is right and that it changes nothing. The scripts live in `/scratch/psandhu/dsm2_oprule_system_test/` (outside the repositories; moving them to `oprule/test/system/` is one of the enhancements below).
+
+**Study and period.** `dsm2_studies/studies/historical` (87 rules and 5 named expressions from `oprule_historical_gate.inp`, `oprule_hist_temp_barriers.inp`, `oprule_hist_restoration.inp`), 01SEP2014 to 31DEC2014 (four months, 115 177 network iterations, about four minutes per run). The study files are never modified: each run gets a copy of `hydro.inp` (with `oprule_log_level` added to its SCALAR table) and of `config.inp` (absolute input paths, its own `DSM2OUTPUTDIR`, the end date), in its own directory.
+
+**Build used.** `/scratch/psandhu/dsm2_full_build` (Debug, Intel 2024.0), target `hydro`; see DEVELOPER_NOTES.md section 6.
+
+**How to run.**
+
+```bash
+cd /scratch/psandhu/dsm2_oprule_system_test
+./run_system_test.sh --clean     # removes the earlier st_* runs, runs five hydro runs in parallel, compares, checks the logs
+cat st_report.txt                # the report; the last line is RESULT: PASS or RESULT: FAIL
+```
+
+| Script | What it does |
+|---|---|
+| `run_system_test.sh [--clean]` | Makes and runs `st_off`, `st_off2`, `st_l1`, `st_l2`; compares; checks the logs; writes `st_report.txt`; exit status 0 only on PASS. `END=31DEC2015` changes the end date. |
+| `make_run.sh <run> <level\|none> [end_date]` | Builds one run directory from the study files |
+| `run_hydro.sh <run>` | Runs `hydro hydro.inp` in the directory and writes `run_status.txt` (exit code and seconds) |
+| `compare_runs.sh <ref> <other>` | Tide file (`h5diff -r`), restart file (`cmp`), run log (`diff`), DSS file (reported only) |
+| `check_log.py <log>...` | Checks a log against the design (below) |
+
+| ID | Check | Result 2026-09-30 |
+|---|---|---|
+| ST-01 | The model output with logging at level 1 and 2 equals the output with logging off: tide file (560 objects compared by `h5diff -r`), restart file (byte identical), run log (no differing lines), network iterations (115 177 in every run) | pass |
+| ST-02 | Noise floor: a second run with logging off (`st_off2`) compared with the first in the same way | pass: identical. The DSS file differs by a few hundred bytes even between these two runs (write times), so DSS differences are reported but are not a failure. The tide file's input echo tables (`/hydro/input/envvar`, `io_file`, `output_channel`) contain the run directory and are excluded |
+| ST-03 | Log consistency (`check_log.py`): every record has four fields; model times never go backwards; loading records come first, with time `init`; a rule is activated only after a logged true trigger; `TRIGGERED` follows `TRIGGER_INITIAL` or `TRIGGER_CLEARED`, never another `TRIGGERED`; no rule is activated twice or completed while inactive; `DEFERRED` names a rule that is active and is written once per episode; every `ACTIVATED` has a well-formed action description; `ACTION` records have non-decreasing `elapsed` and `fraction` in 0..1 and the last one before `COMPLETED` has fraction 1; the trigger and action inputs are present | pass |
+| ST-04 | Logging off creates no `oprule_log.txt` | pass |
+| ST-05 | Every run exits with status 0 and finishes normally | pass |
+| ST-06 | Overhead: run times with four runs at the same time were off 244 s and 242 s, level 1 245 s, level 2 244 s: no measurable cost | pass |
+
+Content of the logs from that run: level 1, 431 045 bytes; level 2, 651 207 bytes (the first version of the log, with a record per rule per step, was 212 MB for the same period). Records: 87 `RULE_LOADED`, 5 `EXPRESSION_LOADED`, 26 `TRIGGER_INITIAL`, 644 `TRIGGERED`, 583 `TRIGGER_CLEARED`, 644 `ACTIVATED`, 644 `COMPLETED`, 321 `DEFERRED`, 1 061 `ACTION` (level 2). The busiest rules are the Montezuma Slough gate rules (`mscs_open`, `mscs_open_to`, `mscs_close`, `mscs_close_to`: 143 to 145 activations each in four months); `mscs_close_to` is `DEFERRED` by `mscs_close` each time because the resolver treats two actions on one gate device as overlapping (OPRULE_REFERENCE.md B9 item 24).
+
+Things found while building the system test: the first runs showed that a text log with one record per rule per step is far too large (3 million lines for four months), which led to change-only logging; and that `h5diff` of two logging-off runs reports differences in the input echo tables, which led to the exclusions in ST-02.
+
+### Enhancements planned for the system tests
+
+| ID | Enhancement |
+|---|---|
+| ST-F1 | Move the scripts into the repository (`oprule/test/system/`) and run the system test from CTest as an optional, labelled test (it needs the full build and the studies repository) |
+| ST-F2 | Longer and wider periods: 01SEP2014 to 31DEC2015 (includes the 2015 drought barriers), the full 2014 to 2024 period (about two hours per run in a Debug build; the level 2 log would be about 18 MB), and other studies (`historical_temperature`, `zero_ec_run`) |
+| ST-F3 | Release build, and run time with the hydro run on its own (the numbers above are with four runs sharing the node) |
+| ST-F4 | Golden baseline: keep a checksum or a reduced copy of the tide file of a logging-off run and compare every later change with it (INT-09), so a change to the rules or the model that alters results is caught even when logging is not involved |
+| ST-F5 | Cross-check the log against the model output: for each `ACTION` of a gate rule, compare the `value` written with the gate operation time series in the output (DSS), and the `TRIGGERED` times with a replay of the trigger on the input series. This tests that the log tells the truth, not only that it is well formed |
+| ST-F6 | Coupled hydro-gtm run (LOG-13) and the standalone and coupled paths (`UpdateNetworkPrepare/Wrapup`) |
+| ST-F7 | Fault injection: a rule with an input that fails, a log file that cannot be opened, a run that ends with `exit()`; the model must finish or stop as it would without logging |
+| ST-F8 | The HDF5 log (OPRULE_LOG_HDF5_PLAN.md): run with `both` formats, convert the HDF5 log to text and compare (H5-03), record size and overhead (H5-09) |
+| ST-F9 | Performance with many more rules than the 87 here, and with the dense input trace of the HDF5 plan |
+| ST-F10 | Run the pass criteria on the batch system after each build of the model, and keep the report with the build |

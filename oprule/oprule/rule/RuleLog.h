@@ -3,6 +3,8 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace oprule {
 namespace rule {
@@ -17,15 +19,14 @@ public:
    /** Each level includes everything from the levels below it. */
    enum Level {
       OFF = 0,       ///< nothing is written (default)
-      EVENTS = 1,    ///< loaded, triggered, activated, deferred, completed
-      ACTIONS = 2,   ///< plus the values written by actions
-      TRIGGERS = 3   ///< plus the trigger value of every inactive rule at every step
+      EVENTS = 1,    ///< loaded, trigger changes, activated, deferred, completed
+      ACTIONS = 2    ///< plus the values written by actions at every advance
    };
 
    /** Produces the model time label written on each record. */
    typedef std::string (*TimeSource)();
 
-   /** Set the level; values outside 0..3 are clamped. */
+   /** Set the level; values outside 0..2 are clamped. */
    static void setLevel(int level);
    static int level();
 
@@ -56,6 +57,18 @@ public:
    /** Write one record if the level is enabled. */
    static void write(int level, const std::string& event,
                      const std::string& rule, const std::string& detail);
+
+   /** Same type as oprule::expression::StateList. */
+   typedef std::vector<std::pair<std::string,double> > StateList;
+
+   /** A number for a record: 9 significant digits; "unset" for the HUGE_VAL a node holds before it
+    *  has a value, "nan" for not-a-number.
+    */
+   static std::string number(double value);
+
+   /** A list of named values as "[a=1; b=2]" (items contain no spaces). An item that repeats an earlier
+    *  one with the same name and value is left out. */
+   static std::string state(const StateList& values);
 };
 
 }}     //namespace

@@ -75,6 +75,7 @@ public:
 
     virtual bool isTimeDependent() const{return _timeDependent;}
     virtual void init(){ _pLeft->init(); _pRight->init();}
+    virtual void collectState(StateList& out){ _pLeft->collectState(out); _pRight->collectState(out); }
 
 private:
     FirstArgPtr _pLeft;

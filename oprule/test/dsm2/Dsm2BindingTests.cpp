@@ -1476,7 +1476,40 @@ BOOST_AUTO_TEST_CASE(entry_points_log_loading_and_use_the_model_time) {
    BOOST_REQUIRE_EQUAL(mine.size(), 6u);
    BOOST_CHECK_EQUAL(mine[0].time, "init");
    BOOST_CHECK_EQUAL(mine[1].time, "init");
+   BOOST_CHECK_EQUAL(mine[0].detail, "text=log_expr := 3.0;");
+   BOOST_CHECK_EQUAL(mine[1].detail, "text=log_gr := SET ext_flow(name=q2) TO 9 WHEN TRUE;");
    for (size_t i = 2; i < mine.size(); ++i) BOOST_CHECK_EQUAL(mine[i].time, "2018-06-30 22:15");
+}
+
+// What the rule saw: TRIGGERED lists the model variables of the trigger with the values that fired it.
+// Channels are reported by internal index (the order of channels in the model).
+BOOST_AUTO_TEST_CASE(triggered_record_names_the_model_variables_the_trigger_reads) {
+   Sim s;
+   model().add_channel(185, 1000.);
+   model().add_external_flow("q1", 0.);
+   model().add_path_input("ts1", 0.);
+   s.series["ts1"] = 5.;
+   s.set_level(185, 3.0);
+   std::ostringstream out;
+   LogGuard guard(out, 1);
+   BOOST_REQUIRE(s.add_rule("hyst", "SET ext_flow(name=q1) TO 1",
+                            "chan_stage(channel=185, dist=0) > 2.5 AND ts(name=ts1) > 1"));
+   s.steps(2);
+   std::vector<LogRecord> recs = parse_log(out.str());
+   std::string detail;
+   for (size_t i = 0; i < recs.size(); ++i) if (recs[i].event == "TRIGGERED") detail = recs[i].detail;
+   BOOST_CHECK_EQUAL(detail, "trigger_inputs=[chan_stage(int_channel=1,dist=0)=3; ts(name=ts1)=5]");
+}
+
+// ACTIVATED describes the action as it starts. A device property is time dependent in the model, so the
+// ramp starts from the live value rather than a snapshot.
+BOOST_AUTO_TEST_CASE(activated_record_describes_the_gate_action) {
+   ScenarioResult r = opposite_direction_scenario(1);
+   std::string detail;
+   for (size_t i = 0; i < r.records.size(); ++i)
+      if (r.records[i].event == "ACTIVATED" && r.records[i].rule == "r1") detail = r.records[i].detail;
+   BOOST_CHECK_EQUAL(detail,
+      "interface=gate_op(gate=1,device=1,direction=from_node) mode=time_dependent init=live duration=1800 elapsed=0 target_inputs=[]");
 }
 
 BOOST_AUTO_TEST_CASE(level_zero_and_unopenable_paths_leave_the_log_off) {

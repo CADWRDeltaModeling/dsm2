@@ -91,6 +91,9 @@ public:
    }
    virtual double eval();
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{
+      std::ostringstream s; s << "chan_flow(int_channel=" << channel << ",dist=" << distance << ")"; return s.str();
+   }
 private:
    int channel;
    int distance;
@@ -117,6 +120,9 @@ public:
    }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{
+      std::ostringstream s; s << "chan_stage(int_channel=" << channel << ",dist=" << distance << ")"; return s.str();
+   }
 private:
    int channel;
    int distance;
@@ -141,6 +147,9 @@ public:
    }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{
+      std::ostringstream s; s << "chan_vel(int_channel=" << channel << ",dist=" << distance << ")"; return s.str();
+   }
 private:
    int upCompPt;
    int downCompPt;
@@ -165,6 +174,9 @@ public:
    }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{
+      std::ostringstream s; s << "res_flow(res=" << _res << ",connect=" << _conn << ")"; return s.str();
+   }
 private:
    int _res;
    int _conn;
@@ -184,6 +196,9 @@ public:
    }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{
+      std::ostringstream s; s << "res_stage(res=" << _res << ")"; return s.str();
+   }
 private:
    int _res;
 };

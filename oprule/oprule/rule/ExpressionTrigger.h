@@ -25,6 +25,9 @@ public:
    virtual void step(double dt){
 	   _expression->step(dt);
    }
+   virtual void collectState(oprule::expression::StateList& out){
+      _expression->collectState(out);
+   }
 
 private:
    oprule::expression::BoolNodePtr _expression;

@@ -53,6 +53,7 @@ public:
    virtual oprule::expression::DoubleNodePtr copy() { return oprule::expression::DoubleNodePtr(new ReadOnlyVar(name)); }
    virtual double eval() { return g_vars[name]; }
    virtual bool isTimeDependent() const { return true; }
+   virtual std::string describe() const { return "mock_ro(name=" + name + ")"; }
    std::string name;
 };
 

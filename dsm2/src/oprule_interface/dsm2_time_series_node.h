@@ -35,6 +35,7 @@ public:
    virtual double eval(){
       return value_from_inputpath(&_ndx);}
    virtual bool isTimeDependent() const{ return true; }
+   virtual std::string describe() const{ return "ts(name=" + _name + ")"; }
 private:
    std::string _name;
    int _ndx;

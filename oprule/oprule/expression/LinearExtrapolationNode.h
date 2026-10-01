@@ -67,6 +67,13 @@ public:
 
    virtual bool isTimeDependent() const {return true;}
 
+   virtual void collectState(StateList& out){
+      out.push_back(std::make_pair(std::string("predict.old"), static_cast<double>(_oldVal)));
+      out.push_back(std::make_pair(std::string("predict.new"), static_cast<double>(_newVal)));
+      out.push_back(std::make_pair(std::string("predict.extrapolated"), static_cast<double>(_extrap)));
+      _node->collectState(out);
+   }
+
 private:
    void lagVals();
    ExpressionNodePtr _node;

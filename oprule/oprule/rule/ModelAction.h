@@ -39,6 +39,10 @@ public:
         _elapsed(0.),
         _transition(transition->copy())
     {
+        _initState = T();
+        _currentState = T();
+        _baseState = T();
+        _transFraction = 0.;
         setActive(false);
     }
 
@@ -83,6 +87,19 @@ public:
     }
     virtual void onCompletion();
 
+    /** Description for the rule log (see OperationAction::describeState). */
+    virtual std::string describeState(){
+        const bool dynamic = _interface->isTimeDependent();
+        std::ostringstream s;
+        s << "interface=" << _interface->describe()
+          << " mode=" << (dynamic ? "time_dependent" : "static")
+          << " init=" << (dynamic ? std::string("live") : RuleLog::number(static_cast<double>(_initState)))
+          << " duration=" << RuleLog::number(_transDuration)
+          << " elapsed=" << RuleLog::number(_elapsed)
+          << " target_inputs=" << targetInputs();
+        return s.str();
+    }
+
 
     /**Get the model interface used by this action to manipulate the model.
     * @return the model interface
@@ -92,6 +109,17 @@ public:
     }
 
 private:
+
+    // The model variables the target expression reads, as "[a=1; b=2]"; never fails the model run.
+    std::string targetInputs(){
+        try {
+            oprule::expression::StateList inputs;
+            _expression->collectState(inputs);
+            return RuleLog::state(inputs);
+        } catch (...) {
+            return "unavailable";
+        }
+    }
 
     typename ModelInterface<T>::NodePtr _interface;
     typename ExpressionNode<T>::NodePtr _expression;
@@ -157,9 +185,15 @@ void ModelAction<T >::advance(double dt){
     _interface->set(_currentState);
     if (RuleLog::enabled(RuleLog::ACTIONS)){
         std::ostringstream detail;
-        detail << "interface=" << _interface->describe() << " elapsed=" << _elapsed
-               << " fraction=" << _transFraction << " base=" << _baseState
-               << " target=" << target << " value=" << _currentState;
+        detail << "interface=" << _interface->describe()
+               << " elapsed=" << RuleLog::number(_elapsed)
+               << " fraction=" << RuleLog::number(_transFraction)
+               << " base=" << RuleLog::number(static_cast<double>(_baseState))
+               << " target=" << RuleLog::number(static_cast<double>(target))
+               << " value=" << RuleLog::number(static_cast<double>(_currentState))
+               << " duration=" << RuleLog::number(_transDuration)
+               << " init=" << (_interface->isTimeDependent() ? std::string("live") : RuleLog::number(static_cast<double>(_initState)))
+               << " target_inputs=" << targetInputs();
         RuleLog::write(RuleLog::ACTIONS, "ACTION", RuleLog::context(), detail.str());
     }
     if(_transFraction == 1.0){

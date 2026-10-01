@@ -20,6 +20,7 @@
 #include<vector>
 
 #include "oprule/parser/ParseSymbolManagement.h"
+#include "oprule/expression/NamedExpressionNode.h"
 #include "op_rule.tab.h"
 
 
@@ -171,10 +172,11 @@ dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;}
 			// earlier in oprule expressions
 			if (sym.type() != symbol::EMPTY ){
 			   if (sym.type() == symbol::DOUBLE) {
-			      yylval.pnode=_SETD(sym.dblval);
+			      // the wrapper only adds the name, for the rule log
+			      yylval.pnode=_SETD(DoubleNodePtr(new NamedExpressionNode<double>(name, sym.dblval)));
 				  return NAMEDVAL;}
 			   else if(sym.type()== symbol::BOOL){
-			      yylval.pbnode=_SETB(sym.boolval); return BOOLNAMEDVAL;
+			      yylval.pbnode=_SETB(BoolNodePtr(new NamedExpressionNode<bool>(name, sym.boolval))); return BOOLNAMEDVAL;
 			   }
 			 }
 			// Second shot: ask the model-provided NamedValueLookup

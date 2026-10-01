@@ -65,6 +65,15 @@ bool ActionChain::isActive(){
 void ActionChain::onActivate(){
 }
 
+std::string ActionChain::describeState(){
+   std::string out;
+   for (ActionSequence::iterator it=actionSequence.begin() ; it != actionSequence.end() ; it++){
+      if (!out.empty()) out += " + ";
+      out += (*it)->describeState();
+   }
+   return out;
+}
+
 void ActionChain::childComplete(){
    ++actionIterator;
    if(this->actionIterator==actionSequence.end()){

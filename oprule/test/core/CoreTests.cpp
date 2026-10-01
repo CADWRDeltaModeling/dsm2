@@ -729,16 +729,19 @@ BOOST_AUTO_TEST_CASE(off_by_default_writes_nothing) {
 BOOST_AUTO_TEST_CASE(level_is_clamped_and_needs_a_sink) {
    using oprule::rule::RuleLog;
    RuleLog::setLevel(99);
-   BOOST_CHECK_EQUAL(RuleLog::level(), 3);
+   BOOST_CHECK_EQUAL(RuleLog::level(), 2);
    RuleLog::setLevel(-4);
    BOOST_CHECK_EQUAL(RuleLog::level(), 0);
    RuleLog::setLevel(2);
    BOOST_CHECK(!RuleLog::enabled(RuleLog::EVENTS));    // no sink
    std::ostringstream out;
    RuleLog::setSink(&out);
+   RuleLog::setLevel(1);
    BOOST_CHECK(RuleLog::enabled(RuleLog::EVENTS));
+   BOOST_CHECK(!RuleLog::enabled(RuleLog::ACTIONS));
+   RuleLog::setLevel(2);
    BOOST_CHECK(RuleLog::enabled(RuleLog::ACTIONS));
-   BOOST_CHECK(!RuleLog::enabled(RuleLog::TRIGGERS));
+   BOOST_CHECK(!RuleLog::enabled(3));
    RuleLog::setLevel(0);
    RuleLog::setSink(0);
 }
@@ -820,23 +823,33 @@ BOOST_AUTO_TEST_CASE(deferral_episode_ends_when_the_trigger_goes_false) {
    BOOST_CHECK_EQUAL(count_of(recs, "ACTIVATED", "second"), 0);
 }
 
-// LOG-08: the verbose level logs the trigger value of each inactive rule at each step.
-BOOST_AUTO_TEST_CASE(trigger_values_are_logged_for_inactive_rules_at_level_3_only) {
-   for (int level = 1; level <= 3; ++level) {
-      g_vars.clear();
-      LogBench b(level);
-      b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 0");
-      g_vars["lvl"] = 0.; b.run(3);
-      g_vars["lvl"] = 1.; b.run(1);
-      std::vector<LogRecord> recs = b.records();
-      if (level < 3) {
-         BOOST_CHECK_EQUAL(count_of(recs, "TRIGGER_VALUE"), 0);
-      } else {
-         BOOST_REQUIRE_EQUAL(count_of(recs, "TRIGGER_VALUE"), 4);
-         BOOST_CHECK_EQUAL(recs[0].detail, "value=false");
-         BOOST_CHECK_EQUAL(recs[3].detail, "value=true");
-      }
-   }
+// LOG-08 (replaced): the trigger value is no longer logged at every step, see only_trigger_changes_are_logged_with_their_inputs.
+
+// Only changes of the trigger value are logged, each with the inputs, however long the value stays the same.
+BOOST_AUTO_TEST_CASE(only_trigger_changes_are_logged_with_their_inputs) {
+   LogBench b(1);
+   g_vars.clear();
+   b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 5");
+   g_vars["lvl"] = 0.; b.run(40);          // false for a long time: one TRIGGER_INITIAL
+   g_vars["lvl"] = 7.; b.run(40);          // true: one TRIGGERED
+   g_vars["lvl"] = 8.; b.run(40);          // an input changes but the value stays true: nothing
+   g_vars["lvl"] = 1.; b.run(40);          // false: one TRIGGER_CLEARED
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(recs.size(), 5u);     // initial, triggered, activated, completed, cleared
+   BOOST_CHECK_EQUAL(detail_of(recs, "TRIGGER_INITIAL", "r"), "trigger_inputs=[mock_ro(name=lvl)=0]");
+   BOOST_CHECK_EQUAL(detail_of(recs, "TRIGGERED", "r"), "trigger_inputs=[mock_ro(name=lvl)=7]");
+   BOOST_CHECK_EQUAL(detail_of(recs, "TRIGGER_CLEARED", "r"), "trigger_inputs=[mock_ro(name=lvl)=1]");
+}
+
+// A rule that starts out true is TRIGGERED at its first test and has no TRIGGER_INITIAL.
+BOOST_AUTO_TEST_CASE(a_trigger_that_starts_true_is_triggered_not_initial) {
+   LogBench b(1);
+   g_vars.clear();
+   b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 5");
+   g_vars["lvl"] = 9.; b.run(3);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(count_of(recs, "TRIGGER_INITIAL"), 0);
+   BOOST_CHECK_EQUAL(count_of(recs, "TRIGGERED"), 1);
 }
 
 // LOG-07: one ACTION per advance with the numbers that were written to the model.
@@ -862,9 +875,9 @@ BOOST_AUTO_TEST_CASE(action_records_match_the_values_written) {
 
 // LOG-09: every level is the level below plus more events.
 BOOST_AUTO_TEST_CASE(each_level_is_a_superset_of_the_one_below) {
-   std::vector<LogRecord> full = overlap_scenario(3);
+   std::vector<LogRecord> full = overlap_scenario(2);
    BOOST_CHECK(overlap_scenario(0).empty());
-   for (int level = 1; level <= 3; ++level) {
+   for (int level = 1; level <= 2; ++level) {
       std::vector<std::string> expected;
       for (size_t i = 0; i < full.size(); ++i)
          if (event_level(full[i].event) <= level) expected.push_back(full[i].event + ":" + full[i].rule + ":" + full[i].detail);
@@ -915,6 +928,125 @@ BOOST_AUTO_TEST_CASE(a_file_sink_receives_the_records) {
    std::stringstream text;
    text << in.rdbuf();
    BOOST_CHECK_EQUAL(count_of(parse_log(text.str()), "ACTIVATED", "r"), 1);
+}
+
+// ---- state that a rule sees: trigger inputs, internal state of stateful nodes, action state
+
+BOOST_AUTO_TEST_CASE(number_and_state_formats) {
+   using oprule::rule::RuleLog;
+   BOOST_CHECK_EQUAL(RuleLog::number(2.5), "2.5");
+   BOOST_CHECK_EQUAL(RuleLog::number(900.), "900");
+   BOOST_CHECK_EQUAL(RuleLog::number(0.1), "0.1");
+   BOOST_CHECK_EQUAL(RuleLog::number(HUGE_VAL), "unset");
+   BOOST_CHECK_EQUAL(RuleLog::number(std::sqrt(-1.)), "nan");
+   RuleLog::StateList none, two;
+   two.push_back(std::make_pair(std::string("a"), 1.));
+   two.push_back(std::make_pair(std::string("b"), 2.5));
+   BOOST_CHECK_EQUAL(RuleLog::state(none), "[]");
+   BOOST_CHECK_EQUAL(RuleLog::state(two), "[a=1; b=2.5]");
+}
+
+// TRIGGERED lists every model variable the trigger reads, with the value that made it fire.
+BOOST_AUTO_TEST_CASE(triggered_record_lists_the_trigger_inputs) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("one", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 5");
+   b.add("two", "SET mock_var(name=b) TO 1", "mock_ro(name=x) > 1 AND mock_ro(name=y) < 4");
+   g_vars["lvl"] = 0.; g_vars["x"] = 0.; g_vars["y"] = 3.;
+   b.run(2);
+   g_vars["lvl"] = 7.; g_vars["x"] = 2.;
+   b.run(1);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(detail_of(recs, "TRIGGERED", "one"), "trigger_inputs=[mock_ro(name=lvl)=7]");
+   BOOST_CHECK_EQUAL(detail_of(recs, "TRIGGERED", "two"), "trigger_inputs=[mock_ro(name=x)=2; mock_ro(name=y)=3]");
+}
+
+// Named expressions are listed with their values, then the variables they read (each once).
+BOOST_AUTO_TEST_CASE(named_expressions_are_listed_with_their_values_and_shared_inputs_once) {
+   LogBench b(1);
+   g_vars.clear();
+   BOOST_REQUIRE_EQUAL(b.parse("wet := mock_ro(name=x) > 1;"), 0);
+   BOOST_REQUIRE_EQUAL(b.parse("calm := mock_ro(name=x) < 5 AND mock_ro(name=y) < 4;"), 0);
+   b.add("r", "SET mock_var(name=a) TO 1", "wet AND calm");
+   g_vars["x"] = 2.; g_vars["y"] = 3.;
+   b.run(1);
+   BOOST_CHECK_EQUAL(detail_of(b.records(), "TRIGGERED", "r"),
+      "trigger_inputs=[wet=1; mock_ro(name=x)=2; calm=1; mock_ro(name=y)=3]");
+}
+
+// A stateful node reports its internal value, so the record shows the count that fired the rule.
+BOOST_AUTO_TEST_CASE(triggered_record_reports_the_internal_state_of_accumulate) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("r", "SET mock_var(name=a) TO 1", "ACCUMULATE(1, 0) >= 3");
+   b.run(3);
+   BOOST_CHECK_EQUAL(detail_of(b.records(), "TRIGGERED", "r"), "trigger_inputs=[accumulate.sum=3]");
+}
+
+// LOG-02 for the state report: it only reads, so the rule fires on the same step with logging on or off.
+BOOST_AUTO_TEST_CASE(state_report_does_not_change_when_stateful_triggers_fire) {
+   int fired_at[2];
+   for (int pass = 0; pass < 2; ++pass) {
+      g_vars.clear();
+      std::ostringstream out;
+      LogGuard guard(out, pass == 0 ? 0 : 3);
+      RuleBench b;
+      b.add("r", "SET mock_var(name=a) TO 1", "ACCUMULATE(mock_ro(name=x), 0) >= 6");
+      g_vars["x"] = 2.;
+      fired_at[pass] = 0;
+      for (int i = 1; i <= 6 && !fired_at[pass]; ++i) { b.run(1); if (b.manager.isActive(getOperatingRule("r"))) fired_at[pass] = i; }
+   }
+   BOOST_CHECK_EQUAL(fired_at[0], 3);
+   BOOST_CHECK_EQUAL(fired_at[1], 3);
+}
+
+// ACTIVATED describes the action as it starts: static snapshot, duration, and what the target reads.
+BOOST_AUTO_TEST_CASE(activated_record_describes_a_static_ramp) {
+   LogBench b(1);
+   g_vars.clear();
+   g_vars["a"] = 4.; g_vars["tgt"] = 10.;
+   b.add("r", "SET mock_var(name=a) TO mock_ro(name=tgt) RAMP 60MIN", "true");
+   b.run(1);
+   BOOST_CHECK_EQUAL(detail_of(b.records(), "ACTIVATED", "r"),
+      "interface=mock_var(name=a) mode=static init=4 duration=3600 elapsed=0 target_inputs=[mock_ro(name=tgt)=10]");
+}
+
+BOOST_AUTO_TEST_CASE(activated_record_marks_time_dependent_actions_live) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("r", "SET mock_tvar(name=tx) TO 3 RAMP 30MIN", "true");
+   b.run(1);
+   BOOST_CHECK_EQUAL(detail_of(b.records(), "ACTIVATED", "r"),
+      "interface=mock_tvar(name=tx) mode=time_dependent init=live duration=1800 elapsed=0 target_inputs=[]");
+}
+
+BOOST_AUTO_TEST_CASE(compound_actions_are_described_together) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("r", "SET mock_var(name=a) TO 1 RAMP 60MIN WHILE SET mock_var(name=b) TO 2 RAMP 60MIN", "true");
+   b.run(1);
+   const std::string d = detail_of(b.records(), "ACTIVATED", "r");
+   BOOST_CHECK_MESSAGE(d.find("interface=mock_var(name=a)") == 0, d);
+   BOOST_CHECK_MESSAGE(d.find(" + interface=mock_var(name=b)") != std::string::npos, d);
+}
+
+// ACTION shows the ramp state at every advance, and the target inputs follow the model.
+BOOST_AUTO_TEST_CASE(action_records_carry_the_ramp_state_and_the_current_target_inputs) {
+   LogBench b(2);
+   g_vars.clear();
+   g_vars["a"] = 4.; g_vars["tgt"] = 10.;
+   b.add("r", "SET mock_var(name=a) TO mock_ro(name=tgt) RAMP 60MIN", "true");
+   b.run(2);                                           // advance 1: fraction 0.25
+   g_vars["tgt"] = 20.;
+   b.run(1);                                           // advance 2: fraction 0.5
+   std::vector<std::string> actions;
+   std::vector<LogRecord> recs = b.records();
+   for (size_t i = 0; i < recs.size(); ++i) if (recs[i].event == "ACTION") actions.push_back(recs[i].detail);
+   BOOST_REQUIRE_EQUAL(actions.size(), 2u);
+   BOOST_CHECK_EQUAL(actions[0],
+      "interface=mock_var(name=a) elapsed=900 fraction=0.25 base=4 target=10 value=5.5 duration=3600 init=4 target_inputs=[mock_ro(name=tgt)=10]");
+   BOOST_CHECK_EQUAL(actions[1],
+      "interface=mock_var(name=a) elapsed=1800 fraction=0.5 base=4 target=20 value=12 duration=3600 init=4 target_inputs=[mock_ro(name=tgt)=20]");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,6 +1,7 @@
 #ifndef oprule_rule_TRIGGER_H__INCLUDED_
 #define oprule_rule_TRIGGER_H__INCLUDED_
 #include "boost/shared_ptr.hpp"
+#include "oprule/expression/ExpressionNode.h"
 
 namespace oprule {
 namespace rule {
@@ -24,6 +25,9 @@ public:
    * Inform trigger that the model is taking a step.
    */
    virtual void step(double dt)=0;
+
+   /** Report the model variables and internal state this trigger depends on (for the rule log). */
+   virtual void collectState(oprule::expression::StateList& out){}
 
 };
 typedef boost::shared_ptr<Trigger> TriggerPtr;

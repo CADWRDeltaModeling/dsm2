@@ -392,7 +392,7 @@ contains
     end subroutine test_reference_minute
 
     ! The level the C++ log reads (get_oprule_log_level): the oprule_log_level scalar wins; otherwise
-    ! print_level 4, 5, 6 give 1, 2, 3 and lower values (or an unset print_level) give 0.
+    ! print_level 4 and 5 or more give 1 and 2, and lower values (or an unset print_level) give 0.
     subroutine test_log_level(error)
         type(error_type), allocatable, intent(out) :: error
         integer :: saved_print, saved_level
@@ -409,17 +409,17 @@ contains
         print_level = 5
         call expect_i(error, get_oprule_log_level(), 2, "print_level 5")
         print_level = 6
-        call expect_i(error, get_oprule_log_level(), 3, "print_level 6")
+        call expect_i(error, get_oprule_log_level(), 2, "print_level 6 is capped at 2")
         print_level = 9
-        call expect_i(error, get_oprule_log_level(), 3, "print_level above 6 is capped")
+        call expect_i(error, get_oprule_log_level(), 2, "print_level above 6 is capped")
 
-        oprule_log_level = 2
+        oprule_log_level = 1
         print_level = 6
-        call expect_i(error, get_oprule_log_level(), 2, "scalar wins over print_level")
+        call expect_i(error, get_oprule_log_level(), 1, "scalar wins over print_level")
         oprule_log_level = 0
         call expect_i(error, get_oprule_log_level(), 0, "scalar 0 switches the log off")
         oprule_log_level = 7
-        call expect_i(error, get_oprule_log_level(), 3, "scalar is capped at 3")
+        call expect_i(error, get_oprule_log_level(), 2, "scalar is capped at 2")
 
         print_level = saved_print
         oprule_log_level = saved_level

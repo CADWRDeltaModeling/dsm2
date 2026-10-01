@@ -68,6 +68,11 @@ public:
         _pLeft->init();
         _pRight->init();
     }
+    virtual void collectState(StateList& out){
+        _pIf->collectState(out);
+        _pLeft->collectState(out);
+        _pRight->collectState(out);
+    }
 
     virtual void step(double dt){
 		_pIf->step(dt);
@@ -148,6 +153,11 @@ public:
         _pSecond->init();
         _pThird->init();
     }
+    virtual void collectState(StateList& out){
+        _pFirst->collectState(out);
+        _pSecond->collectState(out);
+        _pThird->collectState(out);
+    }
     virtual void step(double dt){
         _pFirst->step(dt);
         _pSecond->step(dt);
@@ -225,6 +235,11 @@ public:
         _pFirst->init();
         _pSecond->init();
         _pThird->init();}
+    virtual void collectState(StateList& out){
+        _pFirst->collectState(out);
+        _pSecond->collectState(out);
+        _pThird->collectState(out);
+    }
     virtual void step(double dt){
         _pFirst->step(dt);
         _pSecond->step(dt);

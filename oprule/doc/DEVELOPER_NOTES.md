@@ -69,6 +69,8 @@ Notes:
 | DSM2 Fortran side | `dsm2/src/common/model_interface.f90`, `gates.f90`, `gates_data.f90`, `grid_data.f90`, `hydrolib/netbnd.f90`, `hydrolib/update_network.f90`, `hydro/fourpt.f90` |
 | Rule input handling | `dsm2/src/fixed/process_oprule.f90`, `process_text_hydro_input.f90`, `input_storage/src/*` |
 | Real rule inputs | `/scratch/psandhu/dsm2_studies/common_input/oprule_*.inp` (outside this repo) |
+| Rule log | `oprule/oprule/rule/RuleLog.h`, `oprule/lib/rule/RuleLog.cpp`; state reporting in `oprule/oprule/expression/NamedExpressionNode.h` and the `collectState`/`describe` members of the expression nodes; plan for an HDF5 form: `oprule/doc/OPRULE_LOG_HDF5_PLAN.md` |
+| System test scripts | `/scratch/psandhu/dsm2_oprule_system_test/` (outside the repositories): `run_system_test.sh`, `make_run.sh`, `run_hydro.sh`, `compare_runs.sh`, `check_log.py` |
 | Test fixtures derived from them | `oprule/test/data/*.inp` (subsets; one test-only rule is marked) |
 | Tests | `oprule/test/{smoke,core,support,data,standalone}` |
 
@@ -143,6 +145,8 @@ Conventions:
 - A multi-replace call with a stray character before a string value is rejected with "must be array"; check the JSON.
 - Boost.Test `BOOST_CHECK_CLOSE` takes a percentage; use `BOOST_CHECK_SMALL` for expected zeros and `BOOST_CHECK_CLOSE_FRACTION` for fractions.
 - Do not commit or push unless asked. Do not run `sleep` to wait on builds.
+- Waiting for a background job: block on its process id (`tail --pid=<pid> -f /dev/null`), not `sleep`. A shell `wait` with no arguments also waits for every other background job started from that terminal (it blocked for the 10-year runs); start parallel runs from a script and wait inside it.
+- Long runs: the historical study takes about four minutes for four months in a Debug build (about 2 hours for ten years) and writes about 12 GB of tide file for ten years; delete run directories only with the owner's agreement.
 - Search tool: includePattern globs for this multi-root workspace work best as absolute paths (`/scratch/psandhu/dsm2/dsm2/src/**`); relative `dsm2/src/**` returned nothing.
 
 ---
@@ -151,19 +155,21 @@ Conventions:
 
 Done and passing (4 programs; coverage map in [OPRULE_TESTS_OVERVIEW.md](OPRULE_TESTS_OVERVIEW.md)):
 
-- `oprule_smoke_tests` (19) and `oprule_core_tests` (77): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, the rule log, pinned defects.
-- `oprule_dsm2_tests` (77): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points, log set-up and interface descriptions.
+- `oprule_smoke_tests` (19) and `oprule_core_tests` (87): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, the rule log, pinned defects.
+- `oprule_dsm2_tests` (79): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points, log set-up, interface descriptions and the state in the log records.
 - `test_model_interface` (Fortran, 16 tests): the real `model_interface.f90` routines. All 16 passed on the first run, which confirmed the mock's time assumptions (01JAN1900 00:00 = minute 1440, 0-based day of year), the name-lookup case rules and D-04. It found one mock error, now fixed: external and transfer flows are `real*4` in the model, so the mock stores them as `float`.
-- Logging is implemented (design and use: OPRULE_REFERENCE.md B10).
+- Logging is implemented, with state reporting (design, format and a worked example: OPRULE_REFERENCE.md B10).
+- **System test with the real model** passes (OPRULE_TEST_PLAN.md section 13): `/scratch/psandhu/dsm2_oprule_system_test/run_system_test.sh --clean`.
 
 Not done:
 
-- Logging in a complete model run: LOG-01 (default output unchanged), LOG-02 bitwise comparison, LOG-12 overhead (need a golden study run, INT-09). The Fortran changes (scalar `oprule_log_level`, `get_oprule_log_level`) compile and pass their unit test, but no full run has used them yet.
+- An HDF5 form of the log: planned, not started (OPRULE_LOG_HDF5_PLAN.md). Waiting for the owner to say when to implement; open questions are in its section 8.
+- The system test enhancements ST-F1 to ST-F10 (OPRULE_TEST_PLAN.md section 13), in particular moving the scripts into the repository.
 - Fortran routines outside `model_interface.f90` that the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) are still only mirrored from source.
 - `gate_coef` with `direction=both` (D-13) cannot be tested in the Fortran test (it calls `exit(3)`).
 - Fixing any of the pinned defects.
 
-### Building and running the Fortran test
+### Building and running the Fortran test and the hydro model
 
 Separate full-build directory (do not use `build/`, and do not run `build_hpc5.sh`):
 
@@ -177,18 +183,35 @@ cmake -C /scratch/psandhu/dsm2/linux_options.cmake -S /scratch/psandhu/dsm2 -B .
   -DFETCHCONTENT_SOURCE_DIR_FYPP=/scratch/psandhu/dsm2/build/_deps/fypp-src
 cmake --build . --target test_model_interface -j 8      # the first build compiles fortran_stdlib and takes a long time
 ./dsm2/tests/model_interface/test_model_interface
+cmake --build . --target hydro -j 16                    # the executable the system test runs: dsm2/src/hydro_driver/hydro
 ```
 
 The stdlib and test-drive sources come from the existing `build/_deps` so no network is needed. If `build/` is ever recreated, fetch them again or point these variables elsewhere.
 
 ### Logging: decisions (2026-09-30), implemented
 
-Full design table: OPRULE_REFERENCE.md B10, "Decided design". Acceptance tests: OPRULE_TEST_PLAN.md section 9.
+Full design table, record formats and a worked example: OPRULE_REFERENCE.md B10. Acceptance tests: OPRULE_TEST_PLAN.md section 9. System test: section 13 of the same file.
 
-- Dedicated oprule log file; levels 0 off / 1 events / 2 + action values / 3 + per-step trigger values; level from an oprule scalar with `print_level` as fallback.
-- The logger must never re-evaluate triggers or expressions. `OperatingRule::testNewlyTriggered` keeps the value it computed and the manager logs that.
-- Planned order of work (all steps 1 to 5 done; step 6 open): (1) `RuleLog` class and `OperatingRule` stored trigger value; (2) manager events (`TRIGGERED`, `ACTIVATED`, `DEFERRED` once per episode, `COMPLETED`); (3) `ModelInterface::describe()` and `ModelAction` `ACTION` events; (4) core tests with a string-stream sink (LOG-04..09, LOG-11 on the mock); (5) DSM2 binding: `RULE_LOADED` in `parse_rule`, time source from `get_model_time`, scalar/`print_level` control, file open/close in `InitOpRules`, describe overrides, DSM2 tests (LOG-03, LOG-11, LOG-13); (6) LOG-01/02/12 bitwise comparison against a golden run need the full model (INT-09).
+Decisions, in the order they were made:
+
+- Dedicated oprule log file (`oprule_log.txt`); level from an oprule scalar with `print_level` as fallback.
+- The logger must never re-evaluate triggers or stateful nodes. `OperatingRule` keeps the value of the latest trigger test and how it changed; the manager logs from that.
+- **Only changes are logged.** The first version had a level 3 with a record per rule per step: 212 MB for four months of the historical study. It was removed; levels are now 0, 1 (events) and 2 (adds `ACTION` per advance), and the same four months are 0.43 MB and 0.65 MB.
+- Each trigger change carries its inputs (`trigger_inputs=[...]`): model variables, the value of every named expression, and the internal state of stateful nodes. Implemented with `ExpressionNode::collectState`; leaves are labelled by `describe()`; references to named expressions are wrapped in `NamedExpressionNode` by the lexer so their values can be shown; repeated items are listed once.
+- `ACTIVATED` and `ACTION` carry the action's state: static snapshot or live start value, duration, elapsed, fraction, base, target, value and what the target reads.
+- Rule text is logged at load.
+- An HDF5 form of the same log is planned for the next step (OPRULE_LOG_HDF5_PLAN.md).
 - Level 0 must stay the default so existing output does not change.
+
+Order of work (all done): `RuleLog` and the stored trigger value; manager events; `ModelInterface::describe()` and `ACTION`; core tests with a string-stream sink; DSM2 binding (load records, time source, scalar, labels) and its tests; state reporting and trigger-change logging; system test.
+
+Things to remember when changing this code:
+
+- `collectState` may call `eval()` only on labelled leaves and on `NamedExpressionNode`; a new stateful node must report its fields and ask its children, and must not call `step()` or anything that changes state.
+- A new model variable node should override `describe()` or it will be invisible in the log.
+- The lexer (`op_rule.l`) wraps named-expression references; parser tests that compare node values still pass because the wrapper delegates.
+- Test fixtures reset `g_vars` when constructed: set variables after creating a `LogBench`/`RuleBench`.
+- `name=t` is a reserved word in the rule language (use another name in tests).
 
 ### Fortran-level test of `model_interface.f90`: decisions (2026-09-30), implemented
 

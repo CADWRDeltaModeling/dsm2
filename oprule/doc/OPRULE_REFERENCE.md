@@ -328,7 +328,7 @@ Also noticed: `ts()` looks a series up across all paths (the first name match wi
 
 ## B10. Logging: where to hook in
 
-Goal: log rule triggers, activation/deferral/completion, per-step trigger values, values written by actions, expression evaluations, and parse-time rule loading. The channel, levels and control were decided on 2026-09-30; see "Decided design" at the end of this section.
+Goal: log what an operating rule sees and does: its trigger value changing (with the inputs that caused it), activation, deferral, completion, the values its action writes, and the parse-time rule text. Channel, levels and control were decided on 2026-09-30 and revised the same day (change-only logging, state reporting); see "Decided design" below. A more compact HDF5 form of the same log is planned in [OPRULE_LOG_HDF5_PLAN.md](OPRULE_LOG_HDF5_PLAN.md).
 
 **What exists today**
 - Fortran side: `process_oprule.f90` prints the rule text when `print_level >= 3`, and prints an error plus `exit(-3)` on failure. `op_ruleerror` prints to `cerr`.
@@ -341,57 +341,96 @@ Goal: log rule triggers, activation/deferral/completion, per-step trigger values
 | Trigger went true (edge) | `OperatingRule::testNewlyTriggered` | Already has the current and previous value. Called once per step, so do not add extra calls to it. |
 | Activated / deferred / blocked / replaced | `OperationManager::manageActivation` | Existing commented lines mark the points. |
 | Completed | `ModelAction::onCompletion` / `OperatingRule::isActive` transitions | Completion is detected inside the action, with no rule name there. The manager can log when a rule is seen to go inactive in `advanceActions`. |
-| Per-step trigger value (verbose) | `OperatingRule::testTrigger` (or inside `manageActivation` for every inactive rule) | Verbose: rules x time steps. Gate behind a level. |
-| Values written by actions | `ModelAction::advance` (`_elapsed`, `_transFraction`, `_currentState`) | Needs a description of the interface. `ModelInterface` has no name today, so add a `describe()` virtual or pass a label from the parser. |
-| Named-expression values | No hook today | Expressions are nodes evaluated lazily inside triggers/targets. Options: a decorator node created in `add_symbol`, or evaluate-and-log in the manager for named expressions. |
+| Per-step trigger value (verbose) | `OperatingRule::testTrigger` (or inside `manageActivation` for every inactive rule) | Tried and removed: rules x time steps is 212 MB for four months of the historical study. Only changes are logged now. |
+| Values written by actions | `ModelAction::advance` (`_elapsed`, `_transFraction`, `_currentState`) | Done with `ModelInterface::describe()`. |
+| Named-expression values | `NamedExpressionNode` wrapper created by the lexer where a named expression is referenced | Done. The wrapper only adds the name; it evaluates exactly like the wrapped node. |
 | Step boundary | `advance/step/test` wrappers in `dsm2_oprule_management.cpp` | Good place for a once-per-step header with model time. |
 
-**Decided design (2026-09-30)**
+**Decided design (2026-09-30, revised the same day)**
 
-The options considered were: (1) a Fortran-bound shim writing to the model's `unit_output` gated by `print_level`; (2) a dedicated oprule log file; (3) plain `std::cout` controlled by an environment variable. **Option 2 was chosen.**
+The options considered for the channel were: (1) a Fortran-bound shim writing to the model's `unit_output` gated by `print_level`; (2) a dedicated oprule log file; (3) plain `std::cout` controlled by an environment variable. **Option 2 was chosen.**
 
 | Topic | Decision |
 |---|---|
-| Channel | A dedicated oprule log file, opened at `InitOpRules` and closed at the end of the run. It is separate from Fortran output, so there is no interleaving or buffering-order problem with Fortran lines (order only matters within the file). Default file name and location are still to be settled at implementation (proposal: `oprule_log.txt` in the working directory). |
-| Levels | `0` off (default), `1` events, `2` events + action values, `3` events + action values + per-step trigger values. Each level is a strict superset of the one below (LOG-09). |
-| Control | An oprule-specific scalar sets the level. When it is absent the level is derived from the model's `print_level` (exact mapping to be fixed at implementation, with `0` when `print_level` is low). The oprule scalar wins when both are present. |
-| API | A small class `oprule::rule::RuleLog` in the oprule library with `setLevel`, `open`/`close`, `setSink(std::ostream*)` (used by tests), `setTimeSource(callback)` and `write(level, event, rule, detail)`. The DSM2 binding installs a time source that formats `get_model_time`. Global state, like the parser. |
-| Line format | One record per line: `time \| EVENT \| rule \| detail` (pipe separated, so it is easy to grep and split). |
-| Level 1 events | `RULE_LOADED` (parse time, in `parse_rule`), `TRIGGERED` (false-to-true edge), `ACTIVATED`, `DEFERRED` (names the blocking rule), `COMPLETED` (manager sees a rule go from active to inactive in `advanceActions`). |
-| Level 2 events | `ACTION` for each `ModelAction::advance`: interface description, elapsed time, transition fraction, base value, target value, value written. |
-| Level 3 events | `TRIGGER_VALUE` for each inactive rule each step. Active rules are not tested by the manager, so they have no trigger value to log. |
-| Deferral policy (LOG-06) | `DEFERRED` is logged once per deferral episode (when a rule first becomes deferred), not on every retry, so a long deferral does not flood the log. The episode ends when the rule activates. |
-| No extra evaluation (LOG-02) | The logger must never call `testNewlyTriggered`, `test()` or `eval()` itself: that would consume edge state or step stateful nodes twice. `OperatingRule::testNewlyTriggered` stores the trigger value it already computed, and the manager logs that stored value. |
-| Interface description (LOG-11) | `ModelInterface` gets a virtual `describe()` returning a readable string (default `"<interface>"`). The DSM2 interfaces override it with names/indices (for example `gate_op(gate=g1,device=d1,direction=to_node)`). |
-| Named expressions | Not logged for now (LOG-14 deferred); they are evaluated lazily inside triggers and targets, and a wrapper node risks changing evaluation order. |
+| Channel | A dedicated oprule log file, `oprule_log.txt` in the working directory, created when the first rule is parsed. It is separate from Fortran output, so there is no interleaving or buffering-order problem (order only matters within the file). A compact HDF5 form is planned: OPRULE_LOG_HDF5_PLAN.md. |
+| Only changes | A record is written when something changes: a rule's trigger value (first test, false to true, true to false), a rule starting, being deferred, finishing, and (level 2) each advance of an action. Nothing is written for a rule whose trigger value stays the same, however many steps that lasts. The first version logged every inactive rule at every step (level 3); that was 212 MB for four months and is removed. |
+| Levels | `0` off (default), `1` events, `2` events plus `ACTION` records. Each level is a strict superset of the one below (LOG-09). Values above 2 mean 2. |
+| Control | The scalar `oprule_log_level`. When it is absent the level comes from the model's `print_level`: 4 gives 1, 5 or more gives 2, 3 or less gives 0. The scalar wins when both are present. |
+| API | A small class `oprule::rule::RuleLog` in the oprule library: `setLevel`, `open`/`close`, `setSink(std::ostream*)` (used by tests), `setTimeSource(callback)`, `setContext(rule)`, `write(level, event, rule, detail)` and the formatters `number`/`state`. The DSM2 binding installs a time source that formats `get_model_time`. Global state, like the parser. |
+| Line format | One record per line: `time \| EVENT \| rule \| detail`. Pipe separated so it is easy to grep and split; the detail is `key=value` tokens separated by spaces, and a value that is a list is written `[item; item]` with items `name=value` and no spaces inside an item. |
+| What the rule saw | Each trigger record (`TRIGGER_INITIAL`, `TRIGGERED`, `TRIGGER_CLEARED`) carries `trigger_inputs=[...]`: the model variables the trigger reads and their values, the value of every named expression it uses, and the internal state of stateful nodes (`accumulate.sum`, `predict.*`, `pid.*`). Items that repeat an earlier item with the same name and value are listed once (the same series read through several named expressions). |
+| What the action starts from | `ACTIVATED` carries `interface=` (what the action writes), `mode=static` (the value is read once, at activation, and ramps from that snapshot) or `mode=time_dependent` (the ramp starts from the value the model's data source gives at each step, `init=live`), `init=` (the snapshot), `duration=`, `elapsed=` (0) and `target_inputs=[...]` (what the target expression reads). `ACTION` repeats the ramp state at every advance: `elapsed`, `fraction`, `base`, `target`, `value`, `duration`, `init`, `target_inputs`. For a compound action (`WHILE`, `THEN`) the descriptions of the sub-actions are joined with ` + `. |
+| How the state is read | `ExpressionNode::collectState(StateList&)`. A labelled leaf (a node that reads a model variable) reports its value; a composite node asks its children; a stateful node reports its internal variables and asks its children; `NamedExpressionNode` reports its name and value and asks its child. Only labelled leaves and named expressions call `eval()`, and `eval()` is a plain read, so logging never calls `step()`, never tests a trigger again and never changes what a rule sees (LOG-02). A failure while reading is caught and written as `unavailable`; it never stops the run. |
+| Deferral policy (LOG-06) | `DEFERRED` is written once per deferral episode with `blocked_by=<rule>`, not on every retry. The episode ends when the rule activates, or when its trigger goes false (`DEFER_ENDED`). |
+| Trigger changes and deferral | A deferred rule is retried every step because deferral resets its edge memory. The log follows the trigger **value**, not the edge, so retries write nothing. |
+| Interface description (LOG-11) | `ModelInterface` and `ExpressionNode` have a virtual `describe()`; the DSM2 nodes use the Fortran array indices (the interfaces keep no names). |
+| Rule text | `RULE_LOADED` and `EXPRESSION_LOADED` carry `text=<the parsed text>`, so a reader can see what a rule is without the input files. |
 | Rule order | Events within one step follow pool order, the same order as `manageActivation`. |
 
-Status: **implemented** (2026-09-30), tests in the `rule_log` suites of `oprule_core_tests` and `oprule_dsm2_tests`. Not yet run in a full model run (LOG-01, LOG-02 bitwise and LOG-12 overhead need INT-09).
+Status: **implemented** (2026-09-30). Unit tests: `rule_log` suites of `oprule_core_tests`, `rule_log_*` suites of `oprule_dsm2_tests`, `test_log_level` in the Fortran test. System test with a real study: OPRULE_TEST_PLAN.md section 13.
 
 **How it is implemented and used**
 
-- Code: `oprule/oprule/rule/RuleLog.h`, `oprule/lib/rule/RuleLog.cpp` (class `oprule::rule::RuleLog`). Events are written by `OperationManager`, `OperatingRule::advanceAction` (sets the rule-name context) and `ModelAction::advance`. Load events and set-up are in `dsm2/src/oprule_interface/dsm2_oprule_management.cpp`.
-- Turn it on with the scalar `oprule_log_level` (0 to 3; `process_scalar.f90`, stored in `logging.f90`). If the scalar is absent the level comes from `print_level`: 4, 5, 6 give 1, 2, 3, and 3 or lower gives 0 (so existing `print_level 3` runs are unchanged). The routine the C++ calls is `get_oprule_log_level` in `model_interface.f90`, tested by `dsm2/tests/model_interface`.
-- Output goes to `oprule_log.txt` in the working directory, created (truncated) when the first rule is parsed. If it cannot be opened, a warning is printed and logging stays off. The model's own output is not changed.
+- Code: `oprule/oprule/rule/RuleLog.h`, `oprule/lib/rule/RuleLog.cpp` (class `oprule::rule::RuleLog`). Trigger and activation records come from `OperationManager::manageActivation` and `advanceActions`; `OperatingRule::getTriggerChange()` says how the trigger value changed at the latest test; `OperatingRule::describeTrigger()` and `describeAction()` build the state text; `OperatingRule::advanceAction` sets the rule-name context for `ModelAction::advance`, which writes `ACTION`. Load records and set-up are in `dsm2/src/oprule_interface/dsm2_oprule_management.cpp`.
+- State introspection: `ExpressionNode::describe()` and `collectState()` (`oprule/oprule/expression/ExpressionNode.h` and the composite and stateful nodes), `NamedExpressionNode.h`, `OperationAction::describeState()`, `Trigger::collectState()`.
+- Turn it on with the scalar `oprule_log_level` (0 to 2) in the SCALAR table of `hydro.inp` (`process_scalar.f90`, stored in `logging.f90`). If the scalar is absent the level comes from `print_level`: 4 gives 1, 5 or more gives 2, 3 or less gives 0 (so existing `print_level 3` runs are unchanged). The routine the C++ calls is `get_oprule_log_level` in `model_interface.f90`, tested by `dsm2/tests/model_interface`.
+- Output goes to `oprule_log.txt` in the working directory, created (truncated) when the first rule is parsed. If it cannot be opened, a warning is printed and logging stays off. The model's own output is not changed (OPRULE_TEST_PLAN.md section 13).
 - The time label is the model time at the end of the current step, `YYYY-MM-DD HH:MM`. Records written while input is being read (before the first step) carry `init`.
 - Level 0 writes nothing and never creates the file.
+- Size: for the historical study, four months (01SEP2014 to 31DEC2014) gives about 0.43 MB at level 1 and 0.65 MB at level 2, with 87 rules.
 
 Records (`time | EVENT | rule | detail`):
 
 | Level | Event | Written when | Detail |
 |---|---|---|---|
-| 1 | `RULE_LOADED` | a rule is parsed (`parse_rule`) | |
-| 1 | `EXPRESSION_LOADED` | a named expression is parsed; the rule field holds the expression name | |
-| 1 | `TRIGGERED` | false-to-true edge of an inactive rule (not repeated for each retry while the rule is deferred) | |
-| 1 | `ACTIVATED` | the rule starts | |
+| 1 | `RULE_LOADED` | a rule is parsed (`parse_rule`) | `text=<rule text>` |
+| 1 | `EXPRESSION_LOADED` | a named expression is parsed; the rule field holds the expression name | `text=<expression text>` |
+| 1 | `TRIGGER_INITIAL` | a rule's first test is false | `trigger_inputs=[...]` |
+| 1 | `TRIGGERED` | the trigger value became true (also a first test that is true) | `trigger_inputs=[...]` |
+| 1 | `TRIGGER_CLEARED` | the trigger value became false | `trigger_inputs=[...]` |
+| 1 | `ACTIVATED` | the rule starts | `interface= mode= init= duration= elapsed= target_inputs=[...]` (sub-actions joined by ` + `) |
 | 1 | `DEFERRED` | an overlapping rule is active; first time in a deferral episode only | `blocked_by=<rule>` |
 | 1 | `DEFER_ENDED` | the trigger went false while the rule was deferred | |
 | 1 | `NOT_APPLICABLE` | triggered but `isActionApplicable()` is false | |
 | 1 | `IGNORED`, `REPLACED` | the unused conflict policies (see B6) | `blocked_by=` / `replaced_by=` |
 | 1 | `COMPLETED` | the manager sees an active rule become inactive | |
-| 2 | `ACTION` | each `ModelAction::advance` | `interface=<describe()> elapsed=<s> fraction=<0..1> base=<v> target=<v> value=<v>` |
-| 3 | `TRIGGER_VALUE` | each step for each inactive rule | `value=true` or `value=false` |
+| 2 | `ACTION` | each `ModelAction::advance` | `interface= elapsed= fraction= base= target= value= duration= init= target_inputs=[...]` |
+
+**A simple example**, from the historical study (01SEP2014; 4 months), rule `mscs_close` of the Montezuma Slough gates, which closes a gate when the channel velocity says the flow has reversed. Its text, as logged at load time:
+
+```
+init | EXPRESSION_LOADED | mscs_calc | text=mscs_calc := ts(name=mscs_op) < 0;
+init | RULE_LOADED | mscs_close | text=mscs_close := SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 0.0 WHEN (mscs_velclose AND mscs_calc) OR (mscs_g3close);
+```
+
+What happens during the run (long lines wrapped here; they are single lines in the file):
+
+```
+2014-09-01 00:05 | TRIGGER_INITIAL | mscs_close | trigger_inputs=[mscs_velclose=0; chan_vel(int_channel=484,dist=5750)=0.000125594696;
+                                                                 mscs_calc=0; ts(name=mscs_op)=1; mscs_g3close=0]
+2014-09-03 07:25 | TRIGGERED       | mscs_close | trigger_inputs=[mscs_velclose=1; chan_vel(int_channel=484,dist=5750)=-0.140688087;
+                                                                 mscs_calc=1; ts(name=mscs_op)=-10; mscs_g3close=0]
+2014-09-03 07:25 | ACTIVATED       | mscs_close | interface=gate_op(gate=13,device=4,direction=from_node) mode=time_dependent init=live
+                                                                 duration=0 elapsed=0 target_inputs=[]
+2014-09-03 07:30 | ACTION          | mscs_close | interface=gate_op(gate=13,device=4,direction=from_node) elapsed=300 fraction=1 base=1
+                                                                 target=0 value=0 duration=0 init=live target_inputs=[]
+2014-09-03 07:30 | COMPLETED       | mscs_close |
+2014-09-03 11:25 | TRIGGER_CLEARED | mscs_close | trigger_inputs=[mscs_velclose=0; chan_vel(int_channel=484,dist=5750)=-0.0918594958;
+                                                                 mscs_calc=1; ts(name=mscs_op)=-10; mscs_g3close=0]
+```
+
+How to read it:
+
+1. At the first step the rule is `TRIGGER_INITIAL`: its trigger is false (`mscs_velclose=0` and `mscs_g3close=0`), and the inputs show why: the velocity is about zero. Nothing more is written for this rule until its trigger value changes, however many steps that takes.
+2. On 03SEP at 07:25 the velocity became negative (`chan_vel=-0.1407`), so the named expression `mscs_velclose` became 1 and the whole trigger true: `TRIGGERED`, with the values that made it so. The named expressions are listed first (`mscs_velclose`, `mscs_calc`, `mscs_g3close`), each followed by the model variables under it; a variable used by several of them (`ts(name=mscs_op)`) appears once.
+3. The rule starts in the same step (`ACTIVATED`). It sets a device property, which the model reads from a data source every step, so the ramp starts from the live value (`mode=time_dependent init=live`). `duration=0` means abrupt: it finishes in its first advance.
+4. The next step it writes the value (`ACTION`: `fraction=1`, `target=0`, `value=0`) and finishes (`COMPLETED`).
+5. At 11:25 the velocity weakened (`-0.0919`), `mscs_velclose` went back to 0 and the trigger value became false: `TRIGGER_CLEARED`.
+
+Gate and device are Fortran indices (`gate=13,device=4`) and the channel is the internal channel index (`int_channel=484`), because the interfaces keep no names; the order of the gates, devices and channels in the model input defines them. The time label of a record is the end of the model step in which it happened.
+
+A ramp (`RAMP 60MIN`, or any rule whose effect lasts several steps) shows its internal state: `ACTIVATED` gives `duration=3600 elapsed=0`, and each `ACTION` gives the `elapsed` so far, the `fraction` of the way to the target, the `base` the ramp started from, the `target` it is moving to (re-evaluated every step, so `target_inputs` shows what it reads now), and the `value` written. For a static interface the snapshot `init` is the value read at activation and `base` stays equal to it.
 
 Interface descriptions use the Fortran array indices (1-based), because the interfaces keep no names: `ext_flow(index=1)`, `transfer_flow(index=2)`, `gate_install(gate=2)`, `gate_op(gate=1,device=2,direction=to_node)`, `gate_height(gate=1,device=1)`, `gate_coef(gate=2,device=1,direction=from_node)`. Direction `to_from_node` stands for both `bidir` and `both`.
 
-Limits: active rules have no `TRIGGER_VALUE` (their triggers are not tested while they run); named expression values are not logged; gates and devices are identified by index (the order in the input defines it), not by name.
+Limits: a rule is not tested while it is active, so a change of its trigger value during that time is logged at the first test after it completes (the same blind spot as B9 item 18); a read that fails is written as `unavailable`; gates and devices are identified by index, not by name; internal state is reported for `accumulate`, `predict` and `pid` only (the lagged expression node is not implemented).

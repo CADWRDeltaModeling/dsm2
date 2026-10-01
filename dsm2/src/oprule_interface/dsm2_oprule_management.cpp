@@ -65,6 +65,19 @@ std::string model_time_label(){
     return buf;
 }
 
+// Rule text on one line with runs of white space collapsed, for the load records.
+std::string one_line(const std::string& text){
+    std::string out;
+    bool space = false;
+    for (std::string::size_type i = 0; i < text.size(); ++i){
+        char c = text[i];
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r'){ space = !out.empty(); continue; }
+        if (space){ out += ' '; space = false; }
+        out += c;
+    }
+    return out;
+}
+
 // Name before ":=" in the text of a rule or named expression.
 std::string name_before_assignment(const std::string& text){
     std::string::size_type pos = text.find(":=");
@@ -131,9 +144,9 @@ extern "C"{
         if (get_parsed_type() == oprule::parser::OP_RULE){
             OperatingRulePtr rule=getOperatingRule();
             dsm2_op_manager.addRule(rule);
-            RuleLog::write(RuleLog::EVENTS, "RULE_LOADED", rule->getName(), "");
+            RuleLog::write(RuleLog::EVENTS, "RULE_LOADED", rule->getName(), "text=" + one_line(parse_str));
         }else{
-            RuleLog::write(RuleLog::EVENTS, "EXPRESSION_LOADED", name_before_assignment(parse_str), "");
+            RuleLog::write(RuleLog::EVENTS, "EXPRESSION_LOADED", name_before_assignment(parse_str), "text=" + one_line(parse_str));
         }
         return true;
     }

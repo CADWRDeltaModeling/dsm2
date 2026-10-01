@@ -1,10 +1,18 @@
 #ifndef oprule_expression_EXPRESSIONNODE_H__INCLUDED_
 #define oprule_expression_EXPRESSIONNODE_H__INCLUDED_
 #include<iostream>
+#include<string>
+#include<utility>
+#include<vector>
 #include "oprule/expression/ExpressionPtr.h"
 
 namespace oprule{
 namespace expression{
+
+/** Named values reported for logging: model variables a node reads and the internal state of
+ *  stateful nodes (see ExpressionNode::collectState).
+ */
+typedef std::vector<std::pair<std::string,double> > StateList;
 
 /** Expression node representing a value.
  */
@@ -44,6 +52,22 @@ public:
    * it contains sub-expressions (in case they need it).
    */
    virtual void step(double dt){};
+
+   /** Short readable label for a node that reads a model variable (for example
+   *  "chan_stage(channel=12,dist=0)"); empty for every other node.
+   */
+   virtual std::string describe() const { return std::string(); }
+
+   /** Report what this node sees, for the rule log.
+   * A node with a label reports its current value. A composite node asks its children. A stateful
+   * node (accumulate, predict, pid) reports its internal variables and asks its children. Only labelled
+   * leaves call eval(), and those are plain reads of the model, so logging never evaluates a stateful
+   * node and never changes what a rule sees.
+   */
+   virtual void collectState(StateList& out){
+      std::string label = describe();
+      if (!label.empty()) out.push_back(std::make_pair(label, static_cast<double>(eval())));
+   }
 
 
 };

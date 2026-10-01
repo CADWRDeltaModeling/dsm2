@@ -575,18 +575,18 @@ real*8 function value_from_inputpath(i) bind(C, name="value_from_inputpath")
     return
 end function
 
-! Level of the operating rule log (0 off, 1 events, 2 + action values, 3 + trigger values).
-! The oprule_log_level scalar wins; otherwise print_level 4, 5, 6 give 1, 2, 3 and anything lower gives 0.
+! Level of the operating rule log (0 off, 1 events, 2 + action values at every advance).
+! The oprule_log_level scalar wins; otherwise print_level 4 and 5 or more give 1 and 2, and anything lower gives 0.
 integer function get_oprule_log_level() bind(C, name="get_oprule_log_level")
     use logging, only: print_level, oprule_log_level
     use constants, only: miss_val_i
     implicit none
     if (oprule_log_level .ge. 0) then
-        get_oprule_log_level = min(3, oprule_log_level)
+        get_oprule_log_level = min(2, oprule_log_level)
     else if (print_level .eq. miss_val_i) then
         get_oprule_log_level = 0
     else
-        get_oprule_log_level = max(0, min(3, print_level - 3))
+        get_oprule_log_level = max(0, min(2, print_level - 3))
     end if
     return
 end function

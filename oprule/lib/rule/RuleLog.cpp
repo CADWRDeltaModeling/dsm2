@@ -1,6 +1,9 @@
 #include "oprule/rule/RuleLog.h"
+#include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <ostream>
+#include <sstream>
 
 namespace oprule {
 namespace rule {
@@ -15,7 +18,7 @@ std::string g_context;
 
 void RuleLog::setLevel(int level){
    if (level < OFF) level = OFF;
-   if (level > TRIGGERS) level = TRIGGERS;
+   if (level > ACTIONS) level = ACTIONS;
    g_level = level;
 }
 
@@ -57,6 +60,30 @@ void RuleLog::write(int level, const std::string& event,
    *g_sink << (g_time ? g_time() : std::string()) << " | " << event << " | "
            << rule << " | " << detail << '\n';
    g_sink->flush();
+}
+
+std::string RuleLog::number(double value){
+   if (value != value) return "nan";
+   if (value == HUGE_VAL || value == -HUGE_VAL) return "unset";
+   std::ostringstream s;
+   s << std::setprecision(9) << value;
+   return s.str();
+}
+
+std::string RuleLog::state(const StateList& values){
+   std::string out = "[";
+   bool first = true;
+   for (size_t i = 0; i < values.size(); ++i){
+      // the same variable read through several named expressions is listed once
+      bool seen = false;
+      for (size_t j = 0; j < i && !seen; ++j)
+         seen = values[j].first == values[i].first && values[j].second == values[i].second;
+      if (seen) continue;
+      if (!first) out += "; ";
+      first = false;
+      out += values[i].first + "=" + number(values[i].second);
+   }
+   return out + "]";
 }
 
 }}     //namespace

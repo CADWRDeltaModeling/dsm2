@@ -123,6 +123,15 @@ public:
 
 
 
+    virtual void collectState(StateList& out){
+      out.push_back(std::make_pair(std::string("pid.output"), _u));
+      out.push_back(std::make_pair(std::string("pid.P"), P));
+      out.push_back(std::make_pair(std::string("pid.I"), I));
+      out.push_back(std::make_pair(std::string("pid.D"), D));
+      _y->collectState(out);
+      _ySet->collectState(out);
+    }
+
     virtual ~PIDNode(){
        OE_NODE_DELETE(_node);
     }
@@ -266,6 +275,16 @@ public:
 	}
 
 
+
+    virtual void collectState(StateList& out){
+      out.push_back(std::make_pair(std::string("ipid.output"), _u));
+      out.push_back(std::make_pair(std::string("ipid.dP"), dP));
+      out.push_back(std::make_pair(std::string("ipid.dI"), dI));
+      out.push_back(std::make_pair(std::string("ipid.dD"), dD));
+      _y->collectState(out);
+      _ySet->collectState(out);
+      _uApplied->collectState(out);
+    }
 
     virtual ~IncrementalPIDNode(){
        OE_NODE_DELETE(_node);

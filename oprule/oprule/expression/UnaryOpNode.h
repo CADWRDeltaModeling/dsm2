@@ -53,6 +53,7 @@ struct UnaryOpNode : public ExpressionNode<typename UnaryFunc::result_type >
     virtual void init(){
         _pArg->init();
     }
+    virtual void collectState(StateList& out){ _pArg->collectState(out); }
 
     virtual void step(double dt){
         _pArg->step(dt);

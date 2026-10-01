@@ -96,6 +96,7 @@ public:
        OE_NODE_DELETE(_pArg);
     }
     virtual void init(){ _pArg->init();}
+    virtual void collectState(StateList& out){ _pArg->collectState(out); }
 
 private:
    ArgNodePtr _pArg;

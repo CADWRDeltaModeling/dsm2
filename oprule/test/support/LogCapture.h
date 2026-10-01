@@ -65,9 +65,15 @@ inline int count_of(const std::vector<LogRecord>& recs, const std::string& event
    return n;
 }
 
+// Detail of the first record with this event and rule ("<none>" if there is none).
+inline std::string detail_of(const std::vector<LogRecord>& recs, const std::string& event, const std::string& rule) {
+   for (size_t i = 0; i < recs.size(); ++i)
+      if (recs[i].event == event && recs[i].rule == rule) return recs[i].detail;
+   return "<none>";
+}
+
 // The lowest level at which an event is written.
 inline int event_level(const std::string& event) {
-   if (event == "TRIGGER_VALUE") return 3;
    if (event == "ACTION") return 2;
    return 1;
 }

@@ -13,11 +13,13 @@
 using namespace oprule::rule;
 
 OperatingRule::OperatingRule(OperationActionPtr opact) :
-   _action(opact), _prevTriggerValue(false), _lastTriggerValue(false){
+   _action(opact), _prevTriggerValue(false), _lastTriggerValue(false),
+   _testedBefore(false), _triggerChange(NO_CHANGE){
 }
 
 OperatingRule::OperatingRule(OperationActionPtr opact,TriggerPtr trigger) :
-   _action(opact), _trigger(trigger), _prevTriggerValue(false), _lastTriggerValue(false){
+   _action(opact), _trigger(trigger), _prevTriggerValue(false), _lastTriggerValue(false),
+   _testedBefore(false), _triggerChange(NO_CHANGE){
 }
 
 void OperatingRule::advanceAction(double dt){
@@ -38,6 +40,14 @@ bool OperatingRule::testTrigger(){
 //todo: this embeds the prev=current logic
 bool OperatingRule::testNewlyTriggered(){
    bool current=_trigger->test();
+   if (!_testedBefore){
+      _triggerChange = current ? RISING : INITIAL_FALSE;
+   }else if (current == _lastTriggerValue){
+      _triggerChange = NO_CHANGE;
+   }else{
+      _triggerChange = current ? RISING : FALLING;
+   }
+   _testedBefore=true;
    _lastTriggerValue=current;
    bool ret= (! _prevTriggerValue) && current;
    _prevTriggerValue=current;
@@ -74,5 +84,23 @@ OperationAction::ActionListType& OperatingRule::getActionList(){
 
 OperatingRule::~OperatingRule(){
   //delete _trigger;
+}
+
+std::string OperatingRule::describeTrigger(){
+   try {
+      oprule::expression::StateList inputs;
+      if (_trigger) _trigger->collectState(inputs);
+      return "trigger_inputs=" + RuleLog::state(inputs);
+   } catch (...) {
+      return "trigger_inputs=unavailable";
+   }
+}
+
+std::string OperatingRule::describeAction(){
+   try {
+      return _action ? _action->describeState() : std::string();
+   } catch (...) {
+      return "action=unavailable";
+   }
 }
 

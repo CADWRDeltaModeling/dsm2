@@ -75,6 +75,13 @@ public:
 
     virtual bool isTimeDependent() const{ return true; }
 
+    virtual void collectState(StateList& out){
+        out.push_back(std::make_pair(std::string("accumulate.sum"), static_cast<double>(_accum)));
+        _express->collectState(out);
+        _initializer->collectState(out);
+        _resetter->collectState(out);
+    }
+
 private:
     T _accum;
     ExpressionNodePtr _express;

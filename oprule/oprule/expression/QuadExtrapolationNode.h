@@ -88,6 +88,14 @@ public:
 
     virtual bool isTimeDependent()const { return true; }
 
+    virtual void collectState(StateList& out){
+        out.push_back(std::make_pair(std::string("predict.prev"), _prevVal));
+        out.push_back(std::make_pair(std::string("predict.old"), _oldVal));
+        out.push_back(std::make_pair(std::string("predict.new"), _newVal));
+        out.push_back(std::make_pair(std::string("predict.extrapolated"), _extrap));
+        _node->collectState(out);
+    }
+
 private:
 
     void lagVals();
