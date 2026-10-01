@@ -7,8 +7,8 @@ A high-level map of what the tests cover, so conceptual gaps are easy to spot. D
 | Program | Source | Cases | What it exercises | Needs |
 |---|---|---|---|---|
 | `oprule_smoke_tests` | `test/smoke/SmokeTests.cpp` | 19 | Quick sanity pass: parse, run, defer, ramp, data source, one end-to-end rule. | oprule libs |
-| `oprule_core_tests` | `test/core/CoreTests.cpp` | 100 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log (trigger changes, state, ramp state; structured events, stages, intervals, episodes, write notes), pinned defects. Mock model only. | oprule libs |
-| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 92 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up and options, rule text, interface descriptions, the inputs in the log records, and the device sampler (gate device transitions). | oprule libs + Loki headers |
+| `oprule_core_tests` | `test/core/CoreTests.cpp` | 121 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log (trigger changes, state, ramp state; structured events, stages, intervals, episodes, write notes), pinned defects. Mock model only. | oprule libs |
+| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 113 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up and options, rule text, interface descriptions, the inputs in the log records, and the device sampler (gate device transitions). | oprule libs + Loki headers |
 | `oprule_hdf5_tests` | `test/hdf5/Hdf5LogTests.cpp` | 11 | The HDF5 sink of the log read back with the HDF5 C API: tables and format version, rules, events/actions/intervals/episodes equal to the in-memory sink, dictionary kinds, device transitions and state intervals, a run that exits or is killed. | oprule libs + HDF5 (`-DOPRULE_HDF5_ROOT`) |
 | `test_model_interface` (Fortran, test-drive) | `dsm2/tests/model_interface/test_model_interface.f90` | 21 | The **real** Fortran routines of `model_interface.f90` that the C++ calls: name lookups, flows, gates and devices, data sources, time, the log level and the other log options, gate tables, gate state and sources. Checks the mock's description of them. | the full DSM2 build (see DEVELOPER_NOTES.md) |
 
@@ -71,6 +71,7 @@ Legend: **C** core tests, **D** DSM2 tests, **S** smoke tests. "pinned" means th
 | Log options and gate accessors in the real Fortran | Fortran `test_model_interface` | H5-13, H5-16 |
 | Gate state series in the tide file agree with the device transitions; options; no effect on the model | System test | H5-14, H5-15, H5-17 |
 | Real Fortran behind the mock | Fortran `test_model_interface` | see section 8 |
+| Every gotcha of OPRULE_USER_GUIDE.md: syntax (`WHERE`, positional arguments, reserved words as values, blank trigger, `LOOKUP`/`PID` arguments, month names), dates and seasons (`AND` dates, `SEASON` limits, `DATE` as date and time, `ACCUMULATE` and `DT`), deferral and turn taking, name order, static and dynamic targets, error messages, and the worked examples of section 12 | C `user_guide_syntax`, `user_guide_months`, `user_guide_rules`; D `user_guide_dates`, `user_guide_rules`, `user_guide_montezuma_example` | each test names the section of the guide; a test that disagrees with the guide means the guide is corrected |
 
 ## 4. Study input patterns covered
 
@@ -114,6 +115,9 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 | D-22 | `WHILE` of unequal-length actions asserts (Debug) | C `pinned_runtime` (child process) |
 | D-23 | `PREDICT` in a trigger asserts: `init()` is never called | C `pinned_runtime` (child process) |
 | new | unknown channel number is not validated (reads `chan_geom(0)`) | D `factory_arguments` |
+| new | `LOOKUP` with `x` equal to the last limit reads past the values (not asserted: undefined) | C `user_guide_syntax` (the neighbours of the case) |
+| new | `PID` / `IPID` arguments after the target are evaluated once, at parse time | C `user_guide_syntax` |
+| new | a blank trigger gives the statement `... WHEN ;`, a syntax error (the model stops) | C `user_guide_syntax`, D `user_guide_rules` |
 | new | unknown reservoir: `res_stage` returns an empty node, `res_flow` indexes `res_geom(-901)` | D `factory_arguments` |
 | new | `gate_nduplicate` from a series: the model sees a non-integer after the first step | D `study_rule_behaviour` |
 | new | any two actions on one gate device overlap, so opposing-direction rules are serialized (e.g. `mscs_close_from` then `mscs_close_to`; `glc_barrier_elev` then `glc_barrier_in`) | D `resolver_overlap`, `study_rule_behaviour` |

@@ -1808,5 +1808,430 @@ BOOST_AUTO_TEST_CASE(nothing_is_sampled_when_the_log_is_off) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// ============================================================ the user guide's gotchas (OPRULE_USER_GUIDE.md)
+// One test per statement of the guide that a rule author could trip over; the section of the guide is named in
+// the comment. The rules of the guide's worked examples (section 12) are run here as written.
+
+namespace {
+
+// Counts the steps at the end of which a rule is newly active: one per firing, for abrupt and ramped rules.
+struct Firings {
+   Firings(Sim& sim, const std::vector<std::string>& n) : s(sim), names(n), count(n.size(), 0), was(n.size()) {
+      for (size_t i = 0; i < n.size(); ++i) was[i] = s.active(n[i]);
+   }
+   void step() {
+      s.step();
+      for (size_t i = 0; i < names.size(); ++i) {
+         bool now = s.active(names[i]);
+         if (now && !was[i]) ++count[i];
+         was[i] = now;
+      }
+   }
+   void steps(int n) { for (int i = 0; i < n; ++i) step(); }
+   // steps until the model time (the time at the end of the next step) is on the given day
+   void until(int year, int month, int day) {
+      for (int i = 0; i < 400000; ++i) {
+         int y, m, d;
+         civil_from_julday(model().julmin / 1440, y, m, d);
+         if (y == year && m == month && d == day) return;
+         step();
+      }
+      BOOST_FAIL("date not reached");
+   }
+   Sim& s;
+   std::vector<std::string> names;
+   std::vector<int> count;
+   std::vector<bool> was;
+};
+
+bool message_has(const std::exception& e, const char* text) {
+   return std::string(e.what()).find(text) != std::string::npos;
+}
+
+// The rules of section 12.2. The velocity is -0.5 for 19 steps, then +0.5 for 21, and so on (a tide).
+// `op` is the value of the seasonal series mscs_op.
+int mscs_firings(Sim& s, double op) {
+   Model& m = model();
+   m.add_channel(512, 7000.);
+   m.add_gate("montezuma_salinity_control");
+   m.add_device("montezuma_salinity_control", "radial_gates");
+   m.add_path_input("mscs_op", op);
+   s.series["mscs_op"] = op;
+   BOOST_REQUIRE(s.add_expression("mscs_velclose", "chan_vel(channel=512,dist=5750) < -0.1"));
+   BOOST_REQUIRE(s.add_expression("mscs_calc", "ts(name=mscs_op) < 0"));
+   BOOST_REQUIRE(s.add_expression("mscs_g3close",
+                                  "(ts(name=mscs_op)) < 0.0001 AND (ts(name=mscs_op)) > -0.0001"));
+   BOOST_REQUIRE(s.add_rule("mscs_close",
+      "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 0.0",
+      "(mscs_velclose AND mscs_calc) OR (mscs_g3close)"));
+   static double velocity;
+   static int step_no;
+   velocity = -0.5;
+   step_no = 0;
+   m.set_velocity(512, [](double) { return velocity; });
+   s.solver = [](double) { ++step_no; velocity = (step_no % 40) < 20 ? -0.5 : 0.5; };
+   Firings f(s, std::vector<std::string>(1, "mscs_close"));
+   f.steps(400);
+   return f.count[0];
+}
+
+}  // namespace
+
+BOOST_FIXTURE_TEST_SUITE(user_guide_dates, BasicSim)
+
+// section 6: a date written as separate tests joined by AND is true again on the 14th of every later month
+BOOST_AUTO_TEST_CASE(a_date_written_with_and_fires_every_month_but_DATE_fires_once) {
+   begin_run(1990, 3, 1, 0, 0, 21600);
+   BOOST_REQUIRE(add_rule("by_parts", "SET ext_flow(name=q1) TO 0", "(YEAR >= 1990 AND MONTH >= APR AND DAY >= 14)"));
+   BOOST_REQUIRE(add_rule("by_date", "SET ext_flow(name=q2) TO 0", "DATE >= 14APR1990"));
+   Firings f(*this, std::vector<std::string>({"by_parts", "by_date"}));
+   f.steps(153 * 4);                                  // up to 01AUG1990
+   BOOST_CHECK_EQUAL(f.count[0], 4);                  // 14APR, 14MAY, 14JUN, 14JUL
+   BOOST_CHECK_EQUAL(f.count[1], 1);
+}
+
+// section 6: a SEASON window is true once a year, from 15APR to the end of 30APR
+BOOST_AUTO_TEST_CASE(a_season_window_fires_once_a_year) {
+   begin_run(1990, 1, 1, 0, 0, 21600);
+   BOOST_REQUIRE(add_rule("window", "SET ext_flow(name=q1) TO 0", "SEASON > 15APR AND SEASON < 01MAY"));
+   Firings f(*this, std::vector<std::string>(1, "window"));
+   f.steps(730 * 4);
+   BOOST_CHECK_EQUAL(f.count[0], 2);
+}
+
+// section 6: SEASON <= 30APR ends at 00:00 on 30APR, SEASON < 01MAY at the end of the day
+BOOST_AUTO_TEST_CASE(less_or_equal_cuts_the_last_day_of_a_season_window_short) {
+   BOOST_REQUIRE(add_expression("le", "SEASON <= 30APR"));
+   BOOST_REQUIRE(add_expression("lt", "SEASON < 01MAY"));
+   model().set_time(1990, 4, 30, 0, 0);
+   BOOST_CHECK(getBoolExpression("le")->eval());
+   BOOST_CHECK(getBoolExpression("lt")->eval());
+   model().set_time(1990, 4, 30, 0, 15);
+   BOOST_CHECK(!getBoolExpression("le")->eval());
+   BOOST_CHECK(getBoolExpression("lt")->eval());
+   model().set_time(1990, 4, 30, 23, 45);
+   BOOST_CHECK(!getBoolExpression("le")->eval());
+   BOOST_CHECK(getBoolExpression("lt")->eval());
+   model().set_time(1990, 5, 1, 0, 0);
+   BOOST_CHECK(!getBoolExpression("lt")->eval());
+}
+
+// section 6: "SEASON > 15APR" is false at 00:00 on 15APR and true from the next minute
+BOOST_AUTO_TEST_CASE(a_season_starts_just_after_its_lower_limit) {
+   BOOST_REQUIRE(add_expression("after", "SEASON > 15APR"));
+   model().set_time(1990, 4, 15, 0, 0);
+   BOOST_CHECK(!getBoolExpression("after")->eval());
+   model().set_time(1990, 4, 15, 0, 15);
+   BOOST_CHECK(getBoolExpression("after")->eval());
+   model().set_time(1990, 4, 14, 23, 45);
+   BOOST_CHECK(!getBoolExpression("after")->eval());
+}
+
+// section 6 / 11.4: DATE is the model date and time, so "DATE == 14APR1990" is true only at 00:00
+BOOST_AUTO_TEST_CASE(DATE_is_the_current_date_and_time) {
+   BOOST_REQUIRE(add_expression("d_eq", "DATE == 14APR1990"));
+   BOOST_REQUIRE(add_expression("d_ge", "DATE >= 14APR1990"));
+   BOOST_REQUIRE(add_expression("d_lt", "DATE < 15APR1990"));
+   model().set_time(1990, 4, 14, 0, 0);
+   BOOST_CHECK(getBoolExpression("d_eq")->eval());
+   model().set_time(1990, 4, 14, 12, 0);
+   BOOST_CHECK(!getBoolExpression("d_eq")->eval());
+   BOOST_CHECK(getBoolExpression("d_ge")->eval());
+   BOOST_CHECK(getBoolExpression("d_lt")->eval());
+   model().set_time(1990, 4, 13, 23, 45);
+   BOOST_CHECK(!getBoolExpression("d_ge")->eval());
+   model().set_time(1990, 4, 15, 0, 0);
+   BOOST_CHECK(!getBoolExpression("d_lt")->eval());
+}
+
+// section 11.4: a month name in lower case is read as 0
+BOOST_AUTO_TEST_CASE(a_lower_case_month_name_compares_with_zero) {
+   BOOST_REQUIRE(add_expression("upper", "MONTH == APR"));
+   BOOST_REQUIRE(add_expression("lower", "MONTH == apr"));
+   BOOST_REQUIRE(add_expression("lower_ge", "MONTH >= apr"));
+   model().set_time(1990, 4, 10, 0, 0);
+   BOOST_CHECK(getBoolExpression("upper")->eval());
+   BOOST_CHECK(!getBoolExpression("lower")->eval());
+   BOOST_CHECK(getBoolExpression("lower_ge")->eval());
+   BOOST_REQUIRE(add_expression("mixed", "MONTH == Apr"));
+   BOOST_CHECK(!getBoolExpression("mixed")->eval());
+}
+
+// section 11.7: ACCUMULATE adds the expression once per step; multiply by DT to integrate
+BOOST_AUTO_TEST_CASE(accumulate_integrates_only_when_multiplied_by_DT) {
+   BOOST_REQUIRE(add_rule("integrated", "SET ext_flow(name=q1) TO 0", "ACCUMULATE(10 * DT, 0) >= 36000"));
+   BOOST_REQUIRE(add_rule("plain", "SET ext_flow(name=q2) TO 0", "ACCUMULATE(10, 0) >= 36000"));
+   steps(3);
+   BOOST_CHECK(!active("integrated"));                // 3 * 9000
+   step();
+   BOOST_CHECK(active("integrated"));                 // 4 * 9000
+   steps(50);
+   BOOST_CHECK(!active("plain"));                     // 10 per step: 36000 is 3600 steps away
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_FIXTURE_TEST_SUITE(user_guide_rules, BasicSim)
+
+// sections 2 and 7: the trigger cannot be left blank in the statement the model builds
+BOOST_AUTO_TEST_CASE(a_blank_trigger_is_rejected) {
+   BOOST_CHECK(!add_rule("blank", "SET ext_flow(name=q1) TO 0", ""));
+   BOOST_CHECK(!add_rule("space", "SET ext_flow(name=q1) TO 0", "   "));
+   BOOST_CHECK(add_rule("at_startup", "SET ext_flow(name=q1) TO 0", "STARTUP"));
+}
+
+// section 14: the forms of the website guide that the model does not accept
+BOOST_AUTO_TEST_CASE(forms_from_the_website_guide_are_not_accepted) {
+   BOOST_CHECK(!add_expression("w1", "ts(ts1)"));                               // ts(name=...)
+   BOOST_CHECK(!add_expression("w2", "ext_flow(node=17)"));                     // ext_flow(name=...)
+   BOOST_CHECK(!add_expression("w3", "chan_stage(chan=185, dist=0)"));          // channel=
+   BOOST_CHECK(!add_expression("w4", "chan_ec(channel=185, dist=0)"));
+   BOOST_CHECK(!add_expression("w5", "chan_surf(channel=185, dist=0)"));
+   BOOST_CHECK(!add_expression("w6", "gate_position(gate=g1, device=d1)"));
+   BOOST_CHECK(add_expression("w7", "chan_stage(channel=185, dist=0)"));
+   BOOST_CHECK(add_expression("w8", "ext_flow(name=q1)"));                      // a control variable can be read
+}
+
+// section 13: the messages of the troubleshooting table
+BOOST_AUTO_TEST_CASE(error_messages_match_the_troubleshooting_table) {
+   DSM2HydroNamedValueLookup lk;
+   BOOST_CHECK_EXCEPTION(
+      lk.getModelInterface("gate_op", Args().add("gate", "nosuch").add("device", "d1").add("direction", "to_node").m),
+      InvalidIdentifier, [](const InvalidIdentifier& e) { return message_has(e, "Gate name not found"); });
+   BOOST_CHECK_EXCEPTION(lk.getModelExpression("ts", Args().add("name", "nosuch").m), InvalidIdentifier,
+      [](const InvalidIdentifier& e) { return message_has(e, "Time series unknown"); });
+   BOOST_CHECK_EXCEPTION(lk.getModelInterface("gate_op", gate_dev("g1", "d1").m), MissingIdentifier,
+      [](const MissingIdentifier& e) { return message_has(e, "Flow direction not specified"); });
+   BOOST_CHECK_EXCEPTION(lk.getModelInterface("gate_op", gate_dev("g1", "d1").add("direction", "sideways").m),
+      InvalidIdentifier, [](const InvalidIdentifier& e) { return message_has(e, "Illegal op direction"); });
+   BOOST_CHECK_EXCEPTION(lk.getModelInterface("ext_flow", Args().m), MissingIdentifier,
+      [](const MissingIdentifier& e) { return message_has(e, "external flow name not specified"); });
+   BOOST_CHECK_EXCEPTION(lk.getModelInterface("ext_flow", Args().add("name", "nosuch").m), InvalidIdentifier,
+      [](const InvalidIdentifier& e) { return message_has(e, "Unknown external flow"); });
+}
+
+// section 3: an expression that uses another must sort after it, because they are read in name order
+BOOST_AUTO_TEST_CASE(expressions_are_read_in_name_order) {
+   std::istringstream in("OPRULE_EXPRESSION\nNAME DEFINITION\na_total \"b_part + 1\"\nb_part \"ts(name=ts1)\"\n"
+                         "z_total \"b_part + 1\"\nEND\n");
+   std::vector<InpTable> tables = oprule_test::read_inp(in);
+   std::vector<std::string> failed = load_tables(*this, tables);
+   BOOST_REQUIRE_EQUAL(failed.size(), 1u);
+   BOOST_CHECK_EQUAL(failed[0], "a_total");           // read before b_part exists
+   BOOST_CHECK_CLOSE(getDoubleExpression("z_total")->eval(), 6., 1e-9);
+}
+
+// section 9, item 4: rules are tried in the order their names sort; capital letters come before small ones
+BOOST_AUTO_TEST_CASE(rules_triggered_in_one_step_are_tried_in_name_order) {
+   std::istringstream in("OPERATING_RULE\nNAME ACTION TRIGGER\n"
+                         "b_second \"SET ext_flow(name=q1) TO 2 RAMP 30MIN\" TRUE\n"
+                         "a_first \"SET ext_flow(name=q1) TO 1 RAMP 30MIN\" TRUE\n"
+                         "Zeta \"SET ext_flow(name=q1) TO 3 RAMP 30MIN\" TRUE\nEND\n");
+   BOOST_REQUIRE(load_tables(*this, oprule_test::read_inp(in)).empty());
+   step();
+   BOOST_CHECK(active("zeta") && !active("a_first") && !active("b_second"));
+   steps(2);                                          // the ramp of zeta is over
+   BOOST_CHECK(!active("zeta") && active("a_first") && !active("b_second"));
+   steps(2);
+   BOOST_CHECK(!active("a_first") && active("b_second"));
+}
+
+// section 5: a static target driven by a series takes the value of the series when the action starts
+BOOST_AUTO_TEST_CASE(a_static_target_driven_by_a_series_uses_only_the_value_at_activation) {
+   series["ts1"] = 0.;
+   BOOST_REQUIRE(add_rule("rm", "SET gate_install(gate=g1) TO ts(name=ts1)", "TRUE"));
+   steps(3);
+   BOOST_CHECK(model().gate("g1").free);
+   series["ts1"] = 1.;
+   steps(3);
+   BOOST_CHECK(model().gate("g1").free);              // later values are ignored
+}
+
+// section 5: when an action on a dynamic variable finishes, its expression replaces the input series of the
+// variable, and a later rule replaces that expression
+BOOST_AUTO_TEST_CASE(a_finished_action_replaces_the_input_series_and_a_later_rule_replaces_that) {
+   Model& m = model();
+   m.add_path_input("gate_input", 0.2);
+   m.add_path_input("go", 0.);
+   Device& d = m.device("g1", "d1");
+   d.op_to_node.source_type = DSS_DATA;
+   d.op_to_node.indx_ptr = 3;                         // gate_input: the third series of the basic model
+   series["gate_input"] = 0.2;
+   series["ts1"] = 0.6;
+   series["shared"] = 0.9;
+   steps(2);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.2, 1e-9);      // the input series
+   BOOST_REQUIRE(add_rule("first", "SET gate_op(gate=g1,device=d1,direction=to_node) TO ts(name=ts1)", "TRUE"));
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.6, 1e-9);
+   BOOST_CHECK_EQUAL(d.op_to_node.source_type, (int)EXPRESSION_DATA);
+   series["gate_input"] = 0.1;
+   step();
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.6, 1e-9);      // the old series is not consulted again
+   series["ts1"] = 0.65;
+   step();
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.65, 1e-9);     // the new source follows its series
+   BOOST_REQUIRE(add_rule("second", "SET gate_op(gate=g1,device=d1,direction=to_node) TO ts(name=shared)",
+                          "ts(name=go) > 0"));
+   steps(3);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.65, 1e-9);     // not triggered yet
+   series["go"] = 1.;
+   steps(3);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.9, 1e-9);
+   series["ts1"] = 0.1;
+   series["shared"] = 0.95;
+   step();
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.95, 1e-9);     // the first rule's series no longer matters
+}
+
+// section 4 and 8: paired rules follow the flow; a trigger that falls undoes nothing; outside the season nothing fires
+BOOST_AUTO_TEST_CASE(paired_rules_follow_the_flow_and_nothing_is_undone) {
+   Model& m = model();
+   m.add_channel(132, 5000.);
+   m.add_gate("middle_river_barrier");
+   m.add_device("middle_river_barrier", "weir");
+   m.add_path_input("new_time_series", 0.);
+   m.add_path_input("old_time_series", 0.);
+   series["new_time_series"] = 0.3;
+   series["old_time_series"] = 0.7;
+   auto set_flow_to = [&m](double v) { m.set_flow(132, [v](double) { return v; }); };   // points are filled when set
+   set_flow_to(1.);
+   begin_run(1995, 4, 1, 0, 0, 900);
+   BOOST_REQUIRE(add_expression("vamp", "(MONTH == APR) OR (MONTH == MAY)"));
+   BOOST_REQUIRE(add_expression("ebb", "chan_flow(channel=132, dist=1000) > 0.01"));
+   BOOST_REQUIRE(add_expression("flood", "chan_flow(channel=132, dist=1000) < -0.01"));
+   BOOST_REQUIRE(add_rule("middle_vamp_ebb",
+      "SET gate_op(gate=middle_river_barrier, device=weir, direction=to_node) TO ts(name=new_time_series)",
+      "vamp AND ebb"));
+   BOOST_REQUIRE(add_rule("middle_vamp_flood",
+      "SET gate_op(gate=middle_river_barrier, device=weir, direction=to_node) TO ts(name=old_time_series)",
+      "vamp AND flood"));
+   Device& d = m.device("middle_river_barrier", "weir");
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.3, 1e-9);      // ebb
+   set_flow_to(-1.);
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.7, 1e-9);      // flood: the second rule replaces the first
+   set_flow_to(0.);
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.7, 1e-9);      // neither: nothing is undone
+   set_flow_to(1.);
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.3, 1e-9);      // ebb again: a new rise fires the rule again
+   series["new_time_series"] = 0.4;
+   step();
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.4, 1e-9);      // and the series is followed from then on
+   m.set_time(1995, 6, 15, 0, 0);                     // outside the season
+   set_flow_to(-1.);
+   steps(4);
+   BOOST_CHECK_CLOSE(d.opCoefToNode, 0.4, 1e-9);      // the flood rule needs vamp
+}
+
+// section 12.3: a barrier installed and removed by season fires each rule once a year
+BOOST_AUTO_TEST_CASE(example_barrier_installed_and_removed_each_year) {
+   Model& m = model();
+   m.add_gate("old_river_barrier");
+   Gate& g = m.gate("old_river_barrier");
+   g.free = false;
+   begin_run(1995, 1, 1, 0, 0, 86400);
+   BOOST_REQUIRE(add_rule("barrier_in", "SET gate_install(gate=old_river_barrier) TO INSTALL", "SEASON > 15APR"));
+   BOOST_REQUIRE(add_rule("barrier_out", "SET gate_install(gate=old_river_barrier) TO REMOVE", "SEASON > 16MAY"));
+   Firings f(*this, std::vector<std::string>({"barrier_in", "barrier_out"}));
+   f.until(1995, 4, 10);
+   BOOST_CHECK(!g.free);
+   f.until(1995, 5, 20);
+   BOOST_CHECK(g.free);
+   BOOST_CHECK(f.count[0] == 1 && f.count[1] == 1);
+   f.until(1995, 12, 20);
+   BOOST_CHECK(g.free);
+   BOOST_CHECK(f.count[0] == 1 && f.count[1] == 1);   // both triggers stay true: nothing more happens
+   f.until(1996, 4, 10);
+   BOOST_CHECK(g.free);                               // both triggers were false in January, the gate stays out
+   f.until(1996, 4, 20);
+   BOOST_CHECK(!g.free);
+   f.until(1996, 5, 20);
+   BOOST_CHECK(g.free);
+   BOOST_CHECK(f.count[0] == 2 && f.count[1] == 2);
+}
+
+// section 12.4: one rule with IFELSE and a season expression
+BOOST_AUTO_TEST_CASE(example_boundary_flow_that_depends_on_the_season) {
+   model().add_path_input("vamp_flow", 0.);
+   model().add_path_input("normal_flow", 0.);
+   series["vamp_flow"] = 100.;
+   series["normal_flow"] = 10.;
+   begin_run(1995, 3, 15, 0, 0, 86400);
+   BOOST_REQUIRE(add_expression("vamp", "(MONTH == APR) OR (MONTH == MAY)"));
+   BOOST_REQUIRE(add_rule("sjr_vamp", "SET ext_flow(name=q1) TO IFELSE(vamp, ts(name=vamp_flow), ts(name=normal_flow))",
+                          "TRUE"));
+   Firings f(*this, std::vector<std::string>(1, "sjr_vamp"));
+   f.until(1995, 3, 25);
+   BOOST_CHECK_CLOSE((double)model().qext("q1").flow, 10., 1e-9);
+   f.until(1995, 4, 10);
+   BOOST_CHECK_CLOSE((double)model().qext("q1").flow, 100., 1e-9);
+   f.until(1995, 5, 20);
+   BOOST_CHECK_CLOSE((double)model().qext("q1").flow, 100., 1e-9);
+   f.until(1995, 6, 10);
+   BOOST_CHECK_CLOSE((double)model().qext("q1").flow, 10., 1e-9);
+   f.until(1996, 4, 10);
+   BOOST_CHECK_CLOSE((double)model().qext("q1").flow, 100., 1e-9);
+   BOOST_CHECK_EQUAL(f.count[0], 1);                  // one rule, fired once, not a pair
+}
+
+// section 12.5 and 9: a ramp on one property of a device holds back every other rule on that device only
+BOOST_AUTO_TEST_CASE(example_a_slow_change_of_a_gate_dimension_holds_back_rules_on_the_same_device) {
+   Model& m = model();
+   m.add_gate("barrier");
+   m.add_device("barrier", "weir");
+   m.add_device("barrier", "culvert");
+   begin_run(1995, 5, 31, 23, 0, 900);                // 01JUN1995 00:00 is the end of step 4
+   BOOST_REQUIRE(add_rule("weir_raise", "SET gate_elev(gate=barrier,device=weir) TO 4.5 RAMP 120MIN",
+                          "DATE >= 01JUN1995"));
+   BOOST_REQUIRE(add_rule("weir_op", "SET gate_op(gate=barrier,device=weir,direction=to_node) TO 0.5",
+                          "DATE >= 01JUN1995"));
+   BOOST_REQUIRE(add_rule("culvert_op", "SET gate_op(gate=barrier,device=culvert,direction=to_node) TO 0.5",
+                          "DATE >= 01JUN1995"));
+   Device& weir = m.device("barrier", "weir");
+   steps(4);
+   BOOST_CHECK(active("weir_raise"));
+   BOOST_CHECK(!active("weir_op"));                   // the same device, another property
+   BOOST_CHECK(active("culvert_op"));                 // another device of the same gate
+   step();
+   BOOST_CHECK_CLOSE(m.device("barrier", "culvert").opCoefToNode, 0.5, 1e-9);
+   int advances = 1;
+   while (active("weir_raise") && advances < 20) {
+      BOOST_CHECK(!active("weir_op"));
+      BOOST_CHECK_CLOSE(weir.opCoefToNode, 1., 1e-9);
+      step();
+      ++advances;
+   }
+   BOOST_CHECK_EQUAL(advances, 8);                    // 120 minutes in 15 minute steps
+   BOOST_CHECK_CLOSE(weir.baseElev, 4.5, 1e-9);
+   BOOST_CHECK(active("weir_op"));                    // starts in the step the ramp ends
+   step();
+   BOOST_CHECK_CLOSE(weir.opCoefToNode, 0.5, 1e-9);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// section 12.2: the Montezuma Slough rule. A velocity reversal is a new rise of the trigger, so the rule fires on
+// each tide; a seasonal series that is 0 keeps the third part of the trigger true all the time, and one that is
+// positive keeps the trigger false.
+BOOST_FIXTURE_TEST_SUITE(user_guide_montezuma_example, Sim)
+
+BOOST_AUTO_TEST_CASE(the_rule_fires_on_every_velocity_reversal) {
+   BOOST_CHECK_EQUAL(mscs_firings(*this, -1.), 11);   // negative velocity from steps 1, 40, 80, ..., 400
+}
+
+BOOST_AUTO_TEST_CASE(a_series_of_zero_keeps_the_trigger_true_so_the_rule_fires_once) {
+   BOOST_CHECK_EQUAL(mscs_firings(*this, 0.), 1);
+}
+
+BOOST_AUTO_TEST_CASE(a_positive_series_keeps_the_rule_from_firing) {
+   BOOST_CHECK_EQUAL(mscs_firings(*this, 1.), 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 
 

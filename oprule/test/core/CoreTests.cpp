@@ -1532,3 +1532,238 @@ BOOST_AUTO_TEST_CASE(predict_in_a_trigger_asserts_because_init_is_never_called) 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+// ============================================================ the user guide's gotchas (OPRULE_USER_GUIDE.md)
+// One test per statement of the guide that a rule author could trip over. The section number of the guide is
+// given with each test. The DSM2-specific ones (dates, seasons, names, examples) are in Dsm2BindingTests.cpp.
+
+BOOST_FIXTURE_TEST_SUITE(user_guide_syntax, ParserFixture)
+
+// section 14: the website writes WHERE; the model only knows WHEN
+BOOST_AUTO_TEST_CASE(where_is_not_a_keyword) {
+   expect_parse_error(*this, "r := SET mock_var(name=a) TO 1 WHERE true;");
+   BOOST_CHECK_EQUAL(parse("r := SET mock_var(name=a) TO 1 WHEN true;"), 0);
+}
+
+// section 14: arguments are key=value pairs, a bare value is not a model name
+BOOST_AUTO_TEST_CASE(arguments_must_be_key_value_pairs) {
+   expect_parse_error(*this, "mock_var(tgt) > 1.;");
+   BOOST_CHECK_EQUAL(parse("mock_var(name=tgt) > 1.;"), 0);
+}
+
+// section 13: a reserved word cannot be the VALUE of an identifier either
+BOOST_AUTO_TEST_CASE(reserved_words_cannot_be_identifier_values) {
+   const char* reserved[] = {"to", "min", "day", "t", "date", "set", "when", "season"};
+   for (size_t i = 0; i < sizeof(reserved) / sizeof(reserved[0]); ++i)
+      expect_parse_error(*this, std::string("mock_var(name=") + reserved[i] + ") > 1.;");
+   // quoting does not help a name that starts with a digit, but a longer name that starts with a word is fine
+   BOOST_CHECK_EQUAL(parse("mock_var(name=tom_paine) > 1.;"), 0);
+   BOOST_CHECK_EQUAL(parse("mock_var(name=minimum) > 1.;"), 0);
+   BOOST_CHECK_EQUAL(parse("mock_var(name=daylight) > 1.;"), 0);
+}
+
+// section 13: the reserved words listed in the guide are all reserved
+BOOST_AUTO_TEST_CASE(every_reserved_word_in_the_guide_is_rejected_as_a_name) {
+   const char* reserved[] = {"abs", "sqrt", "exp", "log", "ln", "max2", "min2", "max3", "min3", "lookup", "false",
+                             "true", "startup", "ifelse", "or", "and", "not", "set", "to", "when", "while", "then",
+                             "ramp", "step", "accumulate", "predict", "linear", "quad", "pid", "ipid", "date",
+                             "datetime", "season", "year", "month", "day", "hour", "min", "dt", "jan", "feb", "mar",
+                             "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+   for (size_t i = 0; i < sizeof(reserved) / sizeof(reserved[0]); ++i)
+      expect_parse_error(*this, std::string(reserved[i]) + " := 1.;");
+}
+
+// section 11.5: LN is the natural logarithm, LOG the base 10 logarithm; SQRT, ABS, EXP, MIN3, MAX3
+BOOST_AUTO_TEST_CASE(numeric_functions_of_the_guide) {
+   expect_num(*this, "LN(2.718281828459045);", 1.);
+   expect_num(*this, "LOG(1000.);", 3.);
+   expect_num(*this, "SQRT(16.);", 4.);
+   expect_num(*this, "ABS(-3.);", 3.);
+   expect_num(*this, "EXP(0.);", 1.);
+   expect_num(*this, "MIN3(3.,1.,2.);", 1.);
+   expect_num(*this, "MAX3(3.,1.,2.);", 3.);
+   expect_num(*this, "MIN2(3.,1.);", 1.);
+   expect_num(*this, "MAX2(3.,1.);", 3.);
+}
+
+// section 11.5: parenthesise powers
+BOOST_AUTO_TEST_CASE(powers_need_parentheses) {
+   expect_num(*this, "-2^2;", -4.);
+   expect_num(*this, "(-2)^2;", 4.);
+   expect_num(*this, "2^3^2;", 64.);
+   expect_num(*this, "2^(3^2);", 512.);
+}
+
+// section 11.6: not equal is <>, and the comparison chain "a < b < c" is not a range test
+BOOST_AUTO_TEST_CASE(comparison_operators_of_the_guide) {
+   expect_bool(*this, "1. <> 2.;", true);
+   expect_parse_error(*this, "1. != 2.;");
+   expect_parse_error(*this, "1. < 2. < 3.;");
+}
+
+// section 11.7: LOOKUP entries must be numbers, not expressions
+BOOST_AUTO_TEST_CASE(lookup_entries_must_be_numbers) {
+   g_vars["x"] = 1.;
+   expect_parse_error(*this, "lookup(5., [0., mock_ro(name=x), 10.], [1., 2.]);");
+   expect_parse_error(*this, "lookup(5., [0., 5., 10.], [1., mock_ro(name=x)]);");
+   expect_num(*this, "lookup(mock_ro(name=x) + 3., [0., 5., 10.], [1., 2.]);", 1.);   // only the argument may be an expression
+}
+
+// section 11.7: a value above the last limit is outside the table. A value equal to the last limit reads past the
+// end of the values (the last level has no value of its own), so the guide says to keep x below it.
+BOOST_AUTO_TEST_CASE(lookup_above_the_last_limit_is_an_error) {
+   BOOST_REQUIRE_EQUAL(parse("lookup(10.01,[0.,5.,10.],[1.,2.]);"), 0);
+   BOOST_CHECK_THROW(num(), std::domain_error);
+   expect_num(*this, "lookup(9.99,[0.,5.,10.],[1.,2.]);", 2.);
+   expect_num(*this, "lookup(5.,[0.,5.,10.],[1.,2.]);", 2.);   // a limit belongs to the interval above it
+}
+
+// section 11.7: the arguments of PID after the target are evaluated once, when the rule is read
+BOOST_AUTO_TEST_CASE(pid_gains_and_bounds_are_read_once_when_the_rule_is_parsed) {
+   g_vars["y"] = 0.; g_vars["sp"] = 100.; g_vars["hi"] = 1.;
+   BOOST_REQUIRE_EQUAL(parse("PID(mock_ro(name=y), mock_ro(name=sp), 0, mock_ro(name=hi), 1, 1, 1, 1, 1);"), 0);
+   oprule::expression::DoubleNodePtr n = getDoubleExpression();
+   g_vars["hi"] = 5.;                                          // too late: the bound was taken at parse time
+   n->step(DT);
+   BOOST_CHECK_CLOSE(n->eval(), 1., 1e-9);
+}
+
+// section 6: STARTUP is TRUE, a blank trigger is not accepted
+BOOST_AUTO_TEST_CASE(a_blank_trigger_is_a_parse_error) {
+   expect_parse_error(*this, "r := SET mock_var(name=a) TO 1 WHEN ;");
+   BOOST_CHECK_EQUAL(parse("r := SET mock_var(name=a) TO 1 WHEN STARTUP;"), 0);
+}
+
+// section 9: names compared without case
+BOOST_AUTO_TEST_CASE(model_names_are_case_sensitive_but_keywords_are_not) {
+   expect_parse_error(*this, "r := SET MOCK_VAR(name=a) TO 1 WHEN true;");
+   BOOST_CHECK_EQUAL(parse("r := Set mock_var(name=a) To 1 Ramp 15 Min When True;"), 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_FIXTURE_TEST_SUITE(user_guide_months, ParserFixture)
+
+// section 11.4 / 13: month names are numbers only in upper or lower case ...
+BOOST_AUTO_TEST_CASE(upper_case_month_names_are_numbers) {
+   expect_num(*this, "JAN;", 1.);
+   expect_num(*this, "DEC;", 12.);
+   expect_bool(*this, "MONTH == APR;", true);       // the mock time factory is in April
+}
+
+// ... and a lower case name is read as 0, so a comparison silently gives the wrong answer
+BOOST_AUTO_TEST_CASE(lower_case_month_names_are_read_as_zero) {
+   expect_num(*this, "apr;", 0.);
+   expect_bool(*this, "MONTH == apr;", false);      // April, but compared with 0
+   expect_bool(*this, "MONTH >= apr;", true);       // true in every month
+   expect_bool(*this, "MONTH <> apr;", true);
+}
+
+// the guide says mixed case is wrong as well; it is read as 0 like lower case
+BOOST_AUTO_TEST_CASE(mixed_case_month_names_are_read_as_zero) {
+   expect_num(*this, "Apr;", 0.);
+   expect_bool(*this, "MONTH == Apr;", false);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_FIXTURE_TEST_SUITE(user_guide_rules, RuleBench)
+
+// section 9, items 2 and 3: a deferred rule whose trigger falls while it waits never starts; a later rise does
+BOOST_AUTO_TEST_CASE(a_deferred_rule_whose_trigger_falls_while_it_waits_never_starts) {
+   g_vars["lvl"] = 1.;
+   add("blocker", "SET mock_var(name=a) TO 1 RAMP 60MIN", "true");
+   add("waiter", "SET mock_var(name=a) TO 5", "mock_ro(name=lvl) > 0");
+   run(1);
+   BOOST_CHECK(getOperatingRule("blocker")->isActive());
+   BOOST_CHECK(!getOperatingRule("waiter")->isActive());           // deferred
+   g_vars["lvl"] = 0.;
+   run(8);                                                          // the blocker ends, the waiter has no trigger
+   BOOST_CHECK(!getOperatingRule("blocker")->isActive());
+   BOOST_CHECK(!getOperatingRule("waiter")->isActive());
+   BOOST_CHECK_CLOSE(g_vars["a"], 1., 1e-9);                        // the waiter's value 5 was never written
+   g_vars["lvl"] = 1.;
+   run(2);
+   BOOST_CHECK_CLOSE(g_vars["a"], 5., 1e-9);                        // a new rise starts it
+}
+
+// section 9, item 2: a deferred rule keeps being retried while its trigger stays true, and starts as soon as
+// the rule in its way has finished
+BOOST_AUTO_TEST_CASE(a_deferred_rule_starts_in_the_step_its_blocker_finishes) {
+   add("blocker", "SET mock_var(name=a) TO 1 RAMP 30MIN", "true");
+   add("waiter", "SET mock_var(name=a) TO 5", "true");
+   run(1);
+   BOOST_CHECK(!getOperatingRule("waiter")->isActive());
+   run(1);                                                          // first advance of the blocker
+   BOOST_CHECK(!getOperatingRule("waiter")->isActive());
+   run(1);                                                          // the blocker completes ...
+   BOOST_CHECK(!getOperatingRule("blocker")->isActive());
+   BOOST_CHECK(getOperatingRule("waiter")->isActive());             // ... and the waiter is activated in the same step
+   run(1);
+   BOOST_CHECK_CLOSE(g_vars["a"], 5., 1e-9);
+}
+
+// section 9, item 4: of several rules that overlap, one starts at a time and the others take their turn in the
+// order the rules were added to the manager
+BOOST_AUTO_TEST_CASE(overlapping_rules_take_turns_one_at_a_time) {
+   add("r1", "SET mock_var(name=a) TO 1 RAMP 30MIN", "true");
+   add("r2", "SET mock_var(name=a) TO 2 RAMP 30MIN", "true");
+   add("r3", "SET mock_var(name=a) TO 3", "true");
+   run(1);
+   BOOST_CHECK(getOperatingRule("r1")->isActive() && !getOperatingRule("r2")->isActive() &&
+               !getOperatingRule("r3")->isActive());
+   run(2);                                                          // r1 finishes, r2 is next, r3 still waits
+   BOOST_CHECK(!getOperatingRule("r1")->isActive() && getOperatingRule("r2")->isActive() &&
+               !getOperatingRule("r3")->isActive());
+   run(2);                                                          // r2 finishes, r3 is next
+   BOOST_CHECK(!getOperatingRule("r2")->isActive() && getOperatingRule("r3")->isActive());
+   run(1);
+   BOOST_CHECK_CLOSE(g_vars["a"], 3., 1e-9);
+   BOOST_CHECK(!getOperatingRule("r3")->isActive());
+}
+
+// section 6: the trigger is tested at the end of step n, so the first value is written in step n+1; a trigger
+// that stays true does nothing more and one that falls does not undo
+BOOST_AUTO_TEST_CASE(a_trigger_that_stays_true_or_falls_does_nothing_more) {
+   add("r", "SET mock_var(name=a) TO mock_ro(name=target)", "mock_ro(name=lvl) > 0");
+   g_vars["target"] = 1.; g_vars["lvl"] = 1.;
+   run(1);
+   BOOST_CHECK_SMALL(g_vars["a"], 1e-12);                           // not yet
+   run(1);
+   BOOST_CHECK_CLOSE(g_vars["a"], 1., 1e-9);
+   g_vars["target"] = 2.;
+   run(5);                                                          // still true: not fired again
+   BOOST_CHECK_CLOSE(g_vars["a"], 1., 1e-9);
+   g_vars["lvl"] = 0.;
+   run(5);                                                          // false: not undone
+   BOOST_CHECK_CLOSE(g_vars["a"], 1., 1e-9);
+   g_vars["lvl"] = 1.;
+   run(2);                                                          // a new rise fires again
+   BOOST_CHECK_CLOSE(g_vars["a"], 2., 1e-9);
+}
+
+// section 8: hysteresis with two limits; each excursion across a limit fires once and nothing happens in the band
+BOOST_AUTO_TEST_CASE(hysteresis_limits_of_the_guide) {
+   add("gate_off", "SET mock_var(name=g) TO 0", "mock_ro(name=stage) <= 2.0");
+   add("gate_on", "SET mock_var(name=g) TO 1", "mock_ro(name=stage) > 2.2");
+   g_vars["g"] = 1.; g_vars["stage"] = 2.1;
+   run(3);
+   BOOST_CHECK_CLOSE(g_vars["g"], 1., 1e-9);
+   g_vars["stage"] = 2.0; run(2);                                   // <= is inclusive
+   BOOST_CHECK_SMALL(g_vars["g"], 1e-12);
+   g_vars["stage"] = 2.2; run(2);                                   // 2.2 is not > 2.2
+   BOOST_CHECK_SMALL(g_vars["g"], 1e-12);
+   g_vars["stage"] = 2.21; run(2);
+   BOOST_CHECK_CLOSE(g_vars["g"], 1., 1e-9);
+}
+
+// section 5: THEN binds tighter than WHILE, parentheses change that (timing of a rule that does not need the manager)
+BOOST_AUTO_TEST_CASE(while_actions_with_equal_ramps_finish_together) {
+   add("r", "SET mock_var(name=a) TO 1 RAMP 30MIN WHILE SET mock_var(name=b) TO 1 RAMP 30MIN", "true");
+   run(3);
+   BOOST_CHECK(!getOperatingRule("r")->isActive());
+   BOOST_CHECK_CLOSE(g_vars["a"], 1., 1e-9);
+   BOOST_CHECK_CLOSE(g_vars["b"], 1., 1e-9);
+}
+
+BOOST_AUTO_TEST_SUITE_END()

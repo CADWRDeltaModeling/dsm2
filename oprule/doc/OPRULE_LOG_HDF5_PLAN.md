@@ -1,6 +1,6 @@
 # oprule log in HDF5: plan
 
-Status: **implemented** (2026-10-01). Sections 0 to 10 are the plan; section 11 records what was built and where it differs. Original text: plan written 2026-09-30, revised 2026-10-01. This document records the design thinking; the text log it extends is described in [OPRULE_REFERENCE.md](OPRULE_REFERENCE.md) B10.
+Status: **implemented** (2026-10-01). Sections 0 to 10 are the plan; section 11 records what was built and where it differs. Original text: plan written 2026-09-30, revised 2026-10-01. This document records the design thinking; for how to use and read the log see [OPRULE_LOG_USER_GUIDE.md](OPRULE_LOG_USER_GUIDE.md); the text log it extends is described in [OPRULE_REFERENCE.md](OPRULE_REFERENCE.md) B10.
 
 ## 0. Decisions of 2026-10-01 (they override the older text below where they differ)
 

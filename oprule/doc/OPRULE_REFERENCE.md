@@ -2,7 +2,7 @@
 
 Two audiences, two parts:
 
-- **Part A** is for rule authors (people writing `OPERATING_RULE` input tables).
+- **Part A** is for rule authors (people writing `OPERATING_RULE` input tables). A step-by-step guide with examples is in [OPRULE_USER_GUIDE.md](OPRULE_USER_GUIDE.md); Part A is the compact reference.
 - **Part B** is for maintainers (people changing the lexer/grammar, the rule runtime, or the DSM2 hydro binding).
 
 Everything below was derived from reading the source. Items that were inferred
@@ -437,7 +437,7 @@ Limits: a rule is not tested while it is active, so a change of its trigger valu
 
 ### B10.1 The HDF5 log (default since 2026-10-01)
 
-Design, column lists and what differs from the plan: [OPRULE_LOG_HDF5_PLAN.md](OPRULE_LOG_HDF5_PLAN.md) (sections 3, 10, 11). In short:
+A plain-English guide for users (turning it on, every table and column, worked example, questions and answers, reading it with Python): [OPRULE_LOG_USER_GUIDE.md](OPRULE_LOG_USER_GUIDE.md). Design, column lists and what differs from the plan: [OPRULE_LOG_HDF5_PLAN.md](OPRULE_LOG_HDF5_PLAN.md) (sections 3, 10, 11). In short:
 
 - **File.** `<tide file name without .h5>_oprule_log.h5` in the directory of the hydro tide file (for example `output/hist_fc_mss_oprule_log.h5`), created when the first rule is parsed, never merged into the tide file. It is flushed every `oprule_log_flush_hours` simulated hours, at the end of the run (`fourpt_winddown`) and at process exit, so a run that stops on an error keeps what it logged and a killed run keeps what was flushed.
 - **Only changes are written**, as in the text log, but as tables: `/rules`, `/variables` (dictionary of everything that can be an input), `/rule_inputs`, `/events` (one row per trigger change, activation, deferral, completion, ... with the stage after it, the rule that blocked or replaced it, and a slice of `/event_values` holding the inputs), `/actions` (level 2), `/intervals` (when a rule's trigger was true, deferred, active), `/episodes`, `/gates`, `/devices`, `/device_transitions`, `/device_intervals`. Times are julian minutes (01JAN1900 00:00 is 1440).

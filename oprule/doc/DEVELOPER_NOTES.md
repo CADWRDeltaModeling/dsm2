@@ -5,6 +5,8 @@ Notes for anyone (or any assistant) picking up work on the operating-rule code. 
 Companion documents in this directory:
 
 - [OPRULE_REFERENCE.md](OPRULE_REFERENCE.md): how rules work end to end, plus suspected defects (B9).
+- [OPRULE_USER_GUIDE.md](OPRULE_USER_GUIDE.md): how to write operating rules (for users).
+- [OPRULE_LOG_USER_GUIDE.md](OPRULE_LOG_USER_GUIDE.md): how to switch the rule log on and read the HDF5 file.
 - [OPRULE_TEST_PLAN.md](OPRULE_TEST_PLAN.md): every open question and suspected defect as a test, with observed results.
 
 ---
