@@ -2,6 +2,7 @@
 #define oprule_rule_OPERATIONMANAGER_H__INCLUDED_
 
 #include <list>
+#include <set>
 #include "OperationAction.h"
 #include "OperatingRule.h"
 #include "ActionResolver.h"
@@ -79,6 +80,8 @@ private:
 
    OpPool pool;
    ActionResolver& _resolver;
+   // rules whose deferral has been logged; keeps a long deferral to one DEFERRED record
+   std::set<OperatingRule*> _deferredLogged;
 };
 
 }}     //namespace

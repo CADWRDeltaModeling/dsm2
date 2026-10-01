@@ -11,6 +11,7 @@
 
 #include <assert.h>
 
+#include<sstream>
 #include<string>
 #include<vector>
 #include "oprule/expression/ExpressionNode.h"
@@ -39,6 +40,9 @@ public:
    virtual bool isTimeDependent() const{ return true; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
    virtual bool operator==( const ExternalFlowInterface& rhs);
+   virtual std::string describe() const {
+      std::ostringstream s; s << "ext_flow(index=" << ndx << ")"; return s.str();
+   }
 private:
    int ndx;
 };
@@ -63,6 +67,9 @@ public:
    virtual bool isTimeDependent() const{ return true; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
    virtual bool operator==( const TransferFlowInterface& rhs);
+   virtual std::string describe() const {
+      std::ostringstream s; s << "transfer_flow(index=" << ndx << ")"; return s.str();
+   }
 private:
    int ndx;
 };

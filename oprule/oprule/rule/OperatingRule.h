@@ -83,6 +83,11 @@ public:
    */
    bool testNewlyTriggered();
 
+   /** Trigger value computed by the latest testNewlyTriggered call (false before the first).
+   * Lets logging report the value without testing the trigger again.
+   */
+   bool getLastTriggerValue() const {return _lastTriggerValue;}
+
    /** Prevents activation of the rule.
    * This method stops activation of the rule, but also leaves the rule
    * in a state that is ready for activation (namely, the trigger is
@@ -107,6 +112,7 @@ private:
    OperationAction::ActionListType _actionList;
    TriggerPtr _trigger;
    bool _prevTriggerValue;   // todo: move this to trigger
+   bool _lastTriggerValue;   // unlike _prevTriggerValue, not reset by deferActivation
    std::string _name;
 };
 

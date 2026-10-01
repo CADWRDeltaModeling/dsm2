@@ -16,3 +16,4 @@ endmacro(ADDTEST)
 
 add_subdirectory(hydro)
 add_subdirectory(hydro_gtm_test)
+add_subdirectory(model_interface)

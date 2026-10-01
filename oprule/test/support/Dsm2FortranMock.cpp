@@ -84,6 +84,7 @@ void Model::reset() {
    flow_points.assign(1, 0.);
    next_point = 1;
    dt_seconds = 900;
+   oprule_log_level = 0;
    set_time(2001, 1, 1, 0, 0);
 }
 
@@ -374,6 +375,9 @@ extern "C" double value_from_inputpath(const int* i) {
    check_index(*i, m.paths.size(), "pathinput");
    return m.paths[*i - 1].value;
 }
+
+// model_interface.f90 get_oprule_log_level()
+extern "C" int get_oprule_log_level() { return model().oprule_log_level; }
 
 extern "C" int direct_to_node() { return FLOW_COEF_TO_NODE; }
 extern "C" int direct_from_node() { return FLOW_COEF_FROM_NODE; }

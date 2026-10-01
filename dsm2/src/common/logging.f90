@@ -27,6 +27,7 @@ module logging
     integer, parameter :: LOG_INFO = 2
     integer, parameter :: LOG_DEBUG = 2
     integer:: print_level   ! diagnostic printout level
+    integer:: oprule_log_level = -1   ! operating rule log level scalar; -1 = not set (see get_oprule_log_level)
 
     type(logger_type) :: logger
     type(logger_type) :: stderr_logger

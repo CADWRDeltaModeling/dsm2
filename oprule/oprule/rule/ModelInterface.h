@@ -1,6 +1,7 @@
 #ifndef oprule_rule_MODELINTERFACE_H_INCLUDED_
 #define oprule_rule_MODELINTERFACE_H_INCLUDED_
 #include <stdexcept>
+#include <string>
 #include "oprule/expression/ExpressionNode.h"
 #include "oprule/expression/ExpressionPtr.h"
 #include "oprule/expression/ValueNode.h"
@@ -70,6 +71,9 @@ public:
 
     /** Test for equality with another ModelInterface */
     virtual bool operator==( const ModelInterface<T> & other){ return false; }
+
+    /** Short readable description of what this interface reads and writes, used in the rule log. */
+    virtual std::string describe() const { return "<interface>"; }
 
     /**
     * Tests whether this is the interface to a time dependent variable.

@@ -7,8 +7,9 @@ A high-level map of what the tests cover, so conceptual gaps are easy to spot. D
 | Program | Source | Cases | What it exercises | Needs |
 |---|---|---|---|---|
 | `oprule_smoke_tests` | `test/smoke/SmokeTests.cpp` | 19 | Quick sanity pass: parse, run, defer, ramp, data source, one end-to-end rule. | oprule libs |
-| `oprule_core_tests` | `test/core/CoreTests.cpp` | 64 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, pinned defects. Mock model only. | oprule libs |
-| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 70 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files. | oprule libs + Loki headers |
+| `oprule_core_tests` | `test/core/CoreTests.cpp` | 77 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log, pinned defects. Mock model only. | oprule libs |
+| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 77 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up and interface descriptions. | oprule libs + Loki headers |
+| `test_model_interface` (Fortran, test-drive) | `dsm2/tests/model_interface/test_model_interface.f90` | 16 | The **real** Fortran routines of `model_interface.f90` that the C++ calls: name lookups, flows, gates and devices, data sources, time, the log level. Checks the mock's description of them. | the full DSM2 build (see DEVELOPER_NOTES.md) |
 
 Run all three after a build: `for t in smoke core dsm2; do ./oprule/test/oprule_${t}_tests; done` (see DEVELOPER_NOTES.md for the build). Setting `OPRULE_CORPUS_DIR=/scratch/psandhu/dsm2_studies/common_input` makes the DSM2 program also parse the complete real `oprule_*.inp` files.
 
@@ -58,6 +59,9 @@ Legend: **C** core tests, **D** DSM2 tests, **S** smoke tests. "pinned" means th
 | Real study rules: parse and behave | D `study_inputs`, `study_rule_behaviour` | see section 4 |
 | Functions Fortran calls (`parse_rule_`, `advance…`) | D `fortran_entry_points` | one test, process-wide manager |
 | Crashes and `exit()` paths | C `pinned_runtime` (child process) | |
+| Rule log: events, levels, deferral policy, no extra evaluation | C `rule_log`, D `rule_log_binding` | design in OPRULE_REFERENCE.md B10; helpers in `support/LogCapture.h` |
+| Interface descriptions used by the log | D `rule_log_interfaces` | indices, not names |
+| Real Fortran behind the mock | Fortran `test_model_interface` | see section 8 |
 
 ## 4. Study input patterns covered
 
@@ -111,7 +115,26 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 - Uninitialised `_active` in `ActionSet` / `ActionChain` (D-18): reading it is undefined, so it is not asserted.
 - `${VAR}` substitution, input layering and duplicate names across layers (input_storage is not under test).
 - Fortran-side input processing (`process_input_oprule`, `get_inp_data`) and DSS time series: `ts` values are supplied by the test.
-- Real Fortran routines: the mock mirrors them from reading the source; none of it is checked against the compiled model. A Fortran-level test (`test-drive` in `dsm2/tests`) for `model_interface.f90` would close this.
+- Real Fortran routines: `test_model_interface` checks `model_interface.f90` (section 8), but only the routines in that file. Other Fortran the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) is still mirrored from reading the source.
 - Restart / warm-start behaviour of rule state.
-- Logging of rule events (not implemented yet; see OPRULE_REFERENCE.md B10 and OPRULE_TEST_PLAN.md LOG-*).
+- Logging in a complete model run (LOG-01 bitwise comparison, LOG-12 overhead): needs a golden study run (INT-09). Named expression values are not logged (LOG-14).
 - Performance with many rules.
+
+## 8. Fortran test of `model_interface.f90`
+
+`dsm2/tests/model_interface/test_model_interface.f90` (test-drive, registered in `dsm2/tests/CMakeLists.txt`) calls the real Fortran routines the C++ binding uses and asserts what the mock in `support/Dsm2FortranMock.cpp` assumes. Build and run: DEVELOPER_NOTES.md section 6.
+
+| Fortran test | Backs (mock behaviour) |
+|---|---|
+| `direction_constants` | `direct_to_node` = 1, `direct_from_node` = -1, `direct_to_from_node` = 0 |
+| `name_lookups` | gate / device / reservoir arguments lower-cased; `qext_index`, `transfer_index`, `ts_index` exact match; absent `ts_index` is -1, others `miss_val_i`; reservoir connection takes the internal node number |
+| `gate_name_must_be_stored_lower_case` | a gate stored with capitals is never found |
+| `external_and_transfer_flows`, `flows_are_single_precision` | flows are `real*4`: values are read back rounded to single precision (this corrected the mock) |
+| `gate_install` | installed by default; `set_gate_install(0)` removes and zeroes device flows; any non-zero value installs |
+| `device_op_coefficients`, `to_from_op_coefficient_ignores_the_to_node` | per-direction get/set; unknown direction gives -901 on get and no change on set; `to_from_node` get averages the from-node value with itself (D-04) |
+| `device_properties`, `nduplicate_is_rounded_by_the_setter`, `flow_coefficients` | height, width (`maxWidth`), elevation (`baseElev`), rounded `nduplicate`, `gate_coef` to/from |
+| `data_source_types`, `fetch_data` | `timedep` selects expression or constant data; constant and DSS sources; any other type gives `miss_val_r` |
+| `time_functions`, `reference_minute_of_year` | `julmin` epoch (01JAN1900 00:00 = minute 1440), 0-based day of year, leap years in `get_reference_minute_of_year` |
+| `oprule_log_level` | the scalar wins; otherwise `print_level` 4, 5, 6 give 1, 2, 3; 3 or lower or unset gives 0; capped at 3 |
+
+Not testable there: `gate_coef` with `direction=both` (the routine calls `exit(3)`), the C++ side of the `bool` argument (D-05), and routines outside `model_interface.f90`.

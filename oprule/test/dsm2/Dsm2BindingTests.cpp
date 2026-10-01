@@ -6,11 +6,14 @@
 
 #include <cmath>
 #include <cstring>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "Dsm2Harness.h"
 #include "InpReader.h"
+#include "LogCapture.h"
 #include "dsm2_expressions.h"
 #include "dsm2_interface_fortran.h"
 #include "dsm2_model_interface.h"
@@ -239,6 +242,19 @@ BOOST_AUTO_TEST_CASE(nduplicate_is_rounded_by_the_setter_only) {
    BOOST_CHECK_CLOSE(get_device_nduplicate(g, d), 2., 1e-9);
    set_device_nduplicate(g, d, half);
    BOOST_CHECK_CLOSE(get_device_nduplicate(g, d), 3., 1e-9);   // nint rounds half away from zero
+}
+
+// qext_t and obj2obj_t keep flows as real*4 (type_defs.f90; checked by flows_are_single_precision in the
+// Fortran test), so a value written through the interface is read back rounded to single precision.
+BOOST_AUTO_TEST_CASE(external_and_transfer_flows_are_single_precision) {
+   build_basic_model();
+   int ndx = 1;
+   double v = 0.1;
+   set_external_flow(ndx, v);
+   BOOST_CHECK_EQUAL(get_external_flow(ndx), (double)(float)0.1);
+   BOOST_CHECK(get_external_flow(ndx) != 0.1);
+   set_transfer_flow(ndx, v);
+   BOOST_CHECK_EQUAL(get_transfer_flow(ndx), (double)(float)0.1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -477,7 +493,7 @@ BOOST_AUTO_TEST_CASE(data_expression_time_dependent_vs_constant) {
    q->setDataExpression(DoubleScalarNode::create(0.));                           // constant
    BOOST_CHECK_EQUAL(m.qext("q1").datasource.source_type, (int)CONST_DATA);
    m.store_values();
-   BOOST_CHECK_SMALL(m.qext("q1").flow, 1e-12);
+   BOOST_CHECK_SMALL(m.qext("q1").flow, 1e-12f);
 }
 
 // Static interfaces cannot take a data expression.
@@ -1113,11 +1129,11 @@ BOOST_AUTO_TEST_CASE(external_flow_switches_with_stage) {
    BOOST_CHECK_CLOSE(q.flow, -4., 1e-9);
    set_level(185, 1.5);                               // below 2.0: "off"
    steps(2);
-   BOOST_CHECK_SMALL(q.flow, 1e-12);
+   BOOST_CHECK_SMALL(q.flow, 1e-12f);
    BOOST_CHECK_EQUAL(q.datasource.source_type, (int)CONST_DATA);
    set_level(185, 2.1);                               // dead band: nothing changes
    steps(3);
-   BOOST_CHECK_SMALL(q.flow, 1e-12);
+   BOOST_CHECK_SMALL(q.flow, 1e-12f);
    set_level(185, 2.5);                               // "on" again
    steps(2);
    BOOST_CHECK_CLOSE(q.flow, -4., 1e-9);
@@ -1204,7 +1220,7 @@ BOOST_AUTO_TEST_CASE(reservoir_values_as_triggers) {
    model().reservoir("res1").stage = 6.;
    model().reservoir("res1").qres[1] = -20.;
    steps(2);
-   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12);
+   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12f);
    BOOST_CHECK_CLOSE(model().qext("q2").flow, 1., 1e-9);
 }
 
@@ -1223,7 +1239,7 @@ BOOST_AUTO_TEST_CASE(channel_flow_as_a_trigger) {
    model().set_flow(185, [](double) { return 100.; });
    BOOST_REQUIRE(add_rule("reverse", "SET ext_flow(name=q2) TO 7", "chan_flow(channel=185, dist=500) < 0"));
    steps(3);
-   BOOST_CHECK_SMALL(model().qext("q2").flow, 1e-12);
+   BOOST_CHECK_SMALL(model().qext("q2").flow, 1e-12f);
    model().set_flow(185, [](double) { return -5.; });
    steps(2);
    BOOST_CHECK_CLOSE(model().qext("q2").flow, 7., 1e-9);
@@ -1232,7 +1248,7 @@ BOOST_AUTO_TEST_CASE(channel_flow_as_a_trigger) {
 BOOST_AUTO_TEST_CASE(startup_trigger_fires_once) {
    BOOST_REQUIRE(add_rule("init", "SET ext_flow(name=q1) TO 0", "STARTUP"));
    steps(2);
-   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12);
+   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12f);
    model().qext("q1").datasource.value = -3.;         // restore the input value
    steps(5);
    BOOST_CHECK_CLOSE(model().qext("q1").flow, -3., 1e-9);   // not applied again
@@ -1246,7 +1262,7 @@ BOOST_AUTO_TEST_CASE(calendar_terms_as_triggers) {
    step();
    BOOST_CHECK(active("july"));
    step();
-   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12);
+   BOOST_CHECK_SMALL(model().qext("q1").flow, 1e-12f);
 }
 
 BOOST_AUTO_TEST_CASE(lookup_table_on_a_series) {
@@ -1305,6 +1321,175 @@ BOOST_AUTO_TEST_CASE(fortran_entry_points) {
       testopruleactivation_();
    }
    BOOST_CHECK_CLOSE(model().qext("q2").flow, 9., 1e-9);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ====================================================================================== rule log
+// Design: OPRULE_REFERENCE.md B10 "Decided design"; plan ids LOG-03, LOG-07, LOG-11, LOG-13.
+// Interface descriptions use the Fortran array indices (1-based) because the interfaces keep no names.
+
+void configure_oprule_log_from_model(const std::string& path);   // dsm2_oprule_management.cpp
+
+namespace {
+using oprule::rule::RuleLog;
+using oprule_test::LogGuard;
+using oprule_test::LogRecord;
+using oprule_test::parse_log;
+using oprule_test::sequence;
+using oprule_test::count_of;
+
+struct ScenarioResult {
+   std::vector<LogRecord> records;
+   std::vector<double> history;   // opCoefFromNode and opCoefToNode after each step
+};
+
+// Two ramped rules on opposite directions of one gate device (they overlap, see PLAN D-26).
+ScenarioResult opposite_direction_scenario(int level) {
+   Sim s;
+   model().add_gate("g1");
+   model().add_device("g1", "d1");
+   std::ostringstream out;
+   LogGuard guard(out, level);
+   BOOST_REQUIRE(s.add_rule("r1", "SET gate_op(gate=g1,device=d1,direction=from_node) TO 0 RAMP 30MIN", "TRUE"));
+   BOOST_REQUIRE(s.add_rule("r2", "SET gate_op(gate=g1,device=d1,direction=to_node) TO 0 RAMP 30MIN", "TRUE"));
+   ScenarioResult r;
+   Device& d = model().device("g1", "d1");
+   for (int i = 0; i < 6; ++i) {
+      s.step();
+      r.history.push_back(d.opCoefFromNode);
+      r.history.push_back(d.opCoefToNode);
+   }
+   r.records = parse_log(out.str());
+   return r;
+}
+}  // namespace
+
+BOOST_FIXTURE_TEST_SUITE(rule_log_interfaces, Basic)
+
+// LOG-11: each writable interface describes itself.
+BOOST_AUTO_TEST_CASE(every_writable_interface_describes_itself) {
+   BOOST_CHECK_EQUAL(iface("ext_flow", Args().add("name", "q1"))->describe(), "ext_flow(index=1)");
+   BOOST_CHECK_EQUAL(iface("transfer_flow", Args().add("transfer", "t2"))->describe(), "transfer_flow(index=2)");
+   BOOST_CHECK_EQUAL(iface("gate_install", Args().add("gate", "g2"))->describe(), "gate_install(gate=2)");
+   BOOST_CHECK_EQUAL(iface("gate_op", gate_dev("g1", "d2").add("direction", "to_node"))->describe(),
+                     "gate_op(gate=1,device=2,direction=to_node)");
+   BOOST_CHECK_EQUAL(iface("gate_op", gate_dev("g1", "d1").add("direction", "from_node"))->describe(),
+                     "gate_op(gate=1,device=1,direction=from_node)");
+   BOOST_CHECK_EQUAL(iface("gate_op", gate_dev("g1", "d1").add("direction", "bidir"))->describe(),
+                     "gate_op(gate=1,device=1,direction=to_from_node)");
+   BOOST_CHECK_EQUAL(iface("gate_coef", gate_dev("g2", "d1").add("direction", "from_node"))->describe(),
+                     "gate_coef(gate=2,device=1,direction=from_node)");
+   BOOST_CHECK_EQUAL(iface("gate_height", gate_dev("g1", "d1"))->describe(), "gate_height(gate=1,device=1)");
+   BOOST_CHECK_EQUAL(iface("gate_width", gate_dev("g1", "d1"))->describe(), "gate_width(gate=1,device=1)");
+   BOOST_CHECK_EQUAL(iface("gate_elev", gate_dev("g1", "d1"))->describe(), "gate_elev(gate=1,device=1)");
+   BOOST_CHECK_EQUAL(iface("gate_nduplicate", gate_dev("g1", "d1"))->describe(), "gate_nduplicate(gate=1,device=1)");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(rule_log_binding)
+
+// LOG-05, LOG-13 (the manager is the one the harness drives, as in UpdateNetwork): the DSM2 resolver treats
+// two actions on one device as overlapping, so the second rule waits for the first. Pinned with PLAN D-26.
+BOOST_AUTO_TEST_CASE(opposite_directions_of_one_device_are_deferred_and_named) {
+   ScenarioResult r = opposite_direction_scenario(1);
+   std::vector<std::string> expected;
+   expected.push_back("TRIGGERED:r1");
+   expected.push_back("ACTIVATED:r1");
+   expected.push_back("TRIGGERED:r2");
+   expected.push_back("DEFERRED:r2");
+   expected.push_back("COMPLETED:r1");
+   expected.push_back("ACTIVATED:r2");
+   expected.push_back("COMPLETED:r2");
+   std::vector<std::string> actual = sequence(r.records);
+   BOOST_CHECK_EQUAL_COLLECTIONS(actual.begin(), actual.end(), expected.begin(), expected.end());
+   for (size_t i = 0; i < r.records.size(); ++i)
+      if (r.records[i].event == "DEFERRED") BOOST_CHECK_EQUAL(r.records[i].detail, "blocked_by=r1");
+}
+
+// LOG-02: model values are the same with logging off and at the most verbose level.
+BOOST_AUTO_TEST_CASE(model_values_do_not_depend_on_the_log_level) {
+   ScenarioResult off = opposite_direction_scenario(0);
+   ScenarioResult verbose = opposite_direction_scenario(3);
+   BOOST_CHECK(off.records.empty());
+   BOOST_CHECK(!verbose.records.empty());
+   BOOST_CHECK_EQUAL_COLLECTIONS(off.history.begin(), off.history.end(), verbose.history.begin(), verbose.history.end());
+}
+
+// LOG-07: ACTION records name the device and carry the numbers written to the model.
+BOOST_AUTO_TEST_CASE(action_records_name_the_gate_device_and_the_values_written) {
+   ScenarioResult r = opposite_direction_scenario(2);
+   int actions = 0;
+   for (size_t i = 0; i < r.records.size(); ++i) {
+      if (r.records[i].event != "ACTION") continue;
+      ++actions;
+      const std::string& d = r.records[i].detail;
+      BOOST_CHECK_MESSAGE(d.find("interface=gate_op(gate=1,device=1,direction=") == 0, d);
+      BOOST_CHECK_MESSAGE(d.find("target=0") != std::string::npos, d);
+   }
+   BOOST_CHECK_EQUAL(actions, 4);      // two advances for each ramp
+}
+
+// LOG-03: the entry points Fortran calls. Loading is logged with the time label "init" because the model
+// time does not exist yet; later events carry the model time at the end of the current step.
+BOOST_AUTO_TEST_CASE(entry_points_log_loading_and_use_the_model_time) {
+   Sim s;
+   model().add_external_flow("q2", 0.);
+   s.begin_run(2018, 6, 30, 22, 0, 900);      // model time is 2018-06-30 22:15 during the first step
+   model().oprule_log_level = 2;
+   const char* path = "dsm2_oprule_log_entry_points_test.txt";   // rewritten on every run
+   configure_oprule_log_from_model(path);
+   BOOST_REQUIRE_EQUAL(RuleLog::level(), 2);
+   char expr[] = "log_expr := 3.0;";
+   char rule[] = "log_gr := SET ext_flow(name=q2) TO 9 WHEN TRUE;";
+   op_rulerestart(NULL);
+   BOOST_REQUIRE(parse_rule_(expr, (int)std::strlen(expr)));
+   BOOST_REQUIRE(parse_rule_(rule, (int)std::strlen(rule)));
+   double dt = 900.;
+   for (int i = 0; i < 3; ++i) {
+      model().store_values();
+      advanceopruleactions_(&dt);
+      stepopruleexpressions_(&dt);
+      testopruleactivation_();
+   }
+   RuleLog::setLevel(RuleLog::OFF);
+   RuleLog::close();
+   RuleLog::setTimeSource(0);
+
+   std::ifstream in(path);
+   std::stringstream text;
+   text << in.rdbuf();
+   std::vector<LogRecord> mine;
+   std::vector<LogRecord> all = parse_log(text.str());
+   for (size_t i = 0; i < all.size(); ++i)
+      if (all[i].rule == "log_expr" || all[i].rule == "log_gr") mine.push_back(all[i]);
+   std::vector<std::string> expected;
+   expected.push_back("EXPRESSION_LOADED:log_expr");
+   expected.push_back("RULE_LOADED:log_gr");
+   expected.push_back("TRIGGERED:log_gr");
+   expected.push_back("ACTIVATED:log_gr");
+   expected.push_back("ACTION:log_gr");
+   expected.push_back("COMPLETED:log_gr");
+   std::vector<std::string> actual = sequence(mine);
+   BOOST_CHECK_EQUAL_COLLECTIONS(actual.begin(), actual.end(), expected.begin(), expected.end());
+   BOOST_REQUIRE_EQUAL(mine.size(), 6u);
+   BOOST_CHECK_EQUAL(mine[0].time, "init");
+   BOOST_CHECK_EQUAL(mine[1].time, "init");
+   for (size_t i = 2; i < mine.size(); ++i) BOOST_CHECK_EQUAL(mine[i].time, "2018-06-30 22:15");
+}
+
+BOOST_AUTO_TEST_CASE(level_zero_and_unopenable_paths_leave_the_log_off) {
+   Sim s;
+   model().oprule_log_level = 0;
+   configure_oprule_log_from_model("dsm2_oprule_log_never_opened.txt");
+   BOOST_CHECK_EQUAL(RuleLog::level(), 0);
+   BOOST_CHECK(!RuleLog::hasSink());
+   model().oprule_log_level = 2;
+   configure_oprule_log_from_model("/no_such_directory_for_rule_log/x.log");   // prints a warning
+   BOOST_CHECK_EQUAL(RuleLog::level(), 0);
+   BOOST_CHECK(!RuleLog::hasSink());
+   RuleLog::setTimeSource(0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

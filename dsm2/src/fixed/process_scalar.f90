@@ -237,6 +237,8 @@ module subroutine process_scalar(Param, Val)
         read (Val, '(i5)', err=810) luinc
     elseif (Param .eq. 'printlevel') then
         read (Val, '(i5)', err=810) print_level
+    elseif (Param .eq. 'oprule_log_level') then
+        read (Val, '(i5)', err=810) oprule_log_level
     elseif (Param .eq. 'temp_dir') then
         temp_dir = Val
     elseif (Param .eq. 'checkdata') then

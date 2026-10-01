@@ -5,7 +5,9 @@
 #include "oprule/expression/ExpressionNode.h"
 #include "oprule/rule/ModelInterface.h"
 #include "oprule/rule/Transition.h"
+#include "oprule/rule/RuleLog.h"
 #include<iostream>
+#include<sstream>
 #include<assert.h>
 
 
@@ -149,9 +151,17 @@ void ModelAction<T >::advance(double dt){
         remainTime = _elapsed - _transDuration;
     }
 
+    T target = _expression->eval();   // evaluated once, so logging adds no evaluation
     _currentState=_baseState*(1.0 - _transFraction) +
-        _expression->eval()*_transFraction;
+        target*_transFraction;
     _interface->set(_currentState);
+    if (RuleLog::enabled(RuleLog::ACTIONS)){
+        std::ostringstream detail;
+        detail << "interface=" << _interface->describe() << " elapsed=" << _elapsed
+               << " fraction=" << _transFraction << " base=" << _baseState
+               << " target=" << target << " value=" << _currentState;
+        RuleLog::write(RuleLog::ACTIONS, "ACTION", RuleLog::context(), detail.str());
+    }
     if(_transFraction == 1.0){
         setActive(false);
         this->onCompletion();

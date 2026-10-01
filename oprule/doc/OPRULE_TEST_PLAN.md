@@ -329,7 +329,9 @@ Files: `dsm2_studies/common_input/oprule_{historical_gate,hist_restoration,hist_
 
 ## 9. Logging feature: acceptance tests (LOG)
 
-Format, destination and control are undecided (reference B10). These tests are written independent of format. Each log event must carry: rule name, model time, event type, and event-specific fields.
+Format, destination and control were decided on 2026-09-30 (reference B10, "Decided design"): a dedicated oprule log file, levels 0 to 3 (strict supersets), level set by an oprule scalar with `print_level` as fallback, one `time | EVENT | rule | detail` record per line. The tests below check content and ordering, not exact text, so they stay valid if the format changes. Each log event carries: rule name, model time, event type, and event-specific fields. Unit-level LOG tests use `RuleLog::setSink` with a string stream.
+
+Adjustments from the decisions: LOG-06 policy is "once per deferral episode"; LOG-10 now only checks ordering inside the oprule file (Fortran and C++ no longer share a stream); the LOG-02 guard is implemented by storing the trigger value in `OperatingRule` instead of re-testing.
 
 | ID | L | P | Check |
 |---|---|---|---|
@@ -347,6 +349,26 @@ Format, destination and control are undecided (reference B10). These tests are w
 | LOG-12 | I | P2 | Overhead: wall time at level 0 within noise of the baseline; at the verbose level, measure and record. |
 | LOG-13 | I | P1 | Coupled (`UpdateNetworkPrepare/Wrapup`) and standalone paths log the same events. |
 | LOG-14 | I | P2 | Named expressions: if their values are logged, the wrapper does not change their evaluation count or order. |
+
+**Implementation status (2026-09-30).** Logging is implemented (reference B10). Where each LOG test stands:
+
+| ID | Status | Test |
+|---|---|---|
+| LOG-01 | open | needs a golden full-model run (INT-09); unit level: `rule_log/off_by_default_writes_nothing` (core) |
+| LOG-02 | unit level done | `rule_log/logging_does_not_test_triggers_again`, `rule_log/model_values_are_the_same_with_and_without_logging` (core); `rule_log_binding/model_values_do_not_depend_on_the_log_level` (dsm2). Bitwise comparison of a full run is open (INT-09) |
+| LOG-03 | done | `rule_log_binding/entry_points_log_loading_and_use_the_model_time` (dsm2): `RULE_LOADED` and `EXPRESSION_LOADED` in parse order |
+| LOG-04 | done | `rule_log/trigger_is_logged_once_per_rising_edge`, `simple_rule_event_order` (core) |
+| LOG-05 | done | `rule_log/deferral_names_the_blocking_rule_and_is_logged_once` (core); `rule_log_binding/opposite_directions_of_one_device_are_deferred_and_named` (dsm2) |
+| LOG-06 | done | policy: once per deferral episode; `deferral_names_the_blocking_rule_and_is_logged_once`, `deferral_episode_ends_when_the_trigger_goes_false` (core) |
+| LOG-07 | done | `rule_log/action_records_match_the_values_written` (core); `rule_log_binding/action_records_name_the_gate_device_and_the_values_written` (dsm2) |
+| LOG-08 | done | `rule_log/trigger_values_are_logged_for_inactive_rules_at_level_3_only` (core) |
+| LOG-09 | done | `rule_log/each_level_is_a_superset_of_the_one_below`, `level_is_clamped_and_needs_a_sink` (core) |
+| LOG-10 | not needed | the log is a separate file, so no ordering against Fortran output |
+| LOG-11 | done | `rule_log_interfaces/every_writable_interface_describes_itself` (dsm2). Descriptions use indices, not names |
+| LOG-12 | open | needs a full run |
+| LOG-13 | partly | the harness drives the same manager calls as the coupled and standalone paths; no full-model check |
+| LOG-14 | deferred | named expression values are not logged |
+| (new) | done | file sink and unopenable path: `rule_log/a_file_sink_receives_the_records` (core), `rule_log_binding/level_zero_and_unopenable_paths_leave_the_log_off` (dsm2); level mapping from `print_level` and the scalar: `test_log_level` in `dsm2/tests/model_interface` (Fortran) |
 
 ---
 

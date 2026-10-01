@@ -13,10 +13,15 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "MockModel.h"
+#include "LogCapture.h"
+#include "oprule/rule/RuleLog.h"
 
 using namespace oprule_test;
 using oprule::rule::OperatingRulePtr;
@@ -667,6 +672,252 @@ private:
 };
 
 }  // namespace
+
+// ================================================================================ rule log
+// Design: OPRULE_REFERENCE.md B10 "Decided design". Records are "time | EVENT | rule | detail".
+// Plan ids: LOG-02 (no extra evaluation), LOG-04..09 (events, levels), LOG-11 (describe).
+
+namespace {
+
+struct LogBench : RuleBench {
+   explicit LogBench(int level) : guard(out, level) {}
+   std::vector<LogRecord> records() { return parse_log(out.str()); }
+   std::ostringstream out;
+   LogGuard guard;
+};
+
+std::vector<LogRecord> overlap_scenario(int level) {
+   g_vars.clear();
+   LogBench b(level);
+   b.add("first", "SET mock_var(name=a) TO 1 RAMP 30MIN", "true");
+   b.add("second", "SET mock_var(name=a) TO 5", "true");
+   b.run(6);
+   return b.records();
+}
+
+int trigger_tests_with_level(int level) {
+   RuntimeFixture f;
+   std::ostringstream out;
+   LogGuard guard(out, level);
+   RuleHandle h("x", 1., 0.);
+   f.manager.addRule(h.rule);
+   h.trigger->value = false;
+   f.step(); f.step(); f.step();
+   h.trigger->value = true;
+   f.step(); f.step();
+   return h.trigger->tests;
+}
+
+}  // namespace
+
+BOOST_AUTO_TEST_SUITE(rule_log)
+
+BOOST_AUTO_TEST_CASE(off_by_default_writes_nothing) {
+   g_vars.clear();
+   std::ostringstream out;
+   oprule::rule::RuleLog::setSink(&out);               // a sink alone does not enable anything
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::level(), 0);
+   {
+      RuleBench b;
+      b.add("r", "SET mock_var(name=a) TO 1", "true");
+      b.run(3);
+   }
+   oprule::rule::RuleLog::setSink(0);
+   BOOST_CHECK(out.str().empty());
+}
+
+BOOST_AUTO_TEST_CASE(level_is_clamped_and_needs_a_sink) {
+   using oprule::rule::RuleLog;
+   RuleLog::setLevel(99);
+   BOOST_CHECK_EQUAL(RuleLog::level(), 3);
+   RuleLog::setLevel(-4);
+   BOOST_CHECK_EQUAL(RuleLog::level(), 0);
+   RuleLog::setLevel(2);
+   BOOST_CHECK(!RuleLog::enabled(RuleLog::EVENTS));    // no sink
+   std::ostringstream out;
+   RuleLog::setSink(&out);
+   BOOST_CHECK(RuleLog::enabled(RuleLog::EVENTS));
+   BOOST_CHECK(RuleLog::enabled(RuleLog::ACTIONS));
+   BOOST_CHECK(!RuleLog::enabled(RuleLog::TRIGGERS));
+   RuleLog::setLevel(0);
+   RuleLog::setSink(0);
+}
+
+// LOG-04, LOG-05: a simple rule is triggered, activated, then completed.
+BOOST_AUTO_TEST_CASE(simple_rule_event_order) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("r", "SET mock_var(name=a) TO 1", "true");
+   b.run(3);
+   std::vector<std::string> expected;
+   expected.push_back("TRIGGERED:r");
+   expected.push_back("ACTIVATED:r");
+   expected.push_back("COMPLETED:r");
+   std::vector<std::string> actual = sequence(b.records());
+   BOOST_CHECK_EQUAL_COLLECTIONS(actual.begin(), actual.end(), expected.begin(), expected.end());
+}
+
+BOOST_AUTO_TEST_CASE(every_record_has_four_fields_and_the_model_time) {
+   g_vars.clear();
+   LogBench b(3);
+   b.add("r", "SET mock_var(name=a) TO 1", "true");
+   b.run(3);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_REQUIRE(!recs.empty());
+   for (size_t i = 0; i < recs.size(); ++i) {
+      BOOST_CHECK_EQUAL(recs[i].time, "T");
+      BOOST_CHECK(!recs[i].event.empty());
+      BOOST_CHECK_EQUAL(recs[i].rule, "r");
+   }
+}
+
+// LOG-04: one TRIGGERED per false-to-true edge.
+BOOST_AUTO_TEST_CASE(trigger_is_logged_once_per_rising_edge) {
+   g_vars.clear();
+   LogBench b(1);
+   b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 0");
+   g_vars["lvl"] = 0.; b.run(1);
+   g_vars["lvl"] = 1.; b.run(2);
+   g_vars["lvl"] = 0.; b.run(1);
+   g_vars["lvl"] = 1.; b.run(2);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(count_of(recs, "TRIGGERED"), 2);
+   BOOST_CHECK_EQUAL(count_of(recs, "ACTIVATED"), 2);
+   BOOST_CHECK_EQUAL(count_of(recs, "COMPLETED"), 2);
+}
+
+// LOG-05, LOG-06: the deferred rule names its blocker and is not logged on every retry.
+BOOST_AUTO_TEST_CASE(deferral_names_the_blocking_rule_and_is_logged_once) {
+   std::vector<LogRecord> recs = overlap_scenario(1);
+   std::vector<std::string> expected;
+   expected.push_back("TRIGGERED:first");
+   expected.push_back("ACTIVATED:first");
+   expected.push_back("TRIGGERED:second");
+   expected.push_back("DEFERRED:second");
+   expected.push_back("COMPLETED:first");
+   expected.push_back("ACTIVATED:second");
+   expected.push_back("COMPLETED:second");
+   std::vector<std::string> actual = sequence(recs);
+   BOOST_CHECK_EQUAL_COLLECTIONS(actual.begin(), actual.end(), expected.begin(), expected.end());
+   for (size_t i = 0; i < recs.size(); ++i)
+      if (recs[i].event == "DEFERRED") BOOST_CHECK_EQUAL(recs[i].detail, "blocked_by=first");
+}
+
+// A deferral that ends because the trigger went false is reported, and a later deferral is a new episode.
+BOOST_AUTO_TEST_CASE(deferral_episode_ends_when_the_trigger_goes_false) {
+   g_vars.clear();
+   LogBench b(1);
+   g_vars["go"] = 1.;
+   b.add("first", "SET mock_var(name=a) TO 1 RAMP 600MIN", "true");
+   b.add("second", "SET mock_var(name=a) TO 5", "mock_ro(name=go) > 0");
+   b.run(1);
+   g_vars["go"] = 0.; b.run(1);
+   g_vars["go"] = 1.; b.run(1);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(count_of(recs, "TRIGGERED", "second"), 2);
+   BOOST_CHECK_EQUAL(count_of(recs, "DEFERRED", "second"), 2);
+   BOOST_CHECK_EQUAL(count_of(recs, "DEFER_ENDED", "second"), 1);
+   BOOST_CHECK_EQUAL(count_of(recs, "ACTIVATED", "second"), 0);
+}
+
+// LOG-08: the verbose level logs the trigger value of each inactive rule at each step.
+BOOST_AUTO_TEST_CASE(trigger_values_are_logged_for_inactive_rules_at_level_3_only) {
+   for (int level = 1; level <= 3; ++level) {
+      g_vars.clear();
+      LogBench b(level);
+      b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 0");
+      g_vars["lvl"] = 0.; b.run(3);
+      g_vars["lvl"] = 1.; b.run(1);
+      std::vector<LogRecord> recs = b.records();
+      if (level < 3) {
+         BOOST_CHECK_EQUAL(count_of(recs, "TRIGGER_VALUE"), 0);
+      } else {
+         BOOST_REQUIRE_EQUAL(count_of(recs, "TRIGGER_VALUE"), 4);
+         BOOST_CHECK_EQUAL(recs[0].detail, "value=false");
+         BOOST_CHECK_EQUAL(recs[3].detail, "value=true");
+      }
+   }
+}
+
+// LOG-07: one ACTION per advance with the numbers that were written to the model.
+BOOST_AUTO_TEST_CASE(action_records_match_the_values_written) {
+   g_vars.clear();
+   LogBench b(2);
+   b.add("r", "SET mock_var(name=a) TO 10 RAMP 60MIN", "true");
+   b.run(5);
+   std::vector<LogRecord> recs = b.records();
+   BOOST_CHECK_EQUAL(count_of(recs, "ACTION", "r"), 4);
+   int first = -1;
+   for (size_t i = 0; i < recs.size(); ++i) if (recs[i].event == "ACTION") { first = (int)i; break; }
+   BOOST_REQUIRE(first >= 0);
+   const std::string& d = recs[first].detail;
+   BOOST_CHECK_MESSAGE(d.find("interface=mock_var(name=a)") != std::string::npos, d);
+   BOOST_CHECK_MESSAGE(d.find("elapsed=900") != std::string::npos, d);
+   BOOST_CHECK_MESSAGE(d.find("fraction=0.25") != std::string::npos, d);
+   BOOST_CHECK_MESSAGE(d.find("target=10") != std::string::npos, d);
+   BOOST_CHECK_MESSAGE(d.find("value=2.5") != std::string::npos, d);
+   BOOST_CHECK_CLOSE(g_vars["a"], 10., 1e-9);
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::context(), "");   // rule context is cleared after the advance
+}
+
+// LOG-09: every level is the level below plus more events.
+BOOST_AUTO_TEST_CASE(each_level_is_a_superset_of_the_one_below) {
+   std::vector<LogRecord> full = overlap_scenario(3);
+   BOOST_CHECK(overlap_scenario(0).empty());
+   for (int level = 1; level <= 3; ++level) {
+      std::vector<std::string> expected;
+      for (size_t i = 0; i < full.size(); ++i)
+         if (event_level(full[i].event) <= level) expected.push_back(full[i].event + ":" + full[i].rule + ":" + full[i].detail);
+      std::vector<LogRecord> got_recs = overlap_scenario(level);
+      std::vector<std::string> got;
+      for (size_t i = 0; i < got_recs.size(); ++i) got.push_back(got_recs[i].event + ":" + got_recs[i].rule + ":" + got_recs[i].detail);
+      BOOST_CHECK_EQUAL_COLLECTIONS(got.begin(), got.end(), expected.begin(), expected.end());
+   }
+}
+
+// LOG-02 (unit level): logging must not test the trigger more often than the manager does.
+BOOST_AUTO_TEST_CASE(logging_does_not_test_triggers_again) {
+   int off = trigger_tests_with_level(0);
+   BOOST_CHECK_EQUAL(off, 5);                          // 3 false + 1 edge + 1 after completion
+   BOOST_CHECK_EQUAL(trigger_tests_with_level(1), off);
+   BOOST_CHECK_EQUAL(trigger_tests_with_level(3), off);
+}
+
+BOOST_AUTO_TEST_CASE(model_values_are_the_same_with_and_without_logging) {
+   std::vector<double> history[2];
+   for (int pass = 0; pass < 2; ++pass) {
+      g_vars.clear();
+      std::ostringstream out;
+      LogGuard guard(out, pass == 0 ? 0 : 3);
+      RuleBench b;
+      b.add("r", "SET mock_var(name=a) TO mock_ro(name=tgt) RAMP 60MIN", "true");
+      g_vars["tgt"] = 10.;
+      for (int i = 0; i < 6; ++i) { b.run(1); history[pass].push_back(g_vars["a"]); }
+   }
+   BOOST_CHECK_EQUAL_COLLECTIONS(history[0].begin(), history[0].end(), history[1].begin(), history[1].end());
+}
+
+BOOST_AUTO_TEST_CASE(a_file_sink_receives_the_records) {
+   using oprule::rule::RuleLog;
+   BOOST_CHECK(!RuleLog::open("/no_such_directory_for_rule_log/x.log"));
+   const char* path = "rule_log_file_sink_test.txt";   // rewritten on every run
+   BOOST_REQUIRE(RuleLog::open(path));
+   RuleLog::setLevel(1);
+   {
+      g_vars.clear();
+      RuleBench b;
+      b.add("r", "SET mock_var(name=a) TO 1", "true");
+      b.run(3);
+   }
+   RuleLog::setLevel(0);
+   RuleLog::close();
+   std::ifstream in(path);
+   std::stringstream text;
+   text << in.rdbuf();
+   BOOST_CHECK_EQUAL(count_of(parse_log(text.str()), "ACTIVATED", "r"), 1);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(alternative_conflict_policies)
 

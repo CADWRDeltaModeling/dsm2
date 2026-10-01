@@ -1,5 +1,6 @@
 #include "oprule/rule/OperationManager.h"
 #include "oprule/rule/ModelAction.h"
+#include "oprule/rule/RuleLog.h"
 #include "assert.h"
 #include<algorithm>
 #include<iostream>  // debug
@@ -43,10 +44,30 @@ void OperationManager::manageActivation(){
 	   OperatingRulePtr rulePtr=(*it);
        if (rulePtr->isActive())continue;
        //cout << rulePtr->getName() << " start test trigger" <<endl;
-	   if (rulePtr->testNewlyTriggered()){
+	   bool newlyTriggered = rulePtr->testNewlyTriggered();
+       // Logging reuses the value just computed; it must never test the trigger again.
+       if (RuleLog::enabled(RuleLog::TRIGGERS)){
+          RuleLog::write(RuleLog::TRIGGERS, "TRIGGER_VALUE", rulePtr->getName(),
+             rulePtr->getLastTriggerValue() ? "value=true" : "value=false");
+       }
+       if (!newlyTriggered && !rulePtr->getLastTriggerValue() &&
+           _deferredLogged.erase(rulePtr.get())){
+          RuleLog::write(RuleLog::EVENTS, "DEFER_ENDED", rulePtr->getName(),
+             "trigger went false while deferred");
+       }
+	   if (newlyTriggered){
            //cout << rulePtr->getName()<< " triggered" << endl;
+          // a deferred rule is re-triggered on every retry; only the first is an event
+          if (_deferredLogged.find(rulePtr.get()) == _deferredLogged.end()){
+             RuleLog::write(RuleLog::EVENTS, "TRIGGERED", rulePtr->getName(), "");
+          }
 		  // rule is triggered, test whether action is valid in context
-		   if ( rulePtr->isActionApplicable()){
+		   bool applicable = rulePtr->isActionApplicable();
+          if (!applicable){
+             RuleLog::write(RuleLog::EVENTS, "NOT_APPLICABLE", rulePtr->getName(),
+                "action not applicable in current context");
+          }
+		   if ( applicable ){
             //cout << "Attempting to activate " << rulePtr->getName()<<endl;
             // Check whether other rules will block it;
             // Nothing is changed during check, because if any rule blocks this
@@ -65,13 +86,17 @@ void OperationManager::manageActivation(){
                 if (response == ActionResolver::IGNORE_NEW_RULE){
                    useNewRule=false;
                    isConflicting=true;
-                   ///cout << "blocked by rule :" << activePtr->getName()<<endl;
+                   RuleLog::write(RuleLog::EVENTS, "IGNORED", rulePtr->getName(),
+                      "blocked_by=" + activePtr->getName());
                    break;
                 }
 				if (response == ActionResolver::DEFER_NEW_RULE){
 					useNewRule=false;
 					isConflicting=true;
-                    //cout << "deferred by rule :" << activePtr->getName()<<endl;
+                    if (_deferredLogged.insert(rulePtr.get()).second){
+                       RuleLog::write(RuleLog::EVENTS, "DEFERRED", rulePtr->getName(),
+                          "blocked_by=" + activePtr->getName());
+                    }
                     rulePtr->deferActivation();
 				}
                 if (response == ActionResolver::REPLACE_OLD_RULE){
@@ -90,11 +115,15 @@ void OperationManager::manageActivation(){
                      int response=this->checkActionPriority(**activeiter,**it);
 						   if (response == ActionResolver::REPLACE_OLD_RULE){
                        (*activeiter)->setActive(false);
+                       RuleLog::write(RuleLog::EVENTS, "REPLACED", (*activeiter)->getName(),
+                          "replaced_by=" + rulePtr->getName());
                      }
                   }
                }
                //cout << "Activating " << (*it)->getName()<<endl;
                (*it)->setActive(true);
+               _deferredLogged.erase(rulePtr.get());
+               RuleLog::write(RuleLog::EVENTS, "ACTIVATED", rulePtr->getName(), "");
                //cout << "Activated " << (*it)->getName()<<endl;
             }
          } // rule is applicable
@@ -109,6 +138,9 @@ void OperationManager::advanceActions(double dt){
         it != pool.end(); it++){
             if((*it)->isActive()){
                 (*it)->advanceAction(dt);
+                if(!(*it)->isActive()){
+                   RuleLog::write(RuleLog::EVENTS, "COMPLETED", (*it)->getName(), "");
+                }
             }
     }
 }

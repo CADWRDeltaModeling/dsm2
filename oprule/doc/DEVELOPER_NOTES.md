@@ -124,6 +124,7 @@ These are the facts most likely to waste time. Tests that pin them are in `oprul
 | `support/MockModel.{h,cpp}` | Named-double mock model; `VarInterface` (writable, static or time dependent), read-only variable, `MockLookup` (`mock_var`, `mock_tvar`, `mock_ro`), `SameVarResolver`, `FlagTrigger`, `RecordingTimeFactory`, `RuntimeFixture`, `ParserFixture`, `run_in_child`. |
 | `support/InpReader.{h,cpp}` | Reads the OPERATING_RULE / OPRULE_EXPRESSION / OPRULE_TIME_SERIES tables the way `input_storage` does and returns statements in model parse order (expressions first, rules next, each sorted by name). |
 | `support/Dsm2FortranMock.{h,cpp}`, `Dsm2Harness.{h,cpp}` | A C++ stand-in for the Fortran model (every `extern "C"` routine the binding calls, each commented with the Fortran routine it mirrors and its quirks) and a harness that drives the real binding in time-loop order (`Harness::step` = `UpdateNetwork`). Use `Sim` (in the DSM2 test file) to feed named time series. |
+| `support/LogCapture.h` | Header-only helpers for log tests: `LogGuard` (string-stream sink, fixed time label, level; restores defaults), `parse_log`, `sequence`, `count_of`, `event_level`. |
 | `data/*.inp` | Representative subsets of the real study inputs. |
 
 Conventions:
@@ -148,14 +149,50 @@ Conventions:
 
 ## 6. State of the work (update as it changes)
 
-Done and passing (3 programs, 153 test cases; coverage map in [OPRULE_TESTS_OVERVIEW.md](OPRULE_TESTS_OVERVIEW.md)):
+Done and passing (4 programs; coverage map in [OPRULE_TESTS_OVERVIEW.md](OPRULE_TESTS_OVERVIEW.md)):
 
-- `oprule_smoke_tests` (19) and `oprule_core_tests` (64): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, pinned defects.
-- `oprule_dsm2_tests` (70): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points.
+- `oprule_smoke_tests` (19) and `oprule_core_tests` (77): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, the rule log, pinned defects.
+- `oprule_dsm2_tests` (77): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points, log set-up and interface descriptions.
+- `test_model_interface` (Fortran, 16 tests): the real `model_interface.f90` routines. All 16 passed on the first run, which confirmed the mock's time assumptions (01JAN1900 00:00 = minute 1440, 0-based day of year), the name-lookup case rules and D-04. It found one mock error, now fixed: external and transfer flows are `real*4` in the model, so the mock stores them as `float`.
+- Logging is implemented (design and use: OPRULE_REFERENCE.md B10).
 
 Not done:
 
-- A Fortran-level test (`test-drive`) of `model_interface.f90` to check the mock's contract against the real routines.
-- Update `OPRULE_TEST_PLAN.md` observed results for every new test (partly done) and keep B9 in `OPRULE_REFERENCE.md` in step with the pinned defects.
-- Logging for rule trigger/activation/evaluation (see reference B10).
+- Logging in a complete model run: LOG-01 (default output unchanged), LOG-02 bitwise comparison, LOG-12 overhead (need a golden study run, INT-09). The Fortran changes (scalar `oprule_log_level`, `get_oprule_log_level`) compile and pass their unit test, but no full run has used them yet.
+- Fortran routines outside `model_interface.f90` that the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) are still only mirrored from source.
+- `gate_coef` with `direction=both` (D-13) cannot be tested in the Fortran test (it calls `exit(3)`).
 - Fixing any of the pinned defects.
+
+### Building and running the Fortran test
+
+Separate full-build directory (do not use `build/`, and do not run `build_hpc5.sh`):
+
+```bash
+module purge && module load intel/2024.0 cmake/3.28.3
+mkdir -p /scratch/psandhu/dsm2_full_build && cd /scratch/psandhu/dsm2_full_build
+cmake -C /scratch/psandhu/dsm2/linux_options.cmake -S /scratch/psandhu/dsm2 -B . -G "Unix Makefiles" \
+  -DCMAKE_BUILD_TYPE:STRING=Debug -DFETCHCONTENT_FULLY_DISCONNECTED=ON \
+  -DFETCHCONTENT_SOURCE_DIR_FORTRAN_STDLIB=/scratch/psandhu/dsm2/build/_deps/fortran_stdlib-src \
+  -DFETCHCONTENT_SOURCE_DIR_TEST-DRIVE=/scratch/psandhu/dsm2/build/_deps/test-drive-src \
+  -DFETCHCONTENT_SOURCE_DIR_FYPP=/scratch/psandhu/dsm2/build/_deps/fypp-src
+cmake --build . --target test_model_interface -j 8      # the first build compiles fortran_stdlib and takes a long time
+./dsm2/tests/model_interface/test_model_interface
+```
+
+The stdlib and test-drive sources come from the existing `build/_deps` so no network is needed. If `build/` is ever recreated, fetch them again or point these variables elsewhere.
+
+### Logging: decisions (2026-09-30), implemented
+
+Full design table: OPRULE_REFERENCE.md B10, "Decided design". Acceptance tests: OPRULE_TEST_PLAN.md section 9.
+
+- Dedicated oprule log file; levels 0 off / 1 events / 2 + action values / 3 + per-step trigger values; level from an oprule scalar with `print_level` as fallback.
+- The logger must never re-evaluate triggers or expressions. `OperatingRule::testNewlyTriggered` keeps the value it computed and the manager logs that.
+- Planned order of work (all steps 1 to 5 done; step 6 open): (1) `RuleLog` class and `OperatingRule` stored trigger value; (2) manager events (`TRIGGERED`, `ACTIVATED`, `DEFERRED` once per episode, `COMPLETED`); (3) `ModelInterface::describe()` and `ModelAction` `ACTION` events; (4) core tests with a string-stream sink (LOG-04..09, LOG-11 on the mock); (5) DSM2 binding: `RULE_LOADED` in `parse_rule`, time source from `get_model_time`, scalar/`print_level` control, file open/close in `InitOpRules`, describe overrides, DSM2 tests (LOG-03, LOG-11, LOG-13); (6) LOG-01/02/12 bitwise comparison against a golden run need the full model (INT-09).
+- Level 0 must stay the default so existing output does not change.
+
+### Fortran-level test of `model_interface.f90`: decisions (2026-09-30), implemented
+
+- Add `dsm2/tests/model_interface/test_model_interface.f90` using `test-drive`, registered like `test_hydro` (`addtest(model_interface)` in `dsm2/tests/CMakeLists.txt`). Goal: assert the real Fortran behaviour that `support/Dsm2FortranMock.cpp` assumes (name lookup case rules, `ext2int` returns 0, `get_device_op_coef` for `to_from_node`, `exit(3)` for `gate_coef` with `both` (needs care in a test-drive run), `nduplicate` rounding, `ts_index` search over all paths, `qext_index` / `transfer_index` case handling, time functions, `set_*_datasource` `timedep` handling).
+- Build in a **separate** full-build directory (for example `/scratch/psandhu/dsm2_full_build`), configured like the existing `build/` (HDF5 at `deps/hdf5-1.14.2/cmake`, Intel 2024.0) and reusing the sources already fetched under `build/_deps` (`-DFETCHCONTENT_SOURCE_DIR_FORTRAN_STDLIB=...`, `-DFETCHCONTENT_SOURCE_DIR_TEST-DRIVE=...`). Leave `build/` untouched (`build_hpc5.sh` deletes it; do not run that script).
+- Any mismatch found between the real Fortran and the mock is fixed in the mock (and its `FORTRAN QUIRK` / `ASSUMPTION` comments) and noted in OPRULE_TESTS_OVERVIEW.md.
+- Do not search the whole filesystem (`find /`) for dependencies; it is far too slow on the shared host.

@@ -7,20 +7,23 @@
 #include<algorithm>
 #include<functional>
 #include "oprule/rule/OperatingRule.h"
+#include "oprule/rule/RuleLog.h"
 
 
 using namespace oprule::rule;
 
 OperatingRule::OperatingRule(OperationActionPtr opact) :
-   _action(opact), _prevTriggerValue(false){
+   _action(opact), _prevTriggerValue(false), _lastTriggerValue(false){
 }
 
 OperatingRule::OperatingRule(OperationActionPtr opact,TriggerPtr trigger) :
-   _action(opact), _trigger(trigger), _prevTriggerValue(false){
+   _action(opact), _trigger(trigger), _prevTriggerValue(false), _lastTriggerValue(false){
 }
 
 void OperatingRule::advanceAction(double dt){
+    RuleLog::setContext(_name);
     _action->advance(dt);
+    RuleLog::setContext("");
 }
 
 bool OperatingRule::isActionApplicable(){
@@ -35,6 +38,7 @@ bool OperatingRule::testTrigger(){
 //todo: this embeds the prev=current logic
 bool OperatingRule::testNewlyTriggered(){
    bool current=_trigger->test();
+   _lastTriggerValue=current;
    bool ret= (! _prevTriggerValue) && current;
    _prevTriggerValue=current;
    return ret;

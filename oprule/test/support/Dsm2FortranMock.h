@@ -85,14 +85,14 @@ struct Gate {
 struct ExternalFlow {  // grid_data: qext(i)
    ExternalFlow() : flow(0.) {}
    std::string name;  // ASSUMPTION: stored lower case; qext_index does NOT lower-case the query
-   double flow;
+   float flow;        // real*4 in type_defs (qext_t): values read back are rounded to single precision (checked in the Fortran test)
    DataSource datasource;
 };
 
 struct Transfer {  // grid_data: obj2obj(i)
    Transfer() : flow(0.) {}
    std::string name;
-   double flow;
+   float flow;        // real*4 in type_defs (obj2obj_t)
    DataSource datasource;
 };
 
@@ -145,10 +145,16 @@ public:
    Reservoir& reservoir(const std::string& name);
    PathInput& path(const std::string& name);
 
-   // ---- time (runtime_data: julmin = minutes since 31DEC1899 2400; ASSUMPTION: 01JAN1900 00:00 = 1440)
+   // ---- time (runtime_data: julmin = minutes since 31DEC1899 2400; 01JAN1900 00:00 = 1440, day of year 0-based:
+   //      verified against the real Fortran by test_time in dsm2/tests/model_interface)
    void set_time(int year, int month, int day, int hour, int minute);
    int julmin;
    int dt_seconds;  // netcntrl: DT
+
+   // ---- logging
+   // model_interface.f90 get_oprule_log_level(): the oprule_log_level scalar if set, else derived from
+   // print_level (4, 5, 6 give 1, 2, 3; lower gives 0). The mock holds the already-resolved value.
+   int oprule_log_level;
 
    // ---- data sources
    // model_interface.f90 fetch_data()

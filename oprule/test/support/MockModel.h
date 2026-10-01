@@ -40,6 +40,7 @@ public:
    virtual void set(double v) { g_vars[name] = v; ++g_set_count[name]; }
    virtual bool isTimeDependent() const { return timeDep; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr) { g_datasource_set[name] = true; }
+   virtual std::string describe() const { return std::string(timeDep ? "mock_tvar" : "mock_var") + "(name=" + name + ")"; }
 
    std::string name;
    bool timeDep;
@@ -72,11 +73,12 @@ public:
 // Trigger whose value the test sets directly.
 class FlagTrigger : public oprule::rule::Trigger {
 public:
-   FlagTrigger() : value(false), steps(0) {}
-   virtual bool test() { return value; }
+   FlagTrigger() : value(false), steps(0), tests(0) {}
+   virtual bool test() { ++tests; return value; }
    virtual void step(double) { ++steps; }
    bool value;
    int steps;
+   int tests;   // times test() was called; logging must not add to it
 };
 
 oprule::rule::OperationActionPtr make_action(const std::string& var, double target, double ramp_sec,

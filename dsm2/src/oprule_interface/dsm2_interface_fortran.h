@@ -34,6 +34,7 @@ extern "C" int STDCALL transfer_index(const char* name, unsigned int len);
 extern "C" int STDCALL direct_to_node();
 extern "C" int STDCALL direct_from_node();
 extern "C" int STDCALL direct_to_from_node();
+extern "C" int STDCALL get_oprule_log_level();
 
 
 ///////////////////////////

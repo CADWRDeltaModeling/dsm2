@@ -3,6 +3,7 @@
 #pragma warning(disable:4786)
 
 #include <assert.h>
+#include<sstream>
 #include<string>
 #include<vector>
 #include "oprule/expression/ExpressionNode.h"
@@ -39,6 +40,9 @@ public:
     //    oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~GateInstallInterface(){};
     virtual bool operator==( const GateInstallInterface &);
+    virtual std::string describe() const {
+        std::ostringstream s; s << "gate_install(gate=" << ndx << ")"; return s.str();
+    }
 
 private:
     int ndx;
@@ -60,6 +64,16 @@ public:
     }
 
 protected:
+    // Fortran array indices (1-based); names are not kept by the interface.
+    std::string id(const char* name) const {
+        std::ostringstream s; s << name << "(gate=" << ndx << ",device=" << devndx; return s.str();
+    }
+    static std::string direction_name(int d) {
+        if (d == direct_to_node()) return "to_node";
+        if (d == direct_from_node()) return "from_node";
+        if (d == direct_to_from_node()) return "to_from_node";
+        std::ostringstream s; s << d; return s.str();
+    }
     int ndx;
     int devndx;
 };
@@ -89,6 +103,9 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceOpInterface(){};
     virtual bool operator==( const DeviceOpInterface &);
+    virtual std::string describe() const {
+        return id("gate_op") + ",direction=" + direction_name(direction) + ")";
+    }
 private:
     int direction;
 
@@ -118,6 +135,7 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DevicePositionInterface(){};
     virtual bool operator==( const DevicePositionInterface &);
+    virtual std::string describe() const { return id("gate_position") + ")"; }
 
 };
 
@@ -141,6 +159,7 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceHeightInterface(){};
     virtual bool operator==( const DeviceHeightInterface &);
+    virtual std::string describe() const { return id("gate_height") + ")"; }
 
 };
 
@@ -165,6 +184,7 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceWidthInterface(){};
     virtual bool operator==( const DeviceWidthInterface &);
+    virtual std::string describe() const { return id("gate_width") + ")"; }
 
 };
 
@@ -190,6 +210,7 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceElevInterface(){};
     virtual bool operator==( const DeviceElevInterface &);
+    virtual std::string describe() const { return id("gate_elev") + ")"; }
 };
 
 
@@ -215,6 +236,7 @@ public:
         oprule::expression::ExpressionNode<double>::NodePtr express);
     virtual ~DeviceNDuplicateInterface(){};
     virtual bool operator==( const DeviceNDuplicateInterface &);
+    virtual std::string describe() const { return id("gate_nduplicate") + ")"; }
 
 };
 
@@ -237,6 +259,9 @@ public:
     virtual bool isTimeDependent() const{ return false; }
     virtual ~DeviceFlowCoefInterface(){};
     virtual bool operator==( const DeviceFlowCoefInterface &);
+    virtual std::string describe() const {
+        return id("gate_coef") + ",direction=" + direction_name(direction) + ")";
+    }
 private:
     int direction;
 };
