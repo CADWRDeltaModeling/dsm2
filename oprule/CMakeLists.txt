@@ -41,6 +41,12 @@ add_custom_command(
 #   "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OpRuleParser>"
 #   COMMENT "Copying OperatingRule parser lib to output directory")
 
+option(OPRULE_BUILD_TESTS "Build the oprule smoke tests" OFF)
+if(OPRULE_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
+
 # -------------------- TestOperatingRule exe -----------------
 # search by file pattern and include in library
 # file(GLOB TEST_OPRULE_CXX_SOURCES test/rule/*.cpp)
