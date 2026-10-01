@@ -59,6 +59,7 @@ void Harness::step() {
    double dt = (double)m.dt_seconds;
    m.set_boundary_values_from_data(ts_source);
    manager.advanceActions(dt);
+   if (after_advance) after_advance();
    if (solver) solver(dt);
    manager.stepExpressions(dt);
    manager.manageActivation();

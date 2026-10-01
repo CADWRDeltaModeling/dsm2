@@ -112,14 +112,14 @@ public:
    */
    virtual OperationAction::ActionListType& getActionList();
 
-   /** What the trigger depends on, for the rule log: "trigger_inputs=[a=1; b=2]" (the model
-    *  variables the trigger reads and the internal state of stateful nodes). Reads current
-    *  values; never evaluates a stateful node.
+   /** What the trigger depends on, for the rule log: the model variables the trigger reads and the
+    *  internal state of stateful nodes. Reads current values; never evaluates a stateful node.
+    *  Returns false if the values could not be collected.
     */
-   std::string describeTrigger();
+   bool describeTrigger(LogValues& out);
 
-   /** State of the action for the rule log (see OperationAction::describeState). */
-   std::string describeAction();
+   /** State of the action for the rule log (see OperationAction::describeActions). */
+   bool describeAction(std::vector<ActionInfo>& out);
 
    /** Virtual destructor */
    virtual ~OperatingRule();

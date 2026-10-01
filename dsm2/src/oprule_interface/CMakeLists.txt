@@ -18,3 +18,7 @@ target_include_directories(
   PUBLIC ${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../oprule
           ${DSM2_OPRULE_INTERFACE} ${Loki_INCLUDE_DIRS})
 add_dependencies(${LIB_CXX} ${LIB_FORT})
+if(OPRULE_WITH_HDF5)
+  target_compile_definitions(${LIB_CXX} PUBLIC OPRULE_WITH_HDF5=1)
+  target_include_directories(${LIB_CXX} PUBLIC ${HDF5_INCLUDE_DIRS})
+endif()

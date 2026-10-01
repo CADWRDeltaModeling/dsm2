@@ -33,17 +33,26 @@ public:
    typedef VarInterface NodeType;
    typedef OE_NODE_PTR(NodeType) NodePtr;
 
-   VarInterface(const std::string& n, bool td) : name(n), timeDep(td) {}
-   static NodePtr create(const std::string& n, bool td = false) { return NodePtr(new NodeType(n, td)); }
-   virtual oprule::expression::DoubleNodePtr copy() { return NodePtr(new NodeType(name, timeDep)); }
+   VarInterface(const std::string& n, bool td, int g = 0, int d = 0, int p = 0)
+      : name(n), timeDep(td), gate(g), device(d), prop(p) {}
+   static NodePtr create(const std::string& n, bool td = false, int g = 0, int d = 0, int p = 0) {
+      return NodePtr(new NodeType(n, td, g, d, p));
+   }
+   virtual oprule::expression::DoubleNodePtr copy() { return NodePtr(new NodeType(name, timeDep, gate, device, prop)); }
    virtual double eval() { return g_vars[name]; }
    virtual void set(double v) { g_vars[name] = v; ++g_set_count[name]; }
    virtual bool isTimeDependent() const { return timeDep; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr) { g_datasource_set[name] = true; }
    virtual std::string describe() const { return std::string(timeDep ? "mock_tvar" : "mock_var") + "(name=" + name + ")"; }
+   virtual unsigned deviceProperties(int& g, int& d) const {
+      if (prop == 0) return 0;
+      g = gate; d = device;
+      return 1u << prop;
+   }
 
    std::string name;
    bool timeDep;
+   int gate, device, prop;   // a gate device property for the rule log (prop 0: not one)
 };
 
 // Read-only variable (like chan_stage): evaluates g_vars[name], cannot be set.

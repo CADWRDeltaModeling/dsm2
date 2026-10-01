@@ -85,6 +85,16 @@ void Model::reset() {
    next_point = 1;
    dt_seconds = 900;
    oprule_log_level = 0;
+   oprule_log_file.clear();
+   oprule_log_text = 0;
+   oprule_log_devices = 1;
+   oprule_log_context = 1;
+   oprule_log_trace_interval = 0;
+   tidefile_gate_state = 3;
+   oprule_log_tol_op = 0.001;
+   oprule_log_tol_dim = 0.01;
+   oprule_log_flush_hours = 24.;
+   tidefile_name.clear();
    set_time(2001, 1, 1, 0, 0);
 }
 
@@ -379,6 +389,29 @@ extern "C" double value_from_inputpath(const int* i) {
 // model_interface.f90 get_oprule_log_level()
 extern "C" int get_oprule_log_level() { return model().oprule_log_level; }
 
+// model_interface.f90 copy_to_cbuf: text with a terminating NUL; returns the length copied.
+static int copy_out(const std::string& text, char* buf, int buflen) {
+   int n = std::max(0, std::min((int)trim(text).size(), buflen - 1));
+   std::memcpy(buf, trim(text).c_str(), n);
+   buf[n] = 0;
+   return n;
+}
+
+// model_interface.f90 option getters; the mock holds the resolved values (defaults come from Model::reset).
+extern "C" int get_oprule_log_file(char* buf, const int& buflen) { return copy_out(model().oprule_log_file, buf, buflen); }
+extern "C" int get_oprule_log_text() { return model().oprule_log_text; }
+extern "C" int get_oprule_log_devices() { return model().oprule_log_devices; }
+extern "C" int get_oprule_log_context() { return model().oprule_log_context; }
+extern "C" double get_oprule_log_tol_op() { return model().oprule_log_tol_op; }
+extern "C" double get_oprule_log_tol_dim() { return model().oprule_log_tol_dim; }
+extern "C" int get_oprule_log_trace_interval() { return model().oprule_log_trace_interval; }
+extern "C" double get_oprule_log_flush_hours() { return model().oprule_log_flush_hours; }
+extern "C" int get_tidefile_gate_state() { return model().tidefile_gate_state; }
+extern "C" int get_hydro_tidefile_name(char* buf, const int& buflen) {
+   buf[0] = 0;
+   return copy_out(model().tidefile_name, buf, buflen);
+}
+
 extern "C" int direct_to_node() { return FLOW_COEF_TO_NODE; }
 extern "C" int direct_from_node() { return FLOW_COEF_FROM_NODE; }
 extern "C" int direct_to_from_node() { return FLOW_COEF_TO_FROM_NODE; }
@@ -565,6 +598,71 @@ extern "C" void set_device_nduplicate_datasource(const int& n, const int& d, con
    // header passes it by reference; the other *_datasource routines declare a 4-byte `logical` by
    // reference. The mock cannot reproduce that mismatch; it takes the intended meaning.
    set_datasource(device_at(n, d).nduplicate, e, v, t);
+}
+
+// ---- model_interface.f90 gate tables and state for the oprule log (all read only)
+extern "C" int get_gate_count() { return (int)model().gates.size(); }
+extern "C" int get_gate_device_count(const int& g) { return (int)gate_at(g).devices.size(); }
+extern "C" int get_gate_name(const int& g, char* buf, const int& buflen) { return copy_out(gate_at(g).name, buf, buflen); }
+extern "C" int get_device_name(const int& g, const int& d, char* buf, const int& buflen) {
+   return copy_out(device_at(g, d).name, buf, buflen);
+}
+extern "C" int get_device_structure_type(const int& g, const int& d) { return device_at(g, d).structureType; }
+extern "C" int get_gate_object_name(const int& g, char* buf, const int& buflen) { return copy_out(gate_at(g).objName, buf, buflen); }
+extern "C" int get_gate_node_id(const int& g) { return gate_at(g).nodeId; }
+extern "C" void get_gate_connection(const int& g, int& objtype, int& objid, int& compoint, int& nodecompoint) {
+   const Gate& gt = gate_at(g);
+   objtype = gt.objType;
+   objid = gt.objId;
+   compoint = gt.compPoint;
+   nodecompoint = gt.nodeCompPoint;
+}
+extern "C" double get_gate_flow(const int& g) { return gate_at(g).flow; }
+
+// get_device_property / get_device_source: prop 1 op to node, 2 op from node, 3 height, 4 elevation,
+// 5 width, 6 nDuplicate, 7 gate install. Unknown prop: the missing value / source 0.
+extern "C" double get_device_property(const int& g, const int& d, const int& prop) {
+   if (prop == 7) return gate_at(g).free ? 0. : 1.;
+   const Device& dev = device_at(g, d);
+   switch (prop) {
+      case 1: return dev.opCoefToNode;
+      case 2: return dev.opCoefFromNode;
+      case 3: return dev.height;
+      case 4: return dev.baseElev;
+      case 5: return dev.maxWidth;
+      case 6: return dev.nDuplicate;
+   }
+   return MISS_R;
+}
+extern "C" int get_device_source(const int& g, const int& d, const int& prop, char* buf, const int& buflen) {
+   buf[0] = 0;
+   const DataSource* src = 0;
+   if (prop == 7) src = &gate_at(g).install;
+   else {
+      Device& dev = device_at(g, d);
+      switch (prop) {
+         case 1: src = &dev.op_to_node; break;
+         case 2: src = &dev.op_from_node; break;
+         case 3: src = &dev.height_ds; break;
+         case 4: src = &dev.elev; break;
+         case 5: src = &dev.width; break;
+         case 6: src = &dev.nduplicate; break;
+      }
+   }
+   if (!src) return 0;
+   if (src->source_type == CONST_DATA) return 1;
+   if (src->source_type == DSS_DATA) {
+      check_index(src->indx_ptr, model().paths.size(), "pathinput");
+      copy_out(model().paths[src->indx_ptr - 1].name, buf, buflen);
+      return 2;
+   }
+   if (src->source_type == EXPRESSION_DATA) {
+      std::ostringstream label;
+      label << "expression(index=" << src->indx_ptr << ")";
+      copy_out(label.str(), buf, buflen);
+      return 3;
+   }
+   return 0;
 }
 
 // get/set_device_flow_coef: only to_node / from_node are handled.

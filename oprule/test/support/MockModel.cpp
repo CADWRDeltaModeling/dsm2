@@ -21,6 +21,12 @@ oprule::expression::DoubleNodePtr arg_name_to_var(const NamedValueLookup::ArgMap
 }
 oprule::expression::DoubleNodePtr mock_var_factory(const NamedValueLookup::ArgMap& a) { return arg_name_to_var(a, false); }
 oprule::expression::DoubleNodePtr mock_tvar_factory(const NamedValueLookup::ArgMap& a) { return arg_name_to_var(a, true); }
+oprule::expression::DoubleNodePtr mock_dev_factory(const NamedValueLookup::ArgMap& a) {
+   NamedValueLookup::ArgMap::const_iterator n = a.find("name"), g = a.find("gate"), d = a.find("device"), p = a.find("prop");
+   if (n == a.end() || g == a.end() || d == a.end() || p == a.end()) throw oprule::parser::MissingIdentifier("name, gate, device or prop not given");
+   return VarInterface::create(n->second, true, std::atoi(g->second.c_str()), std::atoi(d->second.c_str()),
+                               std::atoi(p->second.c_str()));
+}
 oprule::expression::DoubleNodePtr mock_ro_factory(const NamedValueLookup::ArgMap& a) {
    NamedValueLookup::ArgMap::const_iterator it = a.find("name");
    if (it == a.end()) throw oprule::parser::MissingIdentifier("name not given");
@@ -38,6 +44,16 @@ MockLookup::MockLookup() {
    info.name = "mock_tvar";
    info.factory = &mock_tvar_factory;
    add("mock_tvar", info);
+   info.params.clear();
+   info.params.push_back("name");
+   info.params.push_back("gate");
+   info.params.push_back("device");
+   info.params.push_back("prop");
+   info.name = "mock_dev";
+   info.factory = &mock_dev_factory;
+   add("mock_dev", info);
+   info.params.clear();
+   info.params.push_back("name");
    info.type = NamedValueLookup::READONLY;
    info.name = "mock_ro";
    info.factory = &mock_ro_factory;

@@ -10,13 +10,16 @@
 module test_model_interface
     use iso_c_binding
     use testdrive, only: new_unittest, unittest_type, error_type, test_failed
-    use constants, only: miss_val_i, miss_val_r, const_data, dss_data, expression_data
+    use constants, only: miss_val_i, miss_val_r, const_data, dss_data, expression_data, &
+                         obj_channel, obj_reservoir, hydro, io_hdf5, io_write
     use type_defs, only: datasource_t
     use gates_data, only: GateArray, nGate
-    use grid_data, only: qext, nqext, obj2obj, nobj2obj, res_geom, nreser
-    use iopath_data, only: pathinput, ninpaths
+    use grid_data, only: qext, nqext, obj2obj, nobj2obj, res_geom, nreser, chan_geom, node_id
+    use iopath_data, only: pathinput, ninpaths, tidefile_gate_state, io_files
     use runtime_data, only: julmin
-    use logging, only: print_level, oprule_log_level
+    use logging, only: print_level, oprule_log_level, oprule_log_file, oprule_log_devices, &
+                         oprule_log_context, oprule_log_tol_op, oprule_log_tol_dim, &
+                       oprule_log_trace_interval, oprule_log_flush_hours, oprule_log_text
     use model_interface
     implicit none
     private
@@ -44,7 +47,12 @@ contains
                     new_unittest("fetch_data", test_fetch_data), &
                     new_unittest("time_functions", test_time), &
                     new_unittest("reference_minute_of_year", test_reference_minute), &
-                    new_unittest("oprule_log_level", test_log_level) &
+                    new_unittest("oprule_log_level", test_log_level), &
+                    new_unittest("oprule_log_options", test_log_options), &
+                    new_unittest("tide_file_options", test_tidefile_options), &
+                    new_unittest("gate_tables", test_gate_tables), &
+                    new_unittest("gate_state_and_context", test_gate_state), &
+                    new_unittest("device_sources", test_device_sources) &
                     ]
     end subroutine collect_model_interface
 
@@ -424,6 +432,229 @@ contains
         print_level = saved_print
         oprule_log_level = saved_level
     end subroutine test_log_level
+
+    function cbuf_to_string(buf, n) result(s)
+        character(kind=c_char), intent(in) :: buf(*)
+        integer, intent(in) :: n
+        character(len=max(n, 1)) :: s
+        integer :: i
+        s = ' '
+        do i = 1, n
+            s(i:i) = buf(i)
+        end do
+    end function cbuf_to_string
+
+    ! The options of the oprule log (SCALAR table): the defaults when a scalar is not set, the value when it is.
+    ! Backs the option getters the C++ side reads and the mock's defaults (Model::reset).
+    subroutine test_log_options(error)
+        type(error_type), allocatable, intent(out) :: error
+        character(kind=c_char) :: buf(64)
+        integer :: n
+        character(len=32) :: s_file
+        integer :: s_dev, s_ctx, s_trace, s_text
+        real(8) :: s_op, s_dim, s_flush
+        s_file = oprule_log_file
+        s_dev = oprule_log_devices
+        s_text = oprule_log_text
+        s_ctx = oprule_log_context
+        s_trace = oprule_log_trace_interval
+        s_op = oprule_log_tol_op
+        s_dim = oprule_log_tol_dim
+        s_flush = oprule_log_flush_hours
+
+        oprule_log_file = ' '
+        oprule_log_devices = -1
+        oprule_log_text = -1
+        oprule_log_context = -1
+        oprule_log_trace_interval = -1
+        oprule_log_tol_op = -1.d0
+        oprule_log_tol_dim = -1.d0
+        oprule_log_flush_hours = -1.d0
+        n = get_oprule_log_file(buf, 64)
+        call expect_i(error, n, 0, "unset file name is empty")
+        call expect_i(error, get_oprule_log_devices(), 1, "devices default")
+        call expect_i(error, get_oprule_log_text(), 0, "the text log is off by default")
+        call expect_i(error, get_oprule_log_context(), 1, "context default")
+        call expect_i(error, get_oprule_log_trace_interval(), 0, "trace default is off")
+        call expect_r(error, get_oprule_log_tol_op(), 0.001d0, "op tolerance default")
+        call expect_r(error, get_oprule_log_tol_dim(), 0.01d0, "dimension tolerance default")
+        call expect_r(error, get_oprule_log_flush_hours(), 24.d0, "flush default")
+
+        oprule_log_file = 'my_log.h5'
+        oprule_log_devices = 0
+        oprule_log_text = 1
+        oprule_log_context = 0
+        oprule_log_trace_interval = 3
+        oprule_log_tol_op = 0.d0
+        oprule_log_tol_dim = 0.5d0
+        oprule_log_flush_hours = 6.d0
+        n = get_oprule_log_file(buf, 64)
+        call expect_i(error, n, 9, "file name length")
+        call expect_true(error, cbuf_to_string(buf, n) == 'my_log.h5', "file name")
+        call expect_i(error, get_oprule_log_devices(), 0, "devices off")
+        call expect_i(error, get_oprule_log_text(), 1, "text log on")
+        call expect_i(error, get_oprule_log_context(), 0, "context off")
+        call expect_i(error, get_oprule_log_trace_interval(), 3, "trace interval")
+        call expect_r(error, get_oprule_log_tol_op(), 0.d0, "a zero op tolerance is a value, not unset")
+        call expect_r(error, get_oprule_log_tol_dim(), 0.5d0, "dimension tolerance")
+        call expect_r(error, get_oprule_log_flush_hours(), 6.d0, "flush hours")
+
+        n = get_oprule_log_file(buf, 5)                 ! a short buffer is filled and terminated, not overrun
+        call expect_i(error, n, 4, "short buffer")
+        call expect_true(error, cbuf_to_string(buf, n) == 'my_l', "truncated name")
+        call expect_true(error, buf(5) == c_null_char, "terminated")
+
+        oprule_log_file = s_file
+        oprule_log_devices = s_dev
+        oprule_log_text = s_text
+        oprule_log_context = s_ctx
+        oprule_log_trace_interval = s_trace
+        oprule_log_tol_op = s_op
+        oprule_log_tol_dim = s_dim
+        oprule_log_flush_hours = s_flush
+    end subroutine test_log_options
+
+    ! The tide file options: the gate state default is both (3); the tide file name is only given when the hydro
+    ! tide file is in use.
+    subroutine test_tidefile_options(error)
+        type(error_type), allocatable, intent(out) :: error
+        character(kind=c_char) :: buf(160)
+        integer :: n, saved_state
+        logical :: saved_use
+        character(len=130) :: saved_name
+        saved_state = tidefile_gate_state
+        saved_use = io_files(hydro, io_hdf5, io_write)%use
+        saved_name = io_files(hydro, io_hdf5, io_write)%filename
+
+        tidefile_gate_state = -1
+        call expect_i(error, get_tidefile_gate_state(), 3, "unset gives both")
+        tidefile_gate_state = 0
+        call expect_i(error, get_tidefile_gate_state(), 0, "off")
+        tidefile_gate_state = 1
+        call expect_i(error, get_tidefile_gate_state(), 1, "end")
+        tidefile_gate_state = 2
+        call expect_i(error, get_tidefile_gate_state(), 2, "mean")
+
+        io_files(hydro, io_hdf5, io_write)%use = .false.
+        io_files(hydro, io_hdf5, io_write)%filename = './output/hist.h5'
+        n = get_hydro_tidefile_name(buf, 160)
+        call expect_i(error, n, 0, "no tide file in use: empty name")
+        io_files(hydro, io_hdf5, io_write)%use = .true.
+        n = get_hydro_tidefile_name(buf, 160)
+        call expect_true(error, cbuf_to_string(buf, n) == './output/hist.h5', "tide file name")
+
+        tidefile_gate_state = saved_state
+        io_files(hydro, io_hdf5, io_write)%use = saved_use
+        io_files(hydro, io_hdf5, io_write)%filename = saved_name
+    end subroutine test_tidefile_options
+
+    ! Backs the mock's gate table accessors (names, device counts, structure types, what the gate is attached to).
+    subroutine test_gate_tables(error)
+        type(error_type), allocatable, intent(out) :: error
+        character(kind=c_char) :: buf(64)
+        integer :: n, otype, oid, cp, ncp
+        logical :: had_chan_geom
+        call setup_gates()
+        GateArray(1)%devices(1)%structureType = 2
+        GateArray(1)%devices(2)%structureType = 1
+        call expect_i(error, get_gate_count(), 2, "gate count")
+        call expect_i(error, get_gate_device_count(1), 2, "devices of g1")
+        call expect_i(error, get_gate_device_count(2), 1, "devices of g2")
+        n = get_gate_name(2, buf, 64)
+        call expect_true(error, cbuf_to_string(buf, n) == 'g2', "gate name")
+        n = get_device_name(1, 1, buf, 64)
+        call expect_true(error, cbuf_to_string(buf, n) == 'D1', "device name keeps its case")
+        call expect_i(error, get_device_structure_type(1, 1), 2, "pipe")
+        call expect_i(error, get_device_structure_type(1, 2), 1, "weir")
+        n = get_gate_name(1, buf, 2)
+        call expect_i(error, n, 1, "name is cut to fit a short buffer")
+
+        had_chan_geom = allocated(chan_geom)
+        if (.not. had_chan_geom) allocate (chan_geom(3))
+        chan_geom(2)%chan_no = 185
+        res_geom(1)%name = 'clifton'
+        GateArray(1)%objConnectedType = obj_channel
+        GateArray(1)%objConnectedID = 2
+        GateArray(1)%objCompPoint = 14
+        GateArray(1)%nodeCompPoint = 15
+        GateArray(2)%objConnectedType = obj_reservoir
+        GateArray(2)%objConnectedID = 1
+        GateArray(1)%node = 4
+        node_id(4) = 77
+        n = get_gate_object_name(1, buf, 64)
+        call expect_true(error, cbuf_to_string(buf, n) == 'channel 185', "channel gate: external number")
+        n = get_gate_object_name(2, buf, 64)
+        call expect_true(error, cbuf_to_string(buf, n) == 'reservoir clifton', "reservoir gate: name")
+        call expect_i(error, get_gate_node_id(1), 77, "external node number")
+        call get_gate_connection(1, otype, oid, cp, ncp)
+        call expect_i(error, otype, obj_channel, "connection type")
+        call expect_i(error, oid, 2, "internal channel")
+        call expect_i(error, cp, 14, "computation point in the channel")
+        call expect_i(error, ncp, 15, "computation point at the node")
+        if (.not. had_chan_geom) deallocate (chan_geom)
+    end subroutine test_gate_tables
+
+    ! The values the sampler reads and the gate flow used for the context.
+    subroutine test_gate_state(error)
+        type(error_type), allocatable, intent(out) :: error
+        call setup_gates()
+        GateArray(1)%devices(2)%opCoefToNode = 0.25d0
+        GateArray(1)%devices(2)%opCoefFromNode = 0.75d0
+        GateArray(1)%devices(2)%height = 6.5d0
+        GateArray(1)%devices(2)%baseElev = -2.d0
+        GateArray(1)%devices(2)%maxWidth = 20.d0
+        GateArray(1)%devices(2)%nDuplicate = 3.d0
+        call expect_r(error, get_device_property(1, 2, 1), 0.25d0, "op to node")
+        call expect_r(error, get_device_property(1, 2, 2), 0.75d0, "op from node")
+        call expect_r(error, get_device_property(1, 2, 3), 6.5d0, "height")
+        call expect_r(error, get_device_property(1, 2, 4), -2.d0, "elevation")
+        call expect_r(error, get_device_property(1, 2, 5), 20.d0, "width")
+        call expect_r(error, get_device_property(1, 2, 6), 3.d0, "nDuplicate")
+        call expect_r(error, get_device_property(1, 2, 8), miss_val_r, "an unknown property is the missing value")
+        GateArray(1)%free = .false.
+        call expect_r(error, get_device_property(1, 0, 7), 1.d0, "installed")
+        GateArray(1)%free = .true.
+        call expect_r(error, get_device_property(1, 0, 7), 0.d0, "removed (free)")
+        GateArray(1)%free = .false.
+        GateArray(2)%flow = -14.5d0
+        call expect_r(error, get_gate_flow(2), -14.5d0, "gate flow")
+    end subroutine test_gate_state
+
+    ! Backs the mock's source report: constant, series (with its name) or expression, for each property.
+    subroutine test_device_sources(error)
+        type(error_type), allocatable, intent(out) :: error
+        character(kind=c_char) :: buf(64)
+        integer :: n, saved_n
+        character(len=32) :: saved_name
+        call setup_gates()
+        saved_n = ninpaths
+        saved_name = pathinput(2)%name
+        ninpaths = max(ninpaths, 2)
+        pathinput(2)%name = 'stage_series'
+        GateArray(1)%devices(1)%op_to_node_datasource%source_type = const_data
+        GateArray(1)%devices(1)%op_from_node_datasource%source_type = dss_data
+        GateArray(1)%devices(1)%op_from_node_datasource%indx_ptr = 2
+        GateArray(1)%devices(1)%height_datasource%source_type = expression_data
+        GateArray(1)%devices(1)%height_datasource%indx_ptr = 9
+        GateArray(1)%install_datasource%source_type = const_data
+        call expect_i(error, get_device_source(1, 1, 1, buf, 64), 1, "constant")
+        call expect_i(error, get_device_source(1, 1, 2, buf, 64), 2, "time series")
+        n = 0
+        do while (buf(n + 1) /= c_null_char .and. n < 63)
+            n = n + 1
+        end do
+        call expect_true(error, cbuf_to_string(buf, n) == 'stage_series', "series name")
+        call expect_i(error, get_device_source(1, 1, 3, buf, 64), 3, "expression")
+        n = 0
+        do while (buf(n + 1) /= c_null_char .and. n < 63)
+            n = n + 1
+        end do
+        call expect_true(error, cbuf_to_string(buf, n) == 'expression(index=9)', "expression label")
+        call expect_i(error, get_device_source(1, 0, 7, buf, 64), 1, "install source")
+        call expect_i(error, get_device_source(1, 1, 8, buf, 64), 0, "an unknown property has no source")
+        ninpaths = saved_n
+        pathinput(2)%name = saved_name
+    end subroutine test_device_sources
 
 end module test_model_interface
 

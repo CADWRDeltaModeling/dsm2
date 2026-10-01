@@ -37,8 +37,10 @@ cmake --build /scratch/psandhu/dsm2_oprule_build -j 4        # builds smoke, cor
 (cd /scratch/psandhu/dsm2_oprule_build && ctest --output-on-failure)
 # or run them directly:
 /scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_smoke_tests     # 19 test cases
-/scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_core_tests      # 64 test cases
-/scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_dsm2_tests      # 70 test cases
+/scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_core_tests      # 100 test cases
+/scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_dsm2_tests      # 92 test cases
+# also test the HDF5 sink of the rule log: add -DOPRULE_HDF5_ROOT=$PWD/deps/hdf5-1.14.2 to the cmake line above
+/scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_hdf5_tests      # 11 test cases (only with OPRULE_HDF5_ROOT)
 # optional: also parse the complete real study files
 OPRULE_CORPUS_DIR=/scratch/psandhu/dsm2_studies/common_input /scratch/psandhu/dsm2_oprule_build/oprule/test/oprule_dsm2_tests --run_test=study_inputs
 ```
@@ -51,6 +53,8 @@ Notes:
 - In the full build, add `-DOPRULE_BUILD_TESTS=ON` to get the same targets.
 - `oprule_dsm2_tests` compiles the real `dsm2/src/oprule_interface/*.cpp` and needs Loki's `MultiMethods.h` (default `deps/loki-0.1.7/include/loki`, override with `-DOPRULE_LOKI_DIR=...`). If Loki or those sources are missing the target is skipped with a status message.
 - Test executables use header-only Boost.Test (`boost/test/included/unit_test.hpp`) so there is no library to link or `DYN_LINK` to define. That header may be included in exactly one translation unit per executable.
+- Without `OPRULE_HDF5_ROOT` the HDF5 sink is not compiled and the model's default log has no sink (see `oprule_log_text`). With it, the dsm2 tests write `dsm2_oprule_log_entry_points_test.h5` in the working directory.
+- The Python tools (`oprule/tools/oprule_log.py`) need `h5py`: `python -m pip install --user h5py`.
 
 ### Generated files
 `op_rule.cpp`, `op_rule_tab.cpp`, `op_rule.tab.h`, `op_rule.output` are produced in the build directory. They are git-ignored (also `build*/`). `op_rule.output` lists the grammar conflicts.
@@ -69,7 +73,8 @@ Notes:
 | DSM2 Fortran side | `dsm2/src/common/model_interface.f90`, `gates.f90`, `gates_data.f90`, `grid_data.f90`, `hydrolib/netbnd.f90`, `hydrolib/update_network.f90`, `hydro/fourpt.f90` |
 | Rule input handling | `dsm2/src/fixed/process_oprule.f90`, `process_text_hydro_input.f90`, `input_storage/src/*` |
 | Real rule inputs | `/scratch/psandhu/dsm2_studies/common_input/oprule_*.inp` (outside this repo) |
-| Rule log | `oprule/oprule/rule/RuleLog.h`, `oprule/lib/rule/RuleLog.cpp`; state reporting in `oprule/oprule/expression/NamedExpressionNode.h` and the `collectState`/`describe` members of the expression nodes; plan for an HDF5 form: `oprule/doc/OPRULE_LOG_HDF5_PLAN.md` |
+| Rule log | `oprule/oprule/rule/RuleLog.h`, `oprule/lib/rule/RuleLog.cpp`, structured records in `LogTypes.h`, HDF5 sink `Hdf5LogSink.h` and `oprule/lib/hdf5/Hdf5LogSink.cpp`; device sampler `dsm2/src/oprule_interface/dsm2_device_sampler.*`; state reporting in `oprule/oprule/expression/NamedExpressionNode.h` and the `collectState`/`describe` members of the expression nodes; design: `oprule/doc/OPRULE_LOG_HDF5_PLAN.md`; reader and checks: `oprule/tools/oprule_log.py` |
+| Gate state in the tide file | `common_tide.f90`, `hydrolib/tidefile.f90` (`AccumulateGateState`), `hdf_tidefile/hdf5_init.f90` (`init_gate_state_hdf5`), `hdf5_write.f90` (`write_gate_state_to_hdf5`) |
 | System test scripts | `/scratch/psandhu/dsm2_oprule_system_test/` (outside the repositories): `run_system_test.sh`, `make_run.sh`, `run_hydro.sh`, `compare_runs.sh`, `check_log.py` |
 | Test fixtures derived from them | `oprule/test/data/*.inp` (subsets; one test-only rule is marked) |
 | Tests | `oprule/test/{smoke,core,support,data,standalone}` |
@@ -155,15 +160,17 @@ Conventions:
 
 Done and passing (4 programs; coverage map in [OPRULE_TESTS_OVERVIEW.md](OPRULE_TESTS_OVERVIEW.md)):
 
-- `oprule_smoke_tests` (19) and `oprule_core_tests` (87): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, the rule log, pinned defects.
-- `oprule_dsm2_tests` (79): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points, log set-up, interface descriptions and the state in the log records.
-- `test_model_interface` (Fortran, 16 tests): the real `model_interface.f90` routines. All 16 passed on the first run, which confirmed the mock's time assumptions (01JAN1900 00:00 = minute 1440, 0-based day of year), the name-lookup case rules and D-04. It found one mock error, now fixed: external and transfer flows are `real*4` in the model, so the mock stores them as `float`.
-- Logging is implemented, with state reporting (design, format and a worked example: OPRULE_REFERENCE.md B10).
-- **System test with the real model** passes (OPRULE_TEST_PLAN.md section 13): `/scratch/psandhu/dsm2_oprule_system_test/run_system_test.sh --clean`.
+- `oprule_smoke_tests` (19) and `oprule_core_tests` (100): parser, expression nodes, THEN/WHILE structure by timing, activation / ramp / static-vs-time-dependent / conflict behaviour, alternative conflict policies, the rule log (text and structured: stages, intervals, episodes, write notes), pinned defects.
+- `oprule_dsm2_tests` (92): the real DSM2 binding against the mock Fortran: mock contract, name registry, factory arguments, interfaces, read-only nodes, time nodes, resolver overlap matrix, the study input files (fixtures and, optionally, the complete real files), end-to-end behaviour of the study rule patterns, features the studies do not use, Fortran entry points, log set-up, interface descriptions, the state in the log records, and the device sampler (`device_sampler`, 12 cases).
+- `oprule_hdf5_tests` (11, needs `OPRULE_HDF5_ROOT`): the HDF5 sink read back with the HDF5 C API, equality with the in-memory sink, device intervals, exit and kill in a child process.
+- `test_model_interface` (Fortran, 21 tests): the real `model_interface.f90` routines, including the log options and the gate accessors. The first 16 passed on the first run, which confirmed the mock's time assumptions (01JAN1900 00:00 = minute 1440, 0-based day of year), the name-lookup case rules and D-04. It found one mock error, now fixed: external and transfer flows are `real*4` in the model, so the mock stores them as `float`.
+- Logging is implemented, with state reporting (design, format and a worked example: OPRULE_REFERENCE.md B10), and since 2026-10-01 an HDF5 log with gate and device transitions plus gate state series in the tide file (OPRULE_REFERENCE.md B10.1, OPRULE_LOG_HDF5_PLAN.md section 11).
+- **System test with the real model** passes (OPRULE_TEST_PLAN.md section 13): `/scratch/psandhu/dsm2_oprule_system_test/run_system_test.sh --clean` (seven runs).
 
 Not done:
 
-- An HDF5 form of the log: planned, not started (OPRULE_LOG_HDF5_PLAN.md). Waiting for the owner to say when to implement; open questions are in its section 8.
+- The dense input trace and a timeline plot of the HDF5 log (`oprule_log_trace_interval` is read and ignored).
+- A reader that refuses an unknown `format_version`.
 - The system test enhancements ST-F1 to ST-F10 (OPRULE_TEST_PLAN.md section 13), in particular moving the scripts into the repository.
 - Fortran routines outside `model_interface.f90` that the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) are still only mirrored from source.
 - `gate_coef` with `direction=both` (D-13) cannot be tested in the Fortran test (it calls `exit(3)`).
@@ -212,6 +219,19 @@ Things to remember when changing this code:
 - The lexer (`op_rule.l`) wraps named-expression references; parser tests that compare node values still pass because the wrapper delegates.
 - Test fixtures reset `g_vars` when constructed: set variables after creating a `LogBench`/`RuleBench`.
 - `name=t` is a reserved word in the rule language (use another name in tests).
+
+### HDF5 log and gate state: decisions (2026-10-01), implemented
+
+Full record: OPRULE_LOG_HDF5_PLAN.md (sections 0, 10, 11). Things to remember when changing the code:
+
+- `RuleLog` is the one place that numbers events and follows stages, intervals and episodes; call sites pass structured data (`RuleLog::event`, `action`, `sourceAttached`), and text is made from it by the text sink. Do not build log strings at call sites.
+- A new writable gate property: give its `ModelInterface` a `deviceProperties()` override and add the property to `get_device_property` / `get_device_source` (Fortran), the mock and `DeviceSampler`; add a `DeviceProperty` value.
+- The device sampler runs at the end of `advanceopruleactions_`: after data sources refreshed the properties and the rules wrote theirs, before the solve. It only reads.
+- An `atexit` hook registered with every sink calls `RuleLog::finish()`; it is registered each time a sink is added so that it runs before HDF5 shuts down (handlers run last in first out; a hook registered before the HDF5 library started ran after it and every write failed). `finish()` is idempotent. The model also calls it explicitly before it closes the tide file.
+- `Hdf5LogSink` turns itself off on the first failed HDF5 call and never stops the run. It silences the HDF5 error stack only when it creates the file.
+- The scalar reader stores values in 32 characters, so file name options must be short.
+- The tide file gate state uses the same `output_inst` switch as `inst device flow`. Padded `(gate, MAX_DEV, time)` layout; unused device slots hold -901. The existing chunk size of `inst device flow` takes its time chunk from `MAX_DEV` (looks like a slip, left alone); the new datasets chunk on time.
+- `h5py` is not installed on the host by default: `python -m pip install --user h5py`.
 
 ### Fortran-level test of `model_interface.f90`: decisions (2026-09-30), implemented
 

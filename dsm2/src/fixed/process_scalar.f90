@@ -39,6 +39,7 @@ module subroutine process_scalar(Param, Val)
     implicit none
 
     integer                  :: itmp
+    logical                  :: lflag
     character(LEN=32), intent(in)    :: Val   ! parameter Val
     character(LEN=32), intent(in)    :: Param  ! parameter
 
@@ -265,6 +266,55 @@ module subroutine process_scalar(Param, Val)
         call exit(-2)
     elseif (Param .eq. 'output_inst') then
         read (Val, '(l2)', err=810) output_inst
+    elseif (Param .eq. 'oprule_log_file') then
+        oprule_log_file = Val
+    elseif (Param .eq. 'oprule_log_text') then
+        read (Val, '(l2)', err=810) lflag
+        oprule_log_text = merge(1, 0, lflag)
+    elseif (Param .eq. 'oprule_log_devices') then
+        read (Val, '(l2)', err=810) lflag
+        oprule_log_devices = merge(1, 0, lflag)
+    elseif (Param .eq. 'oprule_log_context') then
+        read (Val, '(l2)', err=810) lflag
+        oprule_log_context = merge(1, 0, lflag)
+    elseif (Param .eq. 'oprule_log_tol_op') then
+        read (Val, '(f10.0)', err=810) oprule_log_tol_op
+        if (oprule_log_tol_op .lt. 0.d0) then
+            write (unit_error, 620) 'oprule_log_tol_op must not be negative:', trim(Val), ' '
+            call exit(-1)
+        end if
+    elseif (Param .eq. 'oprule_log_tol_dim') then
+        read (Val, '(f10.0)', err=810) oprule_log_tol_dim
+        if (oprule_log_tol_dim .lt. 0.d0) then
+            write (unit_error, 620) 'oprule_log_tol_dim must not be negative:', trim(Val), ' '
+            call exit(-1)
+        end if
+    elseif (Param .eq. 'oprule_log_trace_interval') then
+        read (Val, '(i5)', err=810) oprule_log_trace_interval
+        if (oprule_log_trace_interval .lt. 0) then
+            write (unit_error, 620) 'oprule_log_trace_interval must not be negative:', trim(Val), ' '
+            call exit(-1)
+        end if
+    elseif (Param .eq. 'oprule_log_flush_hours') then
+        read (Val, '(f10.0)', err=810) oprule_log_flush_hours
+        if (oprule_log_flush_hours .le. 0.d0) then
+            write (unit_error, 620) 'oprule_log_flush_hours must be positive:', trim(Val), ' '
+            call exit(-1)
+        end if
+    elseif (Param .eq. 'tidefile_gate_state') then
+        if (trim(Val) .eq. 'off') then
+            tidefile_gate_state = 0
+        elseif (trim(Val) .eq. 'end') then
+            tidefile_gate_state = 1
+        elseif (trim(Val) .eq. 'mean') then
+            tidefile_gate_state = 2
+        elseif (trim(Val) .eq. 'both') then
+            tidefile_gate_state = 3
+        else
+            write (unit_error, 620) 'Unrecognized value for tidefile_gate_state:', trim(Val), &
+                'Should be off, end, mean or both.'
+            call exit(-1)
+        end if
     else
         write (unit_error, 610), Param, Val
         call exit(-1)

@@ -7,11 +7,12 @@ A high-level map of what the tests cover, so conceptual gaps are easy to spot. D
 | Program | Source | Cases | What it exercises | Needs |
 |---|---|---|---|---|
 | `oprule_smoke_tests` | `test/smoke/SmokeTests.cpp` | 19 | Quick sanity pass: parse, run, defer, ramp, data source, one end-to-end rule. | oprule libs |
-| `oprule_core_tests` | `test/core/CoreTests.cpp` | 87 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log (trigger changes, state, ramp state), pinned defects. Mock model only. | oprule libs |
-| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 79 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up, rule text, interface descriptions and the inputs in the log records. | oprule libs + Loki headers |
-| `test_model_interface` (Fortran, test-drive) | `dsm2/tests/model_interface/test_model_interface.f90` | 16 | The **real** Fortran routines of `model_interface.f90` that the C++ calls: name lookups, flows, gates and devices, data sources, time, the log level. Checks the mock's description of them. | the full DSM2 build (see DEVELOPER_NOTES.md) |
+| `oprule_core_tests` | `test/core/CoreTests.cpp` | 100 | The generic library: grammar, lexer, expression nodes, rule structure, activation, ramps, conflicts, the rule log (trigger changes, state, ramp state; structured events, stages, intervals, episodes, write notes), pinned defects. Mock model only. | oprule libs |
+| `oprule_dsm2_tests` | `test/dsm2/Dsm2BindingTests.cpp` | 92 | The **real** DSM2 C++ binding (`dsm2/src/oprule_interface`) linked against a mock of the Fortran model, driven by the rules in the study input files; also the log set-up and options, rule text, interface descriptions, the inputs in the log records, and the device sampler (gate device transitions). | oprule libs + Loki headers |
+| `oprule_hdf5_tests` | `test/hdf5/Hdf5LogTests.cpp` | 11 | The HDF5 sink of the log read back with the HDF5 C API: tables and format version, rules, events/actions/intervals/episodes equal to the in-memory sink, dictionary kinds, device transitions and state intervals, a run that exits or is killed. | oprule libs + HDF5 (`-DOPRULE_HDF5_ROOT`) |
+| `test_model_interface` (Fortran, test-drive) | `dsm2/tests/model_interface/test_model_interface.f90` | 21 | The **real** Fortran routines of `model_interface.f90` that the C++ calls: name lookups, flows, gates and devices, data sources, time, the log level and the other log options, gate tables, gate state and sources. Checks the mock's description of them. | the full DSM2 build (see DEVELOPER_NOTES.md) |
 
-Run all three after a build: `for t in smoke core dsm2; do ./oprule/test/oprule_${t}_tests; done` (see DEVELOPER_NOTES.md for the build). Setting `OPRULE_CORPUS_DIR=/scratch/psandhu/dsm2_studies/common_input` makes the DSM2 program also parse the complete real `oprule_*.inp` files.
+Run all after a build: `for t in smoke core dsm2 hdf5; do ./oprule/test/oprule_${t}_tests; done` (see DEVELOPER_NOTES.md for the build; `hdf5` only exists when the HDF5 sink is built). Setting `OPRULE_CORPUS_DIR=/scratch/psandhu/dsm2_studies/common_input` makes the DSM2 program also parse the complete real `oprule_*.inp` files.
 
 Above these sit the **system tests** (section 9): the real `hydro` model on a real study, with the log off and on.
 
@@ -65,6 +66,10 @@ Legend: **C** core tests, **D** DSM2 tests, **S** smoke tests. "pinned" means th
 | Rule log: only changes, with the inputs and internal state that caused them | C `rule_log` (`only_trigger_changes_are_logged_with_their_inputs`, `named_expressions_are_listed…`, `triggered_record_reports_the_internal_state_of_accumulate`, ramp state tests), D `rule_log_binding` | named expressions through `NamedExpressionNode` |
 | The log changes nothing in a real model run | System test ST-01, ST-02, ST-04 | OPRULE_TEST_PLAN.md section 13 |
 | Interface descriptions used by the log | D `rule_log_interfaces` | indices, not names |
+| HDF5 log: tables, equality with the in-memory sink, intervals, episodes, dictionary, exit and kill | `oprule_hdf5_tests`; C `rule_log_structured` | plan ids H5-01 to H5-06, H5-12 |
+| Gate device transitions: rule writes, ramps (start and end), source changes with tolerances, install, context | D `device_sampler`; `oprule_hdf5_tests` (device intervals) | H5-11 |
+| Log options and gate accessors in the real Fortran | Fortran `test_model_interface` | H5-13, H5-16 |
+| Gate state series in the tide file agree with the device transitions; options; no effect on the model | System test | H5-14, H5-15, H5-17 |
 | Real Fortran behind the mock | Fortran `test_model_interface` | see section 8 |
 
 ## 4. Study input patterns covered
@@ -122,7 +127,7 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 - Real Fortran routines: `test_model_interface` checks `model_interface.f90` (section 8), but only the routines in that file. Other Fortran the binding depends on (`ext2int`, `CompPointAtDist`, `get_surf_elev`, `process_*`, `get_inp_data`, `store_values`) is still mirrored from reading the source.
 - Restart / warm-start behaviour of rule state.
 - Named expression values are reported but the lagged expression node is not (it is not implemented); internal state of nodes is reported for `accumulate`, `predict` and `pid` only.
-- The HDF5 log (planned: OPRULE_LOG_HDF5_PLAN.md, tests H5-01 to H5-10).
+- The dense input trace of the HDF5 log (not implemented), a reader refusing an unknown `format_version`, and the Python tool `oprule_log.py` beyond what the system test runs (`check`, `dump`, `gates`; `card` and `summary` are only run by hand).
 - Performance with many rules.
 
 ## 8. Fortran test of `model_interface.f90`
@@ -141,12 +146,14 @@ Each is asserted in its current (undesirable) form, with a comment naming the in
 | `data_source_types`, `fetch_data` | `timedep` selects expression or constant data; constant and DSS sources; any other type gives `miss_val_r` |
 | `time_functions`, `reference_minute_of_year` | `julmin` epoch (01JAN1900 00:00 = minute 1440), 0-based day of year, leap years in `get_reference_minute_of_year` |
 | `oprule_log_level` | the scalar wins; otherwise `print_level` 4 gives 1 and 5 or more gives 2; 3 or lower or unset gives 0; capped at 2 |
+| `oprule_log_options`, `tide_file_options` | defaults when a scalar is not set and the value when it is, for `oprule_log_file`, `_text`, `_devices`, `_context`, `_tol_op`, `_tol_dim`, `_trace_interval`, `_flush_hours` and `tidefile_gate_state`; a short buffer is filled and terminated; the tide file name is given only when the hydro tide file is in use |
+| `gate_tables`, `gate_state_and_context`, `device_sources` | gate and device counts and names, structure type, what a gate is attached to (channel number or reservoir name, node), the property values the sampler reads (including install), gate flow, and the source of each property (constant, series name, expression label) |
 
 Not testable there: `gate_coef` with `direction=both` (the routine calls `exit(3)`), the C++ side of the `bool` argument (D-05), and routines outside `model_interface.f90`.
 
 ## 9. System tests (the real model)
 
-The system test runs `hydro` on the historical study (87 rules, 01SEP2014 to 31DEC2014) four times at once, each with its own output directory: logging off, logging off again (the noise floor), level 1, level 2. It then checks that the model output does not depend on the log (tide file identical object by object, restart file byte identical, run log identical, same number of network iterations), that logging off creates no file, that the logs are consistent with the log design (`check_log.py`), and records the run times and log sizes. Result on 2026-09-30: PASS, no measurable overhead, logs of 0.43 MB (level 1) and 0.65 MB (level 2).
+The system test runs `hydro` on the historical study (87 rules, 01SEP2014 to 31DEC2014) seven times at once, each with its own output directory: logging off twice (the second is the noise floor), level 1, level 2 (both with the text log on), and three runs with SCALAR options (`oprule_log_file`, `oprule_log_devices`, `oprule_log_context`, tolerances, `tidefile_gate_state`). It then checks that the model output does not depend on the log (tide file identical object by object, restart file byte identical, run log identical, same number of network iterations), that logging off creates no file, that the logs are consistent with the log design (`check_log.py`), and records the run times and log sizes. Result on 2026-09-30: PASS, no measurable overhead, logs of 0.43 MB (level 1) and 0.65 MB (level 2).
 
 ```bash
 cd /scratch/psandhu/dsm2_oprule_system_test && ./run_system_test.sh --clean && tail -1 st_report.txt

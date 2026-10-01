@@ -32,7 +32,7 @@ public:
     virtual bool hasSubActions(){ return true; }
     virtual void childComplete();
     virtual void appendSubActionsToList( OperationAction::ActionListType& listToConstruct);
-    virtual std::string describeState();
+    virtual void describeActions(std::vector<ActionInfo>& out);
 
 
 private:

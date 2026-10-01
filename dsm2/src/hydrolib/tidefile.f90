@@ -148,6 +148,33 @@ contains
 
     !== Public (AverageFlow) ===================================
 
+    !-----Gate device state of the step just solved: the end value and the running sum for the mean
+    subroutine AccumulateGateState()
+        use common_tide, only: gate_state_end, gate_state_sum
+        use gates_data, only: gateArray, nGate
+        implicit none
+        integer g, d, p
+        real*8 v(6)
+        do g = 1, nGate
+            do d = 1, gateArray(g)%nDevice
+                v(1) = gateArray(g)%devices(d)%opCoefToNode
+                v(2) = gateArray(g)%devices(d)%opCoefFromNode
+                v(3) = gateArray(g)%devices(d)%height
+                v(4) = gateArray(g)%devices(d)%baseElev
+                v(5) = gateArray(g)%devices(d)%maxWidth
+                v(6) = gateArray(g)%devices(d)%nDuplicate
+                do p = 1, 6
+                    gate_state_end(g, d, p) = real(v(p), 4)
+                    gate_state_sum(g, d, p) = gate_state_sum(g, d, p) + v(p)
+                end do
+            end do
+            v(1) = 1.d0
+            if (gateArray(g)%free) v(1) = 0.d0
+            gate_state_end(g, 1, 7) = real(v(1), 4)
+            gate_state_sum(g, 1, 7) = gate_state_sum(g, 1, 7) + v(1)
+        end do
+    end subroutine
+
     logical function AverageFlow()
         use common_tide
         use runtime_data
@@ -219,6 +246,7 @@ contains
             end do
 
             inst_device_flow(:, :) = 0.
+            gate_state_sum = 0.d0
 
         end if
 
@@ -253,6 +281,7 @@ contains
                 inst_device_flow(i, j) = inst_device_flow(i, j) + gateArray(i)%devices(j)%flow
             end do
         end do
+        if (gate_state_do_end .or. gate_state_do_mean) call AccumulateGateState()
 
         do i = 1, nobj2obj
             obj2obj(i)%flow_avg = obj2obj(i)%flow_avg + &
@@ -299,6 +328,7 @@ contains
                     inst_device_flow(i, j) = inst_device_flow(i, j) / dble(NSample)
                 end do
             end do
+            if (gate_state_do_mean) gate_state_mean = real(gate_state_sum/dble(NSample), 4)
         end if
         AverageFlow = .true.
 
@@ -417,6 +447,7 @@ contains
                     call WriteCompPointToHDF5()
                 end if
                 call write_gates_to_hdf5()
+                call write_gate_state_to_hdf5()
             end if
         end if
         WriteHydroToTidefile = .true.

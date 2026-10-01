@@ -16,6 +16,13 @@ add_executable(oprule_core_tests core/CoreTests.cpp)
 target_link_libraries(oprule_core_tests PRIVATE oprule_test_support)
 add_test(NAME oprule_core COMMAND oprule_core_tests)
 
+# ---- the HDF5 sink of the rule log (needs the HDF5 C library)
+if(OPRULE_WITH_HDF5)
+  add_executable(oprule_hdf5_tests hdf5/Hdf5LogTests.cpp)
+  target_link_libraries(oprule_hdf5_tests PRIVATE oprule_test_support)
+  add_test(NAME oprule_hdf5 COMMAND oprule_hdf5_tests)
+endif()
+
 # ---- DSM2 binding against the mock Fortran layer
 set(OPRULE_LOKI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/loki-0.1.7/include/loki"
     CACHE PATH "Directory containing Loki's MultiMethods.h")

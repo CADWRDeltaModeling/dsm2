@@ -9,6 +9,7 @@
 #include "oprule/expression/ExpressionNode.h"
 
 #include "oprule/rule/ModelInterface.h"
+#include "oprule/rule/LogTypes.h"
 #include "oprule/parser/NamedValueLookup.h"
 #include "dsm2_interface_fortran.h"
 
@@ -42,6 +43,9 @@ public:
     virtual bool operator==( const GateInstallInterface &);
     virtual std::string describe() const {
         std::ostringstream s; s << "gate_install(gate=" << ndx << ")"; return s.str();
+    }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = 0; return 1u << oprule::rule::PROP_INSTALL;
     }
 
 private:
@@ -106,6 +110,14 @@ public:
     virtual std::string describe() const {
         return id("gate_op") + ",direction=" + direction_name(direction) + ")";
     }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = devndx;
+        if (direction == direct_to_node()) return 1u << oprule::rule::PROP_OP_TO_NODE;
+        if (direction == direct_from_node()) return 1u << oprule::rule::PROP_OP_FROM_NODE;
+        if (direction == direct_to_from_node())
+            return (1u << oprule::rule::PROP_OP_TO_NODE) | (1u << oprule::rule::PROP_OP_FROM_NODE);
+        return 0;
+    }
 private:
     int direction;
 
@@ -160,6 +172,9 @@ public:
     virtual ~DeviceHeightInterface(){};
     virtual bool operator==( const DeviceHeightInterface &);
     virtual std::string describe() const { return id("gate_height") + ")"; }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = devndx; return 1u << oprule::rule::PROP_HEIGHT;
+    }
 
 };
 
@@ -185,6 +200,9 @@ public:
     virtual ~DeviceWidthInterface(){};
     virtual bool operator==( const DeviceWidthInterface &);
     virtual std::string describe() const { return id("gate_width") + ")"; }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = devndx; return 1u << oprule::rule::PROP_WIDTH;
+    }
 
 };
 
@@ -211,6 +229,9 @@ public:
     virtual ~DeviceElevInterface(){};
     virtual bool operator==( const DeviceElevInterface &);
     virtual std::string describe() const { return id("gate_elev") + ")"; }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = devndx; return 1u << oprule::rule::PROP_ELEV;
+    }
 };
 
 
@@ -237,6 +258,9 @@ public:
     virtual ~DeviceNDuplicateInterface(){};
     virtual bool operator==( const DeviceNDuplicateInterface &);
     virtual std::string describe() const { return id("gate_nduplicate") + ")"; }
+    virtual unsigned deviceProperties(int& gate, int& device) const {
+        gate = ndx; device = devndx; return 1u << oprule::rule::PROP_NDUPLICATE;
+    }
 
 };
 

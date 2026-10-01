@@ -62,6 +62,15 @@ module common_tide
     real*4 :: inst_obj2obj(max_obj2obj)
     real*4 :: inst_device_flow(MAX_GATES, MAX_DEV)
 
+    ! Gate device state for the tide file (OPRULE_LOG_HDF5_PLAN.md section 3.12). Third index: 1 op to node,
+    ! 2 op from node, 3 height, 4 elevation, 5 width, 6 nDuplicate, 7 gate install (device index 1).
+    integer, parameter :: N_GATE_STATE = 7
+    real*4 :: gate_state_end(MAX_GATES, MAX_DEV, N_GATE_STATE)    ! value in the last step of the interval
+    real*4 :: gate_state_mean(MAX_GATES, MAX_DEV, N_GATE_STATE)   ! mean over the interval
+    real*8 :: gate_state_sum(MAX_GATES, MAX_DEV, N_GATE_STATE)    ! running sum for the mean
+    logical :: gate_state_do_end = .false.    ! write the end of interval series
+    logical :: gate_state_do_mean = .false.   ! write the interval mean series
+
     integer*4 :: TideTime        ! julian minute timestamp from tidefile
     integer*4 :: next_hydro_interval
 

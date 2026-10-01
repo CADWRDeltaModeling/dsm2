@@ -36,6 +36,34 @@ extern "C" int STDCALL direct_from_node();
 extern "C" int STDCALL direct_to_from_node();
 extern "C" int STDCALL get_oprule_log_level();
 
+// options of the oprule log (SCALAR table) and the tide file gate state; model_interface.f90
+extern "C" int STDCALL get_oprule_log_file(char* buf, const int& buflen);
+extern "C" int STDCALL get_oprule_log_text();
+extern "C" int STDCALL get_oprule_log_devices();
+extern "C" int STDCALL get_oprule_log_context();
+extern "C" double STDCALL get_oprule_log_tol_op();
+extern "C" double STDCALL get_oprule_log_tol_dim();
+extern "C" int STDCALL get_oprule_log_trace_interval();
+extern "C" double STDCALL get_oprule_log_flush_hours();
+extern "C" int STDCALL get_tidefile_gate_state();
+extern "C" int STDCALL get_hydro_tidefile_name(char* buf, const int& buflen);
+
+// gate tables and state for the oprule log; model_interface.f90 (names are copied NUL terminated into buf,
+// the return value is the length)
+extern "C" int STDCALL get_gate_count();
+extern "C" int STDCALL get_gate_device_count(const int& gndx);
+extern "C" int STDCALL get_gate_name(const int& gndx, char* buf, const int& buflen);
+extern "C" int STDCALL get_device_name(const int& gndx, const int& devndx, char* buf, const int& buflen);
+extern "C" int STDCALL get_device_structure_type(const int& gndx, const int& devndx);
+extern "C" int STDCALL get_gate_object_name(const int& gndx, char* buf, const int& buflen);
+extern "C" int STDCALL get_gate_node_id(const int& gndx);
+extern "C" void STDCALL get_gate_connection(const int& gndx, int& objtype, int& objid, int& compoint,
+                                            int& nodecompoint);
+extern "C" double STDCALL get_gate_flow(const int& gndx);
+extern "C" double STDCALL get_device_property(const int& gndx, const int& devndx, const int& prop);
+extern "C" int STDCALL get_device_source(const int& gndx, const int& devndx, const int& prop, char* buf,
+                                         const int& buflen);
+
 
 ///////////////////////////
 

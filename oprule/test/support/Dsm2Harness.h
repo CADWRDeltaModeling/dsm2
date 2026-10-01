@@ -57,6 +57,7 @@ public:
 
    std::function<double(const std::string&, int)> ts_source;  // value of a time series at julmin
    std::function<void(double)> solver;                        // called with dt after advance, before step/test
+   std::function<void()> after_advance;                       // called right after the actions advance (the device sampler)
 
    oprule::rule::ModelInterfaceActionResolver<DSM2Resolver, DSM2ModelInterfaceResolver> resolver;
    oprule::rule::OperationManager manager;

@@ -75,6 +75,11 @@ public:
     /** Short readable description of what this interface reads and writes, used in the rule log. */
     virtual std::string describe() const { return "<interface>"; }
 
+    /** Gate device properties this interface writes (bits of DeviceProperty), for the rule log.
+    *  Returns 0 if it is not a gate device property; gate and device are then left alone.
+    */
+    virtual unsigned deviceProperties(int& gate, int& device) const { return 0; }
+
     /**
     * Tests whether this is the interface to a time dependent variable.
     * Returns true if the variable being manipulated is time varying

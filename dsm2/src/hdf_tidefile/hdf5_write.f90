@@ -415,6 +415,77 @@ subroutine write_gates_to_hdf5()
 end subroutine
 
 
+subroutine write_gate_state_to_hdf5()
+    !! Write the gate device state series for the current tide file time (see init_gate_state_hdf5).
+    !! Slots of devices a gate does not have hold the missing value.
+    use hdf5
+    use hdfvars
+    use gates_data, only: nGate, GateArray, MAX_DEV
+    use common_tide, only: gate_state_end, gate_state_mean, gate_state_do_end, gate_state_do_mean
+    use constants, only: miss_val_r
+
+    implicit none
+
+    integer :: p, k, g, d, ng, error
+    integer(HSIZE_T), dimension(3) :: h_offset, h_count
+    integer(HSIZE_T), dimension(2) :: m2
+    integer(HSIZE_T), dimension(1) :: m1
+    integer(HID_T) :: fspace, mspace
+    real(kind=4), allocatable :: dev_values(:, :), gate_values(:)
+
+    if (.not. output_inst) return
+    if (.not. (gate_state_do_end .or. gate_state_do_mean)) return
+    ng = max(1, nGate)
+    allocate (dev_values(ng, max(1, MAX_DEV)), gate_values(ng))
+
+    do p = 1, 7
+        do k = 1, 2
+            if (gate_state_dset(p, k) .eq. 0) cycle
+            if (p .le. 6) then
+                dev_values = miss_val_r
+                do g = 1, nGate
+                    do d = 1, GateArray(g)%nDevice
+                        if (k .eq. 1) then
+                            dev_values(g, d) = gate_state_end(g, d, p)
+                        else
+                            dev_values(g, d) = gate_state_mean(g, d, p)
+                        end if
+                    end do
+                end do
+                h_offset = [0_HSIZE_T, 0_HSIZE_T, int(hdf5point, HSIZE_T)]
+                h_count = [int(ng, HSIZE_T), int(max(1, MAX_DEV), HSIZE_T), 1_HSIZE_T]
+                m2 = [int(ng, HSIZE_T), int(max(1, MAX_DEV), HSIZE_T)]
+                call h5dget_space_f(gate_state_dset(p, k), fspace, error)
+                call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, h_offset, h_count, error)
+                call h5screate_simple_f(2, m2, mspace, error)
+                call h5dwrite_f(gate_state_dset(p, k), H5T_NATIVE_REAL, dev_values, m2, error, mspace, fspace)
+                call VerifyHDF5(error, "Gate device state write")
+            else
+                gate_values = 1.0
+                do g = 1, nGate
+                    if (k .eq. 1) then
+                        gate_values(g) = gate_state_end(g, 1, 7)
+                    else
+                        gate_values(g) = gate_state_mean(g, 1, 7)
+                    end if
+                end do
+                h_offset = [0_HSIZE_T, int(hdf5point, HSIZE_T), 0_HSIZE_T]
+                h_count = [int(ng, HSIZE_T), 1_HSIZE_T, 1_HSIZE_T]
+                m1 = [int(ng, HSIZE_T)]
+                call h5dget_space_f(gate_state_dset(p, k), fspace, error)
+                call h5sselect_hyperslab_f(fspace, H5S_SELECT_SET_F, h_offset(1:2), h_count(1:2), error)
+                call h5screate_simple_f(1, m1, mspace, error)
+                call h5dwrite_f(gate_state_dset(p, k), H5T_NATIVE_REAL, gate_values, m1, error, mspace, fspace)
+                call VerifyHDF5(error, "Gate install state write")
+            end if
+            call h5sclose_f(mspace, error)
+            call h5sclose_f(fspace, error)
+        end do
+    end do
+    deallocate (dev_values, gate_values)
+    return
+end subroutine
+
     subroutine write_input_buffers_hdf5(loc_id)
 !     Writes in all text starting from input filename
         use hdf5

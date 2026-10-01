@@ -87,17 +87,16 @@ public:
     }
     virtual void onCompletion();
 
-    /** Description for the rule log (see OperationAction::describeState). */
-    virtual std::string describeState(){
-        const bool dynamic = _interface->isTimeDependent();
-        std::ostringstream s;
-        s << "interface=" << _interface->describe()
-          << " mode=" << (dynamic ? "time_dependent" : "static")
-          << " init=" << (dynamic ? std::string("live") : RuleLog::number(static_cast<double>(_initState)))
-          << " duration=" << RuleLog::number(_transDuration)
-          << " elapsed=" << RuleLog::number(_elapsed)
-          << " target_inputs=" << targetInputs();
-        return s.str();
+    /** Description for the rule log (see OperationAction::describeActions). */
+    virtual void describeActions(std::vector<ActionInfo>& out){
+        ActionInfo a;
+        a.iface = _interface->describe();
+        a.dynamic = _interface->isTimeDependent();
+        a.init = a.dynamic ? 0.0 : static_cast<double>(_initState);
+        a.duration = _transDuration;
+        a.elapsed = _elapsed;
+        targetInputs(a);
+        out.push_back(a);
     }
 
 
@@ -110,14 +109,14 @@ public:
 
 private:
 
-    // The model variables the target expression reads, as "[a=1; b=2]"; never fails the model run.
-    std::string targetInputs(){
+    // The model variables the target expression reads and the gate device written; never fails the model run.
+    void targetInputs(ActionInfo& a){
+        a.propertyMask = _interface->deviceProperties(a.gate, a.device);
         try {
-            oprule::expression::StateList inputs;
-            _expression->collectState(inputs);
-            return RuleLog::state(inputs);
+            _expression->collectState(a.inputs);
         } catch (...) {
-            return "unavailable";
+            a.inputs.clear();
+            a.inputsUnavailable = true;
         }
     }
 
@@ -155,6 +154,11 @@ void ModelAction<T>::onCompletion(){
     if (_interface->isTimeDependent()){
         // permanently fix expression as data source
         _interface->setDataExpression(_expression);
+        if (RuleLog::enabled(RuleLog::EVENTS)){
+            ActionInfo a;
+            a.propertyMask = _interface->deviceProperties(a.gate, a.device);
+            RuleLog::sourceAttached(a);
+        }
     }
     // then do all the normal stuff in the parent implementation
     OperationAction::onCompletion();
@@ -183,18 +187,20 @@ void ModelAction<T >::advance(double dt){
     _currentState=_baseState*(1.0 - _transFraction) +
         target*_transFraction;
     _interface->set(_currentState);
-    if (RuleLog::enabled(RuleLog::ACTIONS)){
-        std::ostringstream detail;
-        detail << "interface=" << _interface->describe()
-               << " elapsed=" << RuleLog::number(_elapsed)
-               << " fraction=" << RuleLog::number(_transFraction)
-               << " base=" << RuleLog::number(static_cast<double>(_baseState))
-               << " target=" << RuleLog::number(static_cast<double>(target))
-               << " value=" << RuleLog::number(static_cast<double>(_currentState))
-               << " duration=" << RuleLog::number(_transDuration)
-               << " init=" << (_interface->isTimeDependent() ? std::string("live") : RuleLog::number(static_cast<double>(_initState)))
-               << " target_inputs=" << targetInputs();
-        RuleLog::write(RuleLog::ACTIONS, "ACTION", RuleLog::context(), detail.str());
+    if (RuleLog::enabled(RuleLog::EVENTS)){
+        ActionInfo a;
+        a.iface = _interface->describe();
+        a.dynamic = _interface->isTimeDependent();
+        a.init = a.dynamic ? 0.0 : static_cast<double>(_initState);
+        a.duration = _transDuration;
+        a.elapsed = _elapsed;
+        a.fraction = _transFraction;
+        a.base = static_cast<double>(_baseState);
+        a.target = static_cast<double>(target);
+        a.value = static_cast<double>(_currentState);
+        a.propertyMask = _interface->deviceProperties(a.gate, a.device);
+        if (RuleLog::enabled(RuleLog::ACTIONS)) targetInputs(a);
+        RuleLog::action(a);
     }
     if(_transFraction == 1.0){
         setActive(false);

@@ -6,8 +6,10 @@
 #include<iostream>
 #include<stdexcept>
 #include<string>
+#include<vector>
 #include "boost/shared_ptr.hpp"
 #include "boost/weak_ptr.hpp"
+#include "oprule/rule/LogTypes.h"
 
 namespace oprule {
 namespace rule {
@@ -40,11 +42,11 @@ public:
 
    virtual void step(double dt)=0;
 
-   /** Describe the state of this action for the rule log: what it writes, its mode, the value it
-    *  started from, its duration and elapsed time, and the model variables its target reads.
-    *  Compound actions join the descriptions of their sub-actions with " + ".
+   /** Describe this action for the rule log: what it writes, its mode, the value it started from,
+    *  its duration and elapsed time, and the model variables its target reads. Compound actions
+    *  append the descriptions of their sub-actions.
     */
-   virtual std::string describeState(){ return std::string(); }
+   virtual void describeActions(std::vector<ActionInfo>& out){}
 
    /** Test if the action is active.
    * @return true if the action is in progress.

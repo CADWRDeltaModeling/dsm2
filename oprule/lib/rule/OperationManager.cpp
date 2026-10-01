@@ -49,21 +49,21 @@ void OperationManager::manageActivation(){
        // value was computed by the test above; logging must never test the trigger again.
        OperatingRule::TriggerChange change = rulePtr->getTriggerChange();
        if (change != OperatingRule::NO_CHANGE && RuleLog::enabled(RuleLog::EVENTS)){
-          const char* event = change == OperatingRule::RISING ? "TRIGGERED" :
-                              change == OperatingRule::FALLING ? "TRIGGER_CLEARED" : "TRIGGER_INITIAL";
-          RuleLog::write(RuleLog::EVENTS, event, rulePtr->getName(), rulePtr->describeTrigger());
+          const int event = change == OperatingRule::RISING ? LogEvent::TRIGGERED :
+                            change == OperatingRule::FALLING ? LogEvent::TRIGGER_CLEARED : LogEvent::TRIGGER_INITIAL;
+          LogValues inputs;
+          const bool ok = rulePtr->describeTrigger(inputs);
+          RuleLog::event(event, rulePtr->getName(), "", &inputs, !ok);
        }
        if (change == OperatingRule::FALLING && _deferredLogged.erase(rulePtr.get())){
-          RuleLog::write(RuleLog::EVENTS, "DEFER_ENDED", rulePtr->getName(),
-             "trigger went false while deferred");
+          RuleLog::event(LogEvent::DEFER_ENDED, rulePtr->getName(), "");
        }
 	   if (newlyTriggered){
            //cout << rulePtr->getName()<< " triggered" << endl;
 		  // rule is triggered, test whether action is valid in context
 		   bool applicable = rulePtr->isActionApplicable();
           if (!applicable){
-             RuleLog::write(RuleLog::EVENTS, "NOT_APPLICABLE", rulePtr->getName(),
-                "action not applicable in current context");
+             RuleLog::event(LogEvent::NOT_APPLICABLE, rulePtr->getName(), "");
           }
 		   if ( applicable ){
             //cout << "Attempting to activate " << rulePtr->getName()<<endl;
@@ -84,16 +84,14 @@ void OperationManager::manageActivation(){
                 if (response == ActionResolver::IGNORE_NEW_RULE){
                    useNewRule=false;
                    isConflicting=true;
-                   RuleLog::write(RuleLog::EVENTS, "IGNORED", rulePtr->getName(),
-                      "blocked_by=" + activePtr->getName());
+                   RuleLog::event(LogEvent::IGNORED, rulePtr->getName(), activePtr->getName());
                    break;
                 }
 				if (response == ActionResolver::DEFER_NEW_RULE){
 					useNewRule=false;
 					isConflicting=true;
                     if (_deferredLogged.insert(rulePtr.get()).second){
-                       RuleLog::write(RuleLog::EVENTS, "DEFERRED", rulePtr->getName(),
-                          "blocked_by=" + activePtr->getName());
+                       RuleLog::event(LogEvent::DEFERRED, rulePtr->getName(), activePtr->getName());
                     }
                     rulePtr->deferActivation();
 				}
@@ -113,16 +111,18 @@ void OperationManager::manageActivation(){
                      int response=this->checkActionPriority(**activeiter,**it);
 						   if (response == ActionResolver::REPLACE_OLD_RULE){
                        (*activeiter)->setActive(false);
-                       RuleLog::write(RuleLog::EVENTS, "REPLACED", (*activeiter)->getName(),
-                          "replaced_by=" + rulePtr->getName());
+                       RuleLog::event(LogEvent::REPLACED, (*activeiter)->getName(), rulePtr->getName());
                      }
                   }
                }
                //cout << "Activating " << (*it)->getName()<<endl;
                (*it)->setActive(true);
                _deferredLogged.erase(rulePtr.get());
-               RuleLog::write(RuleLog::EVENTS, "ACTIVATED", rulePtr->getName(),
-                  RuleLog::enabled(RuleLog::EVENTS) ? rulePtr->describeAction() : std::string());
+               if (RuleLog::enabled(RuleLog::EVENTS)){
+                  std::vector<ActionInfo> actions;
+                  const bool ok = rulePtr->describeAction(actions);
+                  RuleLog::event(LogEvent::ACTIVATED, rulePtr->getName(), "", 0, !ok, &actions);
+               }
                //cout << "Activated " << (*it)->getName()<<endl;
             }
          } // rule is applicable
@@ -133,12 +133,13 @@ void OperationManager::manageActivation(){
 
 
 void OperationManager::advanceActions(double dt){
+    RuleLog::beginStep();
     for (OpPool::iterator it=pool.begin() ;
         it != pool.end(); it++){
             if((*it)->isActive()){
                 (*it)->advanceAction(dt);
                 if(!(*it)->isActive()){
-                   RuleLog::write(RuleLog::EVENTS, "COMPLETED", (*it)->getName(), "");
+                   RuleLog::event(LogEvent::COMPLETED, (*it)->getName(), "");
                 }
             }
     }

@@ -189,6 +189,7 @@ subroutine InitHDF5File()
 	call InitTransferHDF5
 	call InitQExtChangeHDF5
 	call init_gates_hdf5
+	call init_gate_state_hdf5
 	! Dimension scales do not need to be attached.
     ! call attach_hydro_dimscales(file_id);
       ! Calculate starting index for reading/writing
@@ -285,6 +286,7 @@ subroutine CloseHDF5()
 	   if (error .ne. 0) then
 	      write(unit_error,*)"HDF5 error closing inst gates data set: ",error
 	   end if
+	   call close_gate_state_hdf5()
 	end if
 
 !-------Close the groups in the dataset
@@ -1099,6 +1101,92 @@ subroutine init_gates_hdf5()
 		call AddTimeSeriesAttributes(inst_deviceflow_dset_id, tf_start_julmin, &
 			TideFileWriteInterval)
 		end if
+	return
+end subroutine
+
+subroutine init_gate_state_hdf5()
+	!! Gate device state series in the tide file (OPRULE_LOG_HDF5_PLAN.md section 3.12). Which series are
+	!! written is chosen by the tidefile_gate_state scalar; the mean series are skipped in "both" mode when
+	!! the tide file interval equals the hydro time step, because they would equal the end series.
+	use HDF5		! HDF5 This module contains all necessary modules
+	use hdfvars
+	use gates_data, only: nGate, MAX_DEV
+	use common_tide, only: TideFileWriteInterval, gate_state_do_end, gate_state_do_mean, &
+	                       gate_state_end, gate_state_mean, gate_state_sum
+	use runtime_data, only : tf_start_julmin, time_step
+	use model_interface, only: get_tidefile_gate_state
+
+	implicit none
+
+	integer :: mode, p, k, rank, error
+	logical :: active
+	integer(HID_T) :: cparms, fspace
+	integer(HSIZE_T), dimension(3) :: dims, chunk
+	character(len=16), dimension(6) :: pname
+	character(len=4), dimension(2) :: suffix
+	character(len=64) :: dname
+
+	gate_state_do_end = .false.
+	gate_state_do_mean = .false.
+	gate_state_end = 0.0
+	gate_state_mean = 0.0
+	gate_state_sum = 0.d0
+	if (.not. output_inst) return
+	mode = get_tidefile_gate_state()
+	gate_state_do_end = (mode .eq. 1 .or. mode .eq. 3)
+	gate_state_do_mean = (mode .eq. 2) .or. (mode .eq. 3 .and. TideFileWriteInterval .gt. time_step)
+
+	pname = [character(len=16) :: 'op to node', 'op from node', 'height', 'elevation', 'width', 'nduplicate']
+	suffix = [character(len=4) :: 'end', 'mean']
+	do p = 1, 7
+		do k = 1, 2
+			active = (k .eq. 1 .and. gate_state_do_end) .or. (k .eq. 2 .and. gate_state_do_mean)
+			if (.not. active) cycle
+			if (p .le. 6) then
+				rank = 3
+				dims(1) = max(1, nGate)
+				dims(2) = max(1, MAX_DEV)
+				dims(3) = getHDF5NumberOfTimeIntervals()
+				dname = 'device state '//trim(pname(p))//' '//trim(suffix(k))
+			else
+				rank = 2
+				dims(1) = max(1, nGate)
+				dims(2) = getHDF5NumberOfTimeIntervals()
+				dims(3) = 1
+				dname = 'gate install '//trim(suffix(k))
+			end if
+			chunk = dims
+			chunk(rank) = min(int(TIME_CHUNK, HSIZE_T), dims(rank))
+
+			call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+			if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+				call h5pset_chunk_f(cparms, rank, chunk(1:rank), error)
+				call H5Pset_szip_f(cparms, H5_SZIP_NN_OM_F, HDF_SZIP_PIXELS_PER_BLOCK, error)
+			end if
+			call h5screate_simple_f(rank, dims(1:rank), fspace, error)
+			call h5dcreate_f(data_id, trim(dname), H5T_NATIVE_REAL, fspace, gate_state_dset(p, k), error, cparms)
+			call VerifyHDF5(error, "gate state dataset")
+			call AddTimeSeriesAttributes(gate_state_dset(p, k), tf_start_julmin, TideFileWriteInterval)
+			call h5sclose_f(fspace, error)
+			call h5pclose_f(cparms, error)
+		end do
+	end do
+	return
+end subroutine
+
+subroutine close_gate_state_hdf5()
+	use HDF5
+	use hdfvars
+	implicit none
+	integer :: p, k, error
+	do p = 1, 7
+		do k = 1, 2
+			if (gate_state_dset(p, k) .ne. 0) then
+				call h5dclose_f(gate_state_dset(p, k), error)
+				gate_state_dset(p, k) = 0
+			end if
+		end do
+	end do
 	return
 end subroutine
 

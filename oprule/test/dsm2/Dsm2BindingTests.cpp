@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -14,6 +15,7 @@
 #include "Dsm2Harness.h"
 #include "InpReader.h"
 #include "LogCapture.h"
+#include "dsm2_device_sampler.h"
 #include "dsm2_expressions.h"
 #include "dsm2_interface_fortran.h"
 #include "dsm2_model_interface.h"
@@ -1438,6 +1440,8 @@ BOOST_AUTO_TEST_CASE(entry_points_log_loading_and_use_the_model_time) {
    model().add_external_flow("q2", 0.);
    s.begin_run(2018, 6, 30, 22, 0, 900);      // model time is 2018-06-30 22:15 during the first step
    model().oprule_log_level = 2;
+   model().oprule_log_text = 1;
+   model().oprule_log_file = "dsm2_oprule_log_entry_points_test.h5";   // used when the HDF5 sink is built in
    const char* path = "dsm2_oprule_log_entry_points_test.txt";   // rewritten on every run
    configure_oprule_log_from_model(path);
    BOOST_REQUIRE_EQUAL(RuleLog::level(), 2);
@@ -1519,10 +1523,287 @@ BOOST_AUTO_TEST_CASE(level_zero_and_unopenable_paths_leave_the_log_off) {
    BOOST_CHECK_EQUAL(RuleLog::level(), 0);
    BOOST_CHECK(!RuleLog::hasSink());
    model().oprule_log_level = 2;
+   model().oprule_log_text = 1;
    configure_oprule_log_from_model("/no_such_directory_for_rule_log/x.log");   // prints a warning
    BOOST_CHECK_EQUAL(RuleLog::level(), 0);
    BOOST_CHECK(!RuleLog::hasSink());
    RuleLog::setTimeSource(0);
+}
+
+// The text log is a debugging copy: written only when oprule_log_text is true.
+BOOST_AUTO_TEST_CASE(the_text_log_is_written_only_on_request) {
+   Sim s;
+   const char* path = "dsm2_oprule_text_option_test.txt";
+   std::remove(path);
+   model().oprule_log_level = 1;
+   model().oprule_log_text = 0;
+   model().oprule_log_file = "dsm2_oprule_text_option_test.h5";
+   configure_oprule_log_from_model(path);
+#ifdef OPRULE_WITH_HDF5
+   BOOST_CHECK(RuleLog::hasSink());                   // the HDF5 log
+#else
+   BOOST_CHECK(!RuleLog::hasSink());                  // no sink at all without HDF5: logging stays off
+   BOOST_CHECK_EQUAL(RuleLog::level(), 0);
+#endif
+   RuleLog::setLevel(RuleLog::OFF);
+   RuleLog::finish();
+   RuleLog::close();
+   BOOST_CHECK(!std::ifstream(path).good());          // no text file
+   model().oprule_log_text = 1;
+   configure_oprule_log_from_model(path);
+   RuleLog::setLevel(RuleLog::OFF);
+   RuleLog::close();
+   BOOST_CHECK(std::ifstream(path).good());
+   RuleLog::setTimeSource(0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ====================================================================== device sampler
+// The sampler reads every gate device after the rule actions advance and reports the changes to the log
+// (OPRULE_LOG_HDF5_PLAN.md 3.9, 3.11). Test ids H5-11 and part of H5-13.
+
+namespace {
+
+long sampler_clock() { return model().julmin; }
+
+// One gate g1 with devices d1 and d2 on channel 185 (stages and gate flow readable), log level 1 into memory.
+struct SamplerBench : Sim {
+   explicit SamplerBench(int level = 1) {
+      Model& m = model();
+      m.add_channel(185, 1000., 11);
+      set_level(185, 3.0);
+      m.add_gate("g1");
+      m.add_device("g1", "d1");
+      m.add_device("g1", "d2");
+      Gate& g = m.gate("g1");
+      g.objType = 1; g.objId = 1; g.compPoint = 1; g.nodeCompPoint = 11; g.nodeId = 5; g.objName = "channel 185";
+      g.flow = 12.;
+      begin_run(2018, 9, 20, 10, 0, 900);
+      oprule::rule::RuleLog::setClock(&sampler_clock);
+      oprule::rule::RuleLog::addSink(&mem);
+      oprule::rule::RuleLog::setLevel(level);
+      sampler.configure(0.001, 0.01, true);
+      after_advance = [this]() { sampler.sample(); };
+   }
+   ~SamplerBench() {
+      oprule::rule::RuleLog::setLevel(oprule::rule::RuleLog::OFF);
+      oprule::rule::RuleLog::removeSink(&mem);
+      oprule::rule::RuleLog::setClock(0);
+   }
+   std::vector<oprule::rule::DeviceTransition> of(int property, int device = 1, int kind = -1) const {
+      std::vector<oprule::rule::DeviceTransition> v;
+      for (size_t i = 0; i < mem.transitions.size(); ++i) {
+         const oprule::rule::DeviceTransition& t = mem.transitions[i];
+         if (t.gate == 1 && t.device == device && t.property == property && (kind < 0 || t.kind == kind)) v.push_back(t);
+      }
+      return v;
+   }
+   oprule::rule::MemoryLogSink mem;
+   DeviceSampler sampler;
+};
+
+}  // namespace
+
+BOOST_AUTO_TEST_SUITE(device_sampler)
+
+using oprule::rule::DeviceTransition;
+
+BOOST_AUTO_TEST_CASE(the_first_sample_reports_every_property_and_the_gate_tables) {
+   SamplerBench b;
+   model().device("g1", "d2").structureType = 2;
+   b.step();
+   // install for the gate plus six properties for each of two devices
+   BOOST_CHECK_EQUAL(b.mem.transitions.size(), 13u);
+   for (size_t i = 0; i < b.mem.transitions.size(); ++i)
+      BOOST_CHECK_EQUAL(b.mem.transitions[i].kind, (int)oprule::rule::TRANSITION_INITIAL);
+   BOOST_REQUIRE_EQUAL(b.of(oprule::rule::PROP_OP_TO_NODE).size(), 1u);
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_OP_TO_NODE)[0].newValue, 1.);
+   BOOST_REQUIRE_EQUAL(b.of(oprule::rule::PROP_INSTALL, 0).size(), 1u);
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_INSTALL, 0)[0].newValue, 1.);
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_OP_TO_NODE)[0].source, "constant");
+
+   BOOST_REQUIRE_EQUAL(b.mem.gateInfo.size(), 1u);
+   BOOST_CHECK_EQUAL(b.mem.gateInfo[0].name, "g1");
+   BOOST_CHECK_EQUAL(b.mem.gateInfo[0].node, "5");
+   BOOST_CHECK_EQUAL(b.mem.gateInfo[0].object, "channel 185");
+   BOOST_CHECK_EQUAL(b.mem.gateInfo[0].nDevices, 2);
+   BOOST_REQUIRE_EQUAL(b.mem.deviceInfo.size(), 2u);
+   BOOST_CHECK_EQUAL(b.mem.deviceInfo[1].name, "d2");
+   BOOST_CHECK_EQUAL(b.mem.deviceInfo[1].id, 2);
+   BOOST_CHECK_EQUAL(b.mem.deviceInfo[1].index, 2);
+   BOOST_CHECK_EQUAL(b.mem.deviceInfo[1].structureType, 2);
+
+   b.steps(5);                                     // nothing changes: nothing more is written
+   BOOST_CHECK_EQUAL(b.mem.transitions.size(), 13u);
+}
+
+// The stage on both sides and the gate flow are those the model has when the sampler runs.
+BOOST_AUTO_TEST_CASE(transitions_carry_the_stage_on_both_sides_and_the_gate_flow) {
+   SamplerBench b;
+   b.set_level(185, 2.5);
+   model().gate("g1").flow = 7.5;
+   b.step();
+   const DeviceTransition& t = b.of(oprule::rule::PROP_HEIGHT)[0];
+   BOOST_CHECK(t.contextValid);
+   BOOST_CHECK_EQUAL(t.zUp, 2.5);
+   BOOST_CHECK_EQUAL(t.zDown, 2.5);
+   BOOST_CHECK_EQUAL(t.gateFlow, 7.5);
+}
+
+BOOST_AUTO_TEST_CASE(a_reservoir_gate_reads_the_reservoir_stage) {
+   SamplerBench b;
+   model().add_node(10);
+   model().add_reservoir("res1", std::vector<int>({10}));
+   model().reservoir("res1").stage = 4.5;
+   Gate& g = model().gate("g1");
+   g.objType = 3; g.objId = 1;
+   b.step();
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_HEIGHT)[0].zUp, 4.5);
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_HEIGHT)[0].zDown, 3.0);   // the node side is a channel point
+}
+
+BOOST_AUTO_TEST_CASE(context_can_be_left_out) {
+   SamplerBench b;
+   b.sampler.configure(0.001, 0.01, false);
+   b.step();
+   BOOST_CHECK(!b.mem.transitions.empty());
+   for (size_t i = 0; i < b.mem.transitions.size(); ++i) BOOST_CHECK(!b.mem.transitions[i].contextValid);
+}
+
+// A ramp is written at its start and its end; the step in between is not.
+BOOST_AUTO_TEST_CASE(a_rule_ramp_is_reported_at_its_start_and_its_end) {
+   SamplerBench b;
+   BOOST_REQUIRE(b.add_rule("r1", "SET gate_op(gate=g1,device=d1,direction=from_node) TO 0 RAMP 45MIN", "TRUE"));
+   b.steps(8);
+   std::vector<DeviceTransition> rows = b.of(oprule::rule::PROP_OP_FROM_NODE);
+   BOOST_REQUIRE_EQUAL(rows.size(), 3u);                 // initial, ramp start, ramp end
+   BOOST_CHECK_EQUAL(rows[1].kind, (int)oprule::rule::TRANSITION_RAMP_START);
+   BOOST_CHECK_EQUAL(rows[1].oldValue, 1.);
+   BOOST_CHECK_CLOSE(rows[1].newValue, 2. / 3., 1e-9);   // one third of 45 minutes has gone
+   BOOST_CHECK_EQUAL(rows[1].targetValue, 0.);
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::ruleName(rows[1].ruleId), "r1");
+   BOOST_CHECK(rows[1].episodeId > 0);
+   BOOST_CHECK_EQUAL(rows[2].kind, (int)oprule::rule::TRANSITION_RAMP_END);
+   BOOST_CHECK_EQUAL(rows[2].newValue, 0.);
+   BOOST_CHECK_CLOSE(rows[2].oldValue, 1. / 3., 1e-9);   // the step in between was 1/3: seen, not written
+   BOOST_CHECK_EQUAL(rows[2].episodeId, rows[1].episodeId);
+   BOOST_CHECK(rows[2].julmin > rows[1].julmin);
+   BOOST_CHECK(b.of(oprule::rule::PROP_OP_TO_NODE, 1, oprule::rule::TRANSITION_RAMP_START).empty());   // the other direction is untouched
+   // the rule's episode is in the log (it ended at COMPLETED) and points to the same gate device
+   BOOST_REQUIRE_EQUAL(b.mem.episodes.size(), 1u);
+   BOOST_CHECK_EQUAL(b.mem.episodes[0].id, rows[1].episodeId);
+   BOOST_CHECK_EQUAL(b.mem.episodes[0].gate, 1);
+   BOOST_CHECK_EQUAL(b.mem.episodes[0].device, 1);
+   BOOST_CHECK(b.mem.episodes[0].attachedSource);
+}
+
+BOOST_AUTO_TEST_CASE(a_rule_that_sets_a_value_abruptly_is_a_rule_set) {
+   SamplerBench b;
+   BOOST_REQUIRE(b.add_rule("hr", "SET gate_height(gate=g1,device=d2) TO 7", "TRUE"));
+   b.steps(4);
+   std::vector<DeviceTransition> rows = b.of(oprule::rule::PROP_HEIGHT, 2, oprule::rule::TRANSITION_RULE_SET);
+   BOOST_REQUIRE_EQUAL(rows.size(), 1u);
+   BOOST_CHECK_EQUAL(rows[0].oldValue, 0.);
+   BOOST_CHECK_EQUAL(rows[0].newValue, 7.);
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::ruleName(rows[0].ruleId), "hr");
+   BOOST_CHECK(b.of(oprule::rule::PROP_HEIGHT, 1, oprule::rule::TRANSITION_RULE_SET).empty());
+}
+
+// The expression a rule attaches keeps changing the value after the rule completed: no rule event, but a row
+// that names the rule.
+BOOST_AUTO_TEST_CASE(a_source_attached_by_a_rule_is_reported_with_that_rule) {
+   SamplerBench b;
+   model().add_path_input("target", 7.);
+   b.series["target"] = 7.;
+   BOOST_REQUIRE(b.add_rule("hr", "SET gate_height(gate=g1,device=d1) TO ts(name=target)", "TRUE"));
+   b.steps(3);
+   BOOST_REQUIRE_EQUAL(b.of(oprule::rule::PROP_HEIGHT, 1, oprule::rule::TRANSITION_RULE_SET).size(), 1u);
+   b.series["target"] = 9.;
+   b.steps(2);
+   std::vector<DeviceTransition> src = b.of(oprule::rule::PROP_HEIGHT, 1, oprule::rule::TRANSITION_SOURCE);
+   BOOST_REQUIRE_EQUAL(src.size(), 1u);
+   BOOST_CHECK_EQUAL(src[0].oldValue, 7.);
+   BOOST_CHECK_EQUAL(src[0].newValue, 9.);
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::ruleName(src[0].ruleId), "hr");
+   std::vector<DeviceTransition> set = b.of(oprule::rule::PROP_HEIGHT, 1, oprule::rule::TRANSITION_RULE_SET);
+   BOOST_CHECK_EQUAL(src[0].episodeId, set[0].episodeId);     // the episode that attached it
+   BOOST_CHECK(src[0].source.find("expression(index=") == 0);
+}
+
+// A change that comes from an input series is written once it moves by more than the tolerance from the last
+// value written; smaller moves accumulate.
+BOOST_AUTO_TEST_CASE(source_driven_changes_use_the_tolerance_from_the_last_value_written) {
+   SamplerBench b;
+   model().add_path_input("tide", 5.0, false);
+   Device& d = model().device("g1", "d1");
+   d.height_ds.source_type = DSS_DATA;
+   d.height_ds.indx_ptr = 1;
+   b.series["tide"] = 5.0;
+   b.step();                                                 // initial row: 5.0
+   double values[] = {5.005, 5.02, 5.025, 5.04, 5.0};
+   for (size_t i = 0; i < 5; ++i) { b.series["tide"] = values[i]; b.step(); }
+   std::vector<DeviceTransition> rows = b.of(oprule::rule::PROP_HEIGHT, 1, oprule::rule::TRANSITION_SOURCE);
+   // 5.005: below the tolerance; 5.02: row (moved 0.02); 5.025: below; 5.04: row; 5.0: row (moved 0.04)
+   BOOST_REQUIRE_EQUAL(rows.size(), 3u);
+   BOOST_CHECK_CLOSE(rows[0].newValue, 5.02, 1e-9);
+   BOOST_CHECK_CLOSE(rows[1].oldValue, 5.02, 1e-9);
+   BOOST_CHECK_CLOSE(rows[1].newValue, 5.04, 1e-9);
+   BOOST_CHECK_CLOSE(rows[2].newValue, 5.0, 1e-9);
+   BOOST_CHECK_EQUAL(rows[0].source, "series:tide");
+   BOOST_CHECK_EQUAL(rows[0].ruleId, 0);                     // no rule is involved
+   BOOST_CHECK_EQUAL(rows[0].episodeId, 0);
+}
+
+BOOST_AUTO_TEST_CASE(op_coefficients_and_dimensions_have_their_own_tolerances) {
+   SamplerBench b;
+   b.sampler.configure(0.5, 0.01, true);
+   model().add_path_input("op", 1.0, false);
+   model().add_path_input("w", 10.0, false);
+   Device& d = model().device("g1", "d1");
+   d.op_to_node.source_type = DSS_DATA; d.op_to_node.indx_ptr = 1;
+   d.width.source_type = DSS_DATA; d.width.indx_ptr = 2;
+   b.series["op"] = 1.0; b.series["w"] = 10.0;
+   b.step();
+   b.series["op"] = 0.8; b.series["w"] = 10.02; b.step();   // op moved less than 0.5, width more than 0.01
+   b.series["op"] = 0.4; b.step();                          // op moved 0.6 from the last value written
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_OP_TO_NODE, 1, oprule::rule::TRANSITION_SOURCE).size(), 1u);
+   BOOST_CHECK_EQUAL(b.of(oprule::rule::PROP_WIDTH, 1, oprule::rule::TRANSITION_SOURCE).size(), 1u);
+}
+
+// nDuplicate and install log every change, however small.
+BOOST_AUTO_TEST_CASE(the_install_state_changes_only_through_a_rule) {
+   SamplerBench b;
+   BOOST_REQUIRE(b.add_rule("remove", "SET gate_install(gate=g1) TO 0", "TRUE"));
+   b.steps(4);
+   std::vector<DeviceTransition> rows = b.of(oprule::rule::PROP_INSTALL, 0);
+   BOOST_REQUIRE_EQUAL(rows.size(), 2u);                    // initial, then the rule
+   BOOST_CHECK_EQUAL(rows[1].kind, (int)oprule::rule::TRANSITION_RULE_SET);
+   BOOST_CHECK_EQUAL(rows[1].oldValue, 1.);
+   BOOST_CHECK_EQUAL(rows[1].newValue, 0.);
+   BOOST_CHECK_EQUAL(oprule::rule::RuleLog::ruleName(rows[1].ruleId), "remove");
+   BOOST_CHECK_EQUAL(rows[1].gate, 1);
+   BOOST_CHECK_EQUAL(rows[1].device, 0);
+}
+
+// The sampler reads; it must not change what the model does.
+BOOST_AUTO_TEST_CASE(sampling_does_not_change_the_model) {
+   std::vector<double> history[2];
+   for (int pass = 0; pass < 2; ++pass) {
+      SamplerBench b(pass == 0 ? 0 : 1);
+      if (pass == 0) b.after_advance = std::function<void()>();
+      BOOST_REQUIRE(b.add_rule("r1", "SET gate_op(gate=g1,device=d1,direction=to_node) TO 0 RAMP 30MIN", "TRUE"));
+      Device& d = model().device("g1", "d1");
+      for (int i = 0; i < 6; ++i) { b.step(); history[pass].push_back(d.opCoefToNode); }
+   }
+   BOOST_CHECK_EQUAL_COLLECTIONS(history[0].begin(), history[0].end(), history[1].begin(), history[1].end());
+}
+
+BOOST_AUTO_TEST_CASE(nothing_is_sampled_when_the_log_is_off) {
+   SamplerBench b(0);
+   b.steps(3);
+   BOOST_CHECK(b.mem.transitions.empty());
+   BOOST_CHECK(b.mem.gateInfo.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

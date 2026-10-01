@@ -39,6 +39,7 @@ module iopath_data
     logical:: warn_question             ! true to warn about bad data
     logical:: warn_bad             ! true to warn about bad data
     logical:: output_inst          ! true to output results at computational points
+    integer:: tidefile_gate_state = -1   ! gate device state in the tide file: 0 off, 1 end, 2 mean, 3 both; -1 not set
 
     logical:: dss_direct = .false.
     logical:: binary_output = .false.

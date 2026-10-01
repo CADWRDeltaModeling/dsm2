@@ -10,6 +10,22 @@ target_include_directories(
   oprule PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${HDF5_INCLUDE_DIRS}
                 ${Boost_INCLUDE_DIRS})
 
+# HDF5 sink of the rule log (lib/hdf5). On when the parent project has found the HDF5 C library; the standalone
+# test project can turn it on with -DOPRULE_HDF5_ROOT=<hdf5 install>.
+if(HDF5_FOUND)
+  set(_oprule_hdf5_default ON)
+else()
+  set(_oprule_hdf5_default OFF)
+endif()
+option(OPRULE_WITH_HDF5 "Compile the HDF5 sink of the operating rule log"
+       ${_oprule_hdf5_default})
+if(OPRULE_WITH_HDF5)
+  target_sources(oprule PRIVATE lib/hdf5/Hdf5LogSink.cpp)
+  target_compile_definitions(oprule PUBLIC OPRULE_WITH_HDF5=1)
+  target_include_directories(oprule PUBLIC ${HDF5_INCLUDE_DIRS})
+  target_link_libraries(oprule PUBLIC ${HDF5_C_LIBRARIES})
+endif()
+
 
 # --------------------- OPRULE PARSER LIB
 file(GLOB OPRULE_PARSER_SOURCES lib/parser/*.cpp)

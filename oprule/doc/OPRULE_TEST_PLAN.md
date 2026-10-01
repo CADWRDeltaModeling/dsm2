@@ -445,9 +445,11 @@ A system test runs the real model (`hydro`) on a real study with the operating r
 
 ```bash
 cd /scratch/psandhu/dsm2_oprule_system_test
-./run_system_test.sh --clean     # removes the earlier st_* runs, runs five hydro runs in parallel, compares, checks the logs
+./run_system_test.sh --clean     # removes the earlier st_* runs, runs seven hydro runs in parallel, compares, checks the logs
 cat st_report.txt                # the report; the last line is RESULT: PASS or RESULT: FAIL
 ```
+
+Since 2026-10-01 the runs are: `st_off`, `st_off2` (no log), `st_l1`, `st_l2` (level 1 and 2, with the text log on for comparison: `oprule_log_text true`), and three option runs `st_o1` (`oprule_log_file`, `oprule_log_devices false`, `tidefile_gate_state off`), `st_o2` (`oprule_log_context false`, wide tolerances, `tidefile_gate_state end`) and `st_o3` (`tidefile_gate_state mean`).
 
 | Script | What it does |
 |---|---|
@@ -467,6 +469,20 @@ cat st_report.txt                # the report; the last line is RESULT: PASS or 
 | ST-06 | Overhead: run times with four runs at the same time were off 244 s and 242 s, level 1 245 s, level 2 244 s: no measurable cost | pass |
 
 Content of the logs from that run: level 1, 431 045 bytes; level 2, 651 207 bytes (the first version of the log, with a record per rule per step, was 212 MB for the same period). Records: 87 `RULE_LOADED`, 5 `EXPRESSION_LOADED`, 26 `TRIGGER_INITIAL`, 644 `TRIGGERED`, 583 `TRIGGER_CLEARED`, 644 `ACTIVATED`, 644 `COMPLETED`, 321 `DEFERRED`, 1 061 `ACTION` (level 2). The busiest rules are the Montezuma Slough gate rules (`mscs_open`, `mscs_open_to`, `mscs_close`, `mscs_close_to`: 143 to 145 activations each in four months); `mscs_close_to` is `DEFERRED` by `mscs_close` each time because the resolver treats two actions on one gate device as overlapping (OPRULE_REFERENCE.md B9 item 24).
+
+### Results of 2026-10-01 (HDF5 log, device transitions, tide file gate state): PASS
+
+| ID | Check | Result |
+|---|---|---|
+| ST-01, ST-02 (repeated) | Tide file (602 objects, now including the gate state series), restart file, run log and network iterations of `st_l1` and `st_l2` equal those of `st_off` | pass |
+| H5-03 | The dump of the HDF5 log has the same records as the text log: 2 954 (level 1) and 4 015 (level 2); `ACTIVATED` compared by time, event and rule only | pass, no difference |
+| H5-04, H5-05, H5-12 | `oprule_log.py check`: event ids and times, stage after each event, trigger values alternate, activation and completion pair up, episodes start at a `TRIGGERED` of their rule, device intervals do not overlap (2 862 events, 644 episodes, 4 538 transitions) | pass |
+| H5-14 | Replay of `/device_transitions` against the tide file `... end` series: 9 060 480 values (gate devices and gates, every 5 minutes, ramps excluded) | 0 mismatches |
+| H5-09 | The tide file with the gate state series is 1 150 186 527 bytes against about 1 078 681 920 before (about 6.6 percent more); HDF5 log 1.14 MB (level 1) and 1.15 MB (level 2), which includes 4 538 device transitions; run times 245 to 256 s with seven runs at once | no measurable cost |
+| H5-17 | `st_o1`: log named `mylog.h5` next to the tide file, events but no device transitions, no gate state series; `st_o2`: no context values, 1 470 source-change rows with the wide tolerances against 3 790 with the defaults, 7 end series and no mean series; `st_o3`: 7 mean series and no end series; default (`st_l2`): 7 end series, no mean series because the tide interval equals the hydro step; no text log unless `oprule_log_text` is true; model results of all option runs equal the baseline | pass |
+| H5-06 | `hydro` killed with SIGKILL after 60 s: the HDF5 log opens, `check` passes (1 071 events, 245 episodes, 1 298 transitions); the open intervals and the rule inputs of a killed run are not written | pass |
+
+The system test script and its helpers (`run_system_test.sh`, `make_run.sh` with extra scalars, `compare_text_dump.py`) are in `/scratch/psandhu/dsm2_oprule_system_test/`; the tools they call are in `oprule/tools/`.
 
 Things found while building the system test: the first runs showed that a text log with one record per rule per step is far too large (3 million lines for four months), which led to change-only logging; and that `h5diff` of two logging-off runs reports differences in the input echo tables, which led to the exclusions in ST-02.
 

@@ -191,6 +191,9 @@ module hdfvars
      integer(HSIZE_T), dimension(inst_deviceflow_fdata_rank) :: inst_deviceflow_fsubset_dims = 0
      integer(HSIZE_T), dimension(inst_deviceflow_mdata_rank) :: inst_deviceflow_mdata_dims = 0
 
+     ! Gate device state datasets (property 1..6 devices, 7 gate install; second index 1 end of interval, 2 mean)
+     integer(HID_T) :: gate_state_dset(7, 2) = 0
+
 end module hdfvars
 
 !***********************************************************************

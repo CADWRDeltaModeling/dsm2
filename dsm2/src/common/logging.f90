@@ -28,6 +28,15 @@ module logging
     integer, parameter :: LOG_DEBUG = 2
     integer:: print_level   ! diagnostic printout level
     integer:: oprule_log_level = -1   ! operating rule log level scalar; -1 = not set (see get_oprule_log_level)
+    ! operating rule log options (SCALAR table); -1 = not set, the getters in model_interface give the defaults
+    character(len=32):: oprule_log_file = ' '
+    integer:: oprule_log_text = -1             ! 0 false, 1 true: also write the text log oprule_log.txt
+    integer:: oprule_log_devices = -1          ! 0 false, 1 true
+    integer:: oprule_log_context = -1          ! 0 false, 1 true
+    real*8:: oprule_log_tol_op = -1.d0         ! op coefficient change worth a row
+    real*8:: oprule_log_tol_dim = -1.d0        ! height, elevation, width change worth a row (ft)
+    integer:: oprule_log_trace_interval = -1   ! steps between dense trace rows, 0 off
+    real*8:: oprule_log_flush_hours = -1.d0    ! simulated hours between flushes of the log file
 
     type(logger_type) :: logger
     type(logger_type) :: stderr_logger

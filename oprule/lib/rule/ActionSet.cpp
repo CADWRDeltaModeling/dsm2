@@ -55,13 +55,10 @@ void ActionSet::setActive(bool active){
 
 bool rule_active(OperationActionPtr op){ return op->isActive(); }
 
-std::string ActionSet::describeState(){
-   std::string out;
+void ActionSet::describeActions(std::vector<ActionInfo>& out){
    for (ActionList::iterator it=subactions.begin() ; it != subactions.end() ; it++){
-      if (!out.empty()) out += " + ";
-      out += (*it)->describeState();
+      (*it)->describeActions(out);
    }
-   return out;
 }
 
 

@@ -66,7 +66,7 @@ public:
    }
    virtual void appendToActionList( OperationAction::ActionListType& listToConstruct);
    virtual void childComplete();
-   virtual std::string describeState();
+   virtual void describeActions(std::vector<ActionInfo>& out);
 
 private:
    ActionChain::ActionSequence actionSequence;

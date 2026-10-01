@@ -437,6 +437,9 @@ contains
                 .not. binary_output) call wrt_outpaths
         end if
 
+        !--------close the operating rule log before the tide file
+        call finish_oprule_log_f()
+
         !--------close HDF5
         if (io_files(hydro, io_hdf5, io_write)%use) then
             call CloseHDF5()

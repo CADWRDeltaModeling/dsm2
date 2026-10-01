@@ -69,17 +69,23 @@ struct DeviceInit {
 };
 
 struct Device {
+   Device() : structureType(1) {}
    std::string name;  // stored lower case (gates.f90 deviceIndex lower-cases it before comparing)
    double opCoefToNode, opCoefFromNode, baseElev, height, maxWidth, nDuplicate, flowCoefToNode, flowCoefFromNode, flow;
    DataSource op_to_node, op_from_node, elev, height_ds, width, nduplicate;
+   int structureType;  // 1 weir, 2 pipe
 };
 
 struct Gate {
-   Gate() : free(false) {}
+   Gate() : free(false), objType(1), objId(1), compPoint(0), nodeCompPoint(0), nodeId(0), flow(0.) {}
    std::string name;  // ASSUMPTION: stored lower case (gateNdx lower-cases the query, then compares)
    bool free;         // gates_data: Gate%free; true = physically removed ("GATE_FREE")
    std::vector<Device> devices;
    DataSource install;
+   // what the gate is connected to (gates_data: objConnectedType 1 channel, 3 reservoir)
+   int objType, objId, compPoint, nodeCompPoint, nodeId;
+   std::string objName;  // label returned by get_gate_object_name
+   double flow;          // Gate%flow
 };
 
 struct ExternalFlow {  // grid_data: qext(i)
@@ -155,6 +161,13 @@ public:
    // model_interface.f90 get_oprule_log_level(): the oprule_log_level scalar if set, else derived from
    // print_level (4, 5, 6 give 1, 2, 3; lower gives 0). The mock holds the already-resolved value.
    int oprule_log_level;
+
+   // model_interface.f90 option getters (SCALAR table): the mock holds the already-resolved values
+   std::string oprule_log_file;
+   int oprule_log_text;         // also write the text log
+   int oprule_log_devices, oprule_log_context, oprule_log_trace_interval, tidefile_gate_state;
+   double oprule_log_tol_op, oprule_log_tol_dim, oprule_log_flush_hours;
+   std::string tidefile_name;   // io_files(hydro, io_hdf5, io_write)%filename; empty: no tide file
 
    // ---- data sources
    // model_interface.f90 fetch_data()

@@ -86,21 +86,23 @@ OperatingRule::~OperatingRule(){
   //delete _trigger;
 }
 
-std::string OperatingRule::describeTrigger(){
+bool OperatingRule::describeTrigger(LogValues& out){
    try {
-      oprule::expression::StateList inputs;
-      if (_trigger) _trigger->collectState(inputs);
-      return "trigger_inputs=" + RuleLog::state(inputs);
+      if (_trigger) _trigger->collectState(out);
+      return true;
    } catch (...) {
-      return "trigger_inputs=unavailable";
+      out.clear();
+      return false;
    }
 }
 
-std::string OperatingRule::describeAction(){
+bool OperatingRule::describeAction(std::vector<ActionInfo>& out){
    try {
-      return _action ? _action->describeState() : std::string();
+      if (_action) _action->describeActions(out);
+      return true;
    } catch (...) {
-      return "action=unavailable";
+      out.clear();
+      return false;
    }
 }
 

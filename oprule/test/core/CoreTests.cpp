@@ -1093,6 +1093,292 @@ BOOST_AUTO_TEST_CASE(ignore_new_rule_does_not_retry) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// ============================================================ structured log (memory sink)
+// Design: OPRULE_LOG_HDF5_PLAN.md. The same events as the text log, with numeric time, stage, intervals,
+// episodes and the notes about what the actions wrote. Test ids H5-04, H5-05, H5-11 (core part), H5-12.
+
+namespace {
+
+long g_test_julmin = 0;
+long test_clock() { return g_test_julmin; }
+
+// 15 minute steps starting at julmin 1440; a step advances the clock first, as the model does.
+struct MemBench : RuleBench {
+   explicit MemBench(int level = 1) {
+      g_test_julmin = 1440;
+      oprule::rule::RuleLog::setClock(&test_clock);
+      oprule::rule::RuleLog::addSink(&mem);
+      oprule::rule::RuleLog::setLevel(level);
+   }
+   ~MemBench() {
+      oprule::rule::RuleLog::setLevel(oprule::rule::RuleLog::OFF);
+      oprule::rule::RuleLog::removeSink(&mem);
+      oprule::rule::RuleLog::setClock(0);
+   }
+   void run(int n) { for (int i = 0; i < n; ++i) { g_test_julmin += 15; step(); } }
+   oprule::rule::MemoryLogSink mem;
+};
+
+std::vector<int> codes(const oprule::rule::MemoryLogSink& m) {
+   std::vector<int> c;
+   for (size_t i = 0; i < m.events.size(); ++i) c.push_back(m.events[i].code);
+   return c;
+}
+
+const oprule::rule::RuleInterval* find_interval(const oprule::rule::MemoryLogSink& m, const std::string& rule, int kind) {
+   for (size_t i = 0; i < m.intervals.size(); ++i)
+      if (oprule::rule::RuleLog::ruleName(m.intervals[i].ruleId) == rule && m.intervals[i].kind == kind) return &m.intervals[i];
+   return 0;
+}
+
+}  // namespace
+
+BOOST_AUTO_TEST_SUITE(rule_log_structured)
+
+using oprule::rule::LogEvent;
+using oprule::rule::RuleLog;
+
+// H5-05: the stage after each event.
+BOOST_AUTO_TEST_CASE(stage_after_each_event) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 0");
+   g_vars["lvl"] = 0.; b.run(1);
+   g_vars["lvl"] = 1.; b.run(2);
+   g_vars["lvl"] = 0.; b.run(1);
+   int expected_codes[] = {LogEvent::TRIGGER_INITIAL, LogEvent::TRIGGERED, LogEvent::ACTIVATED,
+                           LogEvent::COMPLETED, LogEvent::TRIGGER_CLEARED};
+   int expected_stage[] = {oprule::rule::STAGE_IDLE, oprule::rule::STAGE_WAITING, oprule::rule::STAGE_ACTIVE,
+                           oprule::rule::STAGE_WAITING, oprule::rule::STAGE_IDLE};   // still true after completion
+   std::vector<int> c = codes(b.mem);
+   BOOST_REQUIRE_EQUAL(c.size(), 5u);
+   for (size_t i = 0; i < 5; ++i) {
+      BOOST_CHECK_EQUAL(c[i], expected_codes[i]);
+      BOOST_CHECK_EQUAL(b.mem.events[i].stage, expected_stage[i]);
+      BOOST_CHECK_EQUAL(b.mem.events[i].id, (long)i);              // 0-based, in order
+      BOOST_CHECK_EQUAL(b.mem.events[i].rule, "r");
+   }
+}
+
+BOOST_AUTO_TEST_CASE(events_carry_numeric_time_and_step) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 1", "true");
+   b.run(3);
+   BOOST_REQUIRE_EQUAL(b.mem.events.size(), 3u);
+   const LogEvent& triggered = b.mem.events[0];
+   BOOST_CHECK_EQUAL(triggered.code, (int)LogEvent::TRIGGERED);
+   BOOST_CHECK_EQUAL(triggered.step, 1);
+   BOOST_CHECK_EQUAL(triggered.julmin, 1455);
+   const LogEvent& completed = b.mem.events[2];
+   BOOST_CHECK_EQUAL(completed.code, (int)LogEvent::COMPLETED);
+   BOOST_CHECK_EQUAL(completed.step, 2);
+   BOOST_CHECK_EQUAL(completed.julmin, 1470);
+}
+
+BOOST_AUTO_TEST_CASE(trigger_inputs_are_values_not_text) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 1", "mock_ro(name=lvl) > 5");
+   g_vars["lvl"] = 7.; b.run(1);
+   BOOST_REQUIRE(!b.mem.events.empty());
+   const LogEvent& e = b.mem.events[0];
+   BOOST_REQUIRE_EQUAL(e.values.size(), 1u);
+   BOOST_CHECK_EQUAL(e.values[0].first, "mock_ro(name=lvl)");
+   BOOST_CHECK_EQUAL(e.values[0].second, 7.);
+   BOOST_CHECK(!e.valuesUnavailable);
+}
+
+// H5-04 and H5-12: a rule that runs to completion.
+BOOST_AUTO_TEST_CASE(a_completed_rule_has_an_episode_and_intervals) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 7", "mock_ro(name=lvl) > 0");
+   g_vars["a"] = 2.;
+   g_vars["lvl"] = 0.; b.run(1);
+   g_vars["lvl"] = 1.; b.run(2);        // triggered and activated at 1470, completed at 1485
+   g_vars["lvl"] = 0.; b.run(1);        // trigger cleared at 1500
+   RuleLog::finish();
+   BOOST_REQUIRE_EQUAL(b.mem.episodes.size(), 1u);
+   const oprule::rule::Episode& ep = b.mem.episodes[0];
+   BOOST_CHECK_EQUAL(ep.rule, "r");
+   BOOST_CHECK_EQUAL(ep.outcome, (int)oprule::rule::OUTCOME_COMPLETED);
+   BOOST_CHECK_EQUAL(ep.triggerEventId, b.mem.events[1].id);       // the TRIGGERED event
+   BOOST_CHECK_EQUAL(ep.activation, 1470);
+   BOOST_CHECK_EQUAL(ep.completion, 1485);
+   BOOST_CHECK_EQUAL(ep.deferredFrom, 0);
+   BOOST_CHECK_EQUAL(ep.blockerRuleId, 0);
+   BOOST_CHECK_EQUAL(ep.startValue, 2.);
+   BOOST_CHECK_EQUAL(ep.endValue, 7.);
+   BOOST_CHECK_EQUAL(ep.iface, "mock_var(name=a)");
+   BOOST_CHECK(!ep.attachedSource);
+
+   const oprule::rule::RuleInterval* t = find_interval(b.mem, "r", oprule::rule::INTERVAL_TRIGGER_TRUE);
+   const oprule::rule::RuleInterval* a = find_interval(b.mem, "r", oprule::rule::INTERVAL_ACTIVE);
+   BOOST_REQUIRE(t && a);
+   BOOST_CHECK_EQUAL(t->start, 1470);
+   BOOST_CHECK_EQUAL(t->end, 1500);
+   BOOST_CHECK(!t->openAtEnd);
+   BOOST_CHECK_EQUAL(a->start, 1470);
+   BOOST_CHECK_EQUAL(a->end, 1485);
+   BOOST_CHECK(find_interval(b.mem, "r", oprule::rule::INTERVAL_DEFERRED) == 0);
+   BOOST_CHECK(b.mem.finished);
+}
+
+// H5-12: the deferred episode names the blocker and starts at the rise, not at the activation.
+BOOST_AUTO_TEST_CASE(a_deferred_rule_has_a_deferral_in_its_episode) {
+   MemBench b;
+   b.add("first", "SET mock_var(name=a) TO 1 RAMP 30MIN", "true");
+   b.add("second", "SET mock_var(name=a) TO 5", "true");
+   b.run(6);
+   RuleLog::finish();
+   const oprule::rule::Episode* second = 0;
+   for (size_t i = 0; i < b.mem.episodes.size(); ++i)
+      if (b.mem.episodes[i].rule == "second") second = &b.mem.episodes[i];
+   BOOST_REQUIRE(second);
+   BOOST_CHECK_EQUAL(second->outcome, (int)oprule::rule::OUTCOME_COMPLETED);
+   BOOST_CHECK_EQUAL(RuleLog::ruleName(second->blockerRuleId), "first");
+   BOOST_CHECK(second->deferredFrom > 0);
+   BOOST_CHECK(second->activation > second->deferredFrom);
+   const oprule::rule::RuleInterval* d = find_interval(b.mem, "second", oprule::rule::INTERVAL_DEFERRED);
+   BOOST_REQUIRE(d);
+   BOOST_CHECK_EQUAL(RuleLog::ruleName(d->auxRuleId), "first");
+   BOOST_CHECK_EQUAL(d->start, second->deferredFrom);
+   BOOST_CHECK_EQUAL(d->end, second->activation);
+}
+
+// H5-12: a deferral that ends because the trigger fell never starts; the next rise is a new episode.
+BOOST_AUTO_TEST_CASE(a_deferral_that_ends_closes_its_episode) {
+   MemBench b;
+   b.add("first", "SET mock_var(name=a) TO 1 RAMP 600MIN", "true");
+   b.add("second", "SET mock_var(name=a) TO 5", "mock_ro(name=go) > 0");
+   g_vars["go"] = 1.; b.run(1);
+   g_vars["go"] = 0.; b.run(1);
+   g_vars["go"] = 1.; b.run(1);
+   RuleLog::finish();
+   std::vector<int> outcomes;
+   for (size_t i = 0; i < b.mem.episodes.size(); ++i)
+      if (b.mem.episodes[i].rule == "second") outcomes.push_back(b.mem.episodes[i].outcome);
+   BOOST_REQUIRE_EQUAL(outcomes.size(), 2u);
+   BOOST_CHECK_EQUAL(outcomes[0], (int)oprule::rule::OUTCOME_DEFER_ENDED);
+   BOOST_CHECK_EQUAL(outcomes[1], (int)oprule::rule::OUTCOME_OPEN_AT_END);
+   const oprule::rule::RuleInterval* d = find_interval(b.mem, "second", oprule::rule::INTERVAL_DEFERRED);
+   BOOST_REQUIRE(d);
+   BOOST_CHECK(d->endEvent >= 0);
+}
+
+// H5-04: whatever is open when the run ends is closed, flagged, and written.
+BOOST_AUTO_TEST_CASE(finish_closes_open_intervals_and_episodes) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 1 RAMP 600MIN", "true");
+   b.run(3);
+   BOOST_CHECK(b.mem.intervals.empty());
+   BOOST_CHECK(b.mem.episodes.empty());
+   RuleLog::finish();
+   const oprule::rule::RuleInterval* a = find_interval(b.mem, "r", oprule::rule::INTERVAL_ACTIVE);
+   const oprule::rule::RuleInterval* t = find_interval(b.mem, "r", oprule::rule::INTERVAL_TRIGGER_TRUE);
+   BOOST_REQUIRE(a && t);
+   BOOST_CHECK(a->openAtEnd);
+   BOOST_CHECK(t->openAtEnd);
+   BOOST_CHECK_EQUAL(a->end, 1485);
+   BOOST_REQUIRE_EQUAL(b.mem.episodes.size(), 1u);
+   BOOST_CHECK_EQUAL(b.mem.episodes[0].outcome, (int)oprule::rule::OUTCOME_OPEN_AT_END);
+   BOOST_CHECK(b.mem.finished);
+   RuleLog::finish();                                         // a second call adds nothing
+   BOOST_CHECK_EQUAL(b.mem.episodes.size(), 1u);
+}
+
+// Level 1 still follows the action values for the episode; only the ACTION events need level 2.
+BOOST_AUTO_TEST_CASE(episode_values_do_not_need_the_action_level) {
+   for (int level = 1; level <= 2; ++level) {
+      MemBench b(level);
+      b.add("r", "SET mock_tvar(name=a) TO 10 RAMP 30MIN", "true");
+      g_vars["a"] = 4.;
+      b.run(4);
+      RuleLog::finish();
+      BOOST_REQUIRE_EQUAL(b.mem.episodes.size(), 1u);
+      BOOST_CHECK_EQUAL(b.mem.episodes[0].startValue, 4.);        // a time dependent target starts from the live value
+      BOOST_CHECK_EQUAL(b.mem.episodes[0].endValue, 10.);
+      BOOST_CHECK_EQUAL(b.mem.episodes[0].duration, 1800.);
+      BOOST_CHECK_EQUAL(b.mem.count(LogEvent::ACTION), level == 2 ? 2 : 0);
+      BOOST_CHECK(b.mem.episodes[0].attachedSource);              // completion made the target the data source
+   }
+}
+
+// H5-11 (core part): what the actions wrote to a gate device property is noted for the sampler.
+BOOST_AUTO_TEST_CASE(a_ramp_on_a_device_property_notes_start_and_end) {
+   MemBench b;
+   b.add("close", "SET mock_dev(name=op,gate=3,device=2,prop=1) TO 0 RAMP 30MIN", "mock_ro(name=lvl) > 0");
+   g_vars["op"] = 1.;
+   g_vars["lvl"] = 1.; b.run(1);                 // step 1: triggered and activated
+   RuleLog::WriteNote n;
+   BOOST_CHECK(!RuleLog::lastWrite(3, 2, 1, n)); // nothing written yet
+   b.run(1);                                     // step 2: first advance of a ramp
+   BOOST_REQUIRE(RuleLog::lastWrite(3, 2, 1, n));
+   BOOST_CHECK_EQUAL(n.step, 2);
+   BOOST_CHECK_EQUAL(n.kind, (int)oprule::rule::TRANSITION_RAMP_START);
+   BOOST_CHECK_EQUAL(RuleLog::ruleName(n.ruleId), "close");
+   BOOST_CHECK(n.episodeId > 0);
+   BOOST_CHECK_EQUAL(n.target, 0.);
+   int owner = 0; long ep = 0;
+   BOOST_CHECK(!RuleLog::sourceOwner(3, 2, 1, owner, ep));
+   b.run(1);                                     // step 3: ramp ends, completion attaches the source
+   BOOST_REQUIRE(RuleLog::lastWrite(3, 2, 1, n));
+   BOOST_CHECK_EQUAL(n.step, 3);
+   BOOST_CHECK_EQUAL(n.kind, (int)oprule::rule::TRANSITION_RAMP_END);
+   BOOST_REQUIRE(RuleLog::sourceOwner(3, 2, 1, owner, ep));
+   BOOST_CHECK_EQUAL(RuleLog::ruleName(owner), "close");
+   BOOST_CHECK_EQUAL(ep, n.episodeId);
+   BOOST_CHECK(!RuleLog::lastWrite(3, 2, 2, n));  // other properties and devices are untouched
+   BOOST_CHECK(!RuleLog::lastWrite(3, 1, 1, n));
+   BOOST_CHECK_EQUAL(b.mem.events[1].actions.size(), 1u);          // ACTIVATED describes the device
+   BOOST_CHECK_EQUAL(b.mem.events[1].actions[0].gate, 3);
+   BOOST_CHECK_EQUAL(b.mem.events[1].actions[0].device, 2);
+}
+
+BOOST_AUTO_TEST_CASE(an_abrupt_write_on_a_device_property_is_a_rule_set) {
+   MemBench b;
+   b.add("open", "SET mock_dev(name=op,gate=5,device=1,prop=3) TO 6", "true");
+   g_vars["op"] = 1.;
+   b.run(2);
+   RuleLog::WriteNote n;
+   BOOST_REQUIRE(RuleLog::lastWrite(5, 1, 3, n));
+   BOOST_CHECK_EQUAL(n.kind, (int)oprule::rule::TRANSITION_RULE_SET);
+   BOOST_CHECK_EQUAL(n.target, 6.);
+}
+
+BOOST_AUTO_TEST_CASE(nothing_is_collected_when_the_level_is_off) {
+   MemBench b(0);
+   b.add("r", "SET mock_dev(name=op,gate=3,device=2,prop=1) TO 0", "true");
+   b.run(3);
+   BOOST_CHECK(b.mem.events.empty());
+   RuleLog::WriteNote n;
+   BOOST_CHECK(!RuleLog::lastWrite(3, 2, 1, n));
+}
+
+// The sinks see the loaded rules before the first step.
+BOOST_AUTO_TEST_CASE(loaded_rules_are_events_without_ids) {
+   MemBench b;
+   RuleLog::loaded("r1", false, "r1 := SET mock_var(name=a) TO 1 WHEN true;");
+   RuleLog::loaded("e1", true, "e1 := 3;");
+   BOOST_REQUIRE_EQUAL(b.mem.events.size(), 2u);
+   BOOST_CHECK_EQUAL(b.mem.events[0].code, (int)LogEvent::RULE_LOADED);
+   BOOST_CHECK_EQUAL(b.mem.events[1].code, (int)LogEvent::EXPRESSION_LOADED);
+   BOOST_CHECK_EQUAL(b.mem.events[0].id, -1L);
+   BOOST_CHECK_EQUAL(b.mem.events[0].text, "r1 := SET mock_var(name=a) TO 1 WHEN true;");
+   BOOST_CHECK(b.mem.events[0].ruleId != b.mem.events[1].ruleId);
+}
+
+BOOST_AUTO_TEST_CASE(a_new_session_starts_numbering_again) {
+   MemBench b;
+   b.add("r", "SET mock_var(name=a) TO 1", "true");
+   b.run(3);
+   BOOST_REQUIRE(!b.mem.events.empty());
+   BOOST_REQUIRE_EQUAL(RuleLog::step(), 3);
+   RuleLog::removeSink(&b.mem);
+   RuleLog::addSink(&b.mem);                      // installing a sink begins a new session
+   BOOST_CHECK(b.mem.events.empty());             // begin() cleared the sink
+   BOOST_CHECK_EQUAL(RuleLog::step(), 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 // ============================================================================ pinned
 // Behaviour that is believed to be a defect or limitation. Each test states what it pins.
 
