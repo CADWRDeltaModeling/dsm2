@@ -970,6 +970,17 @@ subroutine qual_loop()
                     GPV(N, K) = GPV(N, K) + VolDiff
                 end if
             end if
+            do I = 1, NXSEC(N)
+                KK = NKAI(N, I)
+                if (I .eq. NXSEC(N)) then
+                    GVU(N, I) = GPV(N, KK)
+                else if (I .eq. 1) then
+                    GVU(N, I) = 0.0
+                else
+                    if (GVU(N, I) .gt. GPV(N, KK)) GVU(N, I) = GPV(N, KK)
+                    if (GVU(N, I) .lt. 0.0) GVU(N, I) = 0.0
+                end if
+            end do
 
         end do
     end if
@@ -993,7 +1004,13 @@ subroutine qual_loop()
             DO CONS_NO = 1, NEQ
                 if (GPT(CONS_NO, K, N) .lt. 0) then
                     WRITE (UNIT_ERROR, *) ' ERROR... PARCEL HAVING NEGATIVE CONSTITUENT in CHANNEL: ', &
-                        chan_geom(N) .chan_no
+                        chan_geom(N) .chan_no, ' TIME: ', current_date
+                    WRITE (UNIT_ERROR, *) '   Parcel K=', K, ' of NSN=', NSN, ' CONS_NO=', CONS_NO
+                    WRITE (UNIT_ERROR, *) '   GPT=', GPT(CONS_NO, K, N), ' GPV=', GPV(N, K)
+                    WRITE (UNIT_ERROR, *) '   All parcels in channel:'
+                    DO KK = 1, NSN
+                        WRITE (UNIT_ERROR, '(A,I4,A,F14.4,A,F14.4)') '     K=', KK, ' GPV=', GPV(N, KK), ' GPT=', GPT(CONS_NO, KK, N)
+                    END DO
                     call exit(2)
                 end if
             end do
