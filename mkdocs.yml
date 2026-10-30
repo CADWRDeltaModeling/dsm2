@@ -1,6 +1,6 @@
 site_name: DSM2 Documentation
 repo_url: https://github.com/CADWRDeltaModeling/dsm2
-edit_uri: edit/mkdocs/docs/
+edit_uri: edit/master/docs/
 nav:
   - Home: 
       - General: index.md
