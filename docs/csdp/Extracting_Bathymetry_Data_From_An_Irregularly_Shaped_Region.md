@@ -11,9 +11,9 @@ A Java program called `ExtractShipChannelLeveesFromYoloBypassDEM` can be used to
 
 ## Attachments:
 
-![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-53-22.png](attachments/87228843/87228842.png)
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-53-22.png](../attachments/Bathymetry_Figure1.png)
 (image/png)  
-![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-53-12.png](attachments/87228843/87228844.png)
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-53-12.png](../attachments/87228843/87228844.png)
 (image/png)  
-![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-52-46.png](attachments/87228843/87228845.png)
+![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif) [image2018-12-3_13-52-46.png](../attachments/87228843/87228845.png)
 (image/png)

@@ -1,14 +1,14 @@
 
 # Contents
 
--   [Overview](DSM2_Overview)
--   [Getting Started ](Getting_Started)
+-   [Overview](../../dsm2_overview.md)
+-   [Getting Started](../../getting_started.md)
     -   [Download and
-        installation](Getting-Started_87228585.html#GettingStarted-DownloadandInstallation)
+        installation](../../getting_started.md#installing-dsm2)
     -   [Recommended third party
-        extras](Getting-Started_87228585.html#GettingStarted-ThirdPartyExtras)
+        extras](../../getting_started.md#recommended-third-party-tools)
     -   [Test Launching
-        DSM2](Getting-Started_87228585.html#GettingStarted-TestLaunchingDSM2)
--   [Layers, Priority, Data Management](Layers)
--   [Operating Rules](Operating_Rule_Guide)
--   [Reference](Tables.md)
+        DSM2](../../getting_started.md#test-launching-dsm2)
+-   [Layers, Priority, Data Management](Layers.md)
+-   [Operating Rules](Operating_Rule_Guide.md)
+-   [Reference Tables](Channels.md)

@@ -3,7 +3,7 @@
 # Introduction
 
 DSM2 consists of many projects and third party libraries. This has meant
-running a number of scripts as documented in [CMake Build](CMake_Build).
+running a number of scripts as documented in [CMake Build](CMake_Build.md).
 It has also entailed opening multiple solution files and build libraries
 by hand. Furthermore, the compiler and visual studio upgrades were slow
 to adopt due to the cost of breaking changes when upgrading versions.
@@ -125,7 +125,7 @@ e.g. build-VS2015-32.bat, which builds HDF5-1.8.20-win32.zip
 Unzip it and place it under third_party folder.
 
 To build the static libraries which is what is needed with DSM2 static
-build see this [HDF5 CMake Static Build](HDF5_CMake_Static_Build)
+build see this [HDF5 CMake Static Build](HDF5_CMake_Static_Build.md)
 
   
 

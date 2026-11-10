@@ -32,9 +32,6 @@ To run ECO-PTM simulations, a set of behavior parameters are required as inputs.
 - **[Survival_Inputs](Survival_Inputs.md)**  
   Parameters for survival behaviors.
 
-- **[Output_Options](Output_Options.md)**  
-  Options for outputs.
-
 ---
 
 **Note:** Many parameters are optional. Please refer to the sub-pages for more details.

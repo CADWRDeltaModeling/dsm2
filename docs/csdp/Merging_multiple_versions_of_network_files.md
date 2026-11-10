@@ -50,9 +50,9 @@ Here's how I use it to merge changes into an existing network file:
 
 ## Attachments:
 
-[image2018-12-21_12-8-47.png](attachments/87228850/87228849.png)
+[image2018-12-21_12-8-47.png](../attachments/87228850/87228849.png)
 (image/png)  
-[image2018-12-21_12-0-36.png](attachments/87228850/87228851.png)
+[image2018-12-21_12-0-36.png](../attachments/87228850/87228851.png)
 (image/png)  
-[image2018-12-21_11-49-11.png](attachments/87228850/87228852.png)
+[image2018-12-21_11-49-11.png](../attachments/87228850/87228852.png)
 (image/png)

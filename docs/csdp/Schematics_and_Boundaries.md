@@ -241,8 +241,8 @@ DSM2 inputs are retrieved from CalSIM output
 ## Attachments:
 
 ![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
-[DSM2_Grid2.0.pdf](attachments/87228608/87228607.pdf)
+[DSM2_Grid2.0.pdf](../attachments/87228608/87228607.pdf)
 (application/pdf)  
 ![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
-[BST_CALSIMII_schematic_040110.pdf](attachments/87228608/87228609.pdf)
+[BST_CALSIMII_schematic_040110.pdf](../attachments/87228608/87228609.pdf)
 (application/pdf)

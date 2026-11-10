@@ -20,8 +20,8 @@ run with inflows scaled up by a factor. 
 </ul>
 <p>On February 14, 1992, both the scaled up flow and stage outputs are
 higher than historical.</p>
-<p><img src="attachments/87228873/87228877.png"
-data-image-src="attachments/87228873/87228877.png"
+<p><img src="../attachments/87228873/87228877.png"
+data-image-src="../attachments/87228873/87228877.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228877"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2020-1-15_8-19-39.png"
@@ -38,8 +38,8 @@ rather than the beginning of the day.</p>
 <p>One way to tell that a 1DAY time series is PER-AVER vs INST-VAL is
 that HEC-DSSVue plots PER-AVER time series as a square wave, but not
 INST-VAL.</p>
-<p><img src="attachments/87228873/87228876.png"
-data-image-src="attachments/87228873/87228876.png"
+<p><img src="../attachments/87228873/87228876.png"
+data-image-src="../attachments/87228873/87228876.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228876"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2020-1-15_8-29-2.png"
@@ -55,8 +55,8 @@ data-linked-resource-container-version="1" height="400" /></p>
 <td class="confluenceTd"><div class="content-wrapper">
 <p><strong>3. To check Type and to change it, in HEC-DSSVue, right click
 on the series and select Edit, and </strong></p>
-<p><img src="attachments/87228873/87228875.png"
-data-image-src="attachments/87228873/87228875.png"
+<p><img src="../attachments/87228873/87228875.png"
+data-image-src="../attachments/87228873/87228875.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228875"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2020-1-15_8-21-6.png"
@@ -65,8 +65,8 @@ data-linked-resource-content-type="image/png"
 data-linked-resource-container-id="87228873"
 data-linked-resource-container-version="1" height="250" /></p>
 <p><strong>use the dropdown to select a new type.</strong></p>
-<p><img src="attachments/87228873/87228874.png"
-data-image-src="attachments/87228873/87228874.png"
+<p><img src="../attachments/87228873/87228874.png"
+data-image-src="../attachments/87228873/87228874.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228874"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2020-1-15_8-20-52.png"
@@ -77,8 +77,8 @@ data-linked-resource-container-version="1" height="250" /></p>
 </div></td>
 <td class="confluenceTd"><p><strong>4. After re-running with the change,
 results are as expected.</strong></p>
-<p><img src="attachments/87228873/87228872.png"
-data-image-src="attachments/87228873/87228872.png"
+<p><img src="../attachments/87228873/87228872.png"
+data-image-src="../attachments/87228873/87228872.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228872"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2020-1-15_8-19-11.png"
@@ -110,18 +110,18 @@ data-linked-resource-container-version="1" height="400" /></p>
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-1-15_8-19-11.png](attachments/87228873/87228872.png)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+[image2020-1-15_8-19-11.png](../attachments/87228873/87228872.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-1-15_8-20-52.png](attachments/87228873/87228874.png)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+[image2020-1-15_8-20-52.png](../attachments/87228873/87228874.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-1-15_8-21-6.png](attachments/87228873/87228875.png)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+[image2020-1-15_8-21-6.png](../attachments/87228873/87228875.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-1-15_8-29-2.png](attachments/87228873/87228876.png)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+[image2020-1-15_8-29-2.png](../attachments/87228873/87228876.png)
 (image/png)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2020-1-15_8-19-39.png](attachments/87228873/87228877.png)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+[image2020-1-15_8-19-39.png](../attachments/87228873/87228877.png)
 (image/png)  

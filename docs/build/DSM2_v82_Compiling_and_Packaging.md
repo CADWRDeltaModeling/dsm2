@@ -61,7 +61,7 @@ branch you're checking out (master by default).
 # **Compile**
 
 Cmake is currently used to control and adapt project compilation (see
-details at [CMake Build](CMake_Build)).
+details at [CMake Build](CMake_Build.md)).
 
 From command line, run cmake batch at the project root path. It calls
 cmake build of oprule, input_storage, then DSM2 sequentially.
@@ -83,7 +83,7 @@ build in two ways:
     be automatically placed in the folder: \dsm2_v8_0\src\ptm\lib
     (ptm.jar)
 -   Eclipse: [DSM2 v82 PTM Compiling with
-    Eclipse](DSM2_v82_PTM_Compiling_with_Eclipse)
+    Eclipse](DSM2_v82_PTM_Compiling_with_Eclipse.md)
 
   
 
@@ -99,7 +99,7 @@ All the libraries DSM2 needs are precompiled and placed in the folder
 lib: input storage, oprule, and third parties
 
 If compiling is required, refer their compile details at [CMake
-Build](CMake_Build).  
+Build](CMake_Build.md).  
   
 ![lib.PNG](../attachments/87228896/87228901.png)
 
@@ -241,64 +241,64 @@ to the next odd number) in the following three files:
 ## Attachments:
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[debug_on.PNG](attachments/87228896/87228895.png) (image/png)  
+[debug_on.PNG](../attachments/87228896/87228895.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[package1.PNG](attachments/87228896/87228997.png) (image/png)  
+[package1.PNG](../attachments/87228896/87228897.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[debug1.png](attachments/87228896/87228898.png) (image/png)  
+[debug1.png](../attachments/87228896/87228898.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[debug.png](attachments/87228896/87228899.png) (image/png)  
+[debug.png](../attachments/87228896/87228899.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[vers.PNG](attachments/87228896/87228900.png) (image/png)  
+[vers.PNG](../attachments/87228896/87228900.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[lib.PNG](attachments/87228896/87228901.png) (image/png)  
+[lib.PNG](../attachments/87228896/87228901.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[local1.PNG](attachments/87228896/87228902.png) (image/png)  
+[local1.PNG](../attachments/87228896/87228902.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[github.PNG](attachments/87228896/87228903.png) (image/png)  
+[github.PNG](../attachments/87228896/87228903.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[srctree0.PNG](attachments/87228896/87228904.png) (image/png)  
+[srctree0.PNG](../attachments/87228896/87228904.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[local0.PNG](attachments/87228896/87228905.png) (image/png)  
+[local0.PNG](../attachments/87228896/87228905.png) (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2017-6-13_15-47-59.png](attachments/87228896/87228906.png)
+[image2017-6-13_15-47-59.png](../attachments/87228896/87228906.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2017-6-13_15-47-43.png](attachments/87228896/87228907.png)
+[image2017-6-13_15-47-43.png](../attachments/87228896/87228907.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2017-6-13_15-47-35.png](attachments/87228896/87228908.png)
+[image2017-6-13_15-47-35.png](../attachments/87228896/87228908.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2017-6-13_15-47-17.png](attachments/87228896/87228909.png)
+[image2017-6-13_15-47-17.png](../attachments/87228896/87228909.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2017-6-13_15-46-58.png](attachments/87228896/87228910.png)
+[image2017-6-13_15-46-58.png](../attachments/87228896/87228910.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav07c1c902559a15d9cb8d941d966322cb.png](attachments/87228896/87228911.png)
+[worddav07c1c902559a15d9cb8d941d966322cb.png](../attachments/87228896/87228911.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb0ec1d6cc7478dc4ec73bc27abb42880.png](attachments/87228896/87228912.png)
+[worddavb0ec1d6cc7478dc4ec73bc27abb42880.png](../attachments/87228896/87228912.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav0037c3b8067a8dd0d52094029690277b.png](attachments/87228896/87228913.png)
+[worddav0037c3b8067a8dd0d52094029690277b.png](../attachments/87228896/87228913.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav490ef33751ab42acaa896e9bb7dc2dc7.png](attachments/87228896/87228914.png)
+[worddav490ef33751ab42acaa896e9bb7dc2dc7.png](../attachments/87228896/87228914.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav73b529f2e3382f4bb77f505185a10945.png](attachments/87228896/87228915.png)
+[worddav73b529f2e3382f4bb77f505185a10945.png](../attachments/87228896/87228915.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavc7e39738a4a8caa213b31d248d81f87b.png](attachments/87228896/87228916.png)
+[worddavc7e39738a4a8caa213b31d248d81f87b.png](../attachments/87228896/87228916.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddavb58034debe15b3d2514f722580c782ad.png](attachments/87228896/87228917.png)
+[worddavb58034debe15b3d2514f722580c782ad.png](../attachments/87228896/87228917.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddav1c1324ef8177e0822bb62d9cdf8fdb05.png](attachments/87228896/87228918.png)
+[worddav1c1324ef8177e0822bb62d9cdf8fdb05.png](../attachments/87228896/87228918.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[worddava9503121f9ac50fd0060de1b95c6decc.png](attachments/87228896/87228919.png)
+[worddava9503121f9ac50fd0060de1b95c6decc.png](../attachments/87228896/87228919.png)
 (image/png)

@@ -193,5 +193,5 @@ Recall that `op_applies` is used to determine when the weir is operated. Previou
 
 ## Attachments
 
-- ![Figure 1](../../attachments/Tutorial6_Figure1.png)
-- ![Figure 2](../../attachments/Tutorial6_Figure2.png)
+- ![Figure 1](../attachments/Tutorial6_Figure1.png)
+- ![Figure 2](../attachments/Tutorial6_Figure2.png)

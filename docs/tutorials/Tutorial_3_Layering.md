@@ -11,7 +11,7 @@ Learn how to use layering in DSM2 to add, change, and delete features in a DSM2 
 
 The purpose of this tutorial is to demonstrate the use of layering to structure your project. Layers are part of the DSM2 data management system. They allow input items to be grouped in logical bundles and allow changes to be brought into an old simulation without erasing or altering archived items. At the same time, we will neaten up our input by dividing it into several files that are "included" from a fairly sparse primary file. The layering concept will be demonstrated by adding a "dummy" reservoir connected to nodes 5 and 6 (Figure 1) that will be "turned on" or "turned off" in a simulation. We will also use `DSM2MODIFIER` to differentiate between alternative simulations.
 
-![Simple channel with a reservoir, gate, flow transfer, and dummy reservoir](../../images/fig_res_conn_w_trans.png)
+![Simple channel with a reservoir, gate, flow transfer, and dummy reservoir](../images/fig_res_conn_w_trans.png)
 **Figure 1:** Simple channel with a reservoir, gate, flow transfer, and dummy reservoir.
 
 ---

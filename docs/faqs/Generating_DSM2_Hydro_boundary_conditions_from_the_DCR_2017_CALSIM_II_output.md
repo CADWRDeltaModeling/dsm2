@@ -32,12 +32,11 @@ left two files out.  You can download the left out files here:
 
 ## Attachments:
 
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[2020D09EDV\_\_2017DCR_OldANN_NewWSIDI-SWPDemand_x64_20171115.zip](attachments/87228602/87228601.zip)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+2020D09EDV__2017DCR_OldANN_NewWSIDI-SWPDemand_x64_20171115.zip *(file unavailable)*
 (application/zip)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[Planning_Tide_82years.zip](attachments/87228602/87228603.zip)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" />
+Planning_Tide_82years.zip *(file unavailable)*
 (application/zip)  
-<img src="images/icons/bullet_blue.gif" width="8" height="8" /> [run DCR
-2017 with CWF script.zip](attachments/87228602/87228604.zip)
+<img src="../attachments/Bullet_Blue_Icon.gif" width="8" height="8" /> run DCR 2017 with CWF script.zip *(file unavailable)*
 (application/zip)  

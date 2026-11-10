@@ -44,7 +44,7 @@ For comments or questions, please contact Min Yu at [minyu@water.ca.gov](mailto:
 ---
 
 ## For More Information
-- [Manual](manual/index.md)
+- [User Guide](manual/reference/Manual.md)
 - [DSM2 Learning Series](https://cadwrdeltamodeling.github.io/dsm2/dsm2_learning_series/)
 - [Tutorials](tutorials/An_Introduction_to_DSM2_Tutorials.md)
 - [DSM2 Source Code GitHub Repository](https://github.com/CADWRDeltaModeling/dsm2)

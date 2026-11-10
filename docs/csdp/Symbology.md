@@ -29,8 +29,8 @@ To modify the symbol:
 ## Attachments:
 
 ![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
-[image2020-5-14_15-15-14.png](attachments/87228666/87228665.png)
+[image2020-5-14_15-15-14.png](../attachments/87228666/87228665.png)
 (image/png)  
 ![Bullet Blue Icon](../attachments/Bullet_Blue_Icon.gif)
-[image2020-5-14_15-14-8.png](attachments/87228666/87228667.png)
+[image2020-5-14_15-14-8.png](../attachments/87228666/87228667.png)
 (image/png)

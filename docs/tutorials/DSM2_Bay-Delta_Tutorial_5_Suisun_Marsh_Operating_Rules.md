@@ -256,7 +256,7 @@ S35 and S97 monitoring stations</p></td>
 
   
   
-![Suisun Marsh Operating Rules](../../attachments/Tutorial5_SuisunMarsh_Figure.png)
+![Suisun Marsh Operating Rules](../attachments/Tutorial5_SuisunMarsh_Figure.png)
 
 ## Steps:
 

@@ -31,8 +31,8 @@ All preprocess scripts are written with DSM2-[Vista](http://msb-confluence/displ
 
 ### Attachments
 
-- [compareDSSfiles.JPG](attachments/SupportingTools5.jpg)
-- [compareDSS.JPG](attachments/SupportingTools4.jpg)
-- [wrimsReport2.JPG](attachments/SupportingTools3.jpg)
-- [wrimsReport1.JPG](attachments/SupportingTools2.jpg)
-- [wrimsReport.png](attachments/SupportingTools1.png)
+- [compareDSSfiles.JPG](../attachments/SupportingTools5.jpg)
+- [compareDSS.JPG](../attachments/SupportingTools4.jpg)
+- [wrimsReport2.JPG](../attachments/SupportingTools3.jpg)
+- [wrimsReport1.JPG](../attachments/SupportingTools2.jpg)
+- [wrimsReport.png](../attachments/SupportingTools1.png)

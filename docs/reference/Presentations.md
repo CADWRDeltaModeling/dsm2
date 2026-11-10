@@ -9,7 +9,7 @@
 ## Attachments:
 
 - [Cool Tips.ppt](../attachments/87228796/87228795.ppt)
-- [PTM_2_LowPumpingTempBar.avi](../attachments/87228796/87228797.avi)
+- PTM_2_LowPumpingTempBar.avi *(file unavailable)*
 - [p0_template.pptx](../attachments/87228796/87228798.pptx)
 - [or2_sdip_oprules.ppt](../attachments/87228796/87228799.ppt)
 - [or2_sdip_op.ppt](../attachments/87228796/87228800.ppt)
@@ -22,7 +22,7 @@
 - [d2_ptm.pptx](../attachments/87228796/87228807.pptx)
 - [d1b_nonconservative.pptx](../attachments/87228796/87228808.pptx)
 - [d1_historical.pptx](../attachments/87228796/87228809.pptx)
-- [d0_delta_applications.ppt](../attachments/87228796/87228810.ppt)
+- d0_delta_applications.ppt *(file unavailable)*
 - [b6_op_rule.ppt](../attachments/87228796/87228811.ppt)
 - [b5_source_tracking.ppt](../attachments/87228796/87228812.ppt)
 - [b4_simulation_data.pptx](../attachments/87228796/87228813.pptx)

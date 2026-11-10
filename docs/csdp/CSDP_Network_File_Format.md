@@ -88,4 +88,4 @@ Example:
 - Comments in the file provide explanations for various lines.
 - Adjustments to the centerline and cross-sections are documented with timestamps and notes.
 
-For more information, refer to the [CSDP Tutorial](CSDP_Tutorial).
+For more information, refer to the [CSDP Tutorial](CSDP_Tutorial.md).

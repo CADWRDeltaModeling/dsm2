@@ -10,7 +10,7 @@ Even though this information is not needed directly, it is very important to kee
 
 The original DSM2 grid was based on hand-calculated distances using USGS Quad maps of the Delta (circa 1990). These were done on paper maps, and the original information has been lost.
 
-A [PDF version of this grid](attachments/87228652/87228654.pdf) was created using AutoCAD. However, the node locations in this version are not geo-referenced to any projection system. Nodes and channels were not always placed carefully, as the map was primarily used to identify approximate locations of nodes, channels, and stations.
+A [PDF version of this grid](../attachments/DSM2_Grid2.0.pdf) was created using AutoCAD. However, the node locations in this version are not geo-referenced to any projection system. Nodes and channels were not always placed carefully, as the map was primarily used to identify approximate locations of nodes, channels, and stations.
 
 In the late 1990s or early 2000s, a paper copy of the grid was digitized, resulting in a file containing approximate UTM coordinates of each node. This file was used by the DSM2 Cross-Section Development Program (CSDP) to create representations of DSM2 channels and cross-sections.
 
@@ -20,19 +20,19 @@ CSDP was developed pre-ArcGIS, and with ArcGIS now being fairly standard in DWR,
 
 In 2012, Tom Heinzer was contracted to develop an ArcGIS-based extension to allow a user to develop cross-sections from DEM, which in turn is based on interpolations of depth sounding data. This again is a work in progress and cannot import the current cross-sectional profiles available in CSDP.
 
-In 2017, [CSDP grid data for the 2009 calibration was imported into ArcGIS](Cross-Section_Development_Program_CSDP_) along with the channel outlines and node locations. The channel outlines in ArcGIS were used to calculate lengths for the channels, and these were then compared to the current grid. There were many mismatches discovered, and these should be addressed in future efforts.
+In 2017, [CSDP grid data for the 2009 calibration was imported into ArcGIS](Cross-Section_Development_Program_CSDP_.md) along with the channel outlines and node locations. The channel outlines in ArcGIS were used to calculate lengths for the channels, and these were then compared to the current grid. There were many mismatches discovered, and these should be addressed in future efforts.
 
 ## 2009 Grid
 
 The 2009 Grid is used for DSM2 v8.2. It is similar to the PDF grid map, but it includes some upper Sacramento River changes.
 
-The node locations and the associated channel network lengths do have a match with the 2000 calibration files (spot checked). However, the 2009 CH2MHill [mini calibration](Mini_Calibration_2009_) adjusted node positions, channel lengths, and cross-sections for channels 412-418. The changes made in these channels were incorporated into DSM2 and are included in DSM2 versions as recent as v8.2.0, which is the current release as of 10/2019. However, we did not get any CSDP or GIS data from CH2MHill. Node locations were reverse engineered using the mini calibration lengths, starting with the common node position from channel 412. The overall sum of the length (reach 412-418) was unchanged, and this assumption allows for a reasonable reverse engineering effort.
+The node locations and the associated channel network lengths do have a match with the 2000 calibration files (spot checked). However, the 2009 CH2MHill mini calibration adjusted node positions, channel lengths, and cross-sections for channels 412-418. The changes made in these channels were incorporated into DSM2 and are included in DSM2 versions as recent as v8.2.0, which is the current release as of 10/2019. However, we did not get any CSDP or GIS data from CH2MHill. Node locations were reverse engineered using the mini calibration lengths, starting with the common node position from channel 412. The overall sum of the length (reach 412-418) was unchanged, and this assumption allows for a reasonable reverse engineering effort.
 
 This reverse engineered effort is available on the shared drive as shapefiles \\cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Channels_Adjusted_MiniCalib.shp (channels) and \\cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Nodes_Adjusted_MiniCalib.shp. The Nodes shapefile is missing some files and cannot be loaded into ArcGIS. It was loaded into OpenJUMP and exported to \\cnrastore-bdo\Delta_Mod\Share\maps\csdp_2009_calib_converted\CSDP_Nodes_Adjusted_MiniCalib_Recovered.shp. These files are also available in \\nasbdo\Modeling_Data\DSM2_GIS_CSDP_gridmaps\GISGridmapV8.2.
 
 These layers are the closest approximation to the grid used for DSM2 v8.2.
 
-There is a large discrepancy in the channel length for channel 422 between cross channel and northern head of Georgiana slough. CSDP and ArcGIS calculations put it at 3300 feet, while in DSM2 input files it is 5300 feet. This is not an isolated incidence; there are many others as documented in this [CSDP_vs_Channels_inp_Lengths.xlsx](attachments/87228641/87228640.xlsx).
+There is a large discrepancy in the channel length for channel 422 between cross channel and northern head of Georgiana slough. CSDP and ArcGIS calculations put it at 3300 feet, while in DSM2 input files it is 5300 feet. This is not an isolated incidence; there are many others as documented in this [CSDP_vs_Channels_inp_Lengths.xlsx](../attachments/CSDP_vs_Channels_inp_Lengths.xlsx).
 
 ## DSM2 v8.1 and v8.2 Grid
 
@@ -67,7 +67,7 @@ We need a georeferenced grid map. It should have the following features:
 
 - Michael Mehrdadi is working on an ArcGIS grid map using the shapefiles for the 2019 grid.
 - Hans Kim is working on a Google Earth grid map. This will likely be a useful training tool and may have other uses.
-  - The current version (as of 10/31/2019) of the grid map is found here: [DSM2_Grid_191029.kml](attachments/87228639/87228638.kml). It can be opened with Google Earth or imported into Google Map.
+  - The current version (as of 10/31/2019) of the grid map is found here: [DSM2_Grid_191029.kml](../attachments/DSM2_Grid_191029.kml). It can be opened with Google Earth or imported into Google Map.
   - Updates will be made as new shapefiles become available.
 
 ## Attachments

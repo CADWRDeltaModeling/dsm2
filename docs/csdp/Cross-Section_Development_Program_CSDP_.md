@@ -8,7 +8,7 @@ CSDP was developed by Brad Tom in the 1990s and has recently been updated for us
 
 ### Getting Started
 
-The [CSDP Manual](attachments/87228641/87228650.pdf) is available for reference. A [hands-on tutorial and presentation](CSDP_Tutorial) given by Brad Tom in 2009 is also a good resource.
+The [CSDP Manual](../attachments/87228641/87228650.pdf) is available for reference. A [hands-on tutorial and presentation](CSDP_Tutorial.md) given by Brad Tom in 2009 is also a good resource.
 
 In version 8.x, the irregular cross-section file format has changed. To update this information to the new format, run the following script:
 
@@ -24,16 +24,16 @@ An ArcGIS extension was developed as a modern replacement for CSDP by Tom Heinze
 
 ## Conversion to ArcGIS
 
-Using WKT (Well-Known Text) format and QGIS capabilities, information from CSDP files was converted to shapefiles. For more details, see [DSM2 Geo-referenced Grid](DSM2_Geo_referenced_grid).
+Using WKT (Well-Known Text) format and QGIS capabilities, information from CSDP files was converted to shapefiles. For more details, see [DSM2 Geo-referenced Grid](DSM2_Geo_referenced_grid.md).
 
 ## Attachments
 
-- [CSDP_vs_Channels_inp_Lengths.xlsx](attachments/87228641/87228640.xlsx)
-- [Clifton_court_2011.png](attachments/87228641/87228642.png)
-- [Clifton_court_1990.png](attachments/87228641/87228643.png)
-- [RSAC092_2011.png](attachments/87228641/87228644.png)
-- [RSAC092_1990.png](attachments/87228641/87228645.png)
-- [RSAN018_2011.png](attachments/87228641/87228646.png)
-- [RSAN018_1990.png](attachments/87228641/87228647.png)
-- [RSAN007_2011.png](attachments/87228641/87228648.png)
-- [RSAN007_1990.png](attachments/87228641/87228649.png)
+- [CSDP_vs_Channels_inp_Lengths.xlsx](../attachments/CSDP_vs_Channels_inp_Lengths.xlsx)
+- [Clifton_court_2011.png](../attachments/87228641/87228642.png)
+- [Clifton_court_1990.png](../attachments/87228641/87228643.png)
+- [RSAC092_2011.png](../attachments/87228641/87228644.png)
+- [RSAC092_1990.png](../attachments/87228641/87228645.png)
+- [RSAN018_2011.png](../attachments/87228641/87228646.png)
+- [RSAN018_1990.png](../attachments/87228641/87228647.png)
+- [RSAN007_2011.png](../attachments/87228641/87228648.png)
+- [RSAN007_1990.png](../attachments/87228641/87228649.png)

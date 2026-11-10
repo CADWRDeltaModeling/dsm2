@@ -37,12 +37,12 @@ The goal is to display the PDF grid map as a background image in ArcGIS to verif
 
 ## Attachments
 
-- [image2020-5-12_9-25-2.png](attachments/87228656/87228655.png)
-- [image2020-5-12_7-18-51.png](attachments/87228656/87228657.png)
-- [image2020-5-12_7-17-47.png](attachments/87228656/87228658.png)
-- [image2020-5-12_7-17-15.png](attachments/87228656/87228659.png)
-- [image2020-5-12_7-16-53.png](attachments/87228656/87228660.png)
-- [image2020-5-12_7-15-45.png](attachments/87228656/87228661.png)
-- [image2020-5-12_7-14-51.png](attachments/87228656/87228662.png)
-- [image2020-5-12_7-14-8.png](attachments/87228656/87228663.png)
-- [image2020-5-12_7-12-43.png](attachments/87228656/87228664.png)
+- [image2020-5-12_9-25-2.png](../attachments/87228656/87228655.png)
+- [image2020-5-12_7-18-51.png](../attachments/87228656/87228657.png)
+- [image2020-5-12_7-17-47.png](../attachments/87228656/87228658.png)
+- [image2020-5-12_7-17-15.png](../attachments/87228656/87228659.png)
+- [image2020-5-12_7-16-53.png](../attachments/87228656/87228660.png)
+- [image2020-5-12_7-15-45.png](../attachments/87228656/87228661.png)
+- [image2020-5-12_7-14-51.png](../attachments/87228656/87228662.png)
+- [image2020-5-12_7-14-8.png](../attachments/87228656/87228663.png)
+- [image2020-5-12_7-12-43.png](../attachments/87228656/87228664.png)

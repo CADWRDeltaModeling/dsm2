@@ -62,7 +62,7 @@ edges of the domain that would drive the simulation.
 ## Implementation
 
 These boundary conditions are explicitly mapped in this document between
-the CALSIM and DSM2 schematics. [Schematics and Boundaries](../gis/Schematics_and_Boundaries.md)
+the CALSIM and DSM2 schematics. [Schematics and Boundaries](../csdp/Schematics_and_Boundaries.md)
 
 ## Resolving Monthly - Daily conversions
 

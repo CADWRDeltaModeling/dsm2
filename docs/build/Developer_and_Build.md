@@ -62,24 +62,24 @@ Machines may prohibit editing, users can still edit in their own
 account. Be aware of the software version which could fail some step of
 compiling)
 
-<img src="attachments/87228890/87228892.png"
-data-image-src="attachments/87228890/87228892.png"
+<img src="../attachments/87228890/87228892.png"
+data-image-src="../attachments/87228890/87228892.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228892"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2019-11-15_10-53-40.png"
 data-base-url="http://msb-confluence"
 data-linked-resource-content-type="image/png"
 data-linked-resource-container-id="87228890"
-data-linked-resource-container-version="2" height="250" /><img src="attachments/87228890/87228891.png"
-data-image-src="attachments/87228890/87228891.png"
+data-linked-resource-container-version="2" height="250" /><img src="../attachments/87228890/87228891.png"
+data-image-src="../attachments/87228890/87228891.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228891"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2019-11-15_10-54-29.png"
 data-base-url="http://msb-confluence"
 data-linked-resource-content-type="image/png"
 data-linked-resource-container-id="87228890"
-data-linked-resource-container-version="2" height="250" /><img src="attachments/87228890/87228889.png"
-data-image-src="attachments/87228890/87228889.png"
+data-linked-resource-container-version="2" height="250" /><img src="../attachments/87228890/87228889.png"
+data-image-src="../attachments/87228890/87228889.png"
 data-unresolved-comment-count="0" data-linked-resource-id="87228889"
 data-linked-resource-version="1" data-linked-resource-type="attachment"
 data-linked-resource-default-alias="image2019-11-15_10-58-45.png"
@@ -107,17 +107,17 @@ following tools are often used:
 ## Attachments
 
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-11-15_10-58-45.png](attachments/87228890/87228889.png)
+[image2019-11-15_10-58-45.png](../attachments/87228890/87228889.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-11-15_10-54-29.png](attachments/87228890/87228891.png)
+[image2019-11-15_10-54-29.png](../attachments/87228890/87228891.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[image2019-11-15_10-53-40.png](attachments/87228890/87228892.png)
+[image2019-11-15_10-53-40.png](../attachments/87228890/87228892.png)
 (image/png)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[DSM2_v8_0_PTM_Compiling_eclipse.docx](attachments/87228890/87228893.docx)
+[DSM2_v8_0_PTM_Compiling_eclipse.docx](../attachments/87228890/87228893.docx)
 (application/vnd.openxmlformats-officedocument.wordprocessingml.document)  
 <img src="images/icons/bullet_blue.gif" width="8" height="8" />
-[DSM2_v8_0_Compiling_and_Packaging.docx](attachments/87228890/87228894.docx)
+[DSM2_v8_0_Compiling_and_Packaging.docx](../attachments/87228890/87228894.docx)
 (application/vnd.openxmlformats-officedocument.wordprocessingml.document)  
