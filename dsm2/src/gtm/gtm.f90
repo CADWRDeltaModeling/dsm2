@@ -569,6 +569,8 @@ subroutine gtm_loop()
                                 n_tran,       &
                                 dble(t_index))
 
+        call validate_external_flow_concentrations(n_var)
+
         ! assign initial hydro data
         if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
             call prim2cons(mass_prev, conc, area, n_cell, n_var)

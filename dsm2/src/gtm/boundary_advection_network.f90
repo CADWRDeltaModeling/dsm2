@@ -25,6 +25,65 @@ module boundary_advection_network
 
     contains
 
+    !> Verify that every active external inflow has a concentration input.
+    !> This must run after qext_flow is filled and before external flows are used.
+    subroutine validate_external_flow_concentrations(nvar)
+
+        use constants
+        use gtm_vars, only: n_node, n_resv, dsm2_network, &
+                                    dsm2_network_extra, resv_geom, qext, constituents
+        use common_gtm_vars, only: n_inputpaths
+        use state_variables_network, only: qext_flow
+        use io_units, only: unit_error
+        implicit none
+        integer, intent(in) :: nvar
+        integer :: i, j, ivar, qext_id, path_id
+        logical :: any_missing
+
+        any_missing = .false.
+
+        do i = 1, n_node
+            do j = 1, dsm2_network_extra(i)%n_qext
+                qext_id = dsm2_network_extra(i)%qext_no(j)
+                if (qext_flow(qext_id) <= zero) cycle
+                do ivar = 1, nvar
+                    if (.not. constituents(ivar)%simulate) cycle
+                    path_id = dsm2_network_extra(i)%qext_path(j, ivar)
+                    if (path_id <= 0 .or. path_id > n_inputpaths) then
+                        write(unit_error, '(a,i0,3a)') &
+                            'ERROR: Missing concentration value for incoming external flow at DSM2 Node No. ', &
+                            dsm2_network(i)%dsm2_node_no, ', for qext "', trim(qext(qext_id)%name), &
+                            '", constituent "'//trim(constituents(ivar)%name)//'".'
+                        any_missing = .true.
+                    end if
+                end do
+            end do
+        end do
+
+        do i = 1, n_resv
+            do j = 1, resv_geom(i)%n_qext
+                qext_id = resv_geom(i)%qext_no(j)
+                if (qext_flow(qext_id) <= zero) cycle
+                do ivar = 1, nvar
+                    if (.not. constituents(ivar)%simulate) cycle
+                    path_id = resv_geom(i)%qext_path(j, ivar)
+                    if (path_id <= 0 .or. path_id > n_inputpaths) then
+                        write(unit_error, '(5a)') &
+                            'ERROR: Missing concentration value for incoming external flow at reservoir "', &
+                            trim(resv_geom(i)%name), '", for qext "', trim(qext(qext_id)%name), &
+                            '", constituent "'//trim(constituents(ivar)%name)//'".'
+                        any_missing = .true.
+                    end if
+                end do
+            end do
+        end do
+
+        if (any_missing) then
+            write(unit_error, '(a)') 'ERROR: One or more active inflows have no concentration input. Stopping.'
+            call exit(-1)
+        end if
+    end subroutine validate_external_flow_concentrations
+
     !> Calculate the divided lo, hi, and centered differences.
     !> This has adjustments for non-sequential cells.
     subroutine difference_network(grad_lo,     &
@@ -429,9 +488,9 @@ module boundary_advection_network
                                 end do
                             end if
                             flux_in(i) = flux_in(i) + conc_ext * qext_fl
-                        else !drain but node concentration is absent
-                            flux_in(i) = flux_in(i) + conc_ext * qext_fl
-                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                        else
+                            write(*,*) 'ERROR: Missing concentration for inflowing external flow after input validation.'
+                            call exit(-1)
                         end if
                     end if
                 end do
@@ -503,8 +562,9 @@ module boundary_advection_network
                             conc_ext = pathinput(qext_path_id)%value
                             ! save the concentration at drains.
                             conc_qext(dsm2_network_extra(i)%qext_no(j),ivar) = conc_ext
-                        else !drain but node concentration is absent
-                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                        else
+                            write(*,*) 'ERROR: Missing concentration for inflowing external flow after input validation.'
+                            call exit(-1)
                         end if
                     else if (qext_fl <= 0) then ! seepage or diversion
                         ! Save concentration for seepage and diversions.
@@ -595,7 +655,13 @@ module boundary_advection_network
                     do j = 1, resv_geom(i)%n_qext
                         vol(i) = vol(i) + qext_flow(resv_geom(i)%qext_no(j))*dt
                         if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then
-                            mass_resv(i,ivar) = mass_resv(i,ivar) + dble(pathinput(resv_geom(i)%qext_path(j,ivar))%value)*qext_flow(resv_geom(i)%qext_no(j))*dt
+                            if (resv_geom(i)%qext_path(j,ivar) <= 0) then
+                                write(*,*) 'ERROR: Missing concentration for reservoir inflow after input validation.'
+                                call exit(-1)
+                            end if
+                            mass_resv(i,ivar) = mass_resv(i,ivar) &
+                                + dble(pathinput(resv_geom(i)%qext_path(j,ivar))%value) &
+                                * qext_flow(resv_geom(i)%qext_no(j))*dt
                         else
                             mass_resv(i,ivar) = mass_resv(i,ivar) + conc_resv_prev(i,ivar)*qext_flow(resv_geom(i)%qext_no(j))*dt
                         end if
@@ -797,11 +863,6 @@ module boundary_advection_network
                 do j = 1, n_node_ts
                     if (pathinput(j)%i_var <= 0) cycle   ! skip meteorological inputs
                     if (pathinput(j)%obj_no .eq. inode) then
-                        ! Exclude matches that are actually source (qext) concentration
-                        ! inputs at this node rather than a genuine boundary condition.
-                        ! DICU drain inputs are named with a 'dicu_drain' tag and are
-                        ! source (qext) inputs, not boundary conditions.
-                        ! hard-coded string match is a bit fragile
                         is_source = (index(pathinput(j)%name, 'dicu_drain') > 0)
                         if (is_source) cycle
                         found = .true.
