@@ -32,7 +32,7 @@ module process_gtm_scalar
       use time_utilities
 
       implicit none
-      character(len=32), intent(in)    :: Val    ! parameter Val
+      character(len=64), intent(in)    :: Val    ! parameter Val
       character(len=32), intent(in)    :: Param  ! parameter
       integer :: itmp
 
@@ -93,6 +93,10 @@ module process_gtm_scalar
          read(Val, '(l2)', err=810) mass_tracking
       elseif (Param .eq. 'init_conc') then
          read(Val, '(f10.0)', err=810) init_conc
+      elseif (Param .eq. 'geo_ref') then
+         read(Val, '(l2)', err=810) geo_ref
+      elseif (Param .eq. 'geo_ref_input') then
+         geo_ref_file = Val
       elseif (Param .eq. 'checkdata') then
          read(Val, '(l2)', err=810) checkdata
       elseif (Param .eq. 'cont_bad') then

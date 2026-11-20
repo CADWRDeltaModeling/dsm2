@@ -48,6 +48,8 @@ module gtm_vars
      real(gtm_real) :: no_flow = TEN                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
      real(gtm_real) :: gate_close = 200.0d0            !< threshold to decide if gate is closed.
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
+     logical :: geo_ref = .false.                      !< flag to indicate if georeferencing is applied
+     character(len=256) :: geo_ref_file = ' '           !< input georeferencing file (channel-station mapping csv)
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
      integer :: hydro_start_jmin = LARGEINT            !< hydro start time in hydro tidefile
@@ -149,7 +151,7 @@ module gtm_vars
          integer :: cell_id                           !< cell id
          integer :: up_cell                           !< upstream connected cell id (-1 for boundary, 0 for junction)
          integer :: down_cell                         !< downstream connected cell id (-1 for boundary, 0 for junction)
-         integer :: chan_no                           !< channel no
+         integer :: chan_no                           !< internal channel no
          real(gtm_real) :: dx                         !< cell length
      end type
      type(cell_t), allocatable :: cell(:)
