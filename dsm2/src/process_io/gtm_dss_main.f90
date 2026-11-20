@@ -32,13 +32,33 @@ module gtm_dss_main
     integer, save :: ndx_wind   = 0  !< pathinput index for wind speed
     integer, save :: ndx_atmpr  = 0  !< pathinput index for atmospheric pressure
     integer, save :: ndx_solar  = 0  !< pathinput index for solar radiation
-    real(gtm_real), save :: cloud  = 0.d0  !< cloud cover fraction (0-1)
-    real(gtm_real), save :: dryblb = 0.d0  !< dry bulb air temperature (deg F)
-    real(gtm_real), save :: wetblb = 0.d0  !< wet bulb air temperature (deg F)
-    real(gtm_real), save :: wind   = 0.d0  !< wind speed (mph)
-    real(gtm_real), save :: atmpr  = 0.d0  !< atmospheric pressure (mmHg)
-    real(gtm_real), save :: solar  = 0.d0  !< measured solar radiation (W/m^2)
+    real(gtm_real), allocatable, save :: cloud(:)   !< cloud cover fraction (0-1), by cell
+    real(gtm_real), allocatable, save :: dryblb(:)  !< dry bulb air temperature (deg F), by cell
+    real(gtm_real), allocatable, save :: wetblb(:)  !< wet bulb air temperature (deg F), by cell
+    real(gtm_real), allocatable, save :: wind(:)    !< wind speed (mph), by cell
+    real(gtm_real), allocatable, save :: solar(:)   !< measured solar radiation (W/m^2), by cell
+    real(gtm_real), allocatable, save :: atmpr(:)   !< atmospheric pressure (mmHg), by cell
     contains
+
+    !> Allocate cell-based meteorological arrays; must be called after the number of cells is known
+    subroutine allocate_met_arrays(ncell)
+        implicit none
+        integer, intent(in) :: ncell
+        if (allocated(cloud))  deallocate(cloud)
+        if (allocated(dryblb)) deallocate(dryblb)
+        if (allocated(wetblb)) deallocate(wetblb)
+        if (allocated(wind))   deallocate(wind)
+        if (allocated(solar))  deallocate(solar)
+        if (allocated(atmpr)) deallocate(atmpr)
+        allocate(cloud(ncell), dryblb(ncell), wetblb(ncell), wind(ncell), solar(ncell), atmpr(ncell))
+        cloud  = 0.d0
+        dryblb = 0.d0
+        wetblb = 0.d0
+        wind   = 0.d0
+        solar  = 0.d0
+        atmpr  = 0.d0
+        return
+    end subroutine allocate_met_arrays
 
     !> Process DSS input files
     subroutine opendss(ifltab,        & ! ifltab_in

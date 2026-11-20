@@ -84,12 +84,12 @@ module gtm_heat
             integer, intent(in) :: ncell
             real(gtm_real), intent(out) :: source_heat(ncell,1)
             real(gtm_real), intent(in) :: conc(ncell,*)
-            real(gtm_real), intent(in) :: wind
-            real(gtm_real), intent(in) :: cloud
-            real(gtm_real), intent(in) :: atmpr
-            real(gtm_real), intent(in) :: dryblb
-            real(gtm_real), intent(in) :: wetblb
-            real(gtm_real), intent(in) :: solar
+            real(gtm_real), intent(in) :: wind(ncell)
+            real(gtm_real), intent(in) :: cloud(ncell)
+            real(gtm_real), intent(in) :: atmpr(ncell)
+            real(gtm_real), intent(in) :: dryblb(ncell)
+            real(gtm_real), intent(in) :: wetblb(ncell)
+            real(gtm_real), intent(in) :: solar(ncell)
             real(gtm_real), intent(in) :: depth(ncell)             !< depth at source location
             real(gtm_real), intent(in) :: dt
             integer, intent(in) :: julmin
@@ -109,24 +109,23 @@ module gtm_heat
                 print *, "ERROR: incompatible inputs! geo_ref is true but use_meas_solar is false."
                 stop
             end if
-            !this uses the measured solar radiation
-            if (use_meas_solar) then
-                call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind,solar)
-            else
-                !this uses the old method for calculating net solar and long wave radiation
-                call calc_net_solar_long_wave_old(vpair,hs,ha,julmin,dt,atmpr,wetblb,dryblb,cloud,wind)
-            end if
 
             do i = 1, ncell
+                if (use_meas_solar) then
+                    call calc_net_solar_long_wave(vpair,hs,ha,julmin,dt,atmpr(i),wetblb(i),dryblb(i),cloud(i),wind(i),solar(i))
+                else
+                    !this uses the old method for calculating net solar and long wave radiation
+                    call calc_net_solar_long_wave_old(vpair,hs,ha,julmin,dt,atmpr(i),wetblb(i),dryblb(i),cloud(i),wind(i))
+                end if
                 tw = conc(i,i_temp)*1.8d0 + 32.d0
                 ! water surface back radiation (HB)
                 hb = 1.6781d-9 * (tw+460.d0)**four
                 ! Evaporation (HE): vpair is calculated in heat.f;
                 ! latent heat of vap. is represented by (1084.0-0.5*tw) in HE & HC
                 vpw = 0.1001d0*exp(0.03d0*tw)-0.0837d0
-                evapor = 62.4d0*(evapcoeff_a + evapcoeff_b*wind)
+                evapor = 62.4d0*(evapcoeff_a + evapcoeff_b*wind(i))
                 he = evapor * (vpw - vpair)*(1084.0d0-half*tw)     !todo::vpair from heat.f
-                hc = 0.01d0*evapor*(dryblb-tw)*(1084.0d0-half*tw)  ! conduction (HC)
+                hc = 0.01d0*evapor*(dryblb(i)-tw)*(1084.0d0-half*tw)  ! conduction (HC)
 
                 ! compute net heat flux from all sources
                 hsnet = hs + (ha + hc - hb - he)
