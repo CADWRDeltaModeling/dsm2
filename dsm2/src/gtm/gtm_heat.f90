@@ -79,6 +79,7 @@ module gtm_heat
                                dt,              &
                                julmin,          &
                                ncell)
+            use gtm_vars, only: geo_ref
             implicit none
             integer, intent(in) :: ncell
             real(gtm_real), intent(out) :: source_heat(ncell,1)
@@ -101,6 +102,11 @@ module gtm_heat
             ! guard against uninitialized i_temp
             if (i_temp == 0) then
                 print *, "ERROR: i_temp not set. Call set_heat_temp_index() first."
+                stop
+            end if
+
+            if (geo_ref .and. .not. use_meas_solar) then
+                print *, "ERROR: incompatible inputs! geo_ref is true but use_meas_solar is false."
                 stop
             end if
             !this uses the measured solar radiation

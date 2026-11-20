@@ -74,6 +74,7 @@ module gtm_dss_main
         use common_gtm_vars, only: n_inputpaths, pathinput
         use gtm_dss
         use gtm_dss_readtvd
+        use gtm_geo_ref, only: geo_cell_path, geo_cloud, geo_dryblb, geo_wetblb, geo_wind, geo_solar, geo_atmpr
         implicit none
         integer, intent(in) :: jmin        !< current julmin
         integer, intent(in) :: prev_jmin   !< previous julmin
@@ -90,14 +91,31 @@ module gtm_dss_main
         do i = 1, n_inputpaths
             call get_inp_data(i)
         end do
+        
 
-        ! update met module variables directly using precomputed pathinput indices
-        if (ndx_cloud  > 0) cloud  = pathinput(ndx_cloud)%value
-        if (ndx_dryblb > 0) dryblb = pathinput(ndx_dryblb)%value
-        if (ndx_wetblb > 0) wetblb = pathinput(ndx_wetblb)%value
-        if (ndx_wind   > 0) wind   = pathinput(ndx_wind)%value
-        if (ndx_atmpr  > 0) atmpr  = pathinput(ndx_atmpr)%value
-        if (ndx_solar  > 0) solar  = pathinput(ndx_solar)%value
+           ! geo_ref: cell-specific values replace the uniform ones
+        if (allocated(geo_cell_path)) then
+            do i = 1, size(cloud)
+                cloud(i)  = pathinput(geo_cell_path(geo_cloud,i))%value
+                dryblb(i) = pathinput(geo_cell_path(geo_dryblb,i))%value
+                wetblb(i) = pathinput(geo_cell_path(geo_wetblb,i))%value
+                wind(i)   = pathinput(geo_cell_path(geo_wind,i))%value
+                solar(i)  = pathinput(geo_cell_path(geo_solar,i))%value
+                atmpr(i)  = pathinput(geo_cell_path(geo_atmpr,i))%value
+            end do
+        else
+            ! update met module variables directly using precomputed pathinput indices
+            if (ndx_cloud  > 0) cloud  = pathinput(ndx_cloud)%value
+            if (ndx_dryblb > 0) dryblb = pathinput(ndx_dryblb)%value
+            if (ndx_wetblb > 0) wetblb = pathinput(ndx_wetblb)%value
+            if (ndx_wind   > 0) wind   = pathinput(ndx_wind)%value
+            if (ndx_atmpr  > 0) atmpr  = pathinput(ndx_atmpr)%value
+            if (ndx_solar  > 0) solar  = pathinput(ndx_solar)%value
+        end if
+
+
+
+     
 
         return
     end subroutine
@@ -106,9 +124,11 @@ module gtm_dss_main
     !> Mirrors assign_input_ts_group_var; must be called after buffer_input_qual.
     subroutine assign_met_indices()
         use common_gtm_vars, only: pathinput
-        use gtm_vars, only: n_node_ts
+        use gtm_vars, only: n_node_ts, geo_ref
         implicit none
         integer :: i
+
+        if (geo_ref) return !when geo_ref is true, indices for uniform met variables are not needed
         do i = 1, n_node_ts
             select case (trim(pathinput(i)%variable))
                 case ('cloud');        ndx_cloud  = i
@@ -121,5 +141,54 @@ module gtm_dss_main
         end do
         return
     end subroutine assign_met_indices
+
+    !> When geo_ref is true, map the channel-based met paths to cells through the channel number.
+    !> Every channel must have a station for every met variable in the mapping file.
+    !> Must be called after the grid (chan_geom, n_cell) is known.
+    subroutine assign_geo_ref_cells()
+        use gtm_vars, only: geo_ref, chan_geom, n_chan, n_cell
+        use gtm_geo_ref
+        implicit none
+        integer :: r, m, iv, ip, n_skipped
+        logical :: found
+        character(len=200) :: message
+
+        if (.not. geo_ref) return
+        if (allocated(geo_cell_path)) deallocate(geo_cell_path)
+        allocate(geo_cell_path(n_geo_var, n_cell))
+        geo_cell_path = 0
+
+        n_skipped = 0
+        do r = 1, n_geo_row
+            found = .false.
+            do m = 1, n_chan
+                if (chan_geom(m)%channel_num .eq. geo_row_chan(r)) then
+                    found = .true.
+                    iv = geo_row_ivar(r)
+                    ip = geo_path_first - 1 + geo_row_path(r)
+                    if (geo_cell_path(iv, chan_geom(m)%start_cell) .ne. 0) then
+                        write(message, '(a,i0,2a)') 'more than one station for channel ', geo_row_chan(r), &
+                                                    ' and variable ', geo_var_name(iv)
+                        call geo_ref_error(message)
+                    end if
+                    geo_cell_path(iv, chan_geom(m)%start_cell:chan_geom(m)%end_cell) = ip
+                    exit
+                end if
+            end do
+            if (.not. found) n_skipped = n_skipped + 1
+        end do
+        if (n_skipped > 0) write(*,*) 'geo_ref: mapping rows for channels not in the grid (ignored): ', n_skipped
+
+        do m = 1, n_chan
+            do iv = 1, n_geo_var
+                if (geo_cell_path(iv, chan_geom(m)%start_cell) .eq. 0) then
+                    write(message, '(a,i0,2a)') 'no station mapped for channel ', &
+                                                chan_geom(m)%channel_num, ' variable ', geo_var_name(iv)
+                    call geo_ref_error(message)
+                end if
+            end do
+        end do
+        return
+    end subroutine assign_geo_ref_cells
 
 end module

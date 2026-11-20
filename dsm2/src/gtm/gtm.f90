@@ -277,6 +277,7 @@ subroutine gtm_prepare_loop()
 
     call assign_node_ts
     call assign_met_indices
+    call assign_geo_ref_cells
     call set_heat_temp_index
     fill_hydro_info => hydro_info
     fill_hydro_network => gtm_network_data
