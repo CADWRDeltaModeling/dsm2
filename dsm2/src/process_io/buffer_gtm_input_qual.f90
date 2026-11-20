@@ -31,18 +31,20 @@ module buffer_gtm_input_qual
         use process_gtm_reservoir_conc
         use process_gtm_group_variable
         use process_gtm_input_time_series
+        use gtm_geo_ref, only: read_geo_ref_file, add_geo_ref_paths
         use common_gtm_vars, only: pathinput, n_inputpaths,infilenames,     &
                                     n_dssfiles, indssfiles, ifltab_in,       &
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
         use constants
-        use gtm_vars, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
+        use gtm_vars, only: geo_ref, n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, run_sediment, &
                                     group_var, run_mercury, mercury_start_ivar, mercury_ivar
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc, nitem_input_time_series
         integer :: nitem_group_variable
+        integer :: n_geo_paths
         character*128 :: filename
         integer :: icount
         character*32 :: name
@@ -114,9 +116,11 @@ module buffer_gtm_input_qual
         nitem_node_conc = node_concentration_buffer_size()
         nitem_resv_conc = reservoir_concentration_buffer_size()
         nitem_input_time_series = input_time_series_buffer_size()
-        n_inputpaths = nitem_climate + nitem_node_conc + nitem_resv_conc + nitem_input_time_series
+        n_geo_paths = 0
+        if (geo_ref) call read_geo_ref_file(n_geo_paths)
+        n_inputpaths = nitem_climate + nitem_node_conc + nitem_resv_conc + nitem_input_time_series + n_geo_paths
         n_input_ts = nitem_input_time_series
-        n_node_ts = n_inputpaths - n_input_ts
+        n_node_ts = n_inputpaths - n_input_ts - n_geo_paths
         allocate(pathinput(n_inputpaths))
 
         nvar = 0
@@ -210,6 +214,7 @@ module buffer_gtm_input_qual
                                             inpath)
         end do
         print *,"Number of input time series processed: ", nitem_input_time_series
+        if (geo_ref) call add_geo_ref_paths()
 
         n_var = nvar + n_sediment
         allocate(constituents_tmp(n_var))
